@@ -49,6 +49,26 @@ PlatformRouter.get("/get", async (req, res) => {
   }
 });
 
+PlatformRouter.get("/active", async (req, res) => {
+  try {
+    const [rows] = await mysqlpool.query(
+      `SELECT * FROM platforms WHERE status = 'active'`,
+    );
+
+    res.status(200).send({
+      success: true,
+      totalPlatforms: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching active platforms:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
 PlatformRouter.post("/add", async (req, res) => {
   try {
     const { platform_name, website_url, api_endpoint, auth_token, status } =
@@ -129,9 +149,10 @@ PlatformRouter.delete("/delete", async (req, res) => {
   try {
     const { id } = req.query;
 
-    const [[raw]] = await mysqlpool.query(`SELECT * FROM platforms WHERE id = ?`, [
-      id,
-    ]);
+    const [[raw]] = await mysqlpool.query(
+      `SELECT * FROM platforms WHERE id = ?`,
+      [id],
+    );
 
     if (!raw) {
       return res.status(404).json({
@@ -140,9 +161,10 @@ PlatformRouter.delete("/delete", async (req, res) => {
       });
     }
 
-    const [result] = await mysqlpool.query("DELETE FROM platforms WHERE id = ?", [
-      id,
-    ]);
+    const [result] = await mysqlpool.query(
+      "DELETE FROM platforms WHERE id = ?",
+      [id],
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).send({

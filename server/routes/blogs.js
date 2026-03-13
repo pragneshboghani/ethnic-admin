@@ -51,14 +51,15 @@ BlogRouter.get("/get", async (req, res) => {
 BlogRouter.post("/add", async (req, res) => {
   try {
     const {
-      category,
       blog_title,
-      featured_image,
-      full_content,
       short_excerpt,
+      full_content,
+      featured_image,
+      category,
+      tags,
       author,
       publish_date,
-      expire_date,
+      reading_time,
       related,
       status,
       platforms,
@@ -66,18 +67,19 @@ BlogRouter.post("/add", async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
-      (category, blog_title, featured_image, full_content, short_excerpt, author, publish_date, expire_date, related, status, platforms)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        category,
         blog_title,
-        featured_image,
-        full_content,
         short_excerpt,
+        full_content,
+        featured_image,
+        category,
+        JSON.stringify(tags),
         author,
         publish_date,
-        expire_date,
-        related,
+        reading_time,
+        JSON.stringify(related),
         status,
         JSON.stringify(platforms),
       ],
@@ -97,50 +99,20 @@ BlogRouter.post("/add", async (req, res) => {
   }
 });
 
-BlogRouter.get("/by-platform", async (req, res) => {
-  try {
-    const { platform } = req.query;
-
-    if (!platform) {
-      return res.status(400).send({
-        success: false,
-        message: "platform is required",
-      });
-    }
-
-    const [rows] = await mysqlpool.query(
-      `SELECT * FROM blogs 
-       WHERE JSON_CONTAINS(platforms, JSON_ARRAY(?))`,
-      [platform],
-    );
-
-    res.status(200).send({
-      success: true,
-      totalBlogs: rows.length,
-      data: rows,
-    });
-  } catch (error) {
-    console.error("Error fetching blogs:", error);
-    res.status(500).send({
-      success: false,
-      message: "Server Error",
-    });
-  }
-});
-
 BlogRouter.put("/update", async (req, res) => {
   try {
     const { id } = req.query;
 
     const {
-      category,
       blog_title,
-      featured_image,
-      full_content,
       short_excerpt,
+      full_content,
+      featured_image,
+      category,
+      tags,
       author,
       publish_date,
-      expire_date,
+      reading_time,
       related,
       status,
       platforms,
@@ -158,31 +130,38 @@ BlogRouter.put("/update", async (req, res) => {
     }
 
     const UpdatedData = {
-      category: category ?? raw.category,
       blog_title: blog_title ?? raw.blog_title,
-      featured_image: featured_image ?? raw.featured_image,
-      full_content: full_content ?? raw.full_content,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
+      full_content: full_content ?? raw.full_content,
+      featured_image: featured_image ?? raw.featured_image,
+      category: category ?? raw.category,
+
+      tags: JSON.stringify(tags ?? raw.tags),
       author: author ?? raw.author,
       publish_date: publish_date ?? raw.publish_date,
-      expire_date: expire_date ?? raw.expire_date,
-      related: related ?? raw.related,
+      reading_time: reading_time ?? raw.reading_time,
+
+      related: JSON.stringify(related ?? raw.related),
       status: status ?? raw.status,
-      platforms: platforms ? JSON.stringify(platforms) : raw.platforms,
+      platforms: JSON.stringify(platforms ?? raw.platforms),
     };
 
     await mysqlpool.query(
-      `UPDATE blogs SET category = ?, blog_title = ?, featured_image = ?, full_content = ?, short_excerpt = ?, author = ?,
-            publish_date = ?, expire_date = ?, related = ?, status = ?, platforms = ?, updated_at = NOW() WHERE id = ?`,
+      `UPDATE blogs 
+       SET blog_title = ?, short_excerpt = ?, full_content = ?, featured_image = ?, 
+           category = ?, tags = ?, author = ?, publish_date = ?, reading_time = ?, 
+           related = ?, status = ?, platforms = ?
+       WHERE id = ?`,
       [
-        UpdatedData.category,
         UpdatedData.blog_title,
-        UpdatedData.featured_image,
-        UpdatedData.full_content,
         UpdatedData.short_excerpt,
+        UpdatedData.full_content,
+        UpdatedData.featured_image,
+        UpdatedData.category,
+        UpdatedData.tags,
         UpdatedData.author,
         UpdatedData.publish_date,
-        UpdatedData.expire_date,
+        UpdatedData.reading_time,
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
@@ -235,6 +214,95 @@ BlogRouter.delete("/delete", async (req, res) => {
     });
   } catch (error) {
     console.error("Error deleting blog:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+BlogRouter.get("/recent", async (req, res) => {
+  try {
+    const { days } = req.query;
+
+    const limitDays = days || 7;
+
+    const [rows] = await mysqlpool.query(
+      `SELECT * FROM blogs 
+       WHERE publish_date >= NOW() - INTERVAL ? DAY
+       ORDER BY publish_date DESC`,
+      [limitDays],
+    );
+
+    res.status(200).send({
+      success: true,
+      totalBlogs: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching recent blogs:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+BlogRouter.get("/filter", async (req, res) => {
+  try {
+    const { status, platform, author, category, tags, search } = req.query;
+
+    let query = `SELECT * FROM blogs WHERE 1=1`;
+    const params = [];
+
+    if (status) {
+      query += ` AND status = ?`;
+      params.push(status);
+    }
+
+    if (author) {
+      query += ` AND author LIKE ?`;
+      params.push(`%${author}%`);
+    }
+
+    if (category) {
+      query += ` AND category LIKE ?`;
+      params.push(`%${category}%`);
+    }
+
+    if (tags) {
+      const tagArray = tags.split(",").map((t) => t.trim());
+      tagArray.forEach((tag) => {
+        query += ` AND JSON_SEARCH(tags, 'one', CONCAT('%', ?, '%')) IS NOT NULL`;
+        params.push(tag);
+      });
+    }
+
+    if (platform && platform !== "0") {
+      query += ` AND JSON_CONTAINS(platforms, CAST(? AS JSON))`;
+      params.push(platform);
+    }
+
+    if (search) {
+      query += ` AND (
+        blog_title LIKE ? 
+        OR short_excerpt LIKE ?
+        OR full_content LIKE ?
+      )`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    query += ` ORDER BY created_at DESC`;
+
+    const [rows] = await mysqlpool.query(query, params);
+
+    res.status(200).send({
+      success: true,
+      totalBlogs: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error filtering blogs:", error);
     res.status(500).send({
       success: false,
       message: "Server Error",

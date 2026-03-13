@@ -199,7 +199,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 8px 20px;
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
@@ -212,39 +212,22 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
+  background: linear-gradient(135deg, #00ff377a, #ffffff);
+  color: #000000;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 8px 10px rgba(92, 246, 161, 0.25);
 }
 
-.btn-outline {
-  background: transparent;
-  color: var(--primary);
-  border: 2px solid var(--primary);
+.btn-secondary {
+  background: linear-gradient(135deg, #ffffff, #00ff377a);
+  color: #000000;
 }
 
-.btn-outline:hover {
-  background: var(--primary);
-  color: white;
-  transform: translateY(-2px);
+.btn-secondary:hover {
+  box-shadow: 0 8px 10px rgba(0, 255, 55, 0.25); 
 }
-
-.btn-glass {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-}
-
-.btn-glass:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
 /* Text Styles */
 .gradient-text {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -330,10 +313,10 @@ body {
 }
 
 /* Focus States */
-*:focus {
+/* *:focus {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
-}
+} */
 
 .glass-bg {
   position: fixed;

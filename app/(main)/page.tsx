@@ -57,7 +57,7 @@ export default function Home() {
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/"
+              href="/account/dashboard"
               className="w-full sm:w-auto bg-white border border-slate-200 hover:border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-bold text-lg transition-all"
             >
               View Dashboard

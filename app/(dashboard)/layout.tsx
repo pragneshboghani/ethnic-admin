@@ -1,31 +1,61 @@
+"use client";
+
 import "../globals.css";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import LayoutContainer from "@/components/common/LayoutContainer";
 import ParticlesBackground from "@/components/common/ParticlesBackground";
+import { navItems } from "@/utils/navItems";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const activeTab = navItems.find((item) =>
+    pathname.startsWith(item.href)
+  );
+
+  const ShowHeader = (pathname == "/account/dashboard" || pathname == '/account/blogs') ? true : false
 
   return (
     <LayoutContainer>
-      <ParticlesBackground />
-
+      <div className="App">
+        <ParticlesBackground />
         <Header />
-
-        <div className="max-w-full w-full h-full p-0 flex items-start justify-start">
+        <div className="max-w-full w-full h-full p-0 flex items-start justify-start px-15">
           <Sidebar />
+          <main className="w-full h-[79.5vh] px-0 pb-6 ml-10 mt-[145px]">
+            <div className="p-5">
+              <div className="text-white">
+                {ShowHeader &&
+                  <div className="flex justify-between items-center mb-8">
+                    <div>
+                      <h1 className="text-3xl font-semibold">{activeTab?.name}</h1>
+                      <p className="text-gray-400 text-sm">
+                        Manage your multi-platform content strategy.
+                      </p>
+                    </div>
 
-          <main className="max-w-full w-full h-full min-h-screen px-0 pb-6 pt-[135px] sticky top-0">
-            <div className="page-wrapper max-w-full w-full h-full p-7.5 relative border border-white/10 bg-white/10 rounded-[30px]">
-              {children}
+                    <Link
+                      href="/account/blogs/add"
+                      className="btn btn-primary"
+                    >
+                      + Create Blog
+                    </Link>
+                  </div>
+                }
+
+                {children}
+              </div>
             </div>
           </main>
         </div>
+      </div>
     </LayoutContainer>
   );
 }

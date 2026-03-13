@@ -1,4 +1,4 @@
-const LayoutContainer = async ({
+const LayoutContainer = ({
     children,
 }: Readonly<{
     children: React.ReactNode;

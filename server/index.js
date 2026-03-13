@@ -4,6 +4,7 @@ const cors = require("cors");
 const mysqlpool = require("./config/db");
 const BlogRouter = require("./routes/blogs");
 const PlatformRouter = require("./routes/platforms");
+const DashboardRouter = require("./routes/dashboard");
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use('/api/blogs',BlogRouter)
 app.use('/api/platforms', PlatformRouter)
+app.use('/api/dashboard',DashboardRouter)
 
 app.get("/", (req, res) => {
   res.send("Welcome to Ethnic Blog");

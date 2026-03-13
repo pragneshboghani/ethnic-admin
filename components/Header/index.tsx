@@ -18,22 +18,23 @@ const Header = () => {
   }, []);
 
   return (
-    <header className={`fixed w-full top-0 ${ scrolled ? 'glass' : '' }`}>
-      <div className="w-full border-b px-15 py-7 flex justify-center">
+    <header className={`fixed w-full top-0 z-50 ${ scrolled ? 'glass' : '' }`}>
+      <div className="w-full border-b px-15 py-5 flex justify-center">
         <div className="w-full flex justify-between items-center">
           <Link href="/" className="flex items-center">
             <Image
-              src="/assets/statixoup.png"
+              src="/assets/Logo.svg"
               alt="Statixoup Logo"
-              width={200}
-              height={70}
+              width={180}
+              height={60}
               priority
+              className="h-fit"
             />
           </Link>
 
           <nav className="h-full flex items-center">
             <Link
-              href="/account/blogs"
+              href="/account/dashboard"
               className="btn-primary text-white px-5 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm"
             >
               Go to Dashboard
