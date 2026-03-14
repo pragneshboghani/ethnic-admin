@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Save, Settings2, Image as ImageIcon, Send, CheckCircle2 } from 'lucide-react';
+import { Save, Send, CheckCircle2, X, Trash2 } from 'lucide-react';
 import PlateformActions from "@/actions/PlateFormActions";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -29,6 +29,8 @@ const BlogForm = () => {
     const [allBlogs, setAllBlogs] = useState<{ data: any[] }>({ data: [] });
     const [readingTime, setReadingTime] = useState<number>(0);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isMediaPopupOpen, setIsMediaPopupOpen] = useState(false);
+    const [mediaFiles, setMediaFiles] = useState<any[]>([]);
     const [platformSettings, setPlatformSettings] = useState<{
         [platformId: number]: {
             seoTitle: string;
@@ -52,6 +54,12 @@ const BlogForm = () => {
             setAllBlogs(blogs);
         };
         loadBlogs();
+        const fetchMedia = async () => {
+            const res = await MediaActions.getAllMedia();
+            setMediaFiles(res.data);
+        };
+
+        fetchMedia();
     }, []);
 
     const editor = useEditor({
@@ -98,7 +106,7 @@ const BlogForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        let uploadedImageUrl = "";
+        let uploadedImageUrl = image || "";
 
         if (selectedFile) {
             const reader = new FileReader();
@@ -201,6 +209,11 @@ const BlogForm = () => {
                 [field]: value,
             }
         }));
+    };
+
+    const handleRemoveImage = () => {
+        setImage(null);
+        setSelectedFile(null);
     };
 
     return (
@@ -576,27 +589,52 @@ const BlogForm = () => {
                             Featured Image
                         </h3>
 
-                        <div className="aspect-video bg-slate-50 rounded-xl flex flex-col items-center justify-center text-center group cursor-pointer transition-colors relative">
+                        <div className="aspect-video glass-card flex flex-col items-center justify-center text-center">
                             {image ? (
-                                <>
+                                <div className="relative w-full h-full group">
                                     <img
-                                        src={image}
+                                        src={
+                                            image?.startsWith("blob:")
+                                                ? image
+                                                : `${process.env.BACKEND_DOMAIN}/${image}`
+                                        }
                                         alt="Selected"
                                         className="w-full h-full object-cover rounded-xl"
                                     />
-                                </>
+
+                                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl">
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveImage}
+                                            className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </div>
                             ) : (
-                                <>
-                                    <ImageIcon size={32} className="text-slate-300 mb-2 group-hover:text-indigo-400 transition-colors" />
-                                    <p className="text-xs text-slate-500">Click to upload or drag and drop</p>
-                                </>
+                                <p className="text-sm text-white">Select Featured Image</p>
                             )}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
+
+                            <div className="flex gap-3 my-4">
+                                <label className="btn btn-primary cursor-pointer">
+                                    Upload New
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                </label>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMediaPopupOpen(true)}
+                                    className="btn btn-secondary"
+                                >
+                                    Media Library
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -631,6 +669,34 @@ const BlogForm = () => {
                             >
                                 OK
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {isMediaPopupOpen && (
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50">
+                    <div className="p-6 w-[850px] glass-card max-h-[80vh] overflow-y-auto">
+
+                        <div className="w-full flex justify-between mb-4">
+                            <h3 className="text-xl font-semibold text-white">
+                                Select Image From Media Library
+                            </h3>
+                            <X size={20} onClick={() => setIsMediaPopupOpen(false)} />
+                        </div>
+
+                        <div className="grid grid-cols-4 gap-4">
+                            {mediaFiles.map((file) => (
+                                <img
+                                    key={file.id}
+                                    src={`${process.env.BACKEND_DOMAIN}/${file.file_url}`}
+                                    className="cursor-pointer rounded-lg border w-[200px] h-[200px] object-cover"
+                                    onClick={() => {
+                                        setImage(file.file_url);
+                                        setIsMediaPopupOpen(false);
+                                        setSelectedFile(null);
+                                    }}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
