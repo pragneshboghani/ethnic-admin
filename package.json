@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "prod:start": "concurrently -n main,server -c blue,green \"npm run build && npm run start\" \"cd server && npm install && npm run prod:api-start\"",
+    "dev": "next dev --turbopack -p 5002",
+    "build": "next build --turbopack",
+    "start": "next start -p 5004",
     "lint": "eslint"
   },
   "dependencies": {
@@ -13,6 +14,7 @@
     "@tiptap/react": "^3.20.1",
     "@tiptap/starter-kit": "^3.20.1",
     "axios": "^1.13.6",
+    "concurrently": "^9.2.1",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "react": "19.2.3",
