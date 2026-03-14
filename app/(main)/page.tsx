@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <div className="App">
-      <ParticlesBackground />
+      {/* <ParticlesBackground /> */}
       <Header />
       <main className="pt-[105px]">
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center mx-auto">

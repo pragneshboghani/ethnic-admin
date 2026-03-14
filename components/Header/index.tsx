@@ -19,7 +19,7 @@ const Header = () => {
 
   return (
     <header className={`fixed w-full top-0 z-50 ${ scrolled ? 'glass' : '' }`}>
-      <div className="w-full border-b px-15 py-5 flex justify-center">
+      <div className="w-full border-b px-15 py-5 flex justify-center bg-[#1a1a1a] opacity-100">
         <div className="w-full flex justify-between items-center">
           <Link href="/" className="flex items-center">
             <Image
