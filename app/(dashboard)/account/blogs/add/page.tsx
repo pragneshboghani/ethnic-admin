@@ -103,9 +103,7 @@ const BlogForm = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const ConvertBase64 = async () => {
         let uploadedImageUrl = image || "";
 
         if (selectedFile) {
@@ -143,6 +141,14 @@ const BlogForm = () => {
                 settings: platformSettings[platformId] || {},
             })),
         };
+
+        return formData
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const formData = await ConvertBase64()
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
@@ -186,6 +192,50 @@ const BlogForm = () => {
         }
     };
 
+    const handleSaveDraft = async () => {
+        try {
+            const formData = await ConvertBase64();
+
+            const Selected_PlateForms = formData.platforms.map(p => p.platformId);
+
+            const BlogFormData = {
+                blog_title: formData.title || '',
+                short_excerpt: formData.excerpt || '',
+                full_content: formData.formContent || '',
+                featured_image: formData.image || '',
+                category: formData.category || '',
+                tags: formData.tags || [],
+                author: formData.author || '',
+                publish_date: formData.publishDate || '',
+                reading_time: formData.reading_time || 0,
+                related: formData.related_blogs || [],
+                status: "draft",
+                platforms: Selected_PlateForms || []
+            };
+
+            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const blogId = AddedBlogs.data.blogId;
+
+            const seoFormDataArray = formData.platforms.map(p => ({
+                platform_id: p.platformId,
+                slug: p.settings.slug || "",
+                publish_status: "draft",
+                seo_title: p.settings.seoTitle || "",
+                meta_description: p.settings.metaDescription || "",
+                canonical_url: p.settings.canonicalUrl || "",
+                cta_button_text: p.settings.ctaButtonText || "",
+                cta_button_link: p.settings.ctaButtonLink || "",
+            }));
+
+            await BlogActions.AddSEO(blogId, seoFormDataArray);
+
+            toast.success("Draft Successfully Saved!");
+
+        } catch (error) {
+            toast.error(`Draft save error 😢: ${(error as Error).message}`);
+        }
+    };
+
     const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         const newTags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
@@ -224,7 +274,7 @@ const BlogForm = () => {
                     <p className="text-slate-500 mt-1">Draft a new blog and choose where to publish.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button type="button" className="btn btn-secondary">
+                    <button type="button" className="btn btn-secondary" onClick={handleSaveDraft}>
                         <Save size={18} />
                         Save Draft
                     </button>
