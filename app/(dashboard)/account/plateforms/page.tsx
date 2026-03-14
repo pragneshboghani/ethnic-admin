@@ -5,67 +5,21 @@ import { Platform } from "@/types";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
+import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
 
 const Plateforms = () => {
 
     const [platformData, setPlatformData] = useState<{ data: Platform[] } | null>(null);
     const [deletePlatformId, setDeletePlatformId] = useState<number | null>(null);
-    const [editingPlatformId, setEditingPlatformId] = useState<number | null>(null);
+    const [editingPlatform, setEditingPlatform] = useState<Platform | null>(null);
     const [openModal, setOpenModal] = useState(false);
-    const [formData, setFormData] = useState<Platform>({
-        platform_name: "",
-        website_url: "",
-        api_endpoint: "",
-        auth_token: "",
-        status: "Active",
-    });
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        try {
-            if (editingPlatformId) {
-                await PlateformActions.UpdatePlateForm(editingPlatformId, formData);
-                toast.success(`Your Platform "${formData.platform_name}" successfully updated! 🎉`);
-            } else {
-                await PlateformActions.AddPlateformData(formData);
-                toast.success(`Your Platform "${formData.platform_name}" successfully added! 🚀`);
-            }
-
-            setOpenModal(false);
-            setEditingPlatformId(null);
-            setFormData({
-                platform_name: "",
-                website_url: "",
-                api_endpoint: "",
-                auth_token: "",
-                status: "Active",
-            });
-
-            const res = await PlateformActions.GetAllPlateform();
-            setPlatformData(res.data);
-
-        } catch (error) {
-            toast.error(`Platform save failed 😢: ${(error as Error).message}`);
-        }
+    const fetchPlatforms = async () => {
+        const res = await PlateformActions.GetAllPlateform();
+        setPlatformData(res.data);
     };
 
     useEffect(() => {
-        const fetchPlatforms = async () => {
-            const res = await PlateformActions.GetAllPlateform();
-            setPlatformData(res.data);
-        };
         fetchPlatforms();
     }, []);
 
@@ -101,8 +55,7 @@ const Plateforms = () => {
                                     className="text-white hover:text-blue-500"
                                     title="Edit Platform"
                                     onClick={() => {
-                                        setFormData(platform);
-                                        setEditingPlatformId(platform.id!);
+                                        setEditingPlatform(platform);
                                         setOpenModal(true);
                                     }}
                                 >
@@ -143,131 +96,22 @@ const Plateforms = () => {
                 ))}
 
                 <div
-                    onClick={() => setOpenModal(true)}
+                    onClick={() => {
+                        setEditingPlatform(null);
+                        setOpenModal(true);
+                    }}
                     className="border border-dashed border-gray-600 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer">
                     <div className="text-3xl mb-2">+</div>
                     <p className="text-gray-400">Add New Platform</p>
                 </div>
 
             </div>
-            {openModal && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-                    <div className="w-[500px] rounded-xl p-6 glass-card">
-
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold text-white">
-                                {editingPlatformId ? "Update Platform" : "Add New Platform"}
-                            </h2>
-
-                            <button
-                                onClick={() => {
-                                    setOpenModal(false);
-                                    setEditingPlatformId(null);
-                                    setFormData({
-                                        platform_name: "",
-                                        website_url: "",
-                                        api_endpoint: "",
-                                        auth_token: "",
-                                        status: "Active",
-                                    });
-                                }}
-                                className="text-gray-400 hover:text-white"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <form className="space-y-4" onSubmit={handleSubmit}>
-                            <div>
-                                <label className="text-sm text-gray-300">
-                                    Platform Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="platform_name"
-                                    value={formData.platform_name}
-                                    onChange={handleChange}
-                                    className="w-full mt-1 p-2 rounded bg-white border border-gray-700 focus:outline-none text-sm text-black"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm text-gray-300">
-                                    Website URL
-                                </label>
-                                <input
-                                    type="text"
-                                    name="website_url"
-                                    value={formData.website_url}
-                                    onChange={handleChange}
-                                    className="w-full mt-1 p-2 rounded bg-white border border-gray-700 focus:outline-none text-sm text-black"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm text-gray-300">
-                                    API Endpoint
-                                </label>
-                                <input
-                                    type="text"
-                                    name="api_endpoint"
-                                    value={formData.api_endpoint}
-                                    onChange={handleChange}
-                                    className="w-full mt-1 p-2 rounded bg-white border border-gray-700 focus:outline-none text-sm text-black"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm text-gray-300">
-                                    Auth Token
-                                </label>
-                                <input
-                                    type="text"
-                                    name="auth_token"
-                                    value={formData.auth_token}
-                                    onChange={handleChange}
-                                    className="w-full mt-1 p-2 rounded bg-white border border-gray-700 focus:outline-none text-sm text-black"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm text-gray-300">
-                                    Status
-                                </label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className="w-full mt-1 p-2 rounded bg-white border border-gray-700 focus:outline-none text-sm text-black">
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-3">
-
-                                <button
-                                    type="button"
-                                    onClick={() => setOpenModal(false)}
-                                    className="px-4 py-2 rounded border border-gray-600 text-gray-300"
-                                >
-                                    Cancel
-                                </button>
-
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                    {editingPlatformId ? "Update" : "Save Platform"}
-                                </button>
-
-                            </div>
-
-                        </form>
-
-                    </div>
-                </div>
-            )}
+            {openModal && <AddEditPlatformModal
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                editingPlatform={editingPlatform}
+                refreshPlatforms={fetchPlatforms}
+            />}
             {deletePlatformId && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
                     <div className="rounded-xl p-6 w-[400px] text-center glass-card">
