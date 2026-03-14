@@ -21,7 +21,14 @@ const BlogActions = {
     tags?: string;
   }) => {
     try {
-      const { platform = "0", status = "all", search = "", author = "", category = "", tags = "" } = filters;
+      const {
+        platform = "0",
+        status = "all",
+        search = "",
+        author = "",
+        category = "",
+        tags = "",
+      } = filters;
 
       let query = `?platform=${platform}`;
       if (status !== "all") query += `&status=${status}`;
@@ -36,6 +43,31 @@ const BlogActions = {
       return response.data;
     } catch (error) {
       console.error("Error fetching blogs:", error);
+      throw error;
+    }
+  },
+  AddBlog: async (data: any) => {
+    try {
+      const response = await axios.post(
+        `${BACKEND_DOMAIN}/api/blogs/add`,
+        data,
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error Adding Blog:", error);
+      throw error;
+    }
+  },
+  AddSEO: async (blogId: number, seoData: any[]) => {
+    try {
+      const response = await axios.post(`${BACKEND_DOMAIN}/api/seo/add`, {
+        blog_id: blogId,
+        seo: seoData,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error Adding SEO data:", error);
       throw error;
     }
   },

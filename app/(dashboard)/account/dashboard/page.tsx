@@ -1,7 +1,8 @@
 "use client";
 
 import DashBoardActions from "@/actions/DashboardAction";
-import { FileText, CheckCircle, Clock, Globe } from "lucide-react";
+import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
+import { FetchDashBoardData } from "@/utils/dashboardStats";
 import { useEffect, useState } from "react";
 
 const Dashboard = () => {
@@ -9,48 +10,10 @@ const Dashboard = () => {
   const [days, setDays] = useState("7");
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [activePlateform, setactivePlateform] = useState([])
-  const [data, setData] = useState({
-    TotalBlogs: 0,
-    PublishedBlogs: 0,
-    ScheduledBlogs: 0,
-    TotalPlatforms: 0,
-  });
+  const [openModal, setOpenModal] = useState(false);
+  const [editingPlatform, setEditingPlatform] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await DashBoardActions.GetAllDashboardData();
-      setData(res);
-    };
-
-    fetchData();
-  }, []);
-
-  const stats = [
-    {
-      title: "Total Blogs",
-      value: data.TotalBlogs,
-      icon: FileText,
-      color: "text-blue-400",
-    },
-    {
-      title: "Published",
-      value: data.PublishedBlogs,
-      icon: CheckCircle,
-      color: "text-green-400",
-    },
-    {
-      title: "Scheduled",
-      value: data.ScheduledBlogs,
-      icon: Clock,
-      color: "text-yellow-400",
-    },
-    {
-      title: "Platforms",
-      value: data.TotalPlatforms,
-      icon: Globe,
-      color: "text-purple-400",
-    },
-  ];
+  const stats = FetchDashBoardData()
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -66,11 +29,12 @@ const Dashboard = () => {
     fetchRecentBlogs();
   }, [days]);
 
+  const fetchActivePlatform = async () => {
+    const res = await DashBoardActions.GetActivePlatform()
+    setactivePlateform(res.data)
+  }
+
   useEffect(() => {
-    const fetchActivePlatform = async () => {
-      const res = await DashBoardActions.GetActivePlatform()
-      setactivePlateform(res.data)
-    }
     fetchActivePlatform()
   }, [])
 
@@ -99,7 +63,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Recent Blogs */}
-        <div className="p-6 glass-card">
+        <div className="p-6 glass-card h-fit">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Recent Blogs</h3>
             <select
@@ -131,10 +95,18 @@ const Dashboard = () => {
         </div>
 
         {/* Active Platforms */}
-        <div className="p-6 glass-card">
+        <div className="p-6 glass-card h-fit">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Active Platforms</h3>
-            <a href="" className="cursor-pointer btn btn-primary">+ Add New Platform</a>
+            <button
+              onClick={() => {
+                setEditingPlatform(null);
+                setOpenModal(true);
+              }}
+              className="cursor-pointer btn btn-primary"
+            >
+              + Add New Platform
+            </button>
           </div>
 
           <div className="text-gray-400 text-sm">
@@ -163,6 +135,12 @@ const Dashboard = () => {
         </div>
 
       </div>
+      {openModal && <AddEditPlatformModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        editingPlatform={editingPlatform}
+        refreshPlatforms={fetchActivePlatform}
+      />}
     </>
   );
 };

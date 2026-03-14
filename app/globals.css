@@ -226,7 +226,7 @@ body {
 }
 
 .btn-secondary:hover {
-  box-shadow: 0 8px 10px rgba(0, 255, 55, 0.25); 
+  box-shadow: 0 8px 10px rgba(0, 255, 55, 0.25);
 }
 /* Text Styles */
 .gradient-text {
@@ -328,4 +328,36 @@ body {
 .particles-canvas {
   position: fixed;
   inset: 0;
+}
+
+.ProseMirror *:focus {
+  outline: none !important;
+}
+
+.ProseMirror *:focus-visible {
+  outline: none !important;
+}
+
+.ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.ProseMirror a:hover {
+  color: #1d4ed8;
+}
+
+.image_grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.image_grid > div {
+  height: fit-content;
+}
+
+.image_grid > div > img {
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
