@@ -59,6 +59,18 @@ const BlogActions = {
       throw error;
     }
   },
+  AddSEO: async (blogId: number, seoData: any[]) => {
+    try {
+      const response = await axios.post(`${BACKEND_DOMAIN}/api/seo/add`, {
+        blog_id: blogId,
+        seo: seoData,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error Adding SEO data:", error);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;

@@ -8,6 +8,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import EditorToolbar from "@/components/blog/EditorToolbar";
 import BlogActions from "@/actions/BlogAction";
+import MediaActions from "@/actions/MediaAction";
 
 const BlogForm = () => {
     const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
@@ -17,13 +18,6 @@ const BlogForm = () => {
     const [image, setImage] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
-    const [seoTitle, setSeoTitle] = useState('');
-    const [metaDescription, setMetaDescription] = useState('');
-    const [canonicalUrl, setCanonicalUrl] = useState('');
-    const [ctaButtonText, setCtaButtonText] = useState('');
-    const [ctaButtonLink, setCtaButtonLink] = useState('');
-    const [slug, setSlug] = useState('');
-    const [publishStatus, setPublishStatus] = useState('draft');
     const [author, setAuthor] = useState('');
     const [category, setCategory] = useState('software-development');
     const [publishDate, setPublishDate] = useState<string>('');
@@ -33,6 +27,18 @@ const BlogForm = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [allBlogs, setAllBlogs] = useState<{ data: any[] }>({ data: [] });
     const [readingTime, setReadingTime] = useState<number>(0);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [platformSettings, setPlatformSettings] = useState<{
+        [platformId: number]: {
+            seoTitle: string;
+            slug: string;
+            publishStatus: string;
+            metaDescription: string;
+            canonicalUrl: string;
+            ctaButtonText: string;
+            ctaButtonLink: string;
+        };
+    }>({});
 
     useEffect(() => {
         const fetchPlatforms = async () => {
@@ -84,36 +90,89 @@ const BlogForm = () => {
         if (file) {
             const url = URL.createObjectURL(file);
             setImage(url);
+            setSelectedFile(file);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        let uploadedImageUrl = "";
+
+        if (selectedFile) {
+            const reader = new FileReader();
+
+            uploadedImageUrl = await new Promise<string>((resolve, reject) => {
+                reader.onload = async () => {
+                    const base64 = reader.result as string;
+                    try {
+                        const res = await MediaActions.uploadMedia(base64, selectedFile.name);
+                        resolve(res.fileUrl);
+                    } catch (error) {
+                        console.error("Upload failed", error);
+                        reject(error);
+                    }
+                };
+                reader.readAsDataURL(selectedFile);
+            });
+        }
+
         const formData = {
-            blog_title: title,
-            short_excerpt: excerpt,
-            full_content: formContent,
-            platforms: selectedPlatforms,
-            featured_image: image,
-            seo_title: seoTitle,
-            meta_description: metaDescription,
-            canonical_url: canonicalUrl,
-            cta_button_text: ctaButtonText,
-            cta_button_link: ctaButtonLink,
-            slug: slug,
-            publish_status: publishStatus,
-            author: author,
-            category: category,
+            title,
+            excerpt,
+            formContent,
+            image: uploadedImageUrl,
+            author,
+            category,
             publishDate,
             globalStatus,
             tags,
             related_blogs: relatedBlogs,
             reading_time: readingTime,
+            platforms: selectedPlatforms.map(platformId => ({
+                platformId,
+                settings: platformSettings[platformId] || {},
+            })),
         };
 
-        // Log the form data to the console
-        console.log(formData);
+        const Selected_PlateForms = formData.platforms.map(p => p.platformId);
+
+        try {
+            const BlogFormData = {
+                blog_title: formData.title,
+                short_excerpt: formData.excerpt,
+                full_content: formData.formContent,
+                featured_image: formData.image,
+                category: formData.category,
+                tags: formData.tags,
+                author: formData.author,
+                publish_date: formData.publishDate,
+                reading_time: formData.reading_time,
+                related: formData.related_blogs,
+                status: globalStatus,
+                platforms: Selected_PlateForms
+            };
+
+            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const blogId = AddedBlogs.data.blogId;
+
+            const seoFormDataArray = formData.platforms.map(p => ({
+                platform_id: p.platformId,
+                slug: p.settings.slug || "",
+                publish_status: p.settings.publishStatus || "draft",
+                seo_title: p.settings.seoTitle || "",
+                meta_description: p.settings.metaDescription || "",
+                canonical_url: p.settings.canonicalUrl || "",
+                cta_button_text: p.settings.ctaButtonText || "",
+                cta_button_link: p.settings.ctaButtonLink || "",
+            }));
+
+            await BlogActions.AddSEO(blogId, seoFormDataArray);
+
+        } catch (error) {
+            console.error("Error submitting blog or SEO:", error);
+            alert("Failed to add blog or SEO data.");
+        }
     };
 
     const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +188,16 @@ const BlogForm = () => {
             }
             return [...prev, blogId];
         });
+    };
+
+    const handlePlatformChange = (platformId: number, field: string, value: string) => {
+        setPlatformSettings(prev => ({
+            ...prev,
+            [platformId]: {
+                ...prev[platformId],
+                [field]: value,
+            }
+        }));
     };
 
     return (
@@ -211,9 +280,9 @@ const BlogForm = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2 flex w-full justify-between">
+                            <div className="space-y-2 flex w-full justify-between gap-3">
 
-                                <div className="">
+                                <div className="m-0">
                                     <label className="text-sm font-semibold">Tags (comma separated)</label>
                                     <input
                                         type="text"
@@ -234,18 +303,31 @@ const BlogForm = () => {
                                     </div>
                                 </div>
 
-                                <div className="">
+                                <div className="m-0 max-w-[200px]">
                                     <label className="text-sm font-semibold">Related Blogs</label>
                                     <button
                                         type="button"
                                         onClick={() => setIsPopupOpen(true)}
-                                        className="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl focus:outline-none transition-all"
+                                        className="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-xl focus:outline-none transition-all"
                                     >
                                         Select Related Blogs
                                     </button>
+                                    {relatedBlogs.length > 0 && (
+                                        <ol className="list-decimal list-inside mt-2 space-y-1">
+                                            {relatedBlogs.map((blogId, index) => {
+                                                const blog = allBlogs.data.find(b => b.id === blogId);
+                                                if (!blog) return null;
+                                                return (
+                                                    <li key={blogId} className="text-sm text-white truncate">
+                                                        {blog.blog_title}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ol>
+                                    )}
                                 </div>
 
-                                <div className="space-y-2">
+                                <div className="m-0">
                                     <label className="text-sm font-semibold">Reading Time (minutes)</label>
                                     <input
                                         type="number"
@@ -276,11 +358,32 @@ const BlogForm = () => {
                                                 key={platform.id}
                                                 type="button"
                                                 onClick={() => {
-                                                    setSelectedPlatforms((prev) =>
-                                                        isSelected
-                                                            ? prev.filter((id) => id !== platform.id)
-                                                            : [...prev, platform.id]
-                                                    );
+                                                    setSelectedPlatforms(prev => {
+                                                        const newSelection = isSelected
+                                                            ? prev.filter(id => id !== platform.id)
+                                                            : [...prev, platform.id];
+
+                                                        if (!isSelected) {
+                                                            setPlatformSettings(ps => ({
+                                                                ...ps,
+                                                                [platform.id]: {
+                                                                    seoTitle: "",
+                                                                    slug: "",
+                                                                    publishStatus: "draft",
+                                                                    metaDescription: "",
+                                                                    canonicalUrl: "",
+                                                                    ctaButtonText: "",
+                                                                    ctaButtonLink: "",
+                                                                }
+                                                            }));
+                                                        } else {
+                                                            const copy = { ...platformSettings };
+                                                            delete copy[platform.id];
+                                                            setPlatformSettings(copy);
+                                                        }
+
+                                                        return newSelection;
+                                                    });
                                                 }}
                                                 className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left
                                                     ${isSelected
@@ -325,8 +428,8 @@ const BlogForm = () => {
                                                     <input
                                                         type="text"
                                                         placeholder="/your-blog-slug"
-                                                        value={slug}
-                                                        onChange={(e) => setSlug(e.target.value)}
+                                                        value={platformSettings[platformId]?.slug || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'slug', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black"
                                                     />
                                                 </div>
@@ -334,8 +437,8 @@ const BlogForm = () => {
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-slate-700">Publish Status</label>
                                                     <select
-                                                        value={publishStatus}
-                                                        onChange={(e) => setPublishStatus(e.target.value)}
+                                                        value={platformSettings[platformId]?.publishStatus || 'draft'}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'publishStatus', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 text-black text-sm focus:outline-none"
                                                     >
                                                         <option value="draft">Draft</option>
@@ -348,8 +451,8 @@ const BlogForm = () => {
                                                     <input
                                                         type="text"
                                                         placeholder="Enter SEO title..."
-                                                        value={seoTitle}
-                                                        onChange={(e) => setSeoTitle(e.target.value)}
+                                                        value={platformSettings[platformId]?.seoTitle || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'seoTitle', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black"
                                                     />
                                                 </div>
@@ -359,8 +462,8 @@ const BlogForm = () => {
                                                     <textarea
                                                         placeholder="Enter meta description..."
                                                         rows={3}
-                                                        value={metaDescription}
-                                                        onChange={(e) => setMetaDescription(e.target.value)}
+                                                        value={platformSettings[platformId]?.metaDescription || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'metaDescription', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black resize-none"
                                                     />
                                                 </div>
@@ -370,8 +473,8 @@ const BlogForm = () => {
                                                     <input
                                                         type="text"
                                                         placeholder="https://..."
-                                                        value={canonicalUrl}
-                                                        onChange={(e) => setCanonicalUrl(e.target.value)}
+                                                        value={platformSettings[platformId]?.canonicalUrl || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'canonicalUrl', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black"
                                                     />
                                                 </div>
@@ -381,8 +484,8 @@ const BlogForm = () => {
                                                     <input
                                                         type="text"
                                                         placeholder="Learn More"
-                                                        value={ctaButtonText}
-                                                        onChange={(e) => setCtaButtonText(e.target.value)}
+                                                        value={platformSettings[platformId]?.ctaButtonText || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'ctaButtonText', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black"
                                                     />
                                                 </div>
@@ -392,8 +495,8 @@ const BlogForm = () => {
                                                     <input
                                                         type="text"
                                                         placeholder="https://..."
-                                                        value={ctaButtonLink}
-                                                        onChange={(e) => setCtaButtonLink(e.target.value)}
+                                                        value={platformSettings[platformId]?.ctaButtonLink || ''}
+                                                        onChange={(e) => handlePlatformChange(platformId, 'ctaButtonLink', e.target.value)}
                                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 focus:outline-none text-sm text-black"
                                                     />
                                                 </div>
@@ -407,7 +510,6 @@ const BlogForm = () => {
                     )}
                 </div>
 
-                {/* Sidebar Settings */}
                 <div className="space-y-6">
                     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 glass-card">
                         <h3 className="font-semibold text-white flex items-center gap-2">
@@ -498,8 +600,8 @@ const BlogForm = () => {
             </div>
             {isPopupOpen && (
                 <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-10">
-                    <div className="bg-white p-6 rounded-xl w-96">
-                        <h3 className="text-xl font-semibold text-black mb-4">Select Related Blogs</h3>
+                    <div className="p-6 w-96 glass-card">
+                        <h3 className="text-xl font-semibold text-white mb-4">Select Related Blogs</h3>
                         <div className="space-y-2">
                             {allBlogs.data.map(blog => (
                                 <div key={blog.id} className="flex items-center">
@@ -509,7 +611,7 @@ const BlogForm = () => {
                                         onChange={() => handleBlogSelect(blog.id)}
                                         className="mr-3"
                                     />
-                                    <label className="text-sm text-black">{blog.blog_title}</label>
+                                    <label className="text-sm text-white">{blog.blog_title}</label>
                                 </div>
                             ))}
                         </div>
