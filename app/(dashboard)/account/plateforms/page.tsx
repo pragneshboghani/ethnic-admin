@@ -4,6 +4,7 @@ import PlateformActions from "@/actions/PlateFormActions";
 import { Platform } from "@/types";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Plateforms = () => {
 
@@ -35,11 +36,11 @@ const Plateforms = () => {
 
         try {
             if (editingPlatformId) {
-                // Update API
                 await PlateformActions.UpdatePlateForm(editingPlatformId, formData);
+                toast.success(`Your Platform "${formData.platform_name}" successfully updated! 🎉`);
             } else {
-                // Add API
                 await PlateformActions.AddPlateformData(formData);
+                toast.success(`Your Platform "${formData.platform_name}" successfully added! 🚀`);
             }
 
             setOpenModal(false);
@@ -56,7 +57,7 @@ const Plateforms = () => {
             setPlatformData(res.data);
 
         } catch (error) {
-            console.error("Platform save failed", error);
+            toast.error(`Platform save failed 😢: ${(error as Error).message}`);
         }
     };
 
@@ -72,12 +73,13 @@ const Plateforms = () => {
         try {
             await PlateformActions.DeletePlateForm(id);
 
+            toast.success("Platform successfully deleted! 🗑️");
             const res = await PlateformActions.GetAllPlateform();
             setPlatformData(res.data);
 
         } catch (error) {
             console.error("Delete failed", error);
-            alert("Failed to delete platform");
+            toast.error("Failed to delete platform 😢");
         }
     };
 

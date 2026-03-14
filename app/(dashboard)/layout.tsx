@@ -8,6 +8,8 @@ import ParticlesBackground from "@/components/common/ParticlesBackground";
 import { navItems } from "@/utils/navItems";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function RootLayout({
   children,
@@ -27,6 +29,7 @@ export default function RootLayout({
       <div className="App">
         {/* <ParticlesBackground /> */}
         <Header />
+        <ToastContainer position="top-right" autoClose={3000} />
         <div className="max-w-full w-full h-full p-0 flex items-start justify-start px-15">
           <Sidebar />
           <main className="w-full px-0 pb-6 ml-10 mt-[145px]">

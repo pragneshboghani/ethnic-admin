@@ -9,6 +9,7 @@ import Link from "@tiptap/extension-link";
 import EditorToolbar from "@/components/blog/EditorToolbar";
 import BlogActions from "@/actions/BlogAction";
 import MediaActions from "@/actions/MediaAction";
+import { toast } from "react-toastify";
 
 const BlogForm = () => {
     const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
@@ -109,7 +110,7 @@ const BlogForm = () => {
                         const res = await MediaActions.uploadMedia(base64, selectedFile.name);
                         resolve(res.fileUrl);
                     } catch (error) {
-                        console.error("Upload failed", error);
+                        toast.error(`Image Upload failed 😢: ${(error as Error).message}`);
                         reject(error);
                     }
                 };
@@ -169,9 +170,11 @@ const BlogForm = () => {
 
             await BlogActions.AddSEO(blogId, seoFormDataArray);
 
+            toast.success("Blog Successfully Added!");
+
         } catch (error) {
-            console.error("Error submitting blog or SEO:", error);
-            alert("Failed to add blog or SEO data.");
+            toast.error(`Error submitting blog or SEO 😢: ${(error as Error).message}`);
+
         }
     };
 

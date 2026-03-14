@@ -3,6 +3,7 @@
 import MediaActions from '@/actions/MediaAction';
 import { Eye, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 interface Media {
     id: number;
@@ -36,7 +37,7 @@ const Media = () => {
 
             setMedia(res.data);
         } catch (error) {
-            console.error("Fetch media error", error);
+            toast.error(`Fetch media error 😢: ${(error as Error).message}`);
         }
     };
 
@@ -73,7 +74,7 @@ const Media = () => {
                     setMedia((prev) => [...prev, newMedia]);
 
                 } catch (error) {
-                    console.error("Upload failed", error);
+                    toast.error(`Image Upload failed 😢: ${(error as Error).message}`);
                 }
             };
 
