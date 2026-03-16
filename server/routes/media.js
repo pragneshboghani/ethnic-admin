@@ -93,4 +93,78 @@ Mediarouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
+Mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { alt_text } = req.body;
+
+    if (!alt_text) {
+      return res.status(400).send({
+        success: false,
+        message: "alt_text is required",
+      });
+    }
+
+    const [[media]] = await mysqlpool.query(
+      "SELECT * FROM media WHERE id = ?",
+      [id],
+    );
+
+    if (!media) {
+      return res.status(404).send({
+        success: false,
+        message: "Media not found",
+      });
+    }
+
+    await mysqlpool.query("UPDATE media SET alt_text = ? WHERE id = ?", [
+      alt_text,
+      id,
+    ]);
+
+    res.status(200).send({
+      success: true,
+      message: "Alt text updated successfully",
+      mediaId: id,
+      newAltText: alt_text,
+    });
+  } catch (error) {
+    console.error("Error updating alt text:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+Mediarouter.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+     const { id } = req.query;
+
+    const [[media]] = await mysqlpool.query(
+      "SELECT * FROM media WHERE id = ?",
+      [id],
+    );
+    if (!media) {
+      return res.status(404).send({
+        success: false,
+        message: "Media not found",
+      });
+    }
+
+    await mysqlpool.query("DELETE FROM media WHERE id = ?", [id]);
+
+    res.status(200).send({
+      success: true,
+      message: "Media deleted successfully",
+      mediaId: id,
+    });
+  } catch (error) {
+    console.error("Error deleting media:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
 module.exports = Mediarouter;

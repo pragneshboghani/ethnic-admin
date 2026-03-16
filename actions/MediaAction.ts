@@ -61,11 +61,14 @@ const MediaActions = {
       if (type && type !== "all") queryParams.append("type", type);
       if (search) queryParams.append("search", search);
 
-      const res = await fetch(`${BACKEND_DOMAIN}/api/media/filter?${queryParams.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${BACKEND_DOMAIN}/api/media/filter?${queryParams.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -75,6 +78,56 @@ const MediaActions = {
       return await res.json();
     } catch (error: any) {
       console.error("Filter media error:", error.message);
+      throw error;
+    }
+  },
+
+  UpdateALT: async (id: number, altText: string) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/media/update-alt/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ alt_text: altText }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update alt text");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Update ALT error:", error.message);
+      throw error;
+    }
+  },
+
+  DeleteMedia: async (id: number) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/media/delete?id=${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete media");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Delete media error:", error.message);
       throw error;
     }
   },
