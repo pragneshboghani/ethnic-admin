@@ -71,6 +71,14 @@ const BlogActions = {
       throw error;
     }
   },
+  DeleteBlog: async () => {
+    try {
+      const response = await axios.delete(``)
+    } catch (error) {
+      console.error("Error Deleteing blogs:", error);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;

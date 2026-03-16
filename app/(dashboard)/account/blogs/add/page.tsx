@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Save, Send, CheckCircle2, X, Trash2 } from 'lucide-react';
+import { Save, Send, CheckCircle2, X, Trash2, Eye } from 'lucide-react';
 import PlateformActions from "@/actions/PlateFormActions";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -31,6 +31,7 @@ const BlogForm = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isMediaPopupOpen, setIsMediaPopupOpen] = useState(false);
     const [mediaFiles, setMediaFiles] = useState<any[]>([]);
+    const [showPreview, setShowPreview] = useState(false);
     const [platformSettings, setPlatformSettings] = useState<{
         [platformId: number]: {
             seoTitle: string;
@@ -274,11 +275,18 @@ const BlogForm = () => {
                     <p className="text-slate-500 mt-1">Draft a new blog and choose where to publish.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button type="button" className="btn btn-secondary" onClick={handleSaveDraft}>
+                    <button
+                        type="button"
+                        onClick={() => setShowPreview(true)}
+                        className="btn"
+                    ><Eye size={18} />
+                        Preview
+                    </button>
+                    <button type="button" className="btn" onClick={handleSaveDraft}>
                         <Save size={18} />
                         Save Draft
                     </button>
-                    <button type="submit" className="btn btn-primary">
+                    <button type="submit" className="btn">
                         <Send size={18} />
                         Publish All
                     </button>
@@ -600,9 +608,11 @@ const BlogForm = () => {
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Publish Date</label>
                                 <input
-                                    type="date"
+                                    type="datetime-local"
+                                    placeholder="YYYY-MM-DDTHH:mm"
                                     value={publishDate}
                                     onChange={(e) => setPublishDate(e.target.value)}
+                                    onClick={(e) => (e.target as HTMLInputElement).showPicker()}
                                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                                 />
                             </div>
@@ -667,7 +677,7 @@ const BlogForm = () => {
                             )}
 
                             <div className="flex gap-3 my-4">
-                                <label className="btn btn-primary cursor-pointer">
+                                <label className="btn cursor-pointer">
                                     Upload New
                                     <input
                                         type="file"
@@ -680,7 +690,7 @@ const BlogForm = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsMediaPopupOpen(true)}
-                                    className="btn btn-secondary"
+                                    className="btn"
                                 >
                                     Media Library
                                 </button>
@@ -709,13 +719,13 @@ const BlogForm = () => {
                         <div className="mt-4 flex justify-end gap-4">
                             <button
                                 onClick={() => setIsPopupOpen(false)}
-                                className="btn btn-secondary"
+                                className="btn"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => setIsPopupOpen(false)}
-                                className="btn btn-primary"
+                                className="btn"
                             >
                                 OK
                             </button>
@@ -747,6 +757,89 @@ const BlogForm = () => {
                                     }}
                                 />
                             ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showPreview && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
+                    <div className="w-[1000px] max-h-[90vh] overflow-y-auto rounded-2xl text-white glass-card">
+                        <div className="flex justify-between items-center border-b p-6">
+                            <h2 className="text-xl font-bold">Blog Preview</h2>
+                            <button onClick={() => setShowPreview(false)} className="text-white">
+                                <X />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            {image && (
+                                <img src={image.startsWith("blob:") ? image : `${process.env.BACKEND_DOMAIN}/${image}`}
+                                    className="w-full max-w-[30%] object-cover rounded-xl float-right aspect-square" />
+                            )}
+                            <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-white glass-card p-2">{category}</span>
+                                    {publishDate && (<span>{publishDate}</span>)}
+                                </div>
+                                <div className="text-white text-sm">
+                                    By <span className="font-medium">{author || "Unknown Author"}</span>
+                                    {" • "}
+                                    {readingTime || 0} min read
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-white justify-between">
+                                <h1 className="text-4xl font-bold leading-tight">{title || "Blog Title"}</h1>
+                            </div>
+                            {excerpt && (
+                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic">{excerpt}</p>
+                            )}
+                            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
+                            {tags.length > 0 && (
+                                <div>
+                                    <h3 className="font-semibold mb-2">Tags</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {tags.map((tag, index) => (
+                                            <span key={index} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                                #{tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {relatedBlogs.length > 0 && (
+                                <div>
+                                    <h3 className="font-semibold mb-2">Related Blogs</h3>
+                                    <ul className="list-disc list-inside text-sm text-gray-700">
+                                        {relatedBlogs.map((blogId) => {
+                                            const blog = allBlogs.data.find(b => b.id === blogId)
+                                            return blog ? (
+                                                <li key={blogId}>{blog.blog_title}</li>
+                                            ) : null
+                                        })}
+                                    </ul>
+                                </div>
+                            )}
+                            {selectedPlatforms.length > 0 && (
+                                <div className="space-y-4">
+                                    <h3 className="text-xl font-semibold">Platform Publishing Settings</h3>
+                                    {selectedPlatforms.map((platformId) => {
+                                        const platform = platformData?.data.find(
+                                            (p: any) => p.id === platformId
+                                        )
+                                        const settings = platformSettings[platformId]
+                                        return (
+                                            <div key={platformId} className="border rounded-xl p-4 bg-gray-50 space-y-2">
+                                                <h4 className="font-semibold text-lg">{platform?.platform_name}</h4>
+                                                <p><b>Slug:</b> {settings?.slug || "-"}</p>
+                                                <p><b>Status:</b> {settings?.publishStatus || "draft"}</p>
+                                                <p><b>SEO Title:</b> {settings?.seoTitle || "-"}</p>
+                                                <p><b>Meta Description:</b> {settings?.metaDescription || "-"}</p>
+                                                <p><b>Canonical URL:</b> {settings?.canonicalUrl || "-"}</p>
+                                                <p><b>CTA:</b> {settings?.ctaButtonText} → {settings?.ctaButtonLink}</p>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

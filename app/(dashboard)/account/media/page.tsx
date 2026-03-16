@@ -107,7 +107,7 @@ const Media = () => {
                     </div>
 
                     <div>
-                        <label className="flex items-center gap-2 btn btn-secondary cursor-pointer">
+                        <label className="flex items-center gap-2 btn cursor-pointer">
                             <Plus size={18} />
                             <span>Upload Media</span>
                             <input

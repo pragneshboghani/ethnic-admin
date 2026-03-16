@@ -121,7 +121,7 @@ const Plateforms = () => {
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={() => setDeletePlatformId(null)}
-                                className="px-4 py-2 rounded-lg btn btn-primary"
+                                className="px-4 py-2 rounded-lg btn"
                             >
                                 Cancel
                             </button>
@@ -132,7 +132,7 @@ const Plateforms = () => {
                                         setDeletePlatformId(null);
                                     }
                                 }}
-                                className="px-4 py-2 rounded-lg transition btn btn-secondary"
+                                className="px-4 py-2 rounded-lg transition btn"
                             >
                                 Delete
                             </button>

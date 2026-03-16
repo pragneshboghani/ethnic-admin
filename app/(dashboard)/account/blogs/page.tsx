@@ -2,12 +2,15 @@
 
 import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const Blogs = () => {
   const [platformData, setPlatformData] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deleteBlogId, setDeleteBlogId] = useState<number | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -46,6 +49,21 @@ const Blogs = () => {
 
     fetchBlogs();
   }, [platform, status, search, tags, category, author]);
+
+  const handleDelete = async (id: number) => {
+    try {
+      // await PlateformActions.DeletePlateForm(id);
+      console.log('id', id)
+
+      toast.success("Platform successfully deleted! 🗑️");
+      // const res = await PlateformActions.GetAllPlateform();
+      // setPlatformData(res.data);
+
+    } catch (error) {
+      console.error("Delete failed", error);
+      toast.error("Failed to delete platform 😢");
+    }
+  };
 
   return (
     <>
@@ -127,6 +145,7 @@ const Blogs = () => {
                 <th className="p-2">Category</th>
                 <th className="p-2">Tags</th>
                 <th className="p-2">Date</th>
+                <th className="p-2">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -149,6 +168,31 @@ const Blogs = () => {
                     <td className="p-2 max-w-[165px] truncate">{b.category}</td>
                     <td className="p-2 max-w-[265px] truncate">{b.tags?.join(", ")}</td>
                     <td className="p-2 max-w-[230px] truncate">{b.created_at}</td>
+                    <td className="p-2 flex items-center gap-2">
+                      <button
+                        className="text-white hover:text-blue-500"
+                        title="Show Blog"
+                        onClick={() => {
+                        }}
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        className="text-white hover:text-blue-500"
+                        title="Edit Blog"
+                        onClick={() => {
+                        }}
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        className="text-white hover:text-red-500"
+                        title="Delete Platform"
+                        onClick={() => setDeleteBlogId(b.id!)}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -162,6 +206,35 @@ const Blogs = () => {
           </table>
         )}
       </div>
+
+      {deleteBlogId && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="rounded-xl p-6 w-[400px] text-center glass-card">
+            <h3 className="text-white text-lg font-semibold mb-4">
+              Are you sure you want to delete this blog?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDeleteBlogId(null)}
+                className="px-4 py-2 rounded-lg btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteBlogId) {
+                    handleDelete(deleteBlogId);
+                    setDeleteBlogId(null);
+                  }
+                }}
+                className="px-4 py-2 rounded-lg transition btn"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

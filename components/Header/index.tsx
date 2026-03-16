@@ -35,7 +35,7 @@ const Header = () => {
           <nav className="h-full flex items-center">
             <Link
               href="/account/dashboard"
-              className="btn-primary text-white px-5 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm"
+              className="btn text-white px-5 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm"
             >
               Go to Dashboard
             </Link>

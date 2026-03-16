@@ -1,7 +1,7 @@
-const Router = require("express");
+const express = require("express");
 const mysqlpool = require("../config/db");
 
-const BlogRouter = Router();
+const BlogRouter = express.Router();
 
 BlogRouter.get("/all", async (req, res) => {
   try {
@@ -15,7 +15,7 @@ BlogRouter.get("/all", async (req, res) => {
     console.error("Error fetching blogs:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -241,6 +241,33 @@ BlogRouter.get("/recent", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching recent blogs:", error);
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+BlogRouter.get("/platform", async (req, res) => {
+  try {
+    const { platform } = req.query;
+
+    const [rows] = await mysqlpool.query(
+      `SELECT b.*
+        FROM blogs b
+        JOIN platforms p 
+        ON JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
+        WHERE TRIM(TRAILING '/' FROM p.website_url) = TRIM(TRAILING '/' FROM ?)`,
+      [platform],
+    );
+
+    res.status(200).send({
+      success: true,
+      totalBlogs: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
     res.status(500).send({
       success: false,
       message: "Server Error",

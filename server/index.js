@@ -7,6 +7,7 @@ const PlatformRouter = require("./routes/platforms");
 const DashboardRouter = require("./routes/dashboard");
 const Mediarouter = require("./routes/media");
 const SEORouter = require("./routes/seo");
+const UserRouter = require("./routes/user");
 
 dotenv.config();
 const app = express();
@@ -24,7 +25,8 @@ app.use("/api/blogs", BlogRouter);
 app.use("/api/platforms", PlatformRouter);
 app.use("/api/dashboard", DashboardRouter);
 app.use("/api/media", Mediarouter);
-app.use("/api/seo",SEORouter)
+app.use("/api/seo", SEORouter);
+app.use("/api/user", UserRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Ethnic Blog");
