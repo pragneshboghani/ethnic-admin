@@ -1,9 +1,10 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const SEORouter = Router();
 
-SEORouter.get("/all", async (req, res) => {
+SEORouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM seo_blog");
     res.status(200).send({
@@ -20,7 +21,7 @@ SEORouter.get("/all", async (req, res) => {
   }
 });
 
-SEORouter.post("/add", async (req, res) => {
+SEORouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { blog_id, seo } = req.body;
 

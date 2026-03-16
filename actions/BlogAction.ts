@@ -1,17 +1,69 @@
-import axios from "axios";
+import Cookies from "js-cookie";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const BlogActions = {
   GetAllBlogs: async () => {
     try {
-      const response = await axios.get(`${BACKEND_DOMAIN}/api/blogs/all`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching blogs:", error);
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching blogs:", error.message);
       throw error;
     }
   },
+
+  GetById: async (id: number) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/get?id=${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching blogs:", error.message);
+      throw error;
+    }
+  },
+
+  GetAllTags: async () => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/tag`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching blog tag:", error.message);
+      throw error;
+    }
+  },
+
   GetFilteredBlogs: async (filters: {
     platform?: string | number;
     status?: string;
@@ -21,6 +73,9 @@ const BlogActions = {
     tags?: string;
   }) => {
     try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
       const {
         platform = "0",
         status = "all",
@@ -30,52 +85,103 @@ const BlogActions = {
         tags = "",
       } = filters;
 
-      let query = `?platform=${platform}`;
-      if (status !== "all") query += `&status=${status}`;
-      if (search) query += `&search=${encodeURIComponent(search)}`;
-      if (author) query += `&author=${encodeURIComponent(author)}`;
-      if (category) query += `&category=${encodeURIComponent(category)}`;
-      if (tags) query += `&tags=${encodeURIComponent(tags)}`;
+      const params = new URLSearchParams();
+      params.append("platform", platform.toString());
+      if (status !== "all") params.append("status", status);
+      if (search) params.append("search", search);
+      if (author) params.append("author", author);
+      if (category) params.append("category", category);
+      if (tags) params.append("tags", tags);
 
-      const response = await axios.get(
-        `${BACKEND_DOMAIN}/api/blogs/filter${query}`,
+      const res = await fetch(
+        `${BACKEND_DOMAIN}/api/blogs/filter?${params.toString()}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching blogs:", error);
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch filtered blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching filtered blogs:", error.message);
       throw error;
     }
   },
+
   AddBlog: async (data: any) => {
     try {
-      const response = await axios.post(
-        `${BACKEND_DOMAIN}/api/blogs/add`,
-        data,
-      );
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
 
-      return response;
-    } catch (error) {
-      console.error("Error Adding Blog:", error);
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding blog:", error.message);
       throw error;
     }
   },
+
   AddSEO: async (blogId: number, seoData: any[]) => {
     try {
-      const response = await axios.post(`${BACKEND_DOMAIN}/api/seo/add`, {
-        blog_id: blogId,
-        seo: seoData,
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/seo/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ blog_id: blogId, seo: seoData }),
       });
-      return response;
-    } catch (error) {
-      console.error("Error Adding SEO data:", error);
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add SEO data");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding SEO data:", error.message);
       throw error;
     }
   },
-  DeleteBlog: async () => {
+
+  DeleteBlog: async (id: number) => {
     try {
-      const response = await axios.delete(``)
-    } catch (error) {
-      console.error("Error Deleteing blogs:", error);
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/delete?id=${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error deleting blog:", error.message);
       throw error;
     }
   },

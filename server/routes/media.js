@@ -1,10 +1,11 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
 const saveBase64File = require("../utils/saveBase64File");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const Mediarouter = Router();
 
-Mediarouter.get("/all", async (req, res) => {
+Mediarouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM media");
     res.status(200).send({
@@ -21,7 +22,7 @@ Mediarouter.get("/all", async (req, res) => {
   }
 });
 
-Mediarouter.post("/add", async (req, res) => {
+Mediarouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { file, alt } = req.body;
 
@@ -54,7 +55,7 @@ Mediarouter.post("/add", async (req, res) => {
   }
 });
 
-Mediarouter.get("/filter", async (req, res) => {
+Mediarouter.get("/filter", authMiddleware, async (req, res) => {
   try {
     const { type, search } = req.query;
 

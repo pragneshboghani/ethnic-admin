@@ -1,9 +1,10 @@
 const express = require("express");
 const mysqlpool = require("../config/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const BlogRouter = express.Router();
 
-BlogRouter.get("/all", async (req, res) => {
+BlogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
     res.status(200).send({
@@ -20,7 +21,7 @@ BlogRouter.get("/all", async (req, res) => {
   }
 });
 
-BlogRouter.get("/get", async (req, res) => {
+BlogRouter.get("/get", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -48,7 +49,7 @@ BlogRouter.get("/get", async (req, res) => {
   }
 });
 
-BlogRouter.post("/add", async (req, res) => {
+BlogRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const {
       blog_title,
@@ -99,7 +100,7 @@ BlogRouter.post("/add", async (req, res) => {
   }
 });
 
-BlogRouter.put("/update", async (req, res) => {
+BlogRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -182,7 +183,7 @@ BlogRouter.put("/update", async (req, res) => {
   }
 });
 
-BlogRouter.delete("/delete", async (req, res) => {
+BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -221,7 +222,7 @@ BlogRouter.delete("/delete", async (req, res) => {
   }
 });
 
-BlogRouter.get("/recent", async (req, res) => {
+BlogRouter.get("/recent", authMiddleware, async (req, res) => {
   try {
     const { days } = req.query;
 
@@ -248,7 +249,7 @@ BlogRouter.get("/recent", async (req, res) => {
   }
 });
 
-BlogRouter.get("/platform", async (req, res) => {
+BlogRouter.get("/platform", authMiddleware, async (req, res) => {
   try {
     const { platform } = req.query;
 
@@ -275,7 +276,7 @@ BlogRouter.get("/platform", async (req, res) => {
   }
 });
 
-BlogRouter.get("/filter", async (req, res) => {
+BlogRouter.get("/filter", authMiddleware, async (req, res) => {
   try {
     const { status, platform, author, category, tags, search } = req.query;
 
@@ -333,6 +334,28 @@ BlogRouter.get("/filter", async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Server Error",
+    });
+  }
+});
+
+BlogRouter.get("/tag", async (req, res) => {
+  try {
+    const [[rows]] =
+      await mysqlpool.query(`SELECT JSON_ARRAYAGG(tag_value) AS all_tags
+FROM (
+    SELECT DISTINCT jt.tag_value
+    FROM blogs,
+         JSON_TABLE(tags, '$[*]' COLUMNS(tag_value VARCHAR(255) PATH '$')) AS jt
+) AS sub;`);
+    res.status(200).send({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching blog tabs", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 });

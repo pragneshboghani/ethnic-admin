@@ -13,7 +13,6 @@ export default function SignIn() {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
-        role: "",
     });
 
     const [loading, setLoading] = useState(false);
@@ -56,7 +55,7 @@ export default function SignIn() {
     return (
         <div className="w-full flex justify-center items-center min-h-[80vh] px-4">
             <div className="w-full max-w-md glass-card p-5">
-                <h2 className="text-2xl font-bold text-center mb-2">Admin Login</h2>
+                <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
 
                 <p className="text-sm text-gray-500 text-center mb-6">
                     Sign in to access the blog admin panel
@@ -91,22 +90,6 @@ export default function SignIn() {
                             onChange={handleChange}
                             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Select Role</label>
-                        <select
-                            name="role"
-                            value={formData.role}
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="" className="text-black">Select Role</option>
-                            <option value="super_admin" className="text-black">Super Admin</option>
-                            <option value="editor" className="text-black">Editor</option>
-                            <option value="writer" className="text-black">Content Writer</option>
-                            <option value="seo_manager" className="text-black">SEO Manager</option>
-                        </select>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">

@@ -2,7 +2,7 @@
 
 import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -11,6 +11,7 @@ const Blogs = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState<number | null>(null);
+  const [selectedBlog, setSelectedBlog] = useState<any>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -19,45 +20,49 @@ const Blogs = () => {
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
+  const [GetTag, setGetTag] = useState(null)
 
   useEffect(() => {
     const fetchPlatforms = async () => {
       const res = await PlateformActions.GetAllPlateform();
-      setPlatformData(res.data);
+      setPlatformData(res);
     };
+    const fetchAllTags = async () => {
+      const res = await BlogActions.GetAllTags()
+      setGetTag(res.data.all_tags)
+    }
     fetchPlatforms();
+    fetchAllTags()
   }, []);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      setLoading(true);
-      try {
-        const res = await BlogActions.GetFilteredBlogs({
-          platform,
-          status,
-          search,
-          author,
-          category,
-          tags
-        });
-        setBlogs(res.data || []);
-      } catch (err) {
-        console.error("Error fetching blogs:", err);
-      }
-      setLoading(false);
-    };
+  const fetchBlogs = async () => {
+    setLoading(true);
+    try {
+      const res = await BlogActions.GetFilteredBlogs({
+        platform,
+        status,
+        search,
+        author,
+        category,
+        tags
+      });
+      setBlogs(res.data || []);
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchBlogs();
   }, [platform, status, search, tags, category, author]);
 
   const handleDelete = async (id: number) => {
     try {
-      // await PlateformActions.DeletePlateForm(id);
-      console.log('id', id)
+      await BlogActions.DeleteBlog(id);
 
       toast.success("Platform successfully deleted! 🗑️");
-      // const res = await PlateformActions.GetAllPlateform();
-      // setPlatformData(res.data);
+      fetchBlogs()
 
     } catch (error) {
       console.error("Delete failed", error);
@@ -65,6 +70,7 @@ const Blogs = () => {
     }
   };
 
+  console.log('GetTag', GetTag)
   return (
     <>
       <div className="glass-card p-4">
@@ -167,13 +173,19 @@ const Blogs = () => {
                     <td className="p-2 max-w-[125px] truncate">{b.author}</td>
                     <td className="p-2 max-w-[165px] truncate">{b.category}</td>
                     <td className="p-2 max-w-[265px] truncate">{b.tags?.join(", ")}</td>
-                    <td className="p-2 max-w-[230px] truncate">{b.created_at}</td>
+                    <td className="p-2 max-w-[230px] truncate">{new Date(b.created_at).toLocaleString("en-IN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}</td>
                     <td className="p-2 flex items-center gap-2">
                       <button
                         className="text-white hover:text-blue-500"
                         title="Show Blog"
-                        onClick={() => {
-                        }}
+                        onClick={() => setSelectedBlog(b)}
                       >
                         <Eye size={18} />
                       </button>
@@ -231,6 +243,43 @@ const Blogs = () => {
               >
                 Delete
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedBlog && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 text-white rounded-xl p-6 w-full max-w-xl relative glass-card">
+            <button
+              className="absolute top-4 right-4 text-white hover:text-red-500"
+              onClick={() => setSelectedBlog(null)}
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4">{selectedBlog.blog_title}</h2>
+            <p className="mb-2"><strong>Author:</strong> {(selectedBlog.author) || '-'}</p>
+            <p className="mb-2"><strong>Platform:</strong> {selectedBlog.platforms.map((pId: number) => {
+              const platform = platformData?.data.find((plat: any) => plat.id === pId);
+              return (
+                <span key={pId}>{platform ? platform.platform_name : "N/A"} </span>
+              );
+            })}</p>
+            <p className="mb-2"><strong>Status:</strong> {selectedBlog.status}</p>
+            <p className="mb-2"><strong>Category:</strong> {selectedBlog.category}</p>
+            <p className="mb-2"><strong>Tags:</strong> {selectedBlog.tags?.join(", ")}</p>
+            <p className="mb-2">
+              <strong>Date:</strong> {new Date(selectedBlog.created_at).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </p>
+            <div className="mt-4">
+              <p>{selectedBlog.content}</p>
             </div>
           </div>
         </div>

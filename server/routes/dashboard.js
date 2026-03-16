@@ -1,9 +1,10 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const DashboardRouter = Router();
 
-DashboardRouter.get("/all", async (req, res) => {
+DashboardRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [[statusCount]] = await mysqlpool.query(`
       SELECT 
