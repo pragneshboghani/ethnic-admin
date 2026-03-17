@@ -19,11 +19,15 @@ const AddEditPlatformModal = ({
     refreshPlatforms,
 }: Props) => {
 
+    const [authModalOpen, setAuthModalOpen] = useState(false);
     const [formData, setFormData] = useState<Platform>({
         platform_name: "",
         website_url: "",
         api_endpoint: "",
+        auth_type: "none",
         auth_token: "",
+        username: "",
+        password: "",
         status: "Active",
     });
 
@@ -35,7 +39,10 @@ const AddEditPlatformModal = ({
                 platform_name: "",
                 website_url: "",
                 api_endpoint: "",
+                auth_type: "none",
                 auth_token: "",
+                username: "",
+                password: "",
                 status: "Active",
             });
         }
@@ -61,6 +68,7 @@ const AddEditPlatformModal = ({
                 toast.success(`Platform updated successfully 🎉`);
             } else {
                 await PlateformActions.AddPlateformData(formData);
+                console.log('formdata',formData)
                 toast.success(`Platform added successfully 🚀`);
             }
 
@@ -72,51 +80,68 @@ const AddEditPlatformModal = ({
         }
     };
 
+    const handleAuthChange = (e: any) => {
+        const value = e.target.value;
+
+        setFormData((prev) => ({
+            ...prev,
+            auth_type: value,
+            auth_token: "",
+            username: "",
+            password: "",
+        }));
+
+        if (value !== "none") {
+            setAuthModalOpen(true);
+        }
+    };
+
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="w-[500px] rounded-xl p-6 glass-card">
+        <>
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+                <div className="w-[500px] rounded-xl p-6 glass-card">
 
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-white">
-                        {editingPlatform ? "Update Platform" : "Add New Platform"}
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-semibold text-white">
+                            {editingPlatform ? "Update Platform" : "Add New Platform"}
+                        </h2>
 
-                    <button onClick={onClose} className="text-gray-400 hover:text-white">
-                        ✕
-                    </button>
-                </div>
+                        <button onClick={onClose} className="text-gray-400 hover:text-white">
+                            ✕
+                        </button>
+                    </div>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                    <form className="space-y-4" onSubmit={handleSubmit}>
 
-                    <input
-                        type="text"
-                        name="platform_name"
-                        value={formData.platform_name}
-                        onChange={handleChange}
-                        placeholder="Platform Name"
-                        className="w-full p-2 rounded bg-white border text-black"
-                    />
+                        <input
+                            type="text"
+                            name="platform_name"
+                            value={formData.platform_name}
+                            onChange={handleChange}
+                            placeholder="Platform Name"
+                            className="w-full p-2 rounded bg-white border text-black"
+                        />
 
-                    <input
-                        type="text"
-                        name="website_url"
-                        value={formData.website_url}
-                        onChange={handleChange}
-                        placeholder="Website URL"
-                        className="w-full p-2 rounded bg-white border text-black"
-                    />
+                        <input
+                            type="text"
+                            name="website_url"
+                            value={formData.website_url}
+                            onChange={handleChange}
+                            placeholder="Website URL"
+                            className="w-full p-2 rounded bg-white border text-black"
+                        />
 
-                    <input
-                        type="text"
-                        name="api_endpoint"
-                        value={formData.api_endpoint}
-                        onChange={handleChange}
-                        placeholder="API Endpoint"
-                        className="w-full p-2 rounded bg-white border text-black"
-                    />
-
+                        <input
+                            type="text"
+                            name="api_endpoint"
+                            value={formData.api_endpoint}
+                            onChange={handleChange}
+                            placeholder="API Endpoint"
+                            className="w-full p-2 rounded bg-white border text-black"
+                        />
+                        {/* 
                     <input
                         type="text"
                         name="auth_token"
@@ -124,40 +149,124 @@ const AddEditPlatformModal = ({
                         onChange={handleChange}
                         placeholder="Auth Token"
                         className="w-full p-2 rounded bg-white border text-black"
-                    />
-
-                    <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        className="w-full p-2 rounded bg-white border text-black"
-                    >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-
-                    <div className="flex justify-end gap-3 pt-3">
-
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 border rounded text-gray-300"
+                    /> */}
+                        <select
+                            name="auth_type"
+                            value={formData.auth_type}
+                            onChange={handleAuthChange}
+                            className="w-full p-2 rounded bg-white border text-black"
                         >
-                            Cancel
-                        </button>
+                            <option value="none">No Auth</option>
+                            <option value="token">Token Based</option>
+                            <option value="basic">Basic Auth (Username & Password)</option>
+                        </select>
 
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-green-600 rounded text-white"
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            className="w-full p-2 rounded bg-white border text-black"
                         >
-                            {editingPlatform ? "Update" : "Save"}
-                        </button>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
 
-                    </div>
+                        <div className="flex justify-end gap-3 pt-3">
 
-                </form>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 border rounded text-gray-300"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-green-600 rounded text-white"
+                            >
+                                {editingPlatform ? "Update" : "Save"}
+                            </button>
+
+                        </div>
+
+                    </form>
+                </div>
             </div>
-        </div>
+            {authModalOpen && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+                    <div className="p-6 w-[400px] glass-card text-white">
+
+                        <h3 className="text-lg font-semibold mb-4">
+                            {formData.auth_type === "token" ? "Enter Token" : "Enter Credentials"}
+                        </h3>
+
+                        {/* TOKEN */}
+                        {formData.auth_type === "token" && (
+                            <input
+                                type="text"
+                                placeholder="Enter Token"
+                                value={formData.auth_token}
+                                onChange={(e) =>
+                                    setFormData((prev: any) => ({
+                                        ...prev,
+                                        auth_token: e.target.value,
+                                    }))
+                                }
+                                className="w-full p-2 rounded bg-white text-black"
+                            />
+                        )}
+
+                        {/* BASIC AUTH */}
+                        {formData.auth_type === "basic" && (
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Username"
+                                    value={formData.username}
+                                    onChange={(e) =>
+                                        setFormData((prev: any) => ({
+                                            ...prev,
+                                            username: e.target.value,
+                                        }))
+                                    }
+                                    className="w-full p-2 rounded bg-white text-black"
+                                />
+
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={formData.password}
+                                    onChange={(e) =>
+                                        setFormData((prev: any) => ({
+                                            ...prev,
+                                            password: e.target.value,
+                                        }))
+                                    }
+                                    className="w-full p-2 rounded bg-white text-black"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-3 mt-4">
+                            <button
+                                onClick={() => setAuthModalOpen(false)}
+                                className="px-4 py-2 bg-gray-600 rounded"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={() => setAuthModalOpen(false)}
+                                className="px-4 py-2 bg-green-600 rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

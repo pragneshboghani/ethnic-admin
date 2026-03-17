@@ -72,22 +72,66 @@ PlatformRouter.get("/active", authMiddleware, async (req, res) => {
 
 PlatformRouter.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { platform_name, website_url, api_endpoint, auth_token, status } =
-      req.body;
+    const { platform_name, website_url, api_endpoint, auth_type, auth_token, username, password, status } = req.body;
+
+    if (!platform_name || !website_url || !auth_type) {
+      return res.status(400).json({
+        success: false,
+        message: "platform_name, website_url, auth_type are required",
+      });
+    }
+
+    if (auth_type === "token" && !auth_token) {
+      return res.status(400).json({
+        success: false,
+        message: "Auth token is required for token type",
+      });
+    }
+
+    if (auth_type === "basic" && (!username || !password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and Password are required for basic auth",
+      });
+    }
+
+    let finalAuthToken = null;
+    let finalUsername = null;
+    let finalPassword = null;
+
+    if (auth_type === "token") {
+      finalAuthToken = auth_token;
+    }
+
+    if (auth_type === "basic") {
+      finalUsername = username;
+      finalPassword = password;
+    }
 
     const [result] = await mysqlpool.query(
-      `INSERT INTO platforms (platform_name, website_url, api_endpoint, auth_token, status) VALUES (?, ?, ?, ?, ?)`,
-      [platform_name, website_url, api_endpoint, auth_token, status],
+      `INSERT INTO platforms 
+      (platform_name, website_url, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        platform_name,
+        website_url,
+        api_endpoint,
+        auth_type,
+        finalAuthToken,
+        finalUsername,
+        finalPassword,
+        status || "Active",
+      ],
     );
 
-    res.status(201).send({
+    res.status(201).json({
       success: true,
-      message: "platform added successfully",
+      message: "Platform added successfully",
       platformId: result.insertId,
     });
   } catch (error) {
     console.error("Error adding platform:", error);
-    res.status(500).send({
+    res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -98,8 +142,18 @@ PlatformRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
-    const { platform_name, website_url, api_endpoint, auth_token, status } =
-      req.body;
+    const {
+      platform_name,
+      website_url,
+      api_endpoint,
+      auth_type,
+      auth_token,
+      username,
+      password,
+      status,
+    } = req.body;
+
+    console.log('req.body', req.body)
 
     const [[raw]] = await mysqlpool.query(
       `SELECT * FROM platforms WHERE id = ?`,
@@ -113,33 +167,72 @@ PlatformRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
+    if (auth_type === "token" && !auth_token) {
+      return res.status(400).json({
+        success: false,
+        message: "Auth token is required for token type",
+      });
+    }
+
+    if (auth_type === "basic" && (!username || !password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and Password are required for basic auth",
+      });
+    }
+
+    let finalAuthType = auth_type && auth_type !== "" ? auth_type : raw.auth_type;
+
+    let finalAuthToken = null;
+    let finalUsername = null;
+    let finalPassword = null;
+
+    if (finalAuthType === "token") {
+      finalAuthToken = auth_token ?? raw.auth_token;
+    }
+
+    if (finalAuthType === "basic") {
+      finalUsername = username ?? raw.username;
+      finalPassword = password ?? raw.password;
+    }
+
     const UpdatedData = {
       platform_name: platform_name ?? raw.platform_name,
       website_url: website_url ?? raw.website_url,
       api_endpoint: api_endpoint ?? raw.api_endpoint,
-      auth_token: auth_token ?? raw.auth_token,
+      auth_type: finalAuthType,
+      auth_token: finalAuthToken,
+      username: finalUsername,
+      password: finalPassword,
       status: status ?? raw.status,
     };
 
     await mysqlpool.query(
-      `UPDATE platforms SET platform_name = ?, website_url = ?, api_endpoint = ?, auth_token = ?, status = ?, updated_at = NOW() WHERE id = ?`,
+      `UPDATE platforms 
+       SET platform_name = ?, website_url = ?, api_endpoint = ?, 
+           auth_type = ?, auth_token = ?, username = ?, password = ?, 
+           status = ?
+       WHERE id = ?`,
       [
         UpdatedData.platform_name,
         UpdatedData.website_url,
         UpdatedData.api_endpoint,
+        UpdatedData.auth_type,
         UpdatedData.auth_token,
+        UpdatedData.username,
+        UpdatedData.password,
         UpdatedData.status,
         id,
       ],
     );
 
-    res.status(200).send({
+    res.status(200).json({
       success: true,
       message: "Platform updated successfully",
     });
   } catch (error) {
-    console.error("Error updating Platform:", error);
-    res.status(500).send({
+    console.error("Error updating platform:", error);
+    res.status(500).json({
       success: false,
       message: error.message,
     });

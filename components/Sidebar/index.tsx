@@ -48,7 +48,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="max-w-[200px] w-full h-screen px-0 pb-6 pt-[145px]">
+        <div className="max-w-[250px] w-full h-screen px-0 pb-6 pt-[145px]">
             <div className="min-h-full relative glass-card sticky top-[145px]">
                 <div className="flex flex-col justify-between min-h-[calc(85vh-80px)] pl-5 pt-5">
                     <div className="flex flex-col gap-3 items-start justify-start w-full flex-1">

@@ -253,29 +253,29 @@ const Blogs = () => {
             <img src={`${process.env.BACKEND_DOMAIN}/${selectedBlog.featured_image}`} alt={`${selectedBlog.blog_title}`} className="float-right w-[300px] h-[300px] rounded-[15px]" />
             <h2 className="text-2xl font-bold mb-4">{selectedBlog.blog_title}</h2>
             <div className="text-white flex gap-10">
-              {selectedBlog.author && (<p className="mb-2"><strong>Author:</strong> By {selectedBlog.author}</p>)}
+              {selectedBlog.author && (<p className="mb-2"><strong className="text-gray-700">Author:</strong> By {selectedBlog.author}</p>)}
               {" • "}
               {selectedBlog.readingTime || 0} min read
             </div>
-            <p className="mb-2"><strong>Platform:</strong> {selectedBlog.platforms.map((pId: number) => {
+            <p className="mb-2"><strong className="text-gray-700">Platform:</strong> {selectedBlog.platforms.map((pId: number) => {
               const platform = platformData?.data.find((plat: any) => plat.id === pId);
               return (
                 <span key={pId}>{platform ? platform.platform_name : "N/A"} </span>
               );
             })}</p>
-            <p className="mb-2"><strong>Status:</strong> {selectedBlog.status}</p>
-            <p className="mb-2"><strong>Category:</strong> {selectedBlog.category}</p>
-            <p className="mb-2"><strong>Tags:</strong> {selectedBlog.tags?.join(", ")}</p>
+            <p className="mb-2"><strong className="text-gray-700">Status:</strong> {selectedBlog.status}</p>
+            <p className="mb-2"><strong className="text-gray-700">Category:</strong> {selectedBlog.category}</p>
+            <p className="mb-2"><strong className="text-gray-700">Tags:</strong> {selectedBlog.tags?.join(", ")}</p>
             <p className="mb-2">
-              <strong>Create Date:</strong>{formatDateTime(selectedBlog.created_at)}</p>
+              <strong className="text-gray-700">Create Date:</strong>{formatDateTime(selectedBlog.created_at)}</p>
             <p className="mb-2">
-              <strong>Publish Date:</strong>
+              <strong className="text-gray-700">Publish Date:</strong>
               {formatDateTime(selectedBlog.publish_date)}
             </p>
-            <p className="mb-2"><strong>Short Excerpt:</strong> {selectedBlog.short_excerpt}</p>
+            <p className="mb-2"><strong className="text-gray-700">Short Excerpt:</strong> {selectedBlog.short_excerpt}</p>
             {selectedBlog.related.length > 0 && (
               <p className="mb-2">
-                <strong>Related:</strong>{" "}
+                <strong className="text-gray-700">Related:</strong>{" "}
                 {selectedBlog.related
                   .map((r: number) => {
                     const blog = blogs?.find((b: any) => b.id === r);
@@ -286,7 +286,7 @@ const Blogs = () => {
               </p>
             )}
             <p className="mb-2">
-              <strong>Content:</strong> <span className="mt-4" dangerouslySetInnerHTML={{ __html: selectedBlog.full_content }} />
+              <strong className="text-gray-700">Content:</strong> <span className="mt-4" dangerouslySetInnerHTML={{ __html: selectedBlog.full_content }} />
             </p>
           </div>
         </div>

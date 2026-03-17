@@ -3,7 +3,10 @@ export interface Platform {
   platform_name: string;
   website_url: string;
   api_endpoint: string;
-  auth_token: string;
+  auth_type: "none" | "token" | "basic";
+  auth_token?: string;
+  username?: string;
+  password?: string;
   status: "Active" | "Inactive";
   created_at?: string;
   updated_at?: string;
