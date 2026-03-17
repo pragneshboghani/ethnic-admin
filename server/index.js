@@ -1,5 +1,8 @@
+require("dotenv").config({
+  path: "./.env",
+});
+
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const mysqlpool = require("./config/db");
 const BlogRouter = require("./routes/blogs");
@@ -9,7 +12,6 @@ const Mediarouter = require("./routes/media");
 const SEORouter = require("./routes/seo");
 const UserRouter = require("./routes/user");
 
-dotenv.config();
 const app = express();
 
 const BACKEND_PORT = process.env.BACKEND_PORT;

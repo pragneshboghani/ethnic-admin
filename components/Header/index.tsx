@@ -3,10 +3,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import UserActions from "@/actions/UserAction";
 
 const Header = () => {
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [scrolled, setScrolled] = useState(false);
+  const [IsLogin, setIsLogin] = useState(false)
+
+  useEffect(() => {
+    const Login = UserActions.IsLogin(router);
+    setIsLogin(Login)
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,7 +28,7 @@ const Header = () => {
   }, []);
 
   return (
-    <header className={`fixed w-full top-0 z-50 ${ scrolled ? 'glass' : '' }`}>
+    <header className={`fixed w-full top-0 z-50 ${scrolled ? 'glass' : ''}`}>
       <div className="w-full border-b px-15 py-5 flex justify-center bg-[#1a1a1a] opacity-100">
         <div className="w-full flex justify-between items-center">
           <Link href="/" className="flex items-center">
@@ -32,14 +42,16 @@ const Header = () => {
             />
           </Link>
 
-          <nav className="h-full flex items-center">
-            <Link
-              href="/account/dashboard"
-              className="btn text-white px-5 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm"
-            >
-              Go to Dashboard
-            </Link>
-          </nav>
+          {IsLogin &&
+            <nav className="h-full flex items-center">
+              <Link
+                href="/account/dashboard"
+                className="btn text-white px-5 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm"
+              >
+                Go to Dashboard
+              </Link>
+            </nav>
+          }
 
         </div>
       </div>
