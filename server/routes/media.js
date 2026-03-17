@@ -17,7 +17,7 @@ Mediarouter.get("/all", authMiddleware, async (req, res) => {
     console.error("Error fetching media:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -88,7 +88,7 @@ Mediarouter.get("/filter", authMiddleware, async (req, res) => {
     console.error("Error filtering media:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -132,7 +132,7 @@ Mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
     console.error("Error updating alt text:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -163,7 +163,7 @@ Mediarouter.delete("/delete", authMiddleware, async (req, res) => {
     console.error("Error deleting media:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

@@ -16,7 +16,7 @@ PlatformRouter.get("/all", authMiddleware, async (req, res) => {
     console.error("Error fetching platforms:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -45,7 +45,7 @@ PlatformRouter.get("/get", authMiddleware, async (req, res) => {
     console.error("Error fetching platforms:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -65,7 +65,7 @@ PlatformRouter.get("/active", authMiddleware, async (req, res) => {
     console.error("Error fetching active platforms:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -89,7 +89,7 @@ PlatformRouter.post("/add", authMiddleware, async (req, res) => {
     console.error("Error adding platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -141,7 +141,7 @@ PlatformRouter.put("/update", authMiddleware, async (req, res) => {
     console.error("Error updating Platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -182,7 +182,7 @@ PlatformRouter.delete("/delete", authMiddleware, async (req, res) => {
     console.error("Error deleting Platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

@@ -16,7 +16,7 @@ SEORouter.get("/all", authMiddleware, async (req, res) => {
     console.error("Error fetching SEOs:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -60,7 +60,7 @@ SEORouter.post("/add", authMiddleware, async (req, res) => {
     console.error("Error adding SEO data:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

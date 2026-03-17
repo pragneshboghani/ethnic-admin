@@ -44,7 +44,7 @@ BlogRouter.get("/get", authMiddleware, async (req, res) => {
     console.error("Error fetching blog:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -95,7 +95,7 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
     console.error("Error adding blog:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -178,7 +178,7 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
     console.error("Error updating blog:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -217,7 +217,7 @@ BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
     console.error("Error deleting blog:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -244,7 +244,7 @@ BlogRouter.get("/recent", authMiddleware, async (req, res) => {
     console.error("Error fetching recent blogs:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -271,7 +271,7 @@ BlogRouter.get("/platform", authMiddleware, async (req, res) => {
     console.error("Error fetching blogs:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
@@ -333,7 +333,7 @@ BlogRouter.get("/filter", authMiddleware, async (req, res) => {
     console.error("Error filtering blogs:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

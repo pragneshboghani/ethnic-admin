@@ -21,19 +21,18 @@ DashboardRouter.get("/all", authMiddleware, async (req, res) => {
 
     const DashboardData = {
       ...statusCount,
-      ...platformCount
+      ...platformCount,
     };
 
     res.status(200).send({
       success: true,
-      countData:DashboardData
+      countData: DashboardData,
     });
-
   } catch (error) {
     console.error("Error fetching blogs:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
