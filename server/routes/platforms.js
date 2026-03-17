@@ -153,8 +153,6 @@ PlatformRouter.put("/update", authMiddleware, async (req, res) => {
       status,
     } = req.body;
 
-    console.log('req.body', req.body)
-
     const [[raw]] = await mysqlpool.query(
       `SELECT * FROM platforms WHERE id = ?`,
       [id],

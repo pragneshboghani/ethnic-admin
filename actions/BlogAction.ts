@@ -185,6 +185,32 @@ const BlogActions = {
       throw error;
     }
   },
+
+  UpdateBlog: async (id: number, data: any) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/update?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error updating blog:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;

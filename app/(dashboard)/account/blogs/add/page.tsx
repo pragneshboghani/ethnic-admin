@@ -14,12 +14,21 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import PlatformSettingsSection from "@/components/blog/PlatformSettingsSection";
 import BlogTabSwitcher from "@/components/blog/BlogTabSwitcher";
 import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { formatDateTime } from "@/utils/formatDateTime";
+import SEOActions from "@/actions/SEOAction";
+import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 
 
 const BlogForm = () => {
     const router = useRouter();
+
+    const [blogId, setBlogId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setBlogId(params.get("id"));
+    }, []);
 
     const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
     const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
@@ -178,7 +187,7 @@ const BlogForm = () => {
             };
 
             const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
-            const blogId = AddedBlogs.data.blogId;
+            const blogId = AddedBlogs.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
                 platform_id: p.platformId,
@@ -277,8 +286,117 @@ const BlogForm = () => {
         setSelectedFile(null);
     };
 
+    useEffect(() => {
+        if (!blogId) return;
+
+        const fetchBlogForEdit = async () => {
+            try {
+                const res = await BlogActions.GetById(Number(blogId));
+                const blog = res.data;
+
+                setTitle(blog.blog_title);
+                setExcerpt(blog.short_excerpt);
+                setFormContent(blog.full_content);
+                setAuthor(blog.author);
+                setCategory(blog.category);
+                setPublishDate(normalizeDateForInput(blog.publish_date));
+                setGlobalStatus(blog.status);
+                setTags(blog.tags || []);
+                setReadingTime(blog.reading_time || 0);
+                setRelatedBlogs(blog.related || []);
+
+                if (blog.featured_image) {
+                    setImage(blog.featured_image);
+                }
+
+                const platforms = blog.platforms || [];
+                setSelectedPlatforms(platforms);
+
+                const seoPromises = platforms.map(async (platformId: number) => {
+                    const seoRes = await SEOActions.GetByBlogsAndPlatform(blog.id, platformId);
+                    return seoRes.data;
+                });
+
+                const seoDataArray = await Promise.all(seoPromises);
+
+                const newPlatformSettings: Record<number, any> = {};
+                seoDataArray.forEach((seoArray) => {
+                    seoArray.forEach((seo: any) => {
+                        newPlatformSettings[seo.platform_id] = {
+                            slug: seo.slug || "",
+                            publishStatus: seo.publish_status || "draft",
+                            seoTitle: seo.seo_title || "",
+                            metaDescription: seo.meta_description || "",
+                            canonicalUrl: seo.canonical_url || "",
+                            ctaButtonText: seo.cta_button_text || "",
+                            ctaButtonLink: seo.cta_button_link || "",
+                        };
+                    });
+                });
+
+                setPlatformSettings(newPlatformSettings);
+
+            } catch (error) {
+                toast.error("Failed to load blog for editing 😢");
+                console.error(error);
+            }
+        };
+
+        fetchBlogForEdit();
+    }, [blogId]);
+
+    const handleUpdateBlog = async () => {
+        try {
+            const formData = await ConvertBase64()
+
+            const Selected_PlateForms = formData.platforms.map(p => p.platformId);
+
+            const BlogFormData = {
+                blog_title: formData.title,
+                short_excerpt: formData.excerpt,
+                full_content: formData.formContent,
+                featured_image: formData.image,
+                category: formData.category,
+                tags: formData.tags,
+                author: formData.author,
+                publish_date: formData.publishDate,
+                reading_time: formData.reading_time,
+                related: formData.related_blogs,
+                status: globalStatus,
+                platforms: Selected_PlateForms
+            };
+
+            const res = await BlogActions.UpdateBlog(Number(blogId), BlogFormData);
+            const seoFormDataArray = formData.platforms.map(p => ({
+                platform_id: p.platformId,
+                slug: p.settings.slug || "",
+                publish_status: p.settings.publishStatus || "draft",
+                seo_title: p.settings.seoTitle || "",
+                meta_description: p.settings.metaDescription || "",
+                canonical_url: p.settings.canonicalUrl || "",
+                cta_button_text: p.settings.ctaButtonText || "",
+                cta_button_link: p.settings.ctaButtonLink || "",
+            }));
+
+            await SEOActions.UpdateSEO(Number(blogId), seoFormDataArray);
+            toast.success("Blog updated successfully!");
+            router.push('/account/blogs')
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update blog 😢");
+        }
+    };
     return (
-        <form className="space-y-8" onSubmit={handleSubmit}>
+        <form
+            className="space-y-8"
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (blogId) {
+                    handleUpdateBlog();
+                } else {
+                    handleSubmit(e);
+                }
+            }}
+        >
             <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={handleSaveDraft} />
             <BlogTabSwitcher
                 activeTab={activeTab}

@@ -4,17 +4,19 @@ import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Eye, Pencil, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const Blogs = () => {
+  const router = useRouter()
   const [platformData, setPlatformData] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState<number | null>(null);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
+  const [selectUpdate, setSelectUpdate] = useState<number | null>(null)
 
-  // Filters
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("0");
   const [status, setStatus] = useState("all");
@@ -70,6 +72,12 @@ const Blogs = () => {
       toast.error("Failed to delete platform 😢");
     }
   };
+
+  useEffect(() => {
+    if (selectUpdate) {
+      router.push(`/account/blogs/add?id=${selectUpdate}`);
+    }
+  }, [selectUpdate, router]);
 
   return (
     <>
@@ -185,8 +193,7 @@ const Blogs = () => {
                       <button
                         className="text-white hover:text-blue-500"
                         title="Edit Blog"
-                        onClick={() => {
-                        }}
+                        onClick={() => setSelectUpdate(b.id!)}
                       >
                         <Pencil size={16} />
                       </button>

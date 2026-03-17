@@ -68,7 +68,6 @@ const AddEditPlatformModal = ({
                 toast.success(`Platform updated successfully 🎉`);
             } else {
                 await PlateformActions.AddPlateformData(formData);
-                console.log('formdata',formData)
                 toast.success(`Platform added successfully 🚀`);
             }
 
