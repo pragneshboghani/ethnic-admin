@@ -103,7 +103,7 @@ const Dashboard = () => {
                 setEditingPlatform(null);
                 setOpenModal(true);
               }}
-              className="cursor-pointer btn btn-primary"
+              className="cursor-pointer btn"
             >
               + Add New Platform
             </button>

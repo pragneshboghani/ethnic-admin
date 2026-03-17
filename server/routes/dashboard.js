@@ -1,9 +1,10 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const DashboardRouter = Router();
 
-DashboardRouter.get("/all", async (req, res) => {
+DashboardRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [[statusCount]] = await mysqlpool.query(`
       SELECT 
@@ -20,19 +21,18 @@ DashboardRouter.get("/all", async (req, res) => {
 
     const DashboardData = {
       ...statusCount,
-      ...platformCount
+      ...platformCount,
     };
 
     res.status(200).send({
       success: true,
-      countData:DashboardData
+      countData: DashboardData,
     });
-
   } catch (error) {
     console.error("Error fetching blogs:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

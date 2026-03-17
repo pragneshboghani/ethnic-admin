@@ -1,9 +1,10 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const PlatformRouter = Router();
 
-PlatformRouter.get("/all", async (req, res) => {
+PlatformRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM platforms");
     res.status(200).send({
@@ -15,12 +16,12 @@ PlatformRouter.get("/all", async (req, res) => {
     console.error("Error fetching platforms:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
 
-PlatformRouter.get("/get", async (req, res) => {
+PlatformRouter.get("/get", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -44,12 +45,12 @@ PlatformRouter.get("/get", async (req, res) => {
     console.error("Error fetching platforms:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
 
-PlatformRouter.get("/active", async (req, res) => {
+PlatformRouter.get("/active", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
       `SELECT * FROM platforms WHERE status = 'active'`,
@@ -64,12 +65,12 @@ PlatformRouter.get("/active", async (req, res) => {
     console.error("Error fetching active platforms:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
 
-PlatformRouter.post("/add", async (req, res) => {
+PlatformRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { platform_name, website_url, api_endpoint, auth_token, status } =
       req.body;
@@ -88,12 +89,12 @@ PlatformRouter.post("/add", async (req, res) => {
     console.error("Error adding platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
 
-PlatformRouter.put("/update", async (req, res) => {
+PlatformRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -140,12 +141,12 @@ PlatformRouter.put("/update", async (req, res) => {
     console.error("Error updating Platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });
 
-PlatformRouter.delete("/delete", async (req, res) => {
+PlatformRouter.delete("/delete", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -181,7 +182,7 @@ PlatformRouter.delete("/delete", async (req, res) => {
     console.error("Error deleting Platform:", error);
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 });

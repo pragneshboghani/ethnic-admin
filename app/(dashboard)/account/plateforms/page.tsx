@@ -16,7 +16,7 @@ const Plateforms = () => {
 
     const fetchPlatforms = async () => {
         const res = await PlateformActions.GetAllPlateform();
-        setPlatformData(res.data);
+        setPlatformData(res);
     };
 
     useEffect(() => {
@@ -41,7 +41,7 @@ const Plateforms = () => {
         <>
             <div className="grid grid-cols-3 gap-6">
 
-                {platformData?.data?.map((platform: Platform) => (
+                {platformData?.data.map((platform: Platform) => (
                     <div
                         key={platform.id}
                         className="border border-gray-700 rounded-xl p-6 cursor-pointer"
@@ -121,7 +121,7 @@ const Plateforms = () => {
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={() => setDeletePlatformId(null)}
-                                className="px-4 py-2 rounded-lg btn btn-primary"
+                                className="px-4 py-2 rounded-lg btn"
                             >
                                 Cancel
                             </button>
@@ -132,7 +132,7 @@ const Plateforms = () => {
                                         setDeletePlatformId(null);
                                     }
                                 }}
-                                className="px-4 py-2 rounded-lg transition btn btn-secondary"
+                                className="px-4 py-2 rounded-lg transition btn"
                             >
                                 Delete
                             </button>
