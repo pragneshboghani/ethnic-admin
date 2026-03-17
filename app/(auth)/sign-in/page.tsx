@@ -34,7 +34,6 @@ export default function SignIn() {
         setLoading(true);
 
         try {
-            console.log('formData', formData)
             const res = await UserActions.LoginUser(formData);
 
             if (res.success) {

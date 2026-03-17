@@ -1,7 +1,9 @@
 "use client";
 
 import MediaActions from '@/actions/MediaAction';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { formatDateTime } from '@/utils/formatDateTime';
+import { formatFileSize } from '@/utils/formatFileSize';
+import { Eye, Pencil, Plus, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -26,6 +28,8 @@ const Media = () => {
     const [newAltText, setNewAltText] = useState("");
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [viewMedia, setViewMedia] = useState<Media | null>(null);
 
     const tabs = [
         { id: 1, label: 'All Media', type: 'all' },
@@ -43,6 +47,11 @@ const Media = () => {
         setMediaToDelete(media);
         setDeleteModalOpen(true);
     };
+
+    const openViewModal = (media: Media) => {
+        setViewMedia(media);
+        setViewModalOpen(true);
+    };
     const fetchMedia = async (type = "all") => {
         try {
             const res =
@@ -57,7 +66,6 @@ const Media = () => {
     };
 
     const handleTabClick = (tab: any) => {
-        console.log('tab', tab)
         setActiveTab(tab.id);
         fetchMedia(tab.type);
     };
@@ -197,6 +205,13 @@ const Media = () => {
 
                                 <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 bg-black/70 transition-opacity rounded-lg group-hover:opacity-100">
                                     <button
+                                        className="p-2 bg-blue-500 rounded-full hover:bg-blue-600"
+                                        onClick={() => openViewModal(m)}
+                                    >
+                                        <Eye size={18} className="text-white" />
+                                    </button>
+
+                                    <button
                                         className="p-2 bg-white rounded-full hover:bg-gray-200"
                                         onClick={() => openAltModal(m)}
                                     >
@@ -269,6 +284,45 @@ const Media = () => {
                             >
                                 Delete
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {viewModalOpen && viewMedia && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+
+                    <div className="relative rounded-xl p-4 w-[700px] glass-card">
+
+                        {/* Close button */}
+                        <button
+                            className="absolute top-4 right-4 text-white hover:text-red-500"
+                            onClick={() => setViewModalOpen(false)}
+                        >
+                            <X size={18} className="text-white" />
+                        </button>
+
+                        {viewMedia.file_type === "image" ? (
+                            <img
+                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                alt={viewMedia.alt_text || ""}
+                                className="w-full max-h-[70vh] object-cover rounded-lg float-right max-w-[250px] h-[250px] mr-7"
+                            />
+                        ) : (
+                            <video
+                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                controls
+                                className="w-full max-h-[70vh] rounded-lg"
+                            />
+                        )}
+
+                        <div className="mt-4 text-white w-full">
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Name:</strong> {viewMedia.file_name}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>ALT:</strong> {viewMedia.alt_text || "-"}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>File Type:</strong> {viewMedia.file_type}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>mime_type:</strong> {viewMedia.mime_type}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Create Date:</strong> {formatDateTime(viewMedia.created_at)}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>url:</strong> {`${process.env.BACKEND_DOMAIN}/${viewMedia.file_url}`}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate'><strong>size:</strong> {formatFileSize(viewMedia.file_size)}</p>
                         </div>
                     </div>
                 </div>

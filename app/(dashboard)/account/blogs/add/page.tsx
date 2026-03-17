@@ -14,8 +14,13 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import PlatformSettingsSection from "@/components/blog/PlatformSettingsSection";
 import BlogTabSwitcher from "@/components/blog/BlogTabSwitcher";
 import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
+import { useRouter } from "next/navigation";
+import { formatDateTime } from "@/utils/formatDateTime";
+
 
 const BlogForm = () => {
+    const router = useRouter();
+
     const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
     const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
     const [platformData, setPlatformData] = useState<any>(null);
@@ -172,9 +177,8 @@ const BlogForm = () => {
                 platforms: Selected_PlateForms
             };
 
-            console.log('BlogFormData', BlogFormData)
-            // const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
-            // const blogId = AddedBlogs.data.blogId;
+            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const blogId = AddedBlogs.data.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
                 platform_id: p.platformId,
@@ -187,10 +191,11 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            console.log('seoFormDataArray', seoFormDataArray)
-            // await BlogActions.AddSEO(blogId, seoFormDataArray);
+            await BlogActions.AddSEO(blogId, seoFormDataArray);
 
             toast.success("Blog Successfully Added!");
+
+            router.push('/account/blogs')
 
         } catch (error) {
             toast.error(`Error submitting blog or SEO 😢: ${(error as Error).message}`);
@@ -404,7 +409,7 @@ const BlogForm = () => {
                             <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
                                 <div className="flex items-center gap-3">
                                     <span className="text-white glass-card p-2">{category}</span>
-                                    {publishDate && (<span>{publishDate}</span>)}
+                                    {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                                 </div>
                                 <div className="text-white text-sm">
                                     {author && (<span className="font-medium"> By {author}</span>)}
@@ -418,7 +423,7 @@ const BlogForm = () => {
                                 </div>
                                 )}
                             {excerpt && (
-                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic">{excerpt}</p>
+                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic"><strong>Short Excerpt: </strong>{excerpt}</p>
                             )}
                             <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
                             {tags.length > 0 && (
@@ -426,8 +431,8 @@ const BlogForm = () => {
                                     <h3 className="font-semibold mb-2">Tags</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {tags.map((tag, index) => (
-                                            <span key={index} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                                #{tag}
+                                            <span key={index} className="rounded-full text-sm">
+                                                {`${tag}`}
                                             </span>
                                         ))}
                                     </div>
@@ -455,7 +460,7 @@ const BlogForm = () => {
                                         )
                                         const settings = platformSettings[platformId]
                                         return (
-                                            <div key={platformId} className="border rounded-xl p-4 bg-gray-50 space-y-2">
+                                            <div key={platformId} className="border rounded-xl p-4 space-y-2">
                                                 <h4 className="font-semibold text-lg">{platform?.platform_name}</h4>
                                                 <p><b>Slug:</b> {settings?.slug || "-"}</p>
                                                 <p><b>Status:</b> {settings?.publishStatus || "draft"}</p>

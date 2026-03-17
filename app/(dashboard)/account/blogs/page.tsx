@@ -2,6 +2,7 @@
 
 import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
+import { formatDateTime } from "@/utils/formatDateTime";
 import { Eye, Pencil, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -70,7 +71,6 @@ const Blogs = () => {
     }
   };
 
-  console.log('GetTag', GetTag)
   return (
     <>
       <div className="glass-card p-4">
@@ -173,14 +173,7 @@ const Blogs = () => {
                     <td className="p-2 max-w-[125px] truncate">{b.author}</td>
                     <td className="p-2 max-w-[165px] truncate">{b.category}</td>
                     <td className="p-2 max-w-[265px] truncate">{b.tags?.join(", ")}</td>
-                    <td className="p-2 max-w-[230px] truncate">{new Date(b.created_at).toLocaleString("en-IN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}</td>
+                    <td className="p-2 max-w-[230px] truncate">{formatDateTime(b.created_at)}</td>
                     <td className="p-2 flex items-center gap-2">
                       <button
                         className="text-white hover:text-blue-500"
@@ -249,16 +242,21 @@ const Blogs = () => {
       )}
       {selectedBlog && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 text-white rounded-xl p-6 w-full max-w-xl relative glass-card">
+          <div className="bg-gray-800 text-white rounded-xl p-6 w-full max-w-[1000px] relative glass-card">
             <button
-              className="absolute top-4 right-4 text-white hover:text-red-500"
+              className="absolute top-2 right-2 text-white hover:text-red-500"
               onClick={() => setSelectedBlog(null)}
             >
               <X size={20} />
             </button>
 
+            <img src={`${process.env.BACKEND_DOMAIN}/${selectedBlog.featured_image}`} alt={`${selectedBlog.blog_title}`} className="float-right w-[300px] h-[300px] rounded-[15px]" />
             <h2 className="text-2xl font-bold mb-4">{selectedBlog.blog_title}</h2>
-            <p className="mb-2"><strong>Author:</strong> {(selectedBlog.author) || '-'}</p>
+            <div className="text-white flex gap-10">
+              {selectedBlog.author && (<p className="mb-2"><strong>Author:</strong> By {selectedBlog.author}</p>)}
+              {" • "}
+              {selectedBlog.readingTime || 0} min read
+            </div>
             <p className="mb-2"><strong>Platform:</strong> {selectedBlog.platforms.map((pId: number) => {
               const platform = platformData?.data.find((plat: any) => plat.id === pId);
               return (
@@ -269,18 +267,27 @@ const Blogs = () => {
             <p className="mb-2"><strong>Category:</strong> {selectedBlog.category}</p>
             <p className="mb-2"><strong>Tags:</strong> {selectedBlog.tags?.join(", ")}</p>
             <p className="mb-2">
-              <strong>Date:</strong> {new Date(selectedBlog.created_at).toLocaleString("en-IN", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })}
+              <strong>Create Date:</strong>{formatDateTime(selectedBlog.created_at)}</p>
+            <p className="mb-2">
+              <strong>Publish Date:</strong>
+              {formatDateTime(selectedBlog.publish_date)}
             </p>
-            <div className="mt-4">
-              <p>{selectedBlog.content}</p>
-            </div>
+            <p className="mb-2"><strong>Short Excerpt:</strong> {selectedBlog.short_excerpt}</p>
+            {selectedBlog.related.length > 0 && (
+              <p className="mb-2">
+                <strong>Related:</strong>{" "}
+                {selectedBlog.related
+                  .map((r: number) => {
+                    const blog = blogs?.find((b: any) => b.id === r);
+                    return blog?.blog_title;
+                  })
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            )}
+            <p className="mb-2">
+              <strong>Content:</strong> <span className="mt-4" dangerouslySetInnerHTML={{ __html: selectedBlog.full_content }} />
+            </p>
           </div>
         </div>
       )}
