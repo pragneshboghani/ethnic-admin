@@ -14,7 +14,7 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import PlatformSettingsSection from "@/components/blog/PlatformSettingsSection";
 import BlogTabSwitcher from "@/components/blog/BlogTabSwitcher";
 import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/utils/formatDateTime";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
@@ -37,7 +37,7 @@ const BlogForm = () => {
     const [image, setImage] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
-    const [author, setAuthor] = useState('');
+    // const [author, setAuthor] = useState('');
     const [category, setCategory] = useState('software-development');
     const [publishDate, setPublishDate] = useState<string>('');
     const [globalStatus, setGlobalStatus] = useState('DRAFT');
@@ -147,7 +147,7 @@ const BlogForm = () => {
             excerpt,
             formContent,
             image: uploadedImageUrl,
-            author,
+            // author,
             category,
             publishDate,
             globalStatus,
@@ -178,7 +178,7 @@ const BlogForm = () => {
                 featured_image: formData.image,
                 category: formData.category,
                 tags: formData.tags,
-                author: formData.author,
+                // author: formData.author,
                 publish_date: formData.publishDate,
                 reading_time: formData.reading_time,
                 related: formData.related_blogs,
@@ -225,7 +225,7 @@ const BlogForm = () => {
                 featured_image: formData.image || '',
                 category: formData.category || '',
                 tags: formData.tags || [],
-                author: formData.author || '',
+                // author: formData.author || '',
                 publish_date: formData.publishDate || '',
                 reading_time: formData.reading_time || 0,
                 related: formData.related_blogs || [],
@@ -297,7 +297,7 @@ const BlogForm = () => {
                 setTitle(blog.blog_title);
                 setExcerpt(blog.short_excerpt);
                 setFormContent(blog.full_content);
-                setAuthor(blog.author);
+                // setAuthor(blog.author);
                 setCategory(blog.category);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
                 setGlobalStatus(blog.status);
@@ -358,7 +358,7 @@ const BlogForm = () => {
                 featured_image: formData.image,
                 category: formData.category,
                 tags: formData.tags,
-                author: formData.author,
+                // author: formData.author,
                 publish_date: formData.publishDate,
                 reading_time: formData.reading_time,
                 related: formData.related_blogs,
@@ -438,8 +438,8 @@ const BlogForm = () => {
                     setGlobalStatus={setGlobalStatus}
                     publishDate={publishDate}
                     setPublishDate={setPublishDate}
-                    author={author}
-                    setAuthor={setAuthor}
+                    // author={author}
+                    // setAuthor={setAuthor}
                     category={category}
                     setCategory={setCategory}
                     image={image}
@@ -530,8 +530,8 @@ const BlogForm = () => {
                                     {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                                 </div>
                                 <div className="text-white text-sm">
-                                    {author && (<span className="font-medium"> By {author}</span>)}
-                                    {" • "}
+                                    {/* {author && (<span className="font-medium"> By {author}</span>)} */}
+                                    {/* {" • "} */}
                                     {readingTime || 0} min read
                                 </div>
                             </div>

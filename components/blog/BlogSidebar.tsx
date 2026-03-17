@@ -17,8 +17,8 @@ type BlogSidebarProps = {
     setGlobalStatus: React.Dispatch<React.SetStateAction<string>>;
     publishDate: string;
     setPublishDate: React.Dispatch<React.SetStateAction<string>>;
-    author: string;
-    setAuthor: React.Dispatch<React.SetStateAction<string>>;
+    // author: string;
+    // setAuthor: React.Dispatch<React.SetStateAction<string>>;
     category: string;
     setCategory: React.Dispatch<React.SetStateAction<string>>;
     image: string | null;
@@ -32,8 +32,8 @@ const BlogSidebar = ({
     setGlobalStatus,
     publishDate,
     setPublishDate,
-    author,
-    setAuthor,
+    // author,
+    // setAuthor,
     category,
     setCategory,
     image,
@@ -76,7 +76,7 @@ const BlogSidebar = ({
                         />
                     </div>
 
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
                         <input
                             type="text"
@@ -84,7 +84,7 @@ const BlogSidebar = ({
                             onChange={(e) => setAuthor(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                         />
-                    </div>
+                    </div> */}
 
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
