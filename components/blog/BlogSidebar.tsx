@@ -9,9 +9,12 @@ type BlogSidebarProps = {
     setPublishDate: React.Dispatch<React.SetStateAction<string>>;
     // author: string;
     // setAuthor: React.Dispatch<React.SetStateAction<string>>;
-    category: string;
-    setCategory: React.Dispatch<React.SetStateAction<string>>;
-    categories: string[];
+    category: number[];
+    setCategory: React.Dispatch<React.SetStateAction<number[]>>;
+    categories: {
+        id: number;
+        name: string;
+    }[];
     image: string | null;
     handleRemoveImage: () => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -81,28 +84,42 @@ const BlogSidebar = ({
                     </div> */}
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
-                        <select
-                            value={category}
-                            onChange={(e) => {
-                                if (e.target.value === "__add_new__") {
-                                    setIsCategoryModalOpen(true);
-                                    return;
-                                }
-                                setCategory(e.target.value);
-                            }}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-black focus:outline-none text-sm"
-                        >
-                            <option value="">Select Category</option>
-                            <option value="__add_new__">+ Add New Category</option>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Category
+                        </label>
 
-                            {categories.map((cat, i) => (
-                                <option key={i} value={cat}>
-                                    {cat}
-                                </option>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+
+                            {/* Add New */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCategoryModalOpen(true)}
+                                    className="text-blue-600 text-sm hover:underline"
+                                >
+                                    + Add New Category
+                                </button>
+                            </div>
+
+                            {/* Category List */}
+                            {categories.map((cat) => (
+                                <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={category.includes(cat.id)}
+                                        onChange={() => {
+                                            if (category.includes(cat.id)) {
+                                                setCategory(category.filter(id => id !== cat.id));
+                                            } else {
+                                                setCategory([...category, cat.id]);
+                                            }
+                                        }}
+                                        className="w-4 h-4 accent-blue-600"
+                                    />
+                                    <span className="text-sm text-black">{cat.name}</span>
+                                </label>
                             ))}
-
-                        </select>
+                        </div>
                     </div>
                 </div>
             </div>

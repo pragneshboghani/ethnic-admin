@@ -36,7 +36,7 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
       platformData = data;
     }
 
-    const slug = generateSlug(name);
+    const slug = await generateSlug(name);
     const results = await Promise.all(
       platformData.map((platform) =>
         postCategoryToPlatform(platform, {
@@ -50,7 +50,7 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO category (name, slug, description, status, platform_ids) VALUES (?, ?, ?, ?, ?)`,
-      [name, slug, description, status, platforms],
+      [name, slug, description, status, JSON.stringify(platforms)],
     );
 
     res.send({

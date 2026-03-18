@@ -20,6 +20,10 @@ import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 import CategoryModal from "@/components/common/CategoryModal";
 
+type CategoryType = {
+    id: number;
+    name: string;
+};
 
 const BlogForm = () => {
     const router = useRouter();
@@ -39,7 +43,7 @@ const BlogForm = () => {
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
     // const [author, setAuthor] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState<number[]>([]);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [publishDate, setPublishDate] = useState<string>('');
     const [globalStatus, setGlobalStatus] = useState('DRAFT');
@@ -64,12 +68,11 @@ const BlogForm = () => {
         };
     }>({});
 
-    const [categories, setCategories] = useState<string[]>([]);
+    const [categories, setCategories] = useState<CategoryType[]>([]);
 
     const fetchCategories = async () => {
         const res = await BlogActions.FetchCategory();
-        const names = res.data.map((c: any) => c.name);
-        setCategories(names);
+       setCategories(res.data);
     };
 
     useEffect(() => {
@@ -309,7 +312,7 @@ const BlogForm = () => {
                 setExcerpt(blog.short_excerpt);
                 setFormContent(blog.full_content);
                 // setAuthor(blog.author);
-                setCategory(blog.category);
+                setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
                 setGlobalStatus(blog.status);
                 setTags(blog.tags || []);
@@ -539,7 +542,13 @@ const BlogForm = () => {
                             )}
                             <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-white glass-card p-2">{category}</span>
+                                    <span className="text-white glass-card p-2"><span>
+    {category
+        .map(id => categories.find(c => c.id === id)?.name)
+        .filter(Boolean)
+        .join(', ')
+    }
+</span></span>
                                     {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                                 </div>
                                 <div className="text-white text-sm">

@@ -3,7 +3,6 @@ const generateSlug = require("./generateSlug");
 
 const postToPlatform = async (platform, blogData) => {
   try {
-    console.log("enter in postToPlatform");
     const url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
 
     let headers = {};
@@ -24,6 +23,7 @@ const postToPlatform = async (platform, blogData) => {
       content: blogData.full_content,
       slug: generateSlug(blogData.blog_title),
       status: blogData.status === "draft" ? "draft" : "publish",
+      categories: blogData.category
     };
 
     const response = await axios.post(url, payload, { headers });
