@@ -2,6 +2,7 @@ const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const mysqlpool = require("../config/db");
 const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
+const generateSlug = require("../utils/generateSlug");
 
 const CategoryRouter = express.Router();
 
@@ -23,7 +24,7 @@ CategoryRouter.get("/all", authMiddleware, async (req, res) => {
 
 CategoryRouter.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { name, slug, description, status, platforms } = req.body;
+    const { name, description, status, platforms } = req.body;
 
     let platformData = [];
 
@@ -35,9 +36,7 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
       platformData = data;
     }
 
-    console.log("req.body", req.body);
-    console.log("platformData", platformData);
-
+    const slug = generateSlug(name);
     const results = await Promise.all(
       platformData.map((platform) =>
         postCategoryToPlatform(platform, {

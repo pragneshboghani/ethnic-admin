@@ -2,8 +2,8 @@ const axios = require("axios");
 
 const postCategoryToPlatform = async (platform, category) => {
   try {
-    console.log('enter in category add')
-    const url = `${platform.api_endpoint}/categories`;
+    console.log("enter in category add");
+    const url = `${platform.api_endpoint}/wp-json/wp/v2/categories`;
 
     const payload = {
       name: category.name,
@@ -22,7 +22,7 @@ const postCategoryToPlatform = async (platform, category) => {
 
     if (platform.auth_type === "basic") {
       const base64 = Buffer.from(
-        `${platform.username}:${platform.password}`
+        `${platform.username}:${platform.password}`,
       ).toString("base64");
 
       headers.Authorization = `Basic ${base64}`;
@@ -38,7 +38,7 @@ const postCategoryToPlatform = async (platform, category) => {
   } catch (error) {
     console.error(
       `Error posting category to ${platform.platform_name}:`,
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
 
     return {

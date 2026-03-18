@@ -235,7 +235,6 @@ const BlogActions = {
 
   CreateCategory: async (data: {
     name: string;
-    slug: string;
     description: string;
     status: string;
     platforms: number[];

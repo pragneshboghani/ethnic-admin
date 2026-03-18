@@ -10,17 +10,8 @@ type Props = {
     onSuccess?: () => void;
 };
 
-const generateSlug = (name: string) => {
-    return name
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
-};
-
 const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
     const [categoryName, setCategoryName] = useState("");
-    const [slug, setSlug] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState("publish");
     const [loading, setLoading] = useState(false);
@@ -46,14 +37,12 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
             await BlogActions.CreateCategory({
                 name: categoryName,
-                slug,
                 description,
                 status,
                 platforms: selectedPlatforms.length ? selectedPlatforms : [],
             });
 
             setCategoryName("");
-            setSlug("");
             setDescription("");
             setStatus("publish");
             setSelectedPlatforms([]);
@@ -83,16 +72,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     value={categoryName}
                     onChange={(e) => {
                         setCategoryName(e.target.value);
-                        setSlug(generateSlug(e.target.value));
                     }}
-                    className="w-full px-4 py-2 rounded-lg text-white border"
-                />
-
-                <input
-                    type="text"
-                    placeholder="Slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
                     className="w-full px-4 py-2 rounded-lg text-white border"
                 />
 
