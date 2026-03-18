@@ -19,6 +19,7 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 import CategoryModal from "@/components/common/CategoryModal";
+import TagModal from "@/components/common/TagModal";
 
 type CategoryType = {
     id: number;
@@ -56,6 +57,9 @@ const BlogForm = () => {
     const [isMediaPopupOpen, setIsMediaPopupOpen] = useState(false);
     const [mediaFiles, setMediaFiles] = useState<any[]>([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [tagsList, setTagsList] = useState<{ id: number; name: string }[]>([]);
+    const [selectedTags, setSelectedTags] = useState<number[]>([]);
+    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [platformSettings, setPlatformSettings] = useState<{
         [platformId: number]: {
             seoTitle: string;
@@ -72,9 +76,13 @@ const BlogForm = () => {
 
     const fetchCategories = async () => {
         const res = await BlogActions.FetchCategory();
-       setCategories(res.data);
+        setCategories(res.data);
     };
 
+    const fetchTags = async () => {
+        const res = await BlogActions.FetchTags();
+        setTagsList(res.data);
+    };
     useEffect(() => {
         const fetchPlatforms = async () => {
             const res = await PlateformActions.GetAllPlateform();
@@ -92,6 +100,7 @@ const BlogForm = () => {
         };
         fetchMedia();
         fetchCategories();
+        fetchTags()
     }, []);
 
     const editor = useEditor({
@@ -191,7 +200,8 @@ const BlogForm = () => {
                 full_content: formData.formContent,
                 featured_image: formData.image,
                 category: formData.category,
-                tags: formData.tags,
+                // tags: formData.tags,
+                tags: selectedTags,
                 // author: formData.author,
                 publish_date: formData.publishDate,
                 reading_time: formData.reading_time,
@@ -434,6 +444,10 @@ const BlogForm = () => {
                             setIsPopupOpen={setIsPopupOpen}
                             setReadingTime={setReadingTime}
                             readingTime={readingTime}
+                            tagsList={tagsList}
+                            selectedTags={selectedTags}
+                            setSelectedTags={setSelectedTags}
+                            setIsTagModalOpen={setIsTagModalOpen}
                         />
                     ) : (
                         <PlatformSettingsSection
@@ -543,12 +557,12 @@ const BlogForm = () => {
                             <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
                                 <div className="flex items-center gap-3">
                                     <span className="text-white glass-card p-2"><span>
-    {category
-        .map(id => categories.find(c => c.id === id)?.name)
-        .filter(Boolean)
-        .join(', ')
-    }
-</span></span>
+                                        {category
+                                            .map(id => categories.find(c => c.id === id)?.name)
+                                            .filter(Boolean)
+                                            .join(', ')
+                                        }
+                                    </span></span>
                                     {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                                 </div>
                                 <div className="text-white text-sm">
@@ -623,6 +637,15 @@ const BlogForm = () => {
                     onClose={() => setIsCategoryModalOpen(false)}
                     onSuccess={async () => {
                         await fetchCategories();
+                    }}
+                />
+            )}
+            {isTagModalOpen && (
+                <TagModal
+                    isOpen={isTagModalOpen}
+                    onClose={() => setIsTagModalOpen(false)}
+                    onSuccess={async () => {
+                        await fetchTags();
                     }}
                 />
             )}

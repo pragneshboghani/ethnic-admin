@@ -14,6 +14,10 @@ type BlogGeneralSectionProps = {
     setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
     readingTime: number;
     setReadingTime: React.Dispatch<React.SetStateAction<number>>;
+    tagsList: { id: number; name: string }[];
+    selectedTags: number[];
+    setSelectedTags: React.Dispatch<React.SetStateAction<number[]>>;
+    setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const BlogGeneralSection = ({
@@ -28,6 +32,10 @@ const BlogGeneralSection = ({
     allBlogs,
     setIsPopupOpen,
     setReadingTime,
+    tagsList,
+    selectedTags,
+    setSelectedTags,
+    setIsTagModalOpen
 }: BlogGeneralSectionProps) => (
     <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
@@ -60,7 +68,7 @@ const BlogGeneralSection = ({
         </div>
 
         <div className="space-y-2 flex w-full justify-between gap-3">
-
+            {/* 
             <div className="m-0">
                 <label className="text-sm font-semibold">Tags (comma separated)</label>
                 <input
@@ -79,6 +87,42 @@ const BlogGeneralSection = ({
                             ))}
                         </div>
                     )}
+                </div>
+            </div> */}
+            <div className="space-y-2">
+                <label className="text-sm font-semibold">Tags</label>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-48 overflow-y-auto space-y-2 w-[250px]">
+
+                    {/* Add New Tag */}
+                    <div>
+                        <button
+                            type="button"
+                            onClick={() => setIsTagModalOpen(true)}
+                            className="text-blue-600 text-sm hover:underline"
+                        >
+                            + Add New Tag
+                        </button>
+                    </div>
+
+                    {/* Tag List */}
+                    {tagsList.map((tag) => (
+                        <label key={tag.id} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={selectedTags.includes(tag.id)}
+                                onChange={() => {
+                                    if (selectedTags.includes(tag.id)) {
+                                        setSelectedTags(selectedTags.filter(id => id !== tag.id));
+                                    } else {
+                                        setSelectedTags([...selectedTags, tag.id]);
+                                    }
+                                }}
+                                className="w-4 h-4 accent-blue-600"
+                            />
+                            <span className="text-sm text-black">{tag.name}</span>
+                        </label>
+                    ))}
                 </div>
             </div>
 

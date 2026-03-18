@@ -21,9 +21,10 @@ const postToPlatform = async (platform, blogData) => {
       title: blogData.blog_title,
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
-      slug: generateSlug(blogData.blog_title),
+      slug: await generateSlug(blogData.blog_title),
       status: blogData.status === "draft" ? "draft" : "publish",
-      categories: blogData.category
+      categories: blogData.category,
+      tags: blogData.tags
     };
 
     const response = await axios.post(url, payload, { headers });
