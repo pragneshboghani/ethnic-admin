@@ -90,7 +90,7 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
         short_excerpt,
         full_content,
         featured_image,
-        category,
+        JSON.stringify(category),
         JSON.stringify(tags),
         author,
         publish_date,

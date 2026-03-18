@@ -1,20 +1,20 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const mysqlpool = require("../config/db");
-const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 const generateSlug = require("../utils/generateSlug");
+const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 
-const CategoryRouter = express.Router();
+const TagRouter = express.Router();
 
-CategoryRouter.get("/all", authMiddleware, async (req, res) => {
+TagRouter.get("/all", authMiddleware, async (req, res) => {
   try {
-    const [rows] = await mysqlpool.query("SELECT * FROM category");
+    const [rows] = await mysqlpool.query("SELECT * FROM tags");
     res.status(200).send({
       success: true,
       data: rows,
     });
   } catch (error) {
-    console.error("Error fetching Category:", error);
+    console.error("Error fetching Tags:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -22,7 +22,7 @@ CategoryRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-CategoryRouter.post("/add", authMiddleware, async (req, res) => {
+TagRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
@@ -44,18 +44,18 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
           slug,
           description,
           status,
-        }, 'categories'),
+        },'tags'),
       ),
     );
 
     const [result] = await mysqlpool.query(
-      `INSERT INTO category (name, slug, description, status, platform_ids) VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO tags (name, slug, description, status, platform_ids) VALUES (?, ?, ?, ?, ?)`,
       [name, slug, description, status, JSON.stringify(platforms)],
     );
 
     res.send({
       success: true,
-      message: "category Added successfully",
+      message: "tag Added successfully",
     });
   } catch (error) {
     console.error(error);
@@ -66,4 +66,4 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = CategoryRouter;
+module.exports = TagRouter;

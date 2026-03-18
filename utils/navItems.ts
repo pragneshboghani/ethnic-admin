@@ -16,5 +16,5 @@ export const navItems = [
   { id: 2, name: "Blogs", href: "/account/blogs", icon: FileText },
   { id: 3, name: "Platforms", href: "/account/plateforms", icon: Globe },
   { id: 4, name: "Media Library", href: "/account/media", icon: ImageIcon },
-  { id: 5, name: "Blog Categories", href: "/account/category", icon: StretchHorizontal}
+  { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal}
 ];

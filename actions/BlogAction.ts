@@ -263,6 +263,58 @@ const BlogActions = {
       throw error;
     }
   },
+
+  FetchTags: async () => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/tags/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch tags");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching Tags:", error.message);
+      throw error;
+    }
+  },
+
+  CreateTag: async (data: {
+    name: string;
+    description: string;
+    status: string;
+    platforms: number[];
+  }) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/tags/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add Tag");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding Tag:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;

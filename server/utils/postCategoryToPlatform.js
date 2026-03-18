@@ -1,9 +1,8 @@
 const axios = require("axios");
 
-const postCategoryToPlatform = async (platform, category) => {
+const postCategoryToPlatform = async (platform, category, path) => {
   try {
-    console.log("enter in category add");
-    const url = `${platform.api_endpoint}/wp-json/wp/v2/categories`;
+    const url = `${platform.api_endpoint}/wp-json/wp/v2/${path}`;
 
     const payload = {
       name: category.name,

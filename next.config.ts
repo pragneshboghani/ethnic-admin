@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   env: {
-    BACKEND_DOMAIN:'https://api-admin.ethnicinfotech.in'
+    BACKEND_DOMAIN:'http://localhost:5003'
   }
 };
 
