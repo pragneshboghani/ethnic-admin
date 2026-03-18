@@ -1,6 +1,7 @@
 const express = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const postToPlatform = require("../utils/postToPlatform");
 
 const BlogRouter = express.Router();
 
@@ -66,6 +67,20 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
       platforms,
     } = req.body;
 
+    let platformData = [];
+
+    if (platforms && platforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [platforms],
+      );
+      platformData = data;
+    }
+
+    const results = await Promise.all(
+      platformData.map((platform) => postToPlatform(platform, req.body)),
+    );
+
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
       (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms)
@@ -89,6 +104,7 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
     res.status(201).send({
       success: true,
       message: "Blog added successfully",
+      plarformResult: results,
       blogId: result.insertId,
     });
   } catch (error) {

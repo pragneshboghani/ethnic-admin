@@ -10,7 +10,6 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [scrolled, setScrolled] = useState(false);
   const [IsLogin, setIsLogin] = useState(false)
 
   useEffect(() => {
@@ -18,17 +17,8 @@ const Header = () => {
     setIsLogin(Login)
   }, [pathname]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <header className={`fixed w-full top-0 z-50 ${scrolled ? 'glass' : ''}`}>
+    <header className={`fixed w-full top-0 z-50`}>
       <div className="w-full border-b px-15 py-5 flex justify-center bg-[#1a1a1a] opacity-100">
         <div className="w-full flex justify-between items-center">
           <Link href="/" className="flex items-center">

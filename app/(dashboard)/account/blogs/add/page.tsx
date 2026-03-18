@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/utils/formatDateTime";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
+import CategoryModal from "@/components/common/CategoryModal";
 
 
 const BlogForm = () => {
@@ -38,7 +39,8 @@ const BlogForm = () => {
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
     // const [author, setAuthor] = useState('');
-    const [category, setCategory] = useState('software-development');
+    const [category, setCategory] = useState('');
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [publishDate, setPublishDate] = useState<string>('');
     const [globalStatus, setGlobalStatus] = useState('DRAFT');
     const [tags, setTags] = useState<string[]>([]);
@@ -62,6 +64,14 @@ const BlogForm = () => {
         };
     }>({});
 
+    const [categories, setCategories] = useState<string[]>([]);
+
+    const fetchCategories = async () => {
+        const res = await BlogActions.FetchCategory();
+        const names = res.data.map((c: any) => c.name);
+        setCategories(names);
+    };
+
     useEffect(() => {
         const fetchPlatforms = async () => {
             const res = await PlateformActions.GetAllPlateform();
@@ -78,6 +88,7 @@ const BlogForm = () => {
             setMediaFiles(res.data);
         };
         fetchMedia();
+        fetchCategories();
     }, []);
 
     const editor = useEditor({
@@ -442,6 +453,8 @@ const BlogForm = () => {
                     // setAuthor={setAuthor}
                     category={category}
                     setCategory={setCategory}
+                    categories={categories}
+                    setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}
                     handleRemoveImage={handleRemoveImage}
                     handleFileChange={handleFileChange}
@@ -594,6 +607,15 @@ const BlogForm = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {isCategoryModalOpen && (
+                <CategoryModal
+                    isOpen={isCategoryModalOpen}
+                    onClose={() => setIsCategoryModalOpen(false)}
+                    onSuccess={async () => {
+                        await fetchCategories();
+                    }}
+                />
             )}
         </form>
     );

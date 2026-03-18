@@ -11,6 +11,7 @@ const DashboardRouter = require("./routes/dashboard");
 const Mediarouter = require("./routes/media");
 const SEORouter = require("./routes/seo");
 const UserRouter = require("./routes/user");
+const CategoryRouter = require("./routes/category");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/dashboard", DashboardRouter);
 app.use("/api/media", Mediarouter);
 app.use("/api/seo", SEORouter);
 app.use("/api/user", UserRouter);
+app.use("/api/category", CategoryRouter)
 
 app.get("/", (req, res) => {
   res.send("Welcome to Ethnic Blog");

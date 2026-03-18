@@ -1,16 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { Save, Send, CheckCircle2, X, Trash2, Eye } from 'lucide-react';
-import PlateformActions from "@/actions/PlateFormActions";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import EditorToolbar from "@/components/blog/EditorToolbar";
-import BlogActions from "@/actions/BlogAction";
-import MediaActions from "@/actions/MediaAction";
-import { toast } from "react-toastify";
-import BlogHeader from "@/components/blog/BlogHeader";
+import { Trash2 } from 'lucide-react';
 
 type BlogSidebarProps = {
     globalStatus: string;
@@ -21,10 +11,12 @@ type BlogSidebarProps = {
     // setAuthor: React.Dispatch<React.SetStateAction<string>>;
     category: string;
     setCategory: React.Dispatch<React.SetStateAction<string>>;
+    categories: string[];
     image: string | null;
     handleRemoveImage: () => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setIsMediaPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const BlogSidebar = ({
@@ -36,10 +28,12 @@ const BlogSidebar = ({
     // setAuthor,
     category,
     setCategory,
+    categories,
     image,
     handleRemoveImage,
     handleFileChange,
     setIsMediaPopupOpen,
+    setIsCategoryModalOpen
 }: BlogSidebarProps) => (
 
     <>
@@ -90,13 +84,24 @@ const BlogSidebar = ({
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
                         <select
                             value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-black focus:outline-none  text-sm"
+                            onChange={(e) => {
+                                if (e.target.value === "__add_new__") {
+                                    setIsCategoryModalOpen(true);
+                                    return;
+                                }
+                                setCategory(e.target.value);
+                            }}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-black focus:outline-none text-sm"
                         >
-                            <option value="software-development" className="text-black">Software Development</option>
-                            <option value="industry-trends" className="text-black">IT Industry Trends</option>
-                            <option value="project-management" className="text-black">Project Management</option>
-                            <option value="tutorials" className="text-black">Tech Tutorials & How-Tos</option>
+                            <option value="">Select Category</option>
+                            <option value="__add_new__">+ Add New Category</option>
+
+                            {categories.map((cat, i) => (
+                                <option key={i} value={cat}>
+                                    {cat}
+                                </option>
+                            ))}
+
                         </select>
                     </div>
                 </div>

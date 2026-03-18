@@ -23,19 +23,14 @@ const Blogs = () => {
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
-  const [GetTag, setGetTag] = useState(null)
 
   useEffect(() => {
     const fetchPlatforms = async () => {
       const res = await PlateformActions.GetAllPlateform();
       setPlatformData(res);
     };
-    const fetchAllTags = async () => {
-      const res = await BlogActions.GetAllTags()
-      setGetTag(res.data.all_tags)
-    }
+
     fetchPlatforms();
-    fetchAllTags()
   }, []);
 
   const fetchBlogs = async () => {
@@ -92,13 +87,13 @@ const Blogs = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <input
+          {/* <input
             type="text"
             placeholder="Author"
             className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-          />
+          /> */}
 
           <input
             type="text"
@@ -116,33 +111,32 @@ const Blogs = () => {
             onChange={(e) => setTags(e.target.value)}
           />
 
-          <div className="flex gap-3 h-full">
-            {platformData?.totalPlatforms > 0 && (
-              <select
-                className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-              >
-                <option value="0" className="text-black">All Platforms</option>
-                {platformData.data.map((p: any) => (
-                  <option key={p.id} value={p.id} className="text-black">
-                    {p.platform_name}
-                  </option>
-                ))}
-              </select>
-            )}
-
+          {platformData?.totalPlatforms > 0 && (
             <select
-              className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
             >
-              <option value="all" className="text-black">All Status</option>
-              <option value="Published" className="text-black">Published</option>
-              <option value="Draft" className="text-black">Draft</option>
-              <option value="Scheduled" className="text-black">Scheduled</option>
+              <option value="0" className="text-black">All Platforms</option>
+              {platformData.data.map((p: any) => (
+                <option key={p.id} value={p.id} className="text-black">
+                  {p.platform_name}
+                </option>
+              ))}
             </select>
-          </div>
+          )}
+
+          <select
+            className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="all" className="text-black">All Status</option>
+            <option value="Published" className="text-black">Published</option>
+            <option value="Draft" className="text-black">Draft</option>
+            <option value="Scheduled" className="text-black">Scheduled</option>
+          </select>
+
         </div>
       </div>
       <div className="glass-card p-4 mt-5">
@@ -155,7 +149,7 @@ const Blogs = () => {
                 <th className="p-2">Blog Title</th>
                 <th className="p-2">Platform</th>
                 <th className="p-2">Status</th>
-                <th className="p-2">Author</th>
+                {/* <th className="p-2">Author</th> */}
                 <th className="p-2">Category</th>
                 <th className="p-2">Tags</th>
                 <th className="p-2">Date</th>
@@ -178,7 +172,7 @@ const Blogs = () => {
                       })}
                     </td>
                     <td className="p-2 max-w-[100px] truncate">{b.status}</td>
-                    <td className="p-2 max-w-[125px] truncate">{b.author}</td>
+                    {/* <td className="p-2 max-w-[125px] truncate">{b.author}</td> */}
                     <td className="p-2 max-w-[165px] truncate">{b.category}</td>
                     <td className="p-2 max-w-[265px] truncate">{b.tags?.join(", ")}</td>
                     <td className="p-2 max-w-[230px] truncate">{formatDateTime(b.created_at)}</td>

@@ -211,6 +211,59 @@ const BlogActions = {
       throw error;
     }
   },
+
+  FetchCategory: async () => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching Category:", error.message);
+      throw error;
+    }
+  },
+
+  CreateCategory: async (data: {
+    name: string;
+    slug: string;
+    description: string;
+    status: string;
+    platforms: number[];
+  }) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add Category");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding Category:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;
