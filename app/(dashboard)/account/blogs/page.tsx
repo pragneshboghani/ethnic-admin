@@ -85,6 +85,9 @@ const Blogs = () => {
     }
   }, [selectUpdate, router]);
 
+  console.log('tagData', tagData)
+  console.log('categoryData', categoryData)
+  console.log('blog', blogs)
   return (
     <>
       <div className="glass-card p-4">
@@ -171,8 +174,8 @@ const Blogs = () => {
               {blogs.length > 0 ? (
                 blogs.map((b) => (
                   <tr key={b.id} className="hover:bg-gray-700">
-                    <td className="p-2 max-w-[250px] truncate">{b.blog_title}</td>
-                    <td className="p-2 max-w-[50px] truncate">
+                    <td className="p-2 max-w-[300px] truncate">{b.blog_title}</td>
+                    <td className="p-2 max-w-[100px] truncate">
                       {b.platforms.map((pId: number) => {
                         const platform = platformData?.data.find((plat: any) => plat.id === pId);
                         return (
@@ -184,9 +187,29 @@ const Blogs = () => {
                     </td>
                     <td className="p-2 max-w-[100px] truncate">{b.status}</td>
                     {/* <td className="p-2 max-w-[125px] truncate">{b.author}</td> */}
-                    <td className="p-2 max-w-[165px] truncate">{b.category}</td>
-                    <td className="p-2 max-w-[265px] truncate">{b.tags?.join(", ")}</td>
-                    <td className="p-2 max-w-[230px] truncate">{formatDateTime(b.created_at)}</td>
+                    <td className="p-2 max-w-[165px] truncate">
+                      {Array.isArray(b.category)
+                        ? b.category
+                          .map((cId: number) => {
+                            const cat = categoryData?.data?.find((c: any) => c.id === cId);
+                            return cat ? cat.name : null;
+                          })
+                          .filter(Boolean)
+                          .join(", ")
+                        : ""}
+                    </td>
+                    <td className="p-2 max-w-[200px] truncate">
+                      {Array.isArray(b.tags)
+                        ? b.tags
+                          .map((tId: number) => {
+                            const tag = tagData?.data?.find((t: any) => t.id === tId);
+                            return tag ? tag.name : null;
+                          })
+                          .filter(Boolean)
+                          .join(", ")
+                        : ""}
+                    </td>
+                    <td className="p-2 max-w-[150px] truncate">{formatDateTime(b.created_at)}</td>
                     <td className="p-2 flex items-center gap-2">
                       <button
                         className="text-white hover:text-blue-500"
