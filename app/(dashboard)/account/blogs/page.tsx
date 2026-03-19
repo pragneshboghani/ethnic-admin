@@ -286,7 +286,7 @@ const Blogs = () => {
                   .join(", ")}
               </p>
             )}
-            <p className="mb-2">
+            <p className="mb-2 h-full max-h-[250px] overflow-y-auto">
               <strong className="text-gray-700">Content:</strong> <span className="mt-4" dangerouslySetInnerHTML={{ __html: selectedBlog.full_content }} />
             </p>
           </div>

@@ -44,26 +44,6 @@ const BlogActions = {
     }
   },
 
-  GetAllTags: async () => {
-    try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
-      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/tag`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to fetch blogs");
-      }
-
-      return await res.json();
-    } catch (error: any) {
-      console.error("Error fetching blog tag:", error.message);
-      throw error;
-    }
-  },
-
   GetFilteredBlogs: async (filters: {
     platform?: string | number;
     status?: string;

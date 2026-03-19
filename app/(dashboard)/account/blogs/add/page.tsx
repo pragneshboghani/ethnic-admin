@@ -324,8 +324,8 @@ const BlogForm = () => {
                 // setAuthor(blog.author);
                 setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
-                setGlobalStatus(blog.status);
-                setTags(blog.tags || []);
+                setGlobalStatus((blog.status).toUpperCase());
+                setSelectedTags(blog.tags || []);
                 setReadingTime(blog.reading_time || 0);
                 setRelatedBlogs(blog.related || []);
 
@@ -381,7 +381,7 @@ const BlogForm = () => {
                 full_content: formData.formContent,
                 featured_image: formData.image,
                 category: formData.category,
-                tags: formData.tags,
+                tags: selectedTags,
                 // author: formData.author,
                 publish_date: formData.publishDate,
                 reading_time: formData.reading_time,
@@ -409,6 +409,7 @@ const BlogForm = () => {
             toast.error(error.message || "Failed to update blog 😢");
         }
     };
+
     return (
         <form
             className="space-y-8"

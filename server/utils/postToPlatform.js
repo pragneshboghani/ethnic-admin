@@ -1,9 +1,10 @@
 const axios = require("axios");
 const generateSlug = require("./generateSlug");
 
-const postToPlatform = async (platform, blogData) => {
+const postToPlatform = async (platform, blogData, slug = null) => {
   try {
-    const url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
+    let url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
+    let method = "post";
 
     let headers = {};
 
@@ -17,17 +18,38 @@ const postToPlatform = async (platform, blogData) => {
       headers["Authorization"] = `Basic ${base64}`;
     }
 
+    if (slug) {
+      const res = await axios.get(url, {
+        headers,
+        params: { slug },
+      });
+
+      if (!res.data.length) {
+        throw new Error("Post not found on platform with this slug");
+      }
+
+      const postId = res.data[0].id;
+
+      url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+      method = "put";
+    }
+
     const payload = {
       title: blogData.blog_title,
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
       slug: await generateSlug(blogData.blog_title),
       status: blogData.status === "draft" ? "draft" : "publish",
-      categories: blogData.category,
-      tags: blogData.tags
+      categories: (blogData.category || []).map(Number),
+      tags: blogData.tags,
     };
 
-    const response = await axios.post(url, payload, { headers });
+    const response = await axios({
+      method,
+      url,
+      data: payload,
+      headers,
+    });
 
     return {
       success: true,
@@ -38,7 +60,7 @@ const postToPlatform = async (platform, blogData) => {
     return {
       success: false,
       platform: platform.platform_name,
-      error: error.message,
+      error: error.response?.data || error.message,
     };
   }
 };
