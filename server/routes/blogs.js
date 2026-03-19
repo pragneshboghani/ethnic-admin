@@ -173,6 +173,16 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
       ),
     );
 
+    // const failed = results.filter((r) => !r.success);
+
+    // if (failed.length > 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Platform update failed",
+    //     errors: failed,
+    //   });
+    // }
+
     const UpdatedData = {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
@@ -257,6 +267,16 @@ BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => deletePost(platform, raw.slug)),
     );
+
+    // const failed = results.filter((r) => !r.success);
+
+    // if (failed.length > 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Platform delete failed",
+    //     errors: failed,
+    //   });
+    // }
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [
       id,

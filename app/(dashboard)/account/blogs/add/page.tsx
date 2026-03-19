@@ -47,7 +47,7 @@ const BlogForm = () => {
     const [category, setCategory] = useState<number[]>([]);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [publishDate, setPublishDate] = useState<string>('');
-    const [globalStatus, setGlobalStatus] = useState('DRAFT');
+    const [globalStatus, setGlobalStatus] = useState('draft');
     const [tags, setTags] = useState<string[]>([]);
     const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);

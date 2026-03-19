@@ -31,6 +31,11 @@ async function deletePost(platform, slug) {
       `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}?force=true`,
       { headers },
     );
+
+    return {
+      success: true,
+      platform: platform.platform_name,
+    };
   } catch (err) {
     console.log(err.response?.data || err.message);
   }

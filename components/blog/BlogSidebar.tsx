@@ -55,9 +55,9 @@ const BlogSidebar = ({
                             onChange={(e) => setGlobalStatus(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
                         >
-                            <option value="DRAFT" className="text-black">Draft</option>
-                            <option value="SCHEDULED" className="text-black">Scheduled</option>
-                            <option value="PUBLISHED" className="text-black">Published</option>
+                            <option value="draft" className="text-black">Draft</option>
+                            <option value="future" className="text-black">Scheduled</option>
+                            <option value="publish" className="text-black">Published</option>
                         </select>
                     </div>
 

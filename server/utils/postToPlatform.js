@@ -39,7 +39,7 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
       slug: await generateSlug(blogData.blog_title),
-      status: blogData.status === "draft" ? "draft" : "publish",
+      status: (blogData.status).toLowerCase(),
       categories: (blogData.category || []).map(Number),
       tags: blogData.tags,
     };

@@ -85,9 +85,6 @@ const Blogs = () => {
     }
   }, [selectUpdate, router]);
 
-  console.log('tagData', tagData)
-  console.log('categoryData', categoryData)
-  console.log('blog', blogs)
   return (
     <>
       <div className="glass-card p-4">
@@ -146,9 +143,9 @@ const Blogs = () => {
             onChange={(e) => setStatus(e.target.value)}
           >
             <option value="all" className="text-black">All Status</option>
-            <option value="Published" className="text-black">Published</option>
-            <option value="Draft" className="text-black">Draft</option>
-            <option value="Scheduled" className="text-black">Scheduled</option>
+            <option value="publish" className="text-black">Published</option>
+            <option value="draft" className="text-black">Draft</option>
+            <option value="future" className="text-black">Scheduled</option>
           </select>
 
         </div>
@@ -185,7 +182,7 @@ const Blogs = () => {
                         );
                       })}
                     </td>
-                    <td className="p-2 max-w-[100px] truncate">{b.status}</td>
+                    <td className="p-2 max-w-[100px] truncate">{b.status == 'future' ? 'scheduled': b.status}</td>
                     {/* <td className="p-2 max-w-[125px] truncate">{b.author}</td> */}
                     <td className="p-2 max-w-[165px] truncate">
                       {Array.isArray(b.category)
