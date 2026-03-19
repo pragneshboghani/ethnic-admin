@@ -14,8 +14,28 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import PlatformSettingsSection from "@/components/blog/PlatformSettingsSection";
 import BlogTabSwitcher from "@/components/blog/BlogTabSwitcher";
 import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
+import { useRouter } from "next/navigation";
+import { formatDateTime } from "@/utils/formatDateTime";
+import SEOActions from "@/actions/SEOAction";
+import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
+import CategoryModal from "@/components/common/CategoryModal";
+import TagModal from "@/components/common/TagModal";
+
+type CategoryType = {
+    id: number;
+    name: string;
+};
 
 const BlogForm = () => {
+    const router = useRouter();
+
+    const [blogId, setBlogId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setBlogId(params.get("id"));
+    }, []);
+
     const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
     const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
     const [platformData, setPlatformData] = useState<any>(null);
@@ -23,10 +43,11 @@ const BlogForm = () => {
     const [image, setImage] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
-    const [author, setAuthor] = useState('');
-    const [category, setCategory] = useState('software-development');
+    // const [author, setAuthor] = useState('');
+    const [category, setCategory] = useState<number[]>([]);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [publishDate, setPublishDate] = useState<string>('');
-    const [globalStatus, setGlobalStatus] = useState('DRAFT');
+    const [globalStatus, setGlobalStatus] = useState('draft');
     const [tags, setTags] = useState<string[]>([]);
     const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -36,6 +57,9 @@ const BlogForm = () => {
     const [isMediaPopupOpen, setIsMediaPopupOpen] = useState(false);
     const [mediaFiles, setMediaFiles] = useState<any[]>([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [tagsList, setTagsList] = useState<{ id: number; name: string }[]>([]);
+    const [selectedTags, setSelectedTags] = useState<number[]>([]);
+    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [platformSettings, setPlatformSettings] = useState<{
         [platformId: number]: {
             seoTitle: string;
@@ -48,6 +72,17 @@ const BlogForm = () => {
         };
     }>({});
 
+    const [categories, setCategories] = useState<CategoryType[]>([]);
+
+    const fetchCategories = async () => {
+        const res = await BlogActions.FetchCategory();
+        setCategories(res.data);
+    };
+
+    const fetchTags = async () => {
+        const res = await BlogActions.FetchTags();
+        setTagsList(res.data);
+    };
     useEffect(() => {
         const fetchPlatforms = async () => {
             const res = await PlateformActions.GetAllPlateform();
@@ -64,6 +99,8 @@ const BlogForm = () => {
             setMediaFiles(res.data);
         };
         fetchMedia();
+        fetchCategories();
+        fetchTags()
     }, []);
 
     const editor = useEditor({
@@ -133,7 +170,7 @@ const BlogForm = () => {
             excerpt,
             formContent,
             image: uploadedImageUrl,
-            author,
+            // author,
             category,
             publishDate,
             globalStatus,
@@ -163,8 +200,9 @@ const BlogForm = () => {
                 full_content: formData.formContent,
                 featured_image: formData.image,
                 category: formData.category,
-                tags: formData.tags,
-                author: formData.author,
+                // tags: formData.tags,
+                tags: selectedTags,
+                // author: formData.author,
                 publish_date: formData.publishDate,
                 reading_time: formData.reading_time,
                 related: formData.related_blogs,
@@ -172,9 +210,8 @@ const BlogForm = () => {
                 platforms: Selected_PlateForms
             };
 
-            console.log('BlogFormData', BlogFormData)
-            // const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
-            // const blogId = AddedBlogs.data.blogId;
+            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const blogId = AddedBlogs.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
                 platform_id: p.platformId,
@@ -187,10 +224,11 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            console.log('seoFormDataArray', seoFormDataArray)
-            // await BlogActions.AddSEO(blogId, seoFormDataArray);
+            await BlogActions.AddSEO(blogId, seoFormDataArray);
 
             toast.success("Blog Successfully Added!");
+
+            router.push('/account/blogs')
 
         } catch (error) {
             toast.error(`Error submitting blog or SEO 😢: ${(error as Error).message}`);
@@ -211,7 +249,7 @@ const BlogForm = () => {
                 featured_image: formData.image || '',
                 category: formData.category || '',
                 tags: formData.tags || [],
-                author: formData.author || '',
+                // author: formData.author || '',
                 publish_date: formData.publishDate || '',
                 reading_time: formData.reading_time || 0,
                 related: formData.related_blogs || [],
@@ -272,8 +310,118 @@ const BlogForm = () => {
         setSelectedFile(null);
     };
 
+    useEffect(() => {
+        if (!blogId) return;
+
+        const fetchBlogForEdit = async () => {
+            try {
+                const res = await BlogActions.GetById(Number(blogId));
+                const blog = res.data;
+
+                setTitle(blog.blog_title);
+                setExcerpt(blog.short_excerpt);
+                setFormContent(blog.full_content);
+                // setAuthor(blog.author);
+                setCategory(blog.category || []);
+                setPublishDate(normalizeDateForInput(blog.publish_date));
+                setGlobalStatus((blog.status).toUpperCase());
+                setSelectedTags(blog.tags || []);
+                setReadingTime(blog.reading_time || 0);
+                setRelatedBlogs(blog.related || []);
+
+                if (blog.featured_image) {
+                    setImage(blog.featured_image);
+                }
+
+                const platforms = blog.platforms || [];
+                setSelectedPlatforms(platforms);
+
+                const seoPromises = platforms.map(async (platformId: number) => {
+                    const seoRes = await SEOActions.GetByBlogsAndPlatform(blog.id, platformId);
+                    return seoRes.data;
+                });
+
+                const seoDataArray = await Promise.all(seoPromises);
+
+                const newPlatformSettings: Record<number, any> = {};
+                seoDataArray.forEach((seoArray) => {
+                    seoArray.forEach((seo: any) => {
+                        newPlatformSettings[seo.platform_id] = {
+                            slug: seo.slug || "",
+                            publishStatus: seo.publish_status || "draft",
+                            seoTitle: seo.seo_title || "",
+                            metaDescription: seo.meta_description || "",
+                            canonicalUrl: seo.canonical_url || "",
+                            ctaButtonText: seo.cta_button_text || "",
+                            ctaButtonLink: seo.cta_button_link || "",
+                        };
+                    });
+                });
+
+                setPlatformSettings(newPlatformSettings);
+
+            } catch (error) {
+                toast.error("Failed to load blog for editing 😢");
+                console.error(error);
+            }
+        };
+
+        fetchBlogForEdit();
+    }, [blogId]);
+
+    const handleUpdateBlog = async () => {
+        try {
+            const formData = await ConvertBase64()
+
+            const Selected_PlateForms = formData.platforms.map(p => p.platformId);
+
+            const BlogFormData = {
+                blog_title: formData.title,
+                short_excerpt: formData.excerpt,
+                full_content: formData.formContent,
+                featured_image: formData.image,
+                category: formData.category,
+                tags: selectedTags,
+                // author: formData.author,
+                publish_date: formData.publishDate,
+                reading_time: formData.reading_time,
+                related: formData.related_blogs,
+                status: globalStatus,
+                platforms: Selected_PlateForms
+            };
+
+            const res = await BlogActions.UpdateBlog(Number(blogId), BlogFormData);
+            const seoFormDataArray = formData.platforms.map(p => ({
+                platform_id: p.platformId,
+                slug: p.settings.slug || "",
+                publish_status: p.settings.publishStatus || "draft",
+                seo_title: p.settings.seoTitle || "",
+                meta_description: p.settings.metaDescription || "",
+                canonical_url: p.settings.canonicalUrl || "",
+                cta_button_text: p.settings.ctaButtonText || "",
+                cta_button_link: p.settings.ctaButtonLink || "",
+            }));
+
+            await SEOActions.UpdateSEO(Number(blogId), seoFormDataArray);
+            toast.success("Blog updated successfully!");
+            router.push('/account/blogs')
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update blog 😢");
+        }
+    };
+
     return (
-        <form className="space-y-8" onSubmit={handleSubmit}>
+        <form
+            className="space-y-8"
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (blogId) {
+                    handleUpdateBlog();
+                } else {
+                    handleSubmit(e);
+                }
+            }}
+        >
             <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={handleSaveDraft} />
             <BlogTabSwitcher
                 activeTab={activeTab}
@@ -297,6 +445,10 @@ const BlogForm = () => {
                             setIsPopupOpen={setIsPopupOpen}
                             setReadingTime={setReadingTime}
                             readingTime={readingTime}
+                            tagsList={tagsList}
+                            selectedTags={selectedTags}
+                            setSelectedTags={setSelectedTags}
+                            setIsTagModalOpen={setIsTagModalOpen}
                         />
                     ) : (
                         <PlatformSettingsSection
@@ -315,10 +467,12 @@ const BlogForm = () => {
                     setGlobalStatus={setGlobalStatus}
                     publishDate={publishDate}
                     setPublishDate={setPublishDate}
-                    author={author}
-                    setAuthor={setAuthor}
+                    // author={author}
+                    // setAuthor={setAuthor}
                     category={category}
                     setCategory={setCategory}
+                    categories={categories}
+                    setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}
                     handleRemoveImage={handleRemoveImage}
                     handleFileChange={handleFileChange}
@@ -403,12 +557,18 @@ const BlogForm = () => {
                             )}
                             <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-white glass-card p-2">{category}</span>
-                                    {publishDate && (<span>{publishDate}</span>)}
+                                    <span className="text-white glass-card p-2"><span>
+                                        {category
+                                            .map(id => categories.find(c => c.id === id)?.name)
+                                            .filter(Boolean)
+                                            .join(', ')
+                                        }
+                                    </span></span>
+                                    {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                                 </div>
                                 <div className="text-white text-sm">
-                                    {author && (<span className="font-medium"> By {author}</span>)}
-                                    {" • "}
+                                    {/* {author && (<span className="font-medium"> By {author}</span>)} */}
+                                    {/* {" • "} */}
                                     {readingTime || 0} min read
                                 </div>
                             </div>
@@ -418,7 +578,7 @@ const BlogForm = () => {
                                 </div>
                                 )}
                             {excerpt && (
-                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic">{excerpt}</p>
+                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic"><strong>Short Excerpt: </strong>{excerpt}</p>
                             )}
                             <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
                             {tags.length > 0 && (
@@ -426,8 +586,8 @@ const BlogForm = () => {
                                     <h3 className="font-semibold mb-2">Tags</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {tags.map((tag, index) => (
-                                            <span key={index} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                                #{tag}
+                                            <span key={index} className="rounded-full text-sm">
+                                                {`${tag}`}
                                             </span>
                                         ))}
                                     </div>
@@ -455,7 +615,7 @@ const BlogForm = () => {
                                         )
                                         const settings = platformSettings[platformId]
                                         return (
-                                            <div key={platformId} className="border rounded-xl p-4 bg-gray-50 space-y-2">
+                                            <div key={platformId} className="border rounded-xl p-4 space-y-2">
                                                 <h4 className="font-semibold text-lg">{platform?.platform_name}</h4>
                                                 <p><b>Slug:</b> {settings?.slug || "-"}</p>
                                                 <p><b>Status:</b> {settings?.publishStatus || "draft"}</p>
@@ -471,6 +631,24 @@ const BlogForm = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {isCategoryModalOpen && (
+                <CategoryModal
+                    isOpen={isCategoryModalOpen}
+                    onClose={() => setIsCategoryModalOpen(false)}
+                    onSuccess={async () => {
+                        await fetchCategories();
+                    }}
+                />
+            )}
+            {isTagModalOpen && (
+                <TagModal
+                    isOpen={isTagModalOpen}
+                    onClose={() => setIsTagModalOpen(false)}
+                    onSuccess={async () => {
+                        await fetchTags();
+                    }}
+                />
             )}
         </form>
     );

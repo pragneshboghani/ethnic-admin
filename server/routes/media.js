@@ -57,7 +57,7 @@ Mediarouter.post("/add", authMiddleware, async (req, res) => {
 
 Mediarouter.get("/filter", authMiddleware, async (req, res) => {
   try {
-    const { type, search } = req.query;
+    const { type } = req.query;
 
     let query = `SELECT * FROM media WHERE 1=1`;
     const params = [];
@@ -65,14 +65,6 @@ Mediarouter.get("/filter", authMiddleware, async (req, res) => {
     if (type && type !== "all") {
       query += ` AND file_type = ?`;
       params.push(type);
-    }
-
-    if (search) {
-      query += ` AND (
-        file_name LIKE ?
-        OR alt_text LIKE ?
-      )`;
-      params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY created_at DESC`;
@@ -167,4 +159,5 @@ Mediarouter.delete("/delete", authMiddleware, async (req, res) => {
     });
   }
 });
+
 module.exports = Mediarouter;

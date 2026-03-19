@@ -29,7 +29,7 @@ const Plateforms = () => {
 
             toast.success("Platform successfully deleted! 🗑️");
             const res = await PlateformActions.GetAllPlateform();
-            setPlatformData(res.data);
+            setPlatformData(res);
 
         } catch (error) {
             console.error("Delete failed", error);

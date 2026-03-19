@@ -52,14 +52,13 @@ const MediaActions = {
     }
   },
 
-  filterMedia: async (type?: string, search?: string) => {
+  filterMedia: async (type?: string) => {
     try {
       const token = Cookies.get("token");
       if (!token) throw new Error("User not logged in");
 
       const queryParams = new URLSearchParams();
       if (type && type !== "all") queryParams.append("type", type);
-      if (search) queryParams.append("search", search);
 
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/media/filter?${queryParams.toString()}`,

@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
@@ -145,8 +146,30 @@ const UserActions = {
     });
   },
 
-  getToken: () => {
-    return Cookies.get("token");
+  IsLogin: (router: any) => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      router.push("/");
+      Cookies.remove("token");
+      return false;
+    }
+
+    try {
+      const decoded: any = jwtDecode(token);
+
+      if (decoded.exp * 1000 < Date.now()) {
+        Cookies.remove("token");
+        router.push("/");
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      Cookies.remove("token");
+      router.push("/");
+      return false;
+    }
   },
 
   removeToken: () => {

@@ -44,26 +44,6 @@ const BlogActions = {
     }
   },
 
-  GetAllTags: async () => {
-    try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
-      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/tag`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to fetch blogs");
-      }
-
-      return await res.json();
-    } catch (error: any) {
-      console.error("Error fetching blog tag:", error.message);
-      throw error;
-    }
-  },
-
   GetFilteredBlogs: async (filters: {
     platform?: string | number;
     status?: string;
@@ -182,6 +162,136 @@ const BlogActions = {
       return await res.json();
     } catch (error: any) {
       console.error("Error deleting blog:", error.message);
+      throw error;
+    }
+  },
+
+  UpdateBlog: async (id: number, data: any) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/update?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error updating blog:", error.message);
+      throw error;
+    }
+  },
+
+  FetchCategory: async () => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch blogs");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching Category:", error.message);
+      throw error;
+    }
+  },
+
+  CreateCategory: async (data: {
+    name: string;
+    description: string;
+    status: string;
+    platforms: number[];
+  }) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add Category");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding Category:", error.message);
+      throw error;
+    }
+  },
+
+  FetchTags: async () => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/tags/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch tags");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching Tags:", error.message);
+      throw error;
+    }
+  },
+
+  CreateTag: async (data: {
+    name: string;
+    description: string;
+    status: string;
+    platforms: number[];
+  }) => {
+    try {
+      const token = Cookies.get("token");
+      if (!token) throw new Error("User not logged in");
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/tags/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add Tag");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding Tag:", error.message);
       throw error;
     }
   },

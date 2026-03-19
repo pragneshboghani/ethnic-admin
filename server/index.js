@@ -1,5 +1,8 @@
+require("dotenv").config({
+  path: "./.env",
+});
+
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const mysqlpool = require("./config/db");
 const BlogRouter = require("./routes/blogs");
@@ -8,8 +11,9 @@ const DashboardRouter = require("./routes/dashboard");
 const Mediarouter = require("./routes/media");
 const SEORouter = require("./routes/seo");
 const UserRouter = require("./routes/user");
+const CategoryRouter = require("./routes/category");
+const TagRouter = require("./routes/tags");
 
-dotenv.config();
 const app = express();
 
 const BACKEND_PORT = process.env.BACKEND_PORT;
@@ -27,6 +31,8 @@ app.use("/api/dashboard", DashboardRouter);
 app.use("/api/media", Mediarouter);
 app.use("/api/seo", SEORouter);
 app.use("/api/user", UserRouter);
+app.use("/api/category", CategoryRouter)
+app.use("/api/tags",TagRouter)
 
 app.get("/", (req, res) => {
   res.send("Welcome to Ethnic Blog");

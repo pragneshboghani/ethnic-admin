@@ -1,6 +1,9 @@
 const express = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const postToPlatform = require("../utils/postToPlatform");
+const generateSlug = require("../utils/generateSlug");
+const deletePost = require("../utils/deletePost");
 
 const BlogRouter = express.Router();
 
@@ -66,16 +69,38 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
       platforms,
     } = req.body;
 
+    if (!publish_date || publish_date.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Publish date is required",
+      });
+    }
+
+    let platformData = [];
+
+    if (platforms && platforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [platforms],
+      );
+      platformData = data;
+    }
+
+    const slug = await generateSlug(blog_title);
+    const results = await Promise.all(
+      platformData.map((platform) => postToPlatform(platform, req.body, null)),
+    );
+
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
-      (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms, slug)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         blog_title,
         short_excerpt,
         full_content,
         featured_image,
-        category,
+        JSON.stringify(category),
         JSON.stringify(tags),
         author,
         publish_date,
@@ -83,12 +108,14 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
         JSON.stringify(related),
         status,
         JSON.stringify(platforms),
+        slug,
       ],
     );
 
     res.status(201).send({
       success: true,
       message: "Blog added successfully",
+      plarformResult: results,
       blogId: result.insertId,
     });
   } catch (error) {
@@ -130,12 +157,38 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
+    let platformData = [];
+
+    if (platforms && platforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [platforms],
+      );
+      platformData = data;
+    }
+
+    const results = await Promise.all(
+      platformData.map((platform) =>
+        postToPlatform(platform, req.body, raw.slug),
+      ),
+    );
+
+    // const failed = results.filter((r) => !r.success);
+
+    // if (failed.length > 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Platform update failed",
+    //     errors: failed,
+    //   });
+    // }
+
     const UpdatedData = {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
       full_content: full_content ?? raw.full_content,
       featured_image: featured_image ?? raw.featured_image,
-      category: category ?? raw.category,
+      category: JSON.stringify(category ?? raw.category),
 
       tags: JSON.stringify(tags ?? raw.tags),
       author: author ?? raw.author,
@@ -146,12 +199,13 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
       status: status ?? raw.status,
       platforms: JSON.stringify(platforms ?? raw.platforms),
     };
+    const slug = await generateSlug(UpdatedData.blog_title);
 
     await mysqlpool.query(
-      `UPDATE blogs 
-       SET blog_title = ?, short_excerpt = ?, full_content = ?, featured_image = ?, 
-           category = ?, tags = ?, author = ?, publish_date = ?, reading_time = ?, 
-           related = ?, status = ?, platforms = ?
+      `UPDATE blogs
+       SET blog_title = ?, short_excerpt = ?, full_content = ?, featured_image = ?,
+           category = ?, tags = ?, author = ?, publish_date = ?, reading_time = ?,
+           related = ?, status = ?, platforms = ?, slug = ?
        WHERE id = ?`,
       [
         UpdatedData.blog_title,
@@ -166,6 +220,7 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
+        slug,
         id,
       ],
     );
@@ -173,6 +228,7 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Blog updated successfully",
+      results,
     });
   } catch (error) {
     console.error("Error updating blog:", error);
@@ -197,6 +253,30 @@ BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
         message: "Blog not found",
       });
     }
+
+    let platformData = [];
+
+    if (raw.platforms && raw.platforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [raw.platforms],
+      );
+      platformData = data;
+    }
+
+    const results = await Promise.all(
+      platformData.map((platform) => deletePost(platform, raw.slug)),
+    );
+
+    // const failed = results.filter((r) => !r.success);
+
+    // if (failed.length > 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Platform delete failed",
+    //     errors: failed,
+    //   });
+    // }
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [
       id,
@@ -242,33 +322,6 @@ BlogRouter.get("/recent", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching recent blogs:", error);
-    res.status(500).send({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-BlogRouter.get("/platform", authMiddleware, async (req, res) => {
-  try {
-    const { platform } = req.query;
-
-    const [rows] = await mysqlpool.query(
-      `SELECT b.*
-        FROM blogs b
-        JOIN platforms p 
-        ON JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
-        WHERE TRIM(TRAILING '/' FROM p.website_url) = TRIM(TRAILING '/' FROM ?)`,
-      [platform],
-    );
-
-    res.status(200).send({
-      success: true,
-      totalBlogs: rows.length,
-      data: rows,
-    });
-  } catch (error) {
-    console.error("Error fetching blogs:", error);
     res.status(500).send({
       success: false,
       message: error.message,
@@ -332,28 +385,6 @@ BlogRouter.get("/filter", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Error filtering blogs:", error);
     res.status(500).send({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-BlogRouter.get("/tag", async (req, res) => {
-  try {
-    const [[rows]] =
-      await mysqlpool.query(`SELECT JSON_ARRAYAGG(tag_value) AS all_tags
-FROM (
-    SELECT DISTINCT jt.tag_value
-    FROM blogs,
-         JSON_TABLE(tags, '$[*]' COLUMNS(tag_value VARCHAR(255) PATH '$')) AS jt
-) AS sub;`);
-    res.status(200).send({
-      success: true,
-      data: rows,
-    });
-  } catch (error) {
-    console.error("Error fetching blog tabs", error);
-    res.status(500).json({
       success: false,
       message: error.message,
     });

@@ -1,30 +1,25 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { Save, Send, CheckCircle2, X, Trash2, Eye } from 'lucide-react';
-import PlateformActions from "@/actions/PlateFormActions";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import EditorToolbar from "@/components/blog/EditorToolbar";
-import BlogActions from "@/actions/BlogAction";
-import MediaActions from "@/actions/MediaAction";
-import { toast } from "react-toastify";
-import BlogHeader from "@/components/blog/BlogHeader";
+import { Trash2 } from 'lucide-react';
 
 type BlogSidebarProps = {
     globalStatus: string;
     setGlobalStatus: React.Dispatch<React.SetStateAction<string>>;
     publishDate: string;
     setPublishDate: React.Dispatch<React.SetStateAction<string>>;
-    author: string;
-    setAuthor: React.Dispatch<React.SetStateAction<string>>;
-    category: string;
-    setCategory: React.Dispatch<React.SetStateAction<string>>;
+    // author: string;
+    // setAuthor: React.Dispatch<React.SetStateAction<string>>;
+    category: number[];
+    setCategory: React.Dispatch<React.SetStateAction<number[]>>;
+    categories: {
+        id: number;
+        name: string;
+    }[];
     image: string | null;
     handleRemoveImage: () => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setIsMediaPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const BlogSidebar = ({
@@ -32,14 +27,16 @@ const BlogSidebar = ({
     setGlobalStatus,
     publishDate,
     setPublishDate,
-    author,
-    setAuthor,
+    // author,
+    // setAuthor,
     category,
     setCategory,
+    categories,
     image,
     handleRemoveImage,
     handleFileChange,
     setIsMediaPopupOpen,
+    setIsCategoryModalOpen
 }: BlogSidebarProps) => (
 
     <>
@@ -58,9 +55,9 @@ const BlogSidebar = ({
                             onChange={(e) => setGlobalStatus(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
                         >
-                            <option value="DRAFT" className="text-black">Draft</option>
-                            <option value="SCHEDULED" className="text-black">Scheduled</option>
-                            <option value="PUBLISHED" className="text-black">Published</option>
+                            <option value="draft" className="text-black">Draft</option>
+                            <option value="future" className="text-black">Scheduled</option>
+                            <option value="publish" className="text-black">Published</option>
                         </select>
                     </div>
 
@@ -76,7 +73,7 @@ const BlogSidebar = ({
                         />
                     </div>
 
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
                         <input
                             type="text"
@@ -84,20 +81,45 @@ const BlogSidebar = ({
                             onChange={(e) => setAuthor(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                         />
-                    </div>
+                    </div> */}
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
-                        <select
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-black focus:outline-none  text-sm"
-                        >
-                            <option value="software-development" className="text-black">Software Development</option>
-                            <option value="industry-trends" className="text-black">IT Industry Trends</option>
-                            <option value="project-management" className="text-black">Project Management</option>
-                            <option value="tutorials" className="text-black">Tech Tutorials & How-Tos</option>
-                        </select>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Category
+                        </label>
+
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+
+                            {/* Add New */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCategoryModalOpen(true)}
+                                    className="text-blue-600 text-sm hover:underline"
+                                >
+                                    + Add New Category
+                                </button>
+                            </div>
+
+                            {/* Category List */}
+                            {categories.map((cat) => (
+                                <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={category.includes(cat.id)}
+                                        onChange={() => {
+                                            if (category.includes(cat.id)) {
+                                                setCategory(category.filter(id => id !== cat.id));
+                                            } else {
+                                                setCategory([...category, cat.id]);
+                                            }
+                                        }}
+                                        className="w-4 h-4 accent-blue-600"
+                                    />
+                                    <span className="text-sm text-black">{cat.name}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

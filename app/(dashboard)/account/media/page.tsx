@@ -1,7 +1,9 @@
 "use client";
 
 import MediaActions from '@/actions/MediaAction';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { formatDateTime } from '@/utils/formatDateTime';
+import { formatFileSize } from '@/utils/formatFileSize';
+import { Eye, Pencil, Plus, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -26,6 +28,10 @@ const Media = () => {
     const [newAltText, setNewAltText] = useState("");
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [viewMedia, setViewMedia] = useState<Media | null>(null);
+    const [uploadModalOpen, setUploadModalOpen] = useState(false);
+    const [uploadAlt, setUploadAlt] = useState("");
 
     const tabs = [
         { id: 1, label: 'All Media', type: 'all' },
@@ -43,6 +49,11 @@ const Media = () => {
         setMediaToDelete(media);
         setDeleteModalOpen(true);
     };
+
+    const openViewModal = (media: Media) => {
+        setViewMedia(media);
+        setViewModalOpen(true);
+    };
     const fetchMedia = async (type = "all") => {
         try {
             const res =
@@ -57,7 +68,6 @@ const Media = () => {
     };
 
     const handleTabClick = (tab: any) => {
-        console.log('tab', tab)
         setActiveTab(tab.id);
         fetchMedia(tab.type);
     };
@@ -71,9 +81,12 @@ const Media = () => {
 
             reader.onload = async () => {
                 const base64 = reader.result as string;
+                const finalAlt = uploadAlt.trim() || file.name;
 
                 try {
-                    const res = await MediaActions.uploadMedia(base64, file.name);
+                    const res = await MediaActions.uploadMedia(base64, finalAlt);
+
+                    toast.success(`Media Upload Success`)
 
                     const newMedia: Media = {
                         id: res.mediaId,
@@ -87,6 +100,7 @@ const Media = () => {
                     };
 
                     setMedia((prev) => [...prev, newMedia]);
+                    setUploadModalOpen(false)
 
                 } catch (error) {
                     toast.error(`Image Upload failed 😢: ${(error as Error).message}`);
@@ -154,18 +168,11 @@ const Media = () => {
                     </div>
 
                     <div>
-                        <label className="flex items-center gap-2 btn cursor-pointer">
+
+                        <button className="flex items-center gap-2 btn cursor-pointer" onClick={() => setUploadModalOpen(true)}>
                             <Plus size={18} />
                             <span>Upload Media</span>
-                            <input
-                                type="file"
-                                accept="image/*,video/*"
-                                multiple
-                                className="hidden"
-                                style={{ display: "none" }}
-                                onChange={handleFileChange}
-                            />
-                        </label>
+                        </button>
                     </div>
                 </div>
 
@@ -196,6 +203,13 @@ const Media = () => {
                                 )}
 
                                 <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 bg-black/70 transition-opacity rounded-lg group-hover:opacity-100">
+                                    <button
+                                        className="p-2 bg-blue-500 rounded-full hover:bg-blue-600"
+                                        onClick={() => openViewModal(m)}
+                                    >
+                                        <Eye size={18} className="text-white" />
+                                    </button>
+
                                     <button
                                         className="p-2 bg-white rounded-full hover:bg-gray-200"
                                         onClick={() => openAltModal(m)}
@@ -270,6 +284,98 @@ const Media = () => {
                                 Delete
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+            {viewModalOpen && viewMedia && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+
+                    <div className="relative rounded-xl p-4 w-[700px] glass-card">
+
+                        {/* Close button */}
+                        <button
+                            className="absolute top-4 right-4 text-white hover:text-red-500"
+                            onClick={() => setViewModalOpen(false)}
+                        >
+                            <X size={18} className="text-white" />
+                        </button>
+
+                        {viewMedia.file_type === "image" ? (
+                            <img
+                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                alt={viewMedia.alt_text || ""}
+                                className="w-full max-h-[70vh] object-cover rounded-lg float-right max-w-[250px] h-[250px] mr-7"
+                            />
+                        ) : (
+                            <video
+                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                controls
+                                className="w-full max-h-[70vh] rounded-lg"
+                            />
+                        )}
+
+                        <div className="mt-4 text-white w-full">
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Name:</strong> {viewMedia.file_name}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>ALT:</strong> {viewMedia.alt_text || "-"}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>File Type:</strong> {viewMedia.file_type}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>mime_type:</strong> {viewMedia.mime_type}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Create Date:</strong> {formatDateTime(viewMedia.created_at)}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>url:</strong> {`${process.env.BACKEND_DOMAIN}/${viewMedia.file_url}`}</p>
+                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate'><strong>size:</strong> {formatFileSize(viewMedia.file_size)}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {uploadModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="glass-card p-6 flex flex-col gap-4 w-[620px]">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                const input = e.currentTarget.querySelector(
+                                    'input[type="file"]'
+                                ) as HTMLInputElement;
+                                if (input && input.files) {
+                                    handleFileChange({ target: input } as any);
+                                }
+                            }}
+                        >
+                            <h3 className="text-lg text-white mb-2">Upload Media</h3>
+
+                            <div className="flex gap-3 mb-4">
+                                <input
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    multiple
+                                    className="text-white border p-2 rounded-sm w-fit"
+                                />
+
+                                <input
+                                    type="text"
+                                    placeholder="Enter ALT text (optional)"
+                                    className="px-3 py-2 rounded-md text-white border w-fit"
+                                    value={uploadAlt}
+                                    onChange={(e) => setUploadAlt(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+                                    onClick={() => setUploadModalOpen(false)}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+                                >
+                                    Upload
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
