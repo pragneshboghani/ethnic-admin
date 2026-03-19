@@ -20,6 +20,9 @@ import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 import CategoryModal from "@/components/common/CategoryModal";
 import TagModal from "@/components/common/TagModal";
+import Image from "@tiptap/extension-image";
+import TextAlign from "@tiptap/extension-text-align";
+import Highlight from "@tiptap/extension-highlight";
 
 type CategoryType = {
     id: number;
@@ -107,12 +110,17 @@ const BlogForm = () => {
         extensions: [
             StarterKit,
             Link.configure({ openOnClick: true }),
+            Image,
+            Highlight,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
         ],
         content: formContent,
         immediatelyRender: false,
         editorProps: {
             handlePaste(view, event, slice) {
-                const html = event.clipboardData?.getData('text/html');
+                const html = event.clipboardData?.getData('text/plain');
                 if (html) {
                     view.dispatch(
                         view.state.tr.replaceSelectionWith(
@@ -129,11 +137,11 @@ const BlogForm = () => {
         },
     });
 
-    useEffect(() => {
-        if (editor) {
-            editor.commands.setContent(formContent);
-        }
-    }, [editor, formContent]);
+    // useEffect(() => {
+    //     if (editor) {
+    //         editor.commands.setContent(formContent);
+    //     }
+    // }, [editor, formContent]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

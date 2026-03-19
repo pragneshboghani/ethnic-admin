@@ -63,7 +63,7 @@ const BlogGeneralSection = ({
             <label className="text-sm font-semibold">Content</label>
             <div className="rounded-xl overflow-hidden focus-within:border-none text-black transition-all">
                 <EditorToolbar editor={editor} />
-                <EditorContent editor={editor} className={`ProseMirror max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none`} />
+                <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
             </div>
         </div>
 

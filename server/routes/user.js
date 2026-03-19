@@ -4,9 +4,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const UserRouter = Router();
+const userRouter = Router();
 
-UserRouter.get("/all", authMiddleware, async (req, res) => {
+userRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM users");
 
@@ -23,7 +23,7 @@ UserRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-UserRouter.get("/:id", authMiddleware, async (req, res) => {
+userRouter.get("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -51,7 +51,7 @@ UserRouter.get("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-UserRouter.post("/create", async (req, res) => {
+userRouter.post("/create", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -112,7 +112,7 @@ UserRouter.post("/create", async (req, res) => {
   }
 });
 
-UserRouter.put("/update/:id", authMiddleware, async (req, res) => {
+userRouter.put("/update/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, role } = req.body;
@@ -143,7 +143,7 @@ UserRouter.put("/update/:id", authMiddleware, async (req, res) => {
   }
 });
 
-UserRouter.delete("/delete/:id", authMiddleware, async (req, res) => {
+userRouter.delete("/delete/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -170,7 +170,7 @@ UserRouter.delete("/delete/:id", authMiddleware, async (req, res) => {
   }
 });
 
-UserRouter.post("/login", async (req, res) => {
+userRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -232,4 +232,4 @@ UserRouter.post("/login", async (req, res) => {
   }
 });
 
-module.exports = UserRouter;
+module.exports = userRouter;
