@@ -11,11 +11,13 @@ import { toast } from "react-toastify";
 const Blogs = () => {
   const router = useRouter()
   const [platformData, setPlatformData] = useState<any>(null);
+  const [categoryData, setCategoryData] = useState<any>(null);
+  const [tagData, setTagData] = useState<any>(null);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState<number | null>(null);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
-  const [selectUpdate, setSelectUpdate] = useState<number | null>(null)
+  const [selectUpdate, setSelectUpdate] = useState<number | null>(null);
 
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("0");
@@ -29,8 +31,17 @@ const Blogs = () => {
       const res = await PlateformActions.GetAllPlateform();
       setPlatformData(res);
     };
-
+    const fetchCategory = async () => {
+      const category = await BlogActions.FetchCategory();
+      setCategoryData(category);
+    }
+    const fetchTag = async () => {
+      const tag = await BlogActions.FetchTags();
+      setTagData(tag);
+    }
     fetchPlatforms();
+    fetchCategory()
+    fetchTag()
   }, []);
 
   const fetchBlogs = async () => {
@@ -59,12 +70,12 @@ const Blogs = () => {
     try {
       await BlogActions.DeleteBlog(id);
 
-      toast.success("Platform successfully deleted! 🗑️");
+      toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs()
 
     } catch (error) {
       console.error("Delete failed", error);
-      toast.error("Failed to delete platform 😢");
+      toast.error("Failed to delete Blog 😢");
     }
   };
 

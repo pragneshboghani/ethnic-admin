@@ -3,6 +3,7 @@ const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
+const deletePost = require("../utils/deletePost");
 
 const BlogRouter = express.Router();
 
@@ -67,6 +68,13 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
       status,
       platforms,
     } = req.body;
+
+    if (!publish_date || publish_date.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Publish date is required",
+      });
+    }
 
     let platformData = [];
 
@@ -181,12 +189,13 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
       status: status ?? raw.status,
       platforms: JSON.stringify(platforms ?? raw.platforms),
     };
+    const slug = await generateSlug(UpdatedData.blog_title);
 
     await mysqlpool.query(
       `UPDATE blogs
        SET blog_title = ?, short_excerpt = ?, full_content = ?, featured_image = ?,
            category = ?, tags = ?, author = ?, publish_date = ?, reading_time = ?,
-           related = ?, status = ?, platforms = ?
+           related = ?, status = ?, platforms = ?, slug = ?
        WHERE id = ?`,
       [
         UpdatedData.blog_title,
@@ -201,6 +210,7 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
+        slug,
         id,
       ],
     );
@@ -233,6 +243,20 @@ BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
         message: "Blog not found",
       });
     }
+
+    let platformData = [];
+
+    if (raw.platforms && raw.platforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [raw.platforms],
+      );
+      platformData = data;
+    }
+
+    const results = await Promise.all(
+      platformData.map((platform) => deletePost(platform, raw.slug)),
+    );
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [
       id,
