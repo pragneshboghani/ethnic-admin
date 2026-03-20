@@ -1,11 +1,7 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { X } from 'lucide-react';
+import { useEffect } from "react";
 import PlateformActions from "@/actions/PlateFormActions";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
 import BlogActions from "@/actions/BlogAction";
 import MediaActions from "@/actions/MediaAction";
 import { toast } from "react-toastify";
@@ -15,72 +11,31 @@ import PlatformSettingsSection from "@/components/blog/PlatformSettingsSection";
 import BlogTabSwitcher from "@/components/blog/BlogTabSwitcher";
 import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
 import { useRouter } from "next/navigation";
-import { formatDateTime } from "@/utils/formatDateTime";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 import CategoryModal from "@/components/common/CategoryModal";
 import TagModal from "@/components/common/TagModal";
-import TextAlign from "@tiptap/extension-text-align";
-import Highlight from "@tiptap/extension-highlight";
 import { generateSlug } from "@/utils/generateSlug";
-import Underline from "@tiptap/extension-underline";
-import Image from "@tiptap/extension-image";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
-import ImageResize from 'tiptap-extension-resize-image';
-
-type CategoryType = {
-    id: number;
-    name: string;
-};
+import blogEditor from "@/utils/blogEditor";
+import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
+import useBlogForm from "@/hooks/useBlogForm";
 
 const BlogForm = () => {
     const router = useRouter();
 
-    const [blogId, setBlogId] = useState<string | null>(null);
+    const {
+        blogId, setBlogId, activeTab, setActiveTab, selectedPlatforms, setSelectedPlatforms, platformData, setPlatformData, formContent, setFormContent, image,
+        setImage, title, setTitle, excerpt, setExcerpt, category, setCategory, isCategoryModalOpen, setIsCategoryModalOpen, publishDate, setPublishDate, globalStatus,
+        setGlobalStatus, tags, setTags, relatedBlogs, setRelatedBlogs, isPopupOpen, setIsPopupOpen, allBlogs, setAllBlogs, readingTime, setReadingTime, selectedFile,
+        setSelectedFile, mediaFor, setMediaFor, mediaFiles, setMediaFiles, showPreview, setShowPreview, tagsList, setTagsList, isUploadModalOpen, setIsUploadModalOpen,
+        selectedTags, setSelectedTags, isTagModalOpen, setIsTagModalOpen, platformSettings, setPlatformSettings, categories, setCategories,
+    } = useBlogForm()
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setBlogId(params.get("id"));
     }, []);
-
-    const [activeTab, setActiveTab] = useState<'general' | 'platforms'>('general');
-    const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
-    const [platformData, setPlatformData] = useState<any>(null);
-    const [formContent, setFormContent] = useState<string>('');
-    const [image, setImage] = useState<string | null>(null);
-    const [title, setTitle] = useState('');
-    const [excerpt, setExcerpt] = useState('');
-    // const [author, setAuthor] = useState('');
-    const [category, setCategory] = useState<number[]>([]);
-    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-    const [publishDate, setPublishDate] = useState<string>('');
-    const [globalStatus, setGlobalStatus] = useState('draft');
-    const [tags, setTags] = useState<string[]>([]);
-    const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [allBlogs, setAllBlogs] = useState<{ data: any[] }>({ data: [] });
-    const [readingTime, setReadingTime] = useState<number>(0);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [mediaFor, setMediaFor] = useState<'feature' | 'editor'>('feature');
-    const [mediaFiles, setMediaFiles] = useState<any[]>([]);
-    const [showPreview, setShowPreview] = useState(false);
-    const [tagsList, setTagsList] = useState<{ id: number; name: string }[]>([]);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [selectedTags, setSelectedTags] = useState<number[]>([]);
-    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-    const [platformSettings, setPlatformSettings] = useState<{
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    }>({});
-
-    const [categories, setCategories] = useState<CategoryType[]>([]);
 
     const fetchCategories = async () => {
         const res = await BlogActions.FetchCategory();
@@ -111,38 +66,7 @@ const BlogForm = () => {
         fetchTags()
     }, []);
 
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Link.configure({ openOnClick: true }),
-            Highlight,
-            Underline,
-            Image,
-            ImageResize,
-            TextAlign.configure({
-                types: ['heading', 'paragraph'],
-            }),
-        ],
-        content: formContent,
-        immediatelyRender: false,
-        editorProps: {
-            handlePaste(view, event, slice) {
-                const html = event.clipboardData?.getData('text/plain');
-                if (html) {
-                    view.dispatch(
-                        view.state.tr.replaceSelectionWith(
-                            view.state.schema.text(html), false
-                        )
-                    );
-                    return true;
-                }
-                return false;
-            }
-        },
-        onUpdate: ({ editor }) => {
-            setFormContent(editor.getHTML());
-        },
-    });
+    const editor = blogEditor({ content: formContent, setContent: setFormContent });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -572,97 +496,25 @@ const BlogForm = () => {
                     </div>
                 </div>
             )}
-
             {showPreview && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
-                    <div className="w-[1000px] max-h-[90vh] overflow-y-auto rounded-2xl text-white glass-card">
-                        <div className="flex justify-between items-center border-b p-6">
-                            <h2 className="text-xl font-bold">Blog Preview</h2>
-                            <button onClick={() => setShowPreview(false)} className="text-white">
-                                <X />
-                            </button>
-                        </div>
-                        <div className="p-8 space-y-6">
-                            {image && (
-                                <img src={image.startsWith("blob:") ? image : `${process.env.BACKEND_DOMAIN}/${image}`}
-                                    className="w-full max-w-[30%] object-cover rounded-xl float-right aspect-square" />
-                            )}
-                            <div className="flex items-center gap-3 text-sm text-white justify-between pr-5">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-white glass-card p-2"><span>
-                                        {category
-                                            .map(id => categories.find(c => c.id === id)?.name)
-                                            .filter(Boolean)
-                                            .join(', ')
-                                        }
-                                    </span></span>
-                                    {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
-                                </div>
-                                <div className="text-white text-sm">
-                                    {/* {author && (<span className="font-medium"> By {author}</span>)} */}
-                                    {/* {" • "} */}
-                                    {readingTime || 0} min read
-                                </div>
-                            </div>
-                            {title &&
-                                (<div className="flex items-center gap-3 text-sm text-white justify-between">
-                                    <h1 className="text-4xl font-bold leading-tight">{title}</h1>
-                                </div>
-                                )}
-                            {excerpt && (
-                                <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic"><strong>Short Excerpt: </strong>{excerpt}</p>
-                            )}
-                            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
-                            {tags.length > 0 && (
-                                <div>
-                                    <h3 className="font-semibold mb-2">Tags</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {tags.map((tag, index) => (
-                                            <span key={index} className="rounded-full text-sm">
-                                                {`${tag}`}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                            {relatedBlogs.length > 0 && (
-                                <div>
-                                    <h3 className="font-semibold mb-2">Related Blogs</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {relatedBlogs.map((blogId) => {
-                                            const blog = allBlogs.data.find(b => b.id === blogId)
-                                            return blog ? (
-                                                <li key={blogId}>{blog.blog_title}</li>
-                                            ) : null
-                                        })}
-                                    </ul>
-                                </div>
-                            )}
-                            {selectedPlatforms.length > 0 && (
-                                <div className="space-y-4">
-                                    <h3 className="text-xl font-semibold">Platform Publishing Settings</h3>
-                                    {selectedPlatforms.map((platformId) => {
-                                        const platform = platformData?.data.find(
-                                            (p: any) => p.id === platformId
-                                        )
-                                        const settings = platformSettings[platformId]
-                                        return (
-                                            <div key={platformId} className="border rounded-xl p-4 space-y-2">
-                                                <h4 className="font-semibold text-lg">{platform?.platform_name}</h4>
-                                                <p><b>Slug:</b> {settings?.slug || "-"}</p>
-                                                <p><b>Status:</b> {settings?.publishStatus || "draft"}</p>
-                                                <p><b>SEO Title:</b> {settings?.seoTitle || "-"}</p>
-                                                <p><b>Meta Description:</b> {settings?.metaDescription || "-"}</p>
-                                                <p><b>Canonical URL:</b> {settings?.canonicalUrl || "-"}</p>
-                                                <p><b>CTA:</b> {settings?.ctaButtonText} → {settings?.ctaButtonLink}</p>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <BlogPreviewModal
+                    showPreview={showPreview}
+                    setShowPreview={setShowPreview}
+                    image={image}
+                    category={category}
+                    categories={categories}
+                    publishDate={publishDate}
+                    readingTime={readingTime}
+                    title={title}
+                    excerpt={excerpt}
+                    formContent={formContent}
+                    tags={tags}
+                    relatedBlogs={relatedBlogs}
+                    allBlogs={allBlogs}
+                    selectedPlatforms={selectedPlatforms}
+                    platformData={platformData}
+                    platformSettings={platformSettings}
+                />
             )}
             {isCategoryModalOpen && (
                 <CategoryModal

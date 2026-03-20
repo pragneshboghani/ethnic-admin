@@ -1,44 +1,8 @@
 import { EditorContent } from "@tiptap/react";
 import EditorToolbar from "./EditorToolbar";
+import { BlogGeneralSectionProps } from "@/types";
 
-type BlogGeneralSectionProps = {
-    title: string;
-    setTitle: React.Dispatch<React.SetStateAction<string>>;
-    excerpt: string;
-    setExcerpt: React.Dispatch<React.SetStateAction<string>>;
-    editor: any;
-    handleTagsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    tags: string[];
-    relatedBlogs: any[];
-    allBlogs: { data: any[] };
-    setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    readingTime: number;
-    setReadingTime: React.Dispatch<React.SetStateAction<number>>;
-    tagsList: { id: number; name: string }[];
-    selectedTags: number[];
-    setSelectedTags: React.Dispatch<React.SetStateAction<number[]>>;
-    setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    handleAddEditorImage: () => void;
-};
-
-const BlogGeneralSection = ({
-    title,
-    setTitle,
-    excerpt,
-    setExcerpt,
-    editor,
-    handleTagsChange,
-    tags,
-    relatedBlogs,
-    allBlogs,
-    setIsPopupOpen,
-    setReadingTime,
-    tagsList,
-    selectedTags,
-    setSelectedTags,
-    setIsTagModalOpen,
-    handleAddEditorImage
-}: BlogGeneralSectionProps) => (
+const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
     <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
             <label className="text-sm font-semibold">Blog Title</label>
@@ -64,7 +28,7 @@ const BlogGeneralSection = ({
         <div className="space-y-2">
             <label className="text-sm font-semibold">Content</label>
             <div className="rounded-xl overflow-hidden focus-within:border-none text-black transition-all">
-                <EditorToolbar editor={editor}  onAddImage={handleAddEditorImage} />
+                <EditorToolbar editor={editor} onAddImage={handleAddEditorImage} />
                 <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
             </div>
         </div>

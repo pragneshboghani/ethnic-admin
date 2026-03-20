@@ -1,46 +1,8 @@
+import { PlatformSettingsProps } from "@/types";
 import { CheckCircle2 } from "lucide-react";
 
-type PlatformSettingsProps = {
-    platformData: any;
-    selectedPlatforms: number[];
-    setSelectedPlatforms: React.Dispatch<React.SetStateAction<number[]>>;
-    platformSettings: {
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    };
-    setPlatformSettings: React.Dispatch<React.SetStateAction<{
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    }>>;
-    handlePlatformChange: (platformId: number, field: string, value: string) => void;
-    title: string;
-    excerpt: string;
-};
-
-const PlatformSettingsSection = ({
-    platformData,
-    selectedPlatforms,
-    setSelectedPlatforms,
-    platformSettings,
-    setPlatformSettings,
-    handlePlatformChange,
-    title,
-    excerpt
-}: PlatformSettingsProps) => (
+const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedPlatforms, platformSettings, setPlatformSettings,
+    handlePlatformChange, title, excerpt }: PlatformSettingsProps) => (
     <div className="space-y-6">
         <div className="p-6 rounded-2xl glass-card">
             <h3 className="text-lg font-semibold  mb-4 flex items-center gap-2">

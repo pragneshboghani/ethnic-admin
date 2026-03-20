@@ -314,6 +314,17 @@ border: 1px solid #000000;
   color: #1d4ed8;
 }
 
+.draggable-image {
+  cursor: move;
+  display: block;
+  max-width: 100%;
+}
+
+.prose img {
+  cursor: move;
+}
+
+
 .image_grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
