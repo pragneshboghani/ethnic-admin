@@ -13,7 +13,7 @@ function ToolbarButton({ children, onClick, active, title }: any) {
             type="button"
             onClick={onClick}
             title={title}
-            className={`w-8 h-8 flex items-center justify-center rounded text-sm transition-colors 
+            className={`w-7.5 h-7.5 flex items-center justify-center rounded text-sm transition-colors 
             ${active ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-200"}`}
         >
             {children}
@@ -112,23 +112,30 @@ function EditorToolbar({ editor, onAddImage }: any) {
     const toolbarItems = getToolbarItems(onAddImage);
 
     return (
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-200">
-            {toolbarItems.map((item, index) => {
-                if (item.type === 'divider') {
-                    return <div key={index} className="w-px h-4 bg-slate-300 mx-1" />;
-                }
+        <div className="flex items-center justify-between p-2 bg-slate-50 border-b border-slate-200">
+            <div className="flex flex-wrap items-center gap-0.75">
+                {toolbarItems.map((item, index) => {
+                    if (item.type === 'divider') {
+                        return <div key={index} className="w-px h-4 bg-slate-300 mx-1" />;
+                    }
 
-                return (
-                    <ToolbarButton
-                        key={index}
-                        title={item.title}
-                        onClick={() => item.action(editor)}
-                        active={item.active ? item.active(editor) : false}
-                    >
-                        {item.label}
-                    </ToolbarButton>
-                );
-            })}
+                    return (
+                        <ToolbarButton
+                            key={index}
+                            title={item.title}
+                            onClick={() => item.action(editor)}
+                            active={item.active ? item.active(editor) : false}
+                        >
+                            {item.label}
+                        </ToolbarButton>
+                    );
+                })}
+            </div>
+            <div className="text-xs text-gray-500 whitespace-nowrap">
+                {editor.storage.characterCount.characters()} chars ·{" "}
+                {editor.storage.characterCount.words()} words
+            </div>
+
         </div>
     );
 }

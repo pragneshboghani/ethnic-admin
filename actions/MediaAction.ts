@@ -4,7 +4,7 @@ import UserActions from "./UserAction";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const MediaActions = {
-  uploadMedia: async (file: string, alt: string) => {
+  uploadMedia: async (file: string, alt: string, selectedPlatforms:number[]) => {
     try {
       const token = UserActions.getToken();
 
@@ -14,7 +14,7 @@ const MediaActions = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ file, alt }),
+        body: JSON.stringify({ file, alt, selectedPlatforms }),
       });
 
       if (!res.ok) {

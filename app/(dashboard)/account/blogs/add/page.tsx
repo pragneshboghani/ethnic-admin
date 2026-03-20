@@ -87,7 +87,7 @@ const BlogForm = () => {
                 reader.onload = async () => {
                     const base64 = reader.result as string;
                     try {
-                        const res = await MediaActions.uploadMedia(base64, selectedFile.name);
+                        const res = await MediaActions.uploadMedia(base64, selectedFile.name, selectedPlatforms);
                         resolve(res.fileUrl);
                     } catch (error) {
                         toast.error(`Image Upload failed 😢: ${(error as Error).message}`);
@@ -300,6 +300,9 @@ const BlogForm = () => {
                 setTitle(blog.blog_title);
                 setExcerpt(blog.short_excerpt);
                 setFormContent(blog.full_content);
+                setTimeout(() => {
+                    editor?.commands.setContent(blog.full_content);
+                }, 0);
                 // setAuthor(blog.author);
                 setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
@@ -538,6 +541,7 @@ const BlogForm = () => {
                 <UploadMediaModal
                     isOpen={isUploadModalOpen}
                     onClose={() => setIsUploadModalOpen(false)}
+                    platformData={platformData}
                     onUploadComplete={fetchMedia}
                     onSelectImage={(url) => {
                         if (mediaFor === 'feature') {

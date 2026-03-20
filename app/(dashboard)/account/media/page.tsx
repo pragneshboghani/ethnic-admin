@@ -1,6 +1,7 @@
 "use client";
 
 import MediaActions from '@/actions/MediaAction';
+import PlateformActions from '@/actions/PlateFormActions';
 import UploadMediaModal from '@/components/media/UploadMediaModal';
 import { formatDateTime } from '@/utils/formatDateTime';
 import { formatFileSize } from '@/utils/formatFileSize';
@@ -32,6 +33,7 @@ const Media = () => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [viewMedia, setViewMedia] = useState<Media | null>(null);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
+    const [platformData, setPlatformData] = useState<any>(null);
 
     const tabs = [
         { id: 1, label: 'All Media', type: 'all' },
@@ -67,6 +69,10 @@ const Media = () => {
         }
     };
 
+    const fetchPlatforms = async () => {
+        const res = await PlateformActions.GetAllPlateform();
+        setPlatformData(res);
+    };
     const handleTabClick = (tab: any) => {
         setActiveTab(tab.id);
         fetchMedia(tab.type);
@@ -74,6 +80,7 @@ const Media = () => {
 
     useEffect(() => {
         fetchMedia();
+        fetchPlatforms()
     }, []);
 
     const handleUpdateAlt = async (id: number, currentAlt: string) => {
@@ -292,6 +299,7 @@ const Media = () => {
                     isOpen={uploadModalOpen}
                     onClose={() => setUploadModalOpen(false)}
                     onUploadComplete={fetchMedia}
+                    platformData={platformData}
                 />
             )}
         </>
