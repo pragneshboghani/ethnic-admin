@@ -20,6 +20,7 @@ type BlogSidebarProps = {
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setIsMediaPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const BlogSidebar = ({
@@ -36,7 +37,8 @@ const BlogSidebar = ({
     handleRemoveImage,
     handleFileChange,
     setIsMediaPopupOpen,
-    setIsCategoryModalOpen
+    setIsCategoryModalOpen,
+    setIsUploadModalOpen
 }: BlogSidebarProps) => (
 
     <>
@@ -158,7 +160,7 @@ const BlogSidebar = ({
                     )}
 
                     <div className="flex gap-3 my-4">
-                        <label className="btn cursor-pointer">
+                        {/* <label className="btn cursor-pointer">
                             Upload New
                             <input
                                 type="file"
@@ -166,7 +168,14 @@ const BlogSidebar = ({
                                 onChange={handleFileChange}
                                 className="hidden"
                             />
-                        </label>
+                        </label> */}
+                        <button
+                            type="button"
+                            onClick={() => setIsUploadModalOpen(true)}
+                            className="btn"
+                        >
+                            Upload Media
+                        </button>
 
                         <button
                             type="button"

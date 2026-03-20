@@ -24,6 +24,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import { generateSlug } from "@/utils/generateSlug";
 import Underline from "@tiptap/extension-underline";
+import UploadMediaModal from "@/components/media/UploadMediaModal";
 
 type CategoryType = {
     id: number;
@@ -62,6 +63,7 @@ const BlogForm = () => {
     const [mediaFiles, setMediaFiles] = useState<any[]>([]);
     const [showPreview, setShowPreview] = useState(false);
     const [tagsList, setTagsList] = useState<{ id: number; name: string }[]>([]);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [selectedTags, setSelectedTags] = useState<number[]>([]);
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [platformSettings, setPlatformSettings] = useState<{
@@ -87,21 +89,21 @@ const BlogForm = () => {
         const res = await BlogActions.FetchTags();
         setTagsList(res.data);
     };
+    const fetchMedia = async () => {
+        const res = await MediaActions.getAllMedia();
+        setMediaFiles(res.data);
+    };
+    const fetchPlatforms = async () => {
+        const res = await PlateformActions.GetAllPlateform();
+        setPlatformData(res);
+    };
+    const loadBlogs = async () => {
+        const blogs = await BlogActions.GetAllBlogs()
+        setAllBlogs(blogs);
+    };
     useEffect(() => {
-        const fetchPlatforms = async () => {
-            const res = await PlateformActions.GetAllPlateform();
-            setPlatformData(res);
-        };
         fetchPlatforms();
-        const loadBlogs = async () => {
-            const blogs = await BlogActions.GetAllBlogs()
-            setAllBlogs(blogs);
-        };
         loadBlogs();
-        const fetchMedia = async () => {
-            const res = await MediaActions.getAllMedia();
-            setMediaFiles(res.data);
-        };
         fetchMedia();
         fetchCategories();
         fetchTags()
@@ -523,6 +525,7 @@ const BlogForm = () => {
                     handleRemoveImage={handleRemoveImage}
                     handleFileChange={handleFileChange}
                     setIsMediaPopupOpen={setIsMediaPopupOpen}
+                    setIsUploadModalOpen={setIsUploadModalOpen}
                 />
             </div>
             {isPopupOpen && (
@@ -693,6 +696,17 @@ const BlogForm = () => {
                     onClose={() => setIsTagModalOpen(false)}
                     onSuccess={async () => {
                         await fetchTags();
+                    }}
+                />
+            )}
+            {isUploadModalOpen && (
+                <UploadMediaModal
+                    isOpen={isUploadModalOpen}
+                    onClose={() => setIsUploadModalOpen(false)}
+                    onUploadComplete={fetchMedia}
+                    onSelectImage={(url) => {
+                        setImage(url);
+                        setSelectedFile(null);
                     }}
                 />
             )}
