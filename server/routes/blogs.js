@@ -309,7 +309,7 @@ blogRouter.get("/recent", authMiddleware, async (req, res) => {
     const limitDays = days || 7;
 
     const [rows] = await mysqlpool.query(
-      `SELECT * FROM blogs 
+      `SELECT id,blog_title FROM blogs 
        WHERE created_at >= NOW() - INTERVAL ? DAY
        ORDER BY publish_date DESC`,
       [limitDays],

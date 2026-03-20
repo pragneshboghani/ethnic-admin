@@ -19,7 +19,6 @@ const AddEditPlatformModal = ({
     refreshPlatforms,
 }: Props) => {
 
-    const [authModalOpen, setAuthModalOpen] = useState(false);
     const [formData, setFormData] = useState<Platform>({
         platform_name: "",
         website_url: "",
@@ -89,10 +88,6 @@ const AddEditPlatformModal = ({
             username: "",
             password: "",
         }));
-
-        if (value !== "none") {
-            setAuthModalOpen(true);
-        }
     };
 
     if (!open) return null;
@@ -140,15 +135,6 @@ const AddEditPlatformModal = ({
                             placeholder="API Endpoint"
                             className="w-full p-2 rounded bg-white border text-black"
                         />
-                        {/* 
-                    <input
-                        type="text"
-                        name="auth_token"
-                        value={formData.auth_token}
-                        onChange={handleChange}
-                        placeholder="Auth Token"
-                        className="w-full p-2 rounded bg-white border text-black"
-                    /> */}
                         <select
                             name="auth_type"
                             value={formData.auth_type}
@@ -160,47 +146,6 @@ const AddEditPlatformModal = ({
                             <option value="basic">Basic Auth (Username & Password)</option>
                         </select>
 
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="w-full p-2 rounded bg-white border text-black"
-                        >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-
-                        <div className="flex justify-end gap-3 pt-3">
-
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 border rounded text-gray-300"
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-green-600 rounded text-white"
-                            >
-                                {editingPlatform ? "Update" : "Save"}
-                            </button>
-
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-            {authModalOpen && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-                    <div className="p-6 w-[400px] glass-card text-white">
-
-                        <h3 className="text-lg font-semibold mb-4">
-                            {formData.auth_type === "token" ? "Enter Token" : "Enter Credentials"}
-                        </h3>
-
-                        {/* TOKEN */}
                         {formData.auth_type === "token" && (
                             <input
                                 type="text"
@@ -215,8 +160,6 @@ const AddEditPlatformModal = ({
                                 className="w-full p-2 rounded bg-white text-black"
                             />
                         )}
-
-                        {/* BASIC AUTH */}
                         {formData.auth_type === "basic" && (
                             <div className="space-y-3">
                                 <input
@@ -247,24 +190,34 @@ const AddEditPlatformModal = ({
                             </div>
                         )}
 
-                        <div className="flex justify-end gap-3 mt-4">
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            className="w-full p-2 rounded bg-white border text-black"
+                        >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+
+                        <div className="flex justify-end gap-3 pt-3">
                             <button
-                                onClick={() => setAuthModalOpen(false)}
-                                className="px-4 py-2 bg-gray-600 rounded"
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 border rounded text-gray-300"
                             >
                                 Cancel
                             </button>
-
                             <button
-                                onClick={() => setAuthModalOpen(false)}
-                                className="px-4 py-2 bg-green-600 rounded"
+                                type="submit"
+                                className="px-4 py-2 bg-green-600 rounded text-white"
                             >
-                                Save
+                                {editingPlatform ? "Update" : "Save"}
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-            )}
+            </div>
         </>
     );
 };

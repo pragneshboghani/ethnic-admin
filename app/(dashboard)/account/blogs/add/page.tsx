@@ -20,9 +20,10 @@ import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
 import CategoryModal from "@/components/common/CategoryModal";
 import TagModal from "@/components/common/TagModal";
-import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
+import { generateSlug } from "@/utils/generateSlug";
+import Underline from "@tiptap/extension-underline";
 
 type CategoryType = {
     id: number;
@@ -110,8 +111,8 @@ const BlogForm = () => {
         extensions: [
             StarterKit,
             Link.configure({ openOnClick: true }),
-            Image,
             Highlight,
+            Underline,
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
             }),
@@ -136,12 +137,6 @@ const BlogForm = () => {
             setFormContent(editor.getHTML());
         },
     });
-
-    // useEffect(() => {
-    //     if (editor) {
-    //         editor.commands.setContent(formContent);
-    //     }
-    // }, [editor, formContent]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -197,6 +192,15 @@ const BlogForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (selectedPlatforms.length === 0) {
+            toast.error("Please select at least one platform 😢");
+            return;
+        }
+
+        if (!publishDate || publishDate.trim() === "") {
+            toast.error("Publish date is required 😢");
+            return;
+        }
         const formData = await ConvertBase64()
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
@@ -317,6 +321,38 @@ const BlogForm = () => {
         setImage(null);
         setSelectedFile(null);
     };
+
+    useEffect(() => {
+        if (!title) return;
+
+        const slug = generateSlug(title);
+
+        setPlatformSettings(prev => {
+            const updated = { ...prev };
+
+            selectedPlatforms.forEach(platformId => {
+                const platform = platformData?.data.find(
+                    (p: any) => p.id === platformId
+                );
+
+                if (!platform) return;
+
+                const canonicalUrl = `${platform.api_endpoint}/blog/${slug}`;
+
+                updated[platformId] = {
+                    seoTitle: prev[platformId]?.seoTitle || title,
+                    slug: prev[platformId]?.slug || slug,
+                    publishStatus: prev[platformId]?.publishStatus || "draft",
+                    metaDescription: prev[platformId]?.metaDescription || excerpt,
+                    canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
+                    ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
+                    ctaButtonLink: prev[platformId]?.ctaButtonLink || canonicalUrl,
+                };
+            });
+
+            return updated;
+        });
+    }, [title, excerpt, selectedPlatforms, activeTab, platformData]);
 
     useEffect(() => {
         if (!blogId) return;
@@ -466,6 +502,8 @@ const BlogForm = () => {
                             platformSettings={platformSettings}
                             setPlatformSettings={setPlatformSettings}
                             handlePlatformChange={handlePlatformChange}
+                            title={title}
+                            excerpt={excerpt}
                         />
                     )}
                 </div>

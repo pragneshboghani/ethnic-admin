@@ -1,11 +1,10 @@
-import {
-    Highlighter,
-    AlignLeft,
-    AlignCenter,
-    AlignRight,
-    Undo,
-    Redo
-} from "lucide-react";
+import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo } from "lucide-react";
+
+type ToolbarItem = | {
+    type: 'button'; title: string; action: (editor: any) => void; active?: (editor: any) => boolean;
+    label: React.ReactNode;
+} | { type: 'divider'; };
+
 
 function ToolbarButton({ children, onClick, active, title }: any) {
     return (
@@ -21,115 +20,57 @@ function ToolbarButton({ children, onClick, active, title }: any) {
     );
 }
 
+const toolbarItems: ToolbarItem[] = [
+    { type: 'button', title: 'Bold', action: (e: any) => e.chain().focus().toggleBold().run(), active: (e: any) => e.isActive('bold'), label: <span className="font-bold">B</span> },
+    { type: 'button', title: 'Italic', action: (e: any) => e.chain().focus().toggleItalic().run(), active: (e: any) => e.isActive('italic'), label: <span className="italic">I</span> },
+    { type: 'button', title: 'Underline', action: (e: any) => e.chain().focus().toggleUnderline().run(), active: (e: any) => e.isActive('underline'), label: <span className="underline">U</span> },
+    { type: 'divider' },
+    { type: 'button', title: 'Heading 1', action: (e: any) => e.chain().focus().toggleHeading({ level: 1 }).run(), active: (e: any) => e.isActive('heading', { level: 1 }), label: 'H1' },
+    { type: 'button', title: 'Heading 2', action: (e: any) => e.chain().focus().toggleHeading({ level: 2 }).run(), active: (e: any) => e.isActive('heading', { level: 2 }), label: 'H2' },
+    { type: 'button', title: 'Heading 3', action: (e: any) => e.chain().focus().toggleHeading({ level: 3 }).run(), active: (e: any) => e.isActive('heading', { level: 3 }), label: 'H3' },
+    { type: 'divider' },
+    { type: 'button', title: 'Bullet List', action: (e: any) => e.chain().focus().toggleBulletList().run(), active: (e: any) => e.isActive('bulletList'), label: 'UL' },
+    { type: 'button', title: 'Numbered List', action: (e: any) => e.chain().focus().toggleOrderedList().run(), active: (e: any) => e.isActive('orderedList'), label: 'OL' },
+    { type: 'divider' },
+    {
+        type: 'button', title: 'Add Link', active: (e: any) => e.isActive('link'), label: 'Link',
+        action: (e: any) => {
+            const url = window.prompt('Enter URL');
+            if (url) e.chain().focus().setLink({ href: url }).run();
+        },
+    },
+    { type: 'divider' },
+    { type: 'button', title: 'Highlight', action: (e: any) => e.chain().focus().toggleHighlight().run(), active: (e: any) => e.isActive('highlight'), label: <Highlighter size={16} /> },
+    { type: 'divider' },
+    { type: 'button', title: 'Align Left', action: (e: any) => e.chain().focus().setTextAlign('left').run(), active: (e: any) => e.isActive({ textAlign: 'left' }), label: <AlignLeft size={16} /> },
+    { type: 'button', title: 'Align Center', action: (e: any) => e.chain().focus().setTextAlign('center').run(), active: (e: any) => e.isActive({ textAlign: 'center' }), label: <AlignCenter size={16} /> },
+    { type: 'button', title: 'Align Right', action: (e: any) => e.chain().focus().setTextAlign('right').run(), active: (e: any) => e.isActive({ textAlign: 'right' }), label: <AlignRight size={16} /> },
+    { type: 'divider' },
+    { type: 'button', title: 'Undo', action: (e: any) => e.chain().focus().undo().run(), label: <Undo size={16} /> },
+    { type: 'button', title: 'Redo', action: (e: any) => e.chain().focus().redo().run(), label: <Redo size={16} /> },
+];
+
 function EditorToolbar({ editor }: any) {
     if (!editor) return null;
+
     return (
         <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-200">
-            <ToolbarButton
-                title="Bold"
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                active={editor.isActive('bold')}
-            >
-                <span className="font-bold">B</span>
-            </ToolbarButton>
-            <ToolbarButton
-                title="Italic"
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                active={editor.isActive('italic')}
-            >
-                <span className="italic">I</span>
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Heading 1"
-                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                active={editor.isActive('heading', { level: 1 })}
-            >
-                H1
-            </ToolbarButton>
-            <ToolbarButton
-                title="Heading 2"
-                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                active={editor.isActive('heading', { level: 2 })}
-            >
-                H2
-            </ToolbarButton>
-            <ToolbarButton
-                title="Heading 3"
-                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                active={editor.isActive('heading', { level: 3 })}
-            >
-                H3
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Bullet List"
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                active={editor.isActive('bulletList')}
-            >
-                UL
-            </ToolbarButton>
-            <ToolbarButton
-                title="Numbered List"
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                active={editor.isActive('orderedList')}
-            >
-                OL
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Add Link"
-                onClick={() => {
-                    const url = window.prompt('Enter URL');
-                    if (url) editor.chain().focus().setLink({ href: url }).run();
-                }}
-                active={editor.isActive('link')}
-            >
-                Link
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Highlight"
-                onClick={() => editor.chain().focus().toggleHighlight().run()}
-                active={editor.isActive('highlight')}
-            >
-                <Highlighter size={16} />
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Align Left"
-                onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                active={editor.isActive({ textAlign: 'left' })}
-            >
-                <AlignLeft size={16} />
-            </ToolbarButton>
-            <ToolbarButton
-                title="Align Center"
-                onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                active={editor.isActive({ textAlign: 'center' })}
-            >
-                <AlignCenter size={16} />
-            </ToolbarButton>
-            <ToolbarButton
-                title="Align Right"
-                onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                active={editor.isActive({ textAlign: 'right' })}
-            >
-                <AlignRight size={16} />
-            </ToolbarButton>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <ToolbarButton
-                title="Undo"
-                onClick={() => editor.chain().focus().undo().run()}
-            >
-                <Undo size={16} />
-            </ToolbarButton>
-            <ToolbarButton
-                title="Redo"
-                onClick={() => editor.chain().focus().redo().run()}
-            >
-                <Redo size={16} />
-            </ToolbarButton>
+            {toolbarItems.map((item, index) => {
+                if (item.type === 'divider') {
+                    return <div key={index} className="w-px h-4 bg-slate-300 mx-1" />;
+                }
+
+                return (
+                    <ToolbarButton
+                        key={index}
+                        title={item.title}
+                        onClick={() => item.action(editor)}
+                        active={item.active ? item.active(editor) : false}
+                    >
+                        {item.label}
+                    </ToolbarButton>
+                );
+            })}
         </div>
     );
 }

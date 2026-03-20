@@ -182,7 +182,7 @@ const Blogs = () => {
                         );
                       })}
                     </td>
-                    <td className="p-2 max-w-[100px] truncate">{b.status == 'future' ? 'scheduled': b.status}</td>
+                    <td className="p-2 max-w-[100px] truncate">{b.status == 'future' ? 'scheduled' : b.status}</td>
                     {/* <td className="p-2 max-w-[125px] truncate">{b.author}</td> */}
                     <td className="p-2 max-w-[165px] truncate">
                       {Array.isArray(b.category)
@@ -296,8 +296,28 @@ const Blogs = () => {
               );
             })}</p>
             <p className="mb-2"><strong className="text-gray-700">Status:</strong> {selectedBlog.status}</p>
-            <p className="mb-2"><strong className="text-gray-700">Category:</strong> {selectedBlog.category}</p>
-            <p className="mb-2"><strong className="text-gray-700">Tags:</strong> {selectedBlog.tags?.join(", ")}</p>
+            <p className="mb-2"><strong className="text-gray-700">Category: </strong>
+              {Array.isArray(selectedBlog.category)
+                ? selectedBlog.category
+                  .map((cId: number) => {
+                    const cat = categoryData?.data?.find((c: any) => c.id === cId);
+                    return cat ? cat.name : null;
+                  })
+                  .filter(Boolean)
+                  .join(", ")
+                : ""}
+            </p>
+            <p className="mb-2"><strong className="text-gray-700">Tags: </strong>
+              {Array.isArray(selectedBlog.tags)
+                ? selectedBlog.tags
+                  .map((tId: number) => {
+                    const tag = tagData?.data?.find((t: any) => t.id === tId);
+                    return tag ? tag.name : null;
+                  })
+                  .filter(Boolean)
+                  .join(", ")
+                : ""}
+            </p>
             <p className="mb-2">
               <strong className="text-gray-700">Create Date:</strong>{formatDateTime(selectedBlog.created_at)}</p>
             <p className="mb-2">

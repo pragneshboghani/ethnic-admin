@@ -140,7 +140,7 @@ const UserActions = {
 
   setToken: (token: string) => {
     Cookies.set("token", token, {
-      expires: 7, // 7 days
+      expires: 1,
       secure: false,
       sameSite: "strict",
     });

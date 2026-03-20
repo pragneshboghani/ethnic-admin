@@ -90,7 +90,7 @@ userRouter.post("/create", async (req, res) => {
         role: role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "1d" },
     );
 
     res.status(201).send({
@@ -210,7 +210,7 @@ userRouter.post("/login", async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "1d" },
     );
 
     res.status(200).send({

@@ -9,8 +9,8 @@ dashboardRouter.get("/all", authMiddleware, async (req, res) => {
     const [[statusCount]] = await mysqlpool.query(`
       SELECT 
         COUNT(*) as TotalBlogs,
-        SUM(status='published') as PublishedBlogs,
-        SUM(status='scheduled') as ScheduledBlogs,
+        SUM(status='publish') as PublishedBlogs,
+        SUM(status='future') as ScheduledBlogs,
         SUM(status='draft') as DraftBlogs
       FROM blogs
     `);

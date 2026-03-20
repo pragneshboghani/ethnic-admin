@@ -53,7 +53,7 @@ platformRouter.get("/get", authMiddleware, async (req, res) => {
 platformRouter.get("/active", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
-      `SELECT * FROM platforms WHERE status = 'active'`,
+      `SELECT id,platform_name,website_url FROM platforms WHERE status = 'active'`,
     );
 
     res.status(200).send({
