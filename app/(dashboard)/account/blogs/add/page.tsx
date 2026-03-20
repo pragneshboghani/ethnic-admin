@@ -24,7 +24,9 @@ import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import { generateSlug } from "@/utils/generateSlug";
 import Underline from "@tiptap/extension-underline";
+import Image from "@tiptap/extension-image";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
+import ImageResize from 'tiptap-extension-resize-image';
 
 type CategoryType = {
     id: number;
@@ -59,7 +61,7 @@ const BlogForm = () => {
     const [allBlogs, setAllBlogs] = useState<{ data: any[] }>({ data: [] });
     const [readingTime, setReadingTime] = useState<number>(0);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [isMediaPopupOpen, setIsMediaPopupOpen] = useState(false);
+    const [mediaFor, setMediaFor] = useState<'feature' | 'editor'>('feature');
     const [mediaFiles, setMediaFiles] = useState<any[]>([]);
     const [showPreview, setShowPreview] = useState(false);
     const [tagsList, setTagsList] = useState<{ id: number; name: string }[]>([]);
@@ -104,7 +106,7 @@ const BlogForm = () => {
     useEffect(() => {
         fetchPlatforms();
         loadBlogs();
-        fetchMedia();
+        // fetchMedia();
         fetchCategories();
         fetchTags()
     }, []);
@@ -115,6 +117,8 @@ const BlogForm = () => {
             Link.configure({ openOnClick: true }),
             Highlight,
             Underline,
+            Image,
+            ImageResize,
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
             }),
@@ -324,6 +328,11 @@ const BlogForm = () => {
         setSelectedFile(null);
     };
 
+    const handleAddEditorImage = () => {
+        setMediaFor('editor');
+        setIsUploadModalOpen(true);
+    };
+
     useEffect(() => {
         if (!title) return;
 
@@ -495,6 +504,7 @@ const BlogForm = () => {
                             selectedTags={selectedTags}
                             setSelectedTags={setSelectedTags}
                             setIsTagModalOpen={setIsTagModalOpen}
+                            handleAddEditorImage={handleAddEditorImage}
                         />
                     ) : (
                         <PlatformSettingsSection
@@ -524,8 +534,8 @@ const BlogForm = () => {
                     image={image}
                     handleRemoveImage={handleRemoveImage}
                     handleFileChange={handleFileChange}
-                    setIsMediaPopupOpen={setIsMediaPopupOpen}
                     setIsUploadModalOpen={setIsUploadModalOpen}
+                    setMediaFor={setMediaFor}
                 />
             </div>
             {isPopupOpen && (
@@ -562,34 +572,7 @@ const BlogForm = () => {
                     </div>
                 </div>
             )}
-            {isMediaPopupOpen && (
-                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50">
-                    <div className="p-6 w-[850px] glass-card max-h-[80vh] overflow-y-auto">
 
-                        <div className="w-full flex justify-between mb-4">
-                            <h3 className="text-xl font-semibold text-white">
-                                Select Image From Media Library
-                            </h3>
-                            <X size={20} onClick={() => setIsMediaPopupOpen(false)} />
-                        </div>
-
-                        <div className="grid grid-cols-4 gap-4">
-                            {mediaFiles.map((file) => (
-                                <img
-                                    key={file.id}
-                                    src={`${process.env.BACKEND_DOMAIN}/${file.file_url}`}
-                                    className="cursor-pointer rounded-lg border w-[200px] h-[200px] object-cover"
-                                    onClick={() => {
-                                        setImage(file.file_url);
-                                        setIsMediaPopupOpen(false);
-                                        setSelectedFile(null);
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
             {showPreview && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
                     <div className="w-[1000px] max-h-[90vh] overflow-y-auto rounded-2xl text-white glass-card">
@@ -705,8 +688,16 @@ const BlogForm = () => {
                     onClose={() => setIsUploadModalOpen(false)}
                     onUploadComplete={fetchMedia}
                     onSelectImage={(url) => {
-                        setImage(url);
-                        setSelectedFile(null);
+                        if (mediaFor === 'feature') {
+                            // 🖼️ Feature Image
+                            setImage(url);
+                            setSelectedFile(null);
+                        } else {
+                            // ✍️ Editor Image
+                            editor?.chain().focus().setImage({
+                                src: `${process.env.BACKEND_DOMAIN}/${url}`
+                            }).run();
+                        }
                     }}
                 />
             )}

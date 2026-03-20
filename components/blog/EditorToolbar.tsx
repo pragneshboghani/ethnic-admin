@@ -1,9 +1,10 @@
-import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo } from "lucide-react";
+import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Image as ImageIcon } from "lucide-react";
 
 type ToolbarItem = | {
     type: 'button'; title: string; action: (editor: any) => void; active?: (editor: any) => boolean;
     label: React.ReactNode;
 } | { type: 'divider'; };
+
 
 
 function ToolbarButton({ children, onClick, active, title }: any) {
@@ -20,7 +21,7 @@ function ToolbarButton({ children, onClick, active, title }: any) {
     );
 }
 
-const toolbarItems: ToolbarItem[] = [
+const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
     { type: 'button', title: 'Bold', action: (e: any) => e.chain().focus().toggleBold().run(), active: (e: any) => e.isActive('bold'), label: <span className="font-bold">B</span> },
     { type: 'button', title: 'Italic', action: (e: any) => e.chain().focus().toggleItalic().run(), active: (e: any) => e.isActive('italic'), label: <span className="italic">I</span> },
     { type: 'button', title: 'Underline', action: (e: any) => e.chain().focus().toggleUnderline().run(), active: (e: any) => e.isActive('underline'), label: <span className="underline">U</span> },
@@ -41,6 +42,14 @@ const toolbarItems: ToolbarItem[] = [
     },
     { type: 'divider' },
     { type: 'button', title: 'Highlight', action: (e: any) => e.chain().focus().toggleHighlight().run(), active: (e: any) => e.isActive('highlight'), label: <Highlighter size={16} /> },
+    {
+        type: 'button',
+        title: 'Add Image',
+        label: <ImageIcon size={16} />,
+        action: () => {
+            onAddImage();
+        },
+    },
     { type: 'divider' },
     { type: 'button', title: 'Align Left', action: (e: any) => e.chain().focus().setTextAlign('left').run(), active: (e: any) => e.isActive({ textAlign: 'left' }), label: <AlignLeft size={16} /> },
     { type: 'button', title: 'Align Center', action: (e: any) => e.chain().focus().setTextAlign('center').run(), active: (e: any) => e.isActive({ textAlign: 'center' }), label: <AlignCenter size={16} /> },
@@ -50,8 +59,10 @@ const toolbarItems: ToolbarItem[] = [
     { type: 'button', title: 'Redo', action: (e: any) => e.chain().focus().redo().run(), label: <Redo size={16} /> },
 ];
 
-function EditorToolbar({ editor }: any) {
+function EditorToolbar({ editor, onAddImage }: any) {
     if (!editor) return null;
+
+    const toolbarItems = getToolbarItems(onAddImage);
 
     return (
         <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-200">

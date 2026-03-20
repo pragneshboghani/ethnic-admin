@@ -18,6 +18,7 @@ type BlogGeneralSectionProps = {
     selectedTags: number[];
     setSelectedTags: React.Dispatch<React.SetStateAction<number[]>>;
     setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    handleAddEditorImage: () => void;
 };
 
 const BlogGeneralSection = ({
@@ -35,7 +36,8 @@ const BlogGeneralSection = ({
     tagsList,
     selectedTags,
     setSelectedTags,
-    setIsTagModalOpen
+    setIsTagModalOpen,
+    handleAddEditorImage
 }: BlogGeneralSectionProps) => (
     <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
@@ -62,7 +64,7 @@ const BlogGeneralSection = ({
         <div className="space-y-2">
             <label className="text-sm font-semibold">Content</label>
             <div className="rounded-xl overflow-hidden focus-within:border-none text-black transition-all">
-                <EditorToolbar editor={editor} />
+                <EditorToolbar editor={editor}  onAddImage={handleAddEditorImage} />
                 <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
             </div>
         </div>

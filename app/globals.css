@@ -301,6 +301,10 @@ body {
   outline: none !important;
 }
 
+.prose img {
+border: 1px solid #000000;
+}
+
 .prose a {
   color: #3b82f6;
   text-decoration: underline;
