@@ -1,4 +1,4 @@
-import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Image as ImageIcon } from "lucide-react";
+import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Image as ImageIcon, Palette, Eraser, AtSign, BrushCleaning } from "lucide-react";
 
 type ToolbarItem = | {
     type: 'button'; title: string; action: (editor: any) => void; active?: (editor: any) => boolean;
@@ -41,6 +41,52 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
         },
     },
     { type: 'divider' },
+
+    {
+        type: 'button',
+        title: 'Text Color',
+        label: (
+            <label className="cursor-pointer flex items-center justify-center">
+                <Palette size={16} />
+                <input
+                    type="color"
+                    className="absolute opacity-0 w-0 h-0"
+                    onChange={(e) => {
+                        const color = e.target.value;
+                        const editor = (window as any).__tiptapEditor;
+                        if (editor) {
+                            editor.chain().focus().setColor(color).run();
+                        }
+                    }}
+                />
+            </label>
+        ),
+        action: () => { },
+    },
+    {
+        type: 'button',
+        title: 'Remove Color',
+        label: <Eraser size={16} />,
+        action: (e: any) => e.chain().focus().unsetColor().run(),
+    },
+    {
+        type: 'button',
+        title: 'Mention',
+        label: <AtSign size={16} />,
+        action: (e: any) => {
+            const name = window.prompt("Enter mention");
+            if (name) {
+                e.chain().focus().insertContent(`@${name} `).run();
+            }
+        },
+    },
+    {
+        type: 'button',
+        title: 'Clear Format',
+        label: <BrushCleaning size={16} />,
+        action: (e: any) => e.chain().focus().unsetAllMarks().clearNodes().run(),
+    },
+    { type: 'divider' },
     { type: 'button', title: 'Highlight', action: (e: any) => e.chain().focus().toggleHighlight().run(), active: (e: any) => e.isActive('highlight'), label: <Highlighter size={16} /> },
     {
         type: 'button',
@@ -62,6 +108,7 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
 function EditorToolbar({ editor, onAddImage }: any) {
     if (!editor) return null;
 
+    (window as any).__tiptapEditor = editor;
     const toolbarItems = getToolbarItems(onAddImage);
 
     return (

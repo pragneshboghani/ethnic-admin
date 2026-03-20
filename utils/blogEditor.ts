@@ -6,6 +6,11 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
 import TextAlign from "@tiptap/extension-text-align";
+import CharacterCount from "@tiptap/extension-character-count";
+import Color from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Placeholder from "@tiptap/extension-placeholder";
+import Mention from "@tiptap/extension-mention";
 
 type Props = {
   content: string;
@@ -24,6 +29,28 @@ const blogEditor = ({ content, setContent }: Props) => {
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
+      TextStyle,
+      Color,
+
+      CharacterCount.configure({
+        limit: 10000,
+      }),
+
+      Placeholder.configure({
+        placeholder: "Write your Content here...",
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: "text-blue-500 font-medium",
+        },
+        suggestion: {
+          items: ({ query }: any) => {
+            return ["tag1", "tag2", "ankit", "blog"].filter((item) =>
+              item.toLowerCase().startsWith(query.toLowerCase()),
+            );
+          },
+        },
+      }),
     ],
     content: content,
     immediatelyRender: false,
@@ -40,7 +67,7 @@ const blogEditor = ({ content, setContent }: Props) => {
           return true;
         }
         return false;
-      },      
+      },
     },
     onUpdate: ({ editor }) => {
       setContent(editor.getHTML());
