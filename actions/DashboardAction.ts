@@ -1,13 +1,12 @@
 import Cookies from "js-cookie";
+import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const DashBoardActions = {
   GetAllDashboardData: async () => {
     try {
-      const token = Cookies.get("token");
-
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/dashboard/all`, {
         headers: {
@@ -30,10 +29,7 @@ const DashBoardActions = {
 
   GetRecentlyBlog: async (days: string) => {
     try {
-      const token = Cookies.get("token");
-
-      if (!token) throw new Error("User not logged in");
-
+      const token = UserActions.getToken();
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/blogs/recent?days=${days}`,
         {
@@ -58,9 +54,7 @@ const DashBoardActions = {
 
   GetActivePlatform: async () => {
     try {
-      const token = Cookies.get("token");
-
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/active`, {
         headers: {

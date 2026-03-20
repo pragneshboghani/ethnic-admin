@@ -1,4 +1,5 @@
 const axios = require("axios");
+const getAuthHeaders = require("./getAuthHeaders");
 
 const postCategoryToPlatform = async (platform, category, path) => {
   try {
@@ -11,21 +12,10 @@ const postCategoryToPlatform = async (platform, category, path) => {
       status: category.status || "publish",
     };
 
-    let headers = {
+    const headers = {
       "Content-Type": "application/json",
+      ...getAuthHeaders(platform),
     };
-
-    if (platform.auth_type === "token") {
-      headers.Authorization = `Bearer ${platform.auth_token}`;
-    }
-
-    if (platform.auth_type === "basic") {
-      const base64 = Buffer.from(
-        `${platform.username}:${platform.password}`,
-      ).toString("base64");
-
-      headers.Authorization = `Basic ${base64}`;
-    }
 
     const res = await axios.post(url, payload, { headers });
 

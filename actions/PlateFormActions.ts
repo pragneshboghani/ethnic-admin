@@ -1,13 +1,13 @@
 import { Platform } from "@/types";
 import Cookies from "js-cookie";
+import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const PlateformActions = {
   GetAllPlateform: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/all`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -27,8 +27,7 @@ const PlateformActions = {
 
   AddPlateformData: async (data: Platform) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/add`, {
         method: "POST",
@@ -53,8 +52,7 @@ const PlateformActions = {
 
   DeletePlateForm: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/platforms/delete?id=${id}`,
@@ -78,9 +76,7 @@ const PlateformActions = {
 
   UpdatePlateForm: async (id: number, data: Platform) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
+      const token = UserActions.getToken();
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/platforms/update?id=${id}`,
         {
