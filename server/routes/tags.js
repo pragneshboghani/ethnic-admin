@@ -4,9 +4,9 @@ const mysqlpool = require("../config/db");
 const generateSlug = require("../utils/generateSlug");
 const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 
-const TagRouter = express.Router();
+const tagRouter = express.Router();
 
-TagRouter.get("/all", authMiddleware, async (req, res) => {
+tagRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM tags");
     res.status(200).send({
@@ -22,7 +22,7 @@ TagRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-TagRouter.post("/add", authMiddleware, async (req, res) => {
+tagRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
@@ -66,4 +66,4 @@ TagRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = TagRouter;
+module.exports = tagRouter;

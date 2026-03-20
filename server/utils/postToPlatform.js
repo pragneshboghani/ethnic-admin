@@ -1,23 +1,19 @@
 const axios = require("axios");
 const generateSlug = require("./generateSlug");
+const getAuthHeaders = require("./getAuthHeaders");
+const mysqlpool = require("../config/db");
 
 const postToPlatform = async (platform, blogData, slug = null) => {
   try {
     let url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
     let method = "post";
 
-    let headers = {};
+    const [[image]] = await mysqlpool.query(
+      `SELECT * FROM media WHERE file_url=?`,
+      [blogData.featured_image],
+    );
 
-    if (platform.auth_type === "token") {
-      headers["Authorization"] = `Bearer ${platform.auth_token}`;
-    } else if (platform.auth_type === "basic") {
-      const base64 = Buffer.from(
-        `${platform.username}:${platform.password}`,
-      ).toString("base64");
-
-      headers["Authorization"] = `Basic ${base64}`;
-    }
-
+    const headers = getAuthHeaders(platform);
     if (slug) {
       const res = await axios.get(url, {
         headers,
@@ -39,9 +35,10 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
       slug: await generateSlug(blogData.blog_title),
-      status: (blogData.status).toLowerCase(),
+      status: blogData.status.toLowerCase(),
       categories: (blogData.category || []).map(Number),
       tags: blogData.tags,
+      featured_media: image.wp_id,
     };
 
     const response = await axios({

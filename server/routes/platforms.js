@@ -2,9 +2,9 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const PlatformRouter = Router();
+const platformRouter = Router();
 
-PlatformRouter.get("/all", authMiddleware, async (req, res) => {
+platformRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM platforms");
     res.status(200).send({
@@ -21,7 +21,7 @@ PlatformRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-PlatformRouter.get("/get", authMiddleware, async (req, res) => {
+platformRouter.get("/get", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -50,10 +50,10 @@ PlatformRouter.get("/get", authMiddleware, async (req, res) => {
   }
 });
 
-PlatformRouter.get("/active", authMiddleware, async (req, res) => {
+platformRouter.get("/active", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
-      `SELECT * FROM platforms WHERE status = 'active'`,
+      `SELECT id,platform_name,website_url FROM platforms WHERE status = 'active'`,
     );
 
     res.status(200).send({
@@ -70,7 +70,7 @@ PlatformRouter.get("/active", authMiddleware, async (req, res) => {
   }
 });
 
-PlatformRouter.post("/add", authMiddleware, async (req, res) => {
+platformRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { platform_name, website_url, api_endpoint, auth_type, auth_token, username, password, status } = req.body;
 
@@ -138,7 +138,7 @@ PlatformRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-PlatformRouter.put("/update", authMiddleware, async (req, res) => {
+platformRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -237,7 +237,7 @@ PlatformRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-PlatformRouter.delete("/delete", authMiddleware, async (req, res) => {
+platformRouter.delete("/delete", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -278,4 +278,4 @@ PlatformRouter.delete("/delete", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = PlatformRouter;
+module.exports = platformRouter;

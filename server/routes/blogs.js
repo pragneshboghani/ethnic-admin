@@ -5,9 +5,9 @@ const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
 
-const BlogRouter = express.Router();
+const blogRouter = express.Router();
 
-BlogRouter.get("/all", authMiddleware, async (req, res) => {
+blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
     res.status(200).send({
@@ -24,7 +24,7 @@ BlogRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.get("/get", authMiddleware, async (req, res) => {
+blogRouter.get("/get", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -52,7 +52,7 @@ BlogRouter.get("/get", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.post("/add", authMiddleware, async (req, res) => {
+blogRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const {
       blog_title,
@@ -127,7 +127,7 @@ BlogRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.put("/update", authMiddleware, async (req, res) => {
+blogRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -239,7 +239,7 @@ BlogRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
+blogRouter.delete("/delete", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -302,14 +302,14 @@ BlogRouter.delete("/delete", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.get("/recent", authMiddleware, async (req, res) => {
+blogRouter.get("/recent", authMiddleware, async (req, res) => {
   try {
     const { days } = req.query;
 
     const limitDays = days || 7;
 
     const [rows] = await mysqlpool.query(
-      `SELECT * FROM blogs 
+      `SELECT id,blog_title FROM blogs 
        WHERE created_at >= NOW() - INTERVAL ? DAY
        ORDER BY publish_date DESC`,
       [limitDays],
@@ -329,7 +329,7 @@ BlogRouter.get("/recent", authMiddleware, async (req, res) => {
   }
 });
 
-BlogRouter.get("/filter", authMiddleware, async (req, res) => {
+blogRouter.get("/filter", authMiddleware, async (req, res) => {
   try {
     const { status, platform, author, category, tags, search } = req.query;
 
@@ -391,4 +391,4 @@ BlogRouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = BlogRouter;
+module.exports = blogRouter;

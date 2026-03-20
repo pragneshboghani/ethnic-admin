@@ -2,15 +2,15 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const DashboardRouter = Router();
+const dashboardRouter = Router();
 
-DashboardRouter.get("/all", authMiddleware, async (req, res) => {
+dashboardRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [[statusCount]] = await mysqlpool.query(`
       SELECT 
         COUNT(*) as TotalBlogs,
-        SUM(status='published') as PublishedBlogs,
-        SUM(status='scheduled') as ScheduledBlogs,
+        SUM(status='publish') as PublishedBlogs,
+        SUM(status='future') as ScheduledBlogs,
         SUM(status='draft') as DraftBlogs
       FROM blogs
     `);
@@ -37,4 +37,4 @@ DashboardRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = DashboardRouter;
+module.exports = dashboardRouter;

@@ -1,12 +1,12 @@
 import Cookies from "js-cookie";
+import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const MediaActions = {
-  uploadMedia: async (file: string, alt: string) => {
+  uploadMedia: async (file: string, alt: string, selectedPlatforms:number[]) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/add`, {
         method: "POST",
@@ -14,7 +14,7 @@ const MediaActions = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ file, alt }),
+        body: JSON.stringify({ file, alt, selectedPlatforms }),
       });
 
       if (!res.ok) {
@@ -31,8 +31,7 @@ const MediaActions = {
 
   getAllMedia: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/all`, {
         headers: {
@@ -54,8 +53,7 @@ const MediaActions = {
 
   filterMedia: async (type?: string) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const queryParams = new URLSearchParams();
       if (type && type !== "all") queryParams.append("type", type);
@@ -83,9 +81,7 @@ const MediaActions = {
 
   UpdateALT: async (id: number, altText: string) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
+      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/update-alt/${id}`, {
         method: "PUT",
         headers: {
@@ -109,8 +105,7 @@ const MediaActions = {
 
   DeleteMedia: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/delete?id=${id}`, {
         method: "DELETE",

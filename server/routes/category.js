@@ -4,9 +4,9 @@ const mysqlpool = require("../config/db");
 const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 const generateSlug = require("../utils/generateSlug");
 
-const CategoryRouter = express.Router();
+const categoryRouter = express.Router();
 
-CategoryRouter.get("/all", authMiddleware, async (req, res) => {
+categoryRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM category");
     res.status(200).send({
@@ -22,7 +22,7 @@ CategoryRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-CategoryRouter.post("/add", authMiddleware, async (req, res) => {
+categoryRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
@@ -66,4 +66,4 @@ CategoryRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = CategoryRouter;
+module.exports = categoryRouter;

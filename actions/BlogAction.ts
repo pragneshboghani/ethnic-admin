@@ -1,13 +1,12 @@
 import Cookies from "js-cookie";
+import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const BlogActions = {
   GetAllBlogs: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
+      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -26,8 +25,7 @@ const BlogActions = {
 
   GetById: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/get?id=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -53,8 +51,7 @@ const BlogActions = {
     tags?: string;
   }) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const {
         platform = "0",
@@ -94,8 +91,7 @@ const BlogActions = {
 
   AddBlog: async (data: any) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/add`, {
         method: "POST",
@@ -120,8 +116,7 @@ const BlogActions = {
 
   AddSEO: async (blogId: number, seoData: any[]) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/seo/add`, {
         method: "POST",
@@ -146,9 +141,7 @@ const BlogActions = {
 
   DeleteBlog: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
-
+      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/delete?id=${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -168,8 +161,7 @@ const BlogActions = {
 
   UpdateBlog: async (id: number, data: any) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/update?id=${id}`, {
         method: "PUT",
@@ -194,8 +186,7 @@ const BlogActions = {
 
   FetchCategory: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/category/all`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -220,8 +211,7 @@ const BlogActions = {
     platforms: number[];
   }) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/category/add`, {
         method: "POST",
@@ -246,8 +236,7 @@ const BlogActions = {
 
   FetchTags: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/tags/all`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -272,8 +261,7 @@ const BlogActions = {
     platforms: number[];
   }) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/tags/add`, {
         method: "POST",

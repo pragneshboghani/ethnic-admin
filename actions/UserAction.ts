@@ -46,8 +46,7 @@ const UserActions = {
 
   GetAllUsers: async () => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/all`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -67,8 +66,7 @@ const UserActions = {
 
   GetUserById: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -88,8 +86,7 @@ const UserActions = {
 
   UpdateUser: async (id: number, data: any) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/update/${id}`, {
         method: "PUT",
@@ -114,8 +111,7 @@ const UserActions = {
 
   DeleteUser: async (id: number) => {
     try {
-      const token = Cookies.get("token");
-      if (!token) throw new Error("User not logged in");
+      const token = UserActions.getToken();
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/delete/${id}`, {
         method: "DELETE",
@@ -140,14 +136,14 @@ const UserActions = {
 
   setToken: (token: string) => {
     Cookies.set("token", token, {
-      expires: 7, // 7 days
+      expires: 1,
       secure: false,
       sameSite: "strict",
     });
   },
 
   IsLogin: (router: any) => {
-    const token = Cookies.get("token");
+    const token = UserActions.getToken();
 
     if (!token) {
       router.push("/");
@@ -172,8 +168,10 @@ const UserActions = {
     }
   },
 
-  removeToken: () => {
-    Cookies.remove("token");
+  getToken: () => {
+    const token = Cookies.get("token");
+    if (!token) throw new Error("User not logged in");
+    return token;
   },
 };
 

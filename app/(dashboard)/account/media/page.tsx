@@ -1,6 +1,8 @@
 "use client";
 
 import MediaActions from '@/actions/MediaAction';
+import PlateformActions from '@/actions/PlateFormActions';
+import UploadMediaModal from '@/components/media/UploadMediaModal';
 import { formatDateTime } from '@/utils/formatDateTime';
 import { formatFileSize } from '@/utils/formatFileSize';
 import { Eye, Pencil, Plus, Trash2, X } from 'lucide-react';
@@ -31,7 +33,7 @@ const Media = () => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [viewMedia, setViewMedia] = useState<Media | null>(null);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
-    const [uploadAlt, setUploadAlt] = useState("");
+    const [platformData, setPlatformData] = useState<any>(null);
 
     const tabs = [
         { id: 1, label: 'All Media', type: 'all' },
@@ -67,52 +69,18 @@ const Media = () => {
         }
     };
 
+    const fetchPlatforms = async () => {
+        const res = await PlateformActions.GetAllPlateform();
+        setPlatformData(res);
+    };
     const handleTabClick = (tab: any) => {
         setActiveTab(tab.id);
         fetchMedia(tab.type);
     };
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (!files) return;
-
-        Array.from(files).forEach((file) => {
-            const reader = new FileReader();
-
-            reader.onload = async () => {
-                const base64 = reader.result as string;
-                const finalAlt = uploadAlt.trim() || file.name;
-
-                try {
-                    const res = await MediaActions.uploadMedia(base64, finalAlt);
-
-                    toast.success(`Media Upload Success`)
-
-                    const newMedia: Media = {
-                        id: res.mediaId,
-                        file_name: file.name,
-                        file_url: res.fileUrl,
-                        file_type: file.type.startsWith("image") ? "image" : "video",
-                        alt_text: file.name,
-                        file_size: null,
-                        mime_type: file.type,
-                        created_at: new Date().toISOString(),
-                    };
-
-                    setMedia((prev) => [...prev, newMedia]);
-                    setUploadModalOpen(false)
-
-                } catch (error) {
-                    toast.error(`Image Upload failed 😢: ${(error as Error).message}`);
-                }
-            };
-
-            reader.readAsDataURL(file);
-        });
-    };
-
     useEffect(() => {
         fetchMedia();
+        fetchPlatforms()
     }, []);
 
     const handleUpdateAlt = async (id: number, currentAlt: string) => {
@@ -231,7 +199,7 @@ const Media = () => {
                 </div>
             </div>
             {altModalOpen && selectedMedia && (
-                <div className="fixed inset-0 bg-black/5=70 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                     <div className="p-6 w-80 text-white glass-card">
                         <h3 className="text-lg font-semibold mb-4">Update ALT Text</h3>
 
@@ -327,57 +295,12 @@ const Media = () => {
                 </div>
             )}
             {uploadModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="glass-card p-6 flex flex-col gap-4 w-[620px]">
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                const input = e.currentTarget.querySelector(
-                                    'input[type="file"]'
-                                ) as HTMLInputElement;
-                                if (input && input.files) {
-                                    handleFileChange({ target: input } as any);
-                                }
-                            }}
-                        >
-                            <h3 className="text-lg text-white mb-2">Upload Media</h3>
-
-                            <div className="flex gap-3 mb-4">
-                                <input
-                                    type="file"
-                                    accept="image/*,video/*"
-                                    multiple
-                                    className="text-white border p-2 rounded-sm w-fit"
-                                />
-
-                                <input
-                                    type="text"
-                                    placeholder="Enter ALT text (optional)"
-                                    className="px-3 py-2 rounded-md text-white border w-fit"
-                                    value={uploadAlt}
-                                    onChange={(e) => setUploadAlt(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="flex justify-end gap-2">
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-                                    onClick={() => setUploadModalOpen(false)}
-                                >
-                                    Cancel
-                                </button>
-
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-                                >
-                                    Upload
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <UploadMediaModal
+                    isOpen={uploadModalOpen}
+                    onClose={() => setUploadModalOpen(false)}
+                    onUploadComplete={fetchMedia}
+                    platformData={platformData}
+                />
             )}
         </>
     );

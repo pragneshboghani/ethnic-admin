@@ -1,42 +1,8 @@
+import { PlatformSettingsProps } from "@/types";
 import { CheckCircle2 } from "lucide-react";
 
-type PlatformSettingsProps = {
-    platformData: any;
-    selectedPlatforms: number[];
-    setSelectedPlatforms: React.Dispatch<React.SetStateAction<number[]>>;
-    platformSettings: {
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    };
-    setPlatformSettings: React.Dispatch<React.SetStateAction<{
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    }>>;
-    handlePlatformChange: (platformId: number, field: string, value: string) => void;
-};
-
-const PlatformSettingsSection = ({
-    platformData,
-    selectedPlatforms,
-    setSelectedPlatforms,
-    platformSettings,
-    setPlatformSettings,
-    handlePlatformChange,
-}: PlatformSettingsProps) => (
+const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedPlatforms, platformSettings, setPlatformSettings,
+    handlePlatformChange, title, excerpt }: PlatformSettingsProps) => (
     <div className="space-y-6">
         <div className="p-6 rounded-2xl glass-card">
             <h3 className="text-lg font-semibold  mb-4 flex items-center gap-2">
@@ -59,16 +25,22 @@ const PlatformSettingsSection = ({
                                         : [...prev, platform.id];
 
                                     if (!isSelected) {
+                                        const slug = title
+                                            ? title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-")
+                                            : "";
+
+                                        const canonicalUrl = `${platform.website_url}/blog/${slug}`;
+
                                         setPlatformSettings(ps => ({
                                             ...ps,
                                             [platform.id]: {
-                                                seoTitle: "",
-                                                slug: "",
+                                                seoTitle: title || "",
+                                                slug: slug || "",
                                                 publishStatus: "draft",
-                                                metaDescription: "",
-                                                canonicalUrl: "",
-                                                ctaButtonText: "",
-                                                ctaButtonLink: "",
+                                                metaDescription: excerpt || "",
+                                                canonicalUrl,
+                                                ctaButtonText: "Read more",
+                                                ctaButtonLink: canonicalUrl,
                                             }
                                         }));
                                     } else {

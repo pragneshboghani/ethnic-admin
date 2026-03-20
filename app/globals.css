@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --primary: #00d4ff;
@@ -292,22 +293,37 @@ body {
   inset: 0;
 }
 
-.ProseMirror *:focus {
+.prose *:focus {
   outline: none !important;
 }
 
-.ProseMirror *:focus-visible {
+.prose *:focus-visible {
   outline: none !important;
 }
 
-.ProseMirror a {
+.prose img {
+border: 1px solid #000000;
+}
+
+.prose a {
   color: #3b82f6;
   text-decoration: underline;
 }
 
-.ProseMirror a:hover {
+.prose a:hover {
   color: #1d4ed8;
 }
+
+.draggable-image {
+  cursor: move;
+  display: block;
+  max-width: 100%;
+}
+
+.prose img {
+  cursor: move;
+}
+
 
 .image_grid {
   display: grid;

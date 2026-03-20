@@ -2,10 +2,11 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const saveBase64File = require("../utils/saveBase64File");
 const authMiddleware = require("../middleware/authMiddleware");
+const postMediaToPlateform = require("../utils/postMediaToPlateform");
 
-const Mediarouter = Router();
+const mediarouter = Router();
 
-Mediarouter.get("/all", authMiddleware, async (req, res) => {
+mediarouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM media");
     res.status(200).send({
@@ -22,9 +23,9 @@ Mediarouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-Mediarouter.post("/add", authMiddleware, async (req, res) => {
+mediarouter.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { file, alt } = req.body;
+    const { file, alt, selectedPlatforms } = req.body;
 
     const { filepath, mimeType, fileSize, filename } = saveBase64File(
       file,
@@ -33,11 +34,25 @@ Mediarouter.post("/add", authMiddleware, async (req, res) => {
 
     const type = mimeType.startsWith("image") ? "image" : "video";
 
+    let platformData = [];
+
+    if (selectedPlatforms && selectedPlatforms.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [selectedPlatforms],
+      );
+      platformData = data;
+    }
+
+    const [results] = await Promise.all(
+      platformData.map((platform) => postMediaToPlateform(platform, req.body)),
+    );
+
     const [result] = await mysqlpool.query(
-      `INSERT INTO media 
-      (file_name,file_url,file_type,mime_type,file_size,alt_text)
-      VALUES (?,?,?,?,?,?)`,
-      [filename, filepath, type, mimeType, fileSize, alt || null],
+      `INSERT INTO media
+      (file_name,file_url,file_type,mime_type,file_size,alt_text,wp_url,wp_id)
+      VALUES (?,?,?,?,?,?,?,?)`,
+      [filename, filepath, type, mimeType, fileSize, alt || null, results.url, results.mediaId],
     );
 
     res.send({
@@ -55,7 +70,7 @@ Mediarouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-Mediarouter.get("/filter", authMiddleware, async (req, res) => {
+mediarouter.get("/filter", authMiddleware, async (req, res) => {
   try {
     const { type } = req.query;
 
@@ -85,7 +100,7 @@ Mediarouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
-Mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
+mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { alt_text } = req.body;
@@ -129,9 +144,9 @@ Mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
   }
 });
 
-Mediarouter.delete("/delete", authMiddleware, async (req, res) => {
+mediarouter.delete("/delete", authMiddleware, async (req, res) => {
   try {
-     const { id } = req.query;
+    const { id } = req.query;
 
     const [[media]] = await mysqlpool.query(
       "SELECT * FROM media WHERE id = ?",
@@ -160,4 +175,4 @@ Mediarouter.delete("/delete", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = Mediarouter;
+module.exports = mediarouter;
