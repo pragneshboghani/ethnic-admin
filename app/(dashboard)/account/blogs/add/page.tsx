@@ -20,6 +20,7 @@ import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import useBlogForm from "@/hooks/useBlogForm";
 import useBlogEditor from "@/utils/blogEditor";
+import { BlogFormType } from "@/types";
 
 const BlogForm = () => {
     const router = useRouter();
@@ -77,7 +78,7 @@ const BlogForm = () => {
         }
     };
 
-    const ConvertBase64 = async () => {
+    const ConvertBase64 = async (): Promise<BlogFormType | undefined> => {
         let uploadedImageUrl = image || "";
 
         if (selectedFile) {
@@ -116,11 +117,8 @@ const BlogForm = () => {
             })),
         };
 
-        return formData
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        const now = new Date().getTime();
+        const selectedDate = new Date(publishDate).getTime();
 
         if (selectedPlatforms.length === 0) {
             toast.error("Please select at least one platform 😢");
@@ -131,7 +129,26 @@ const BlogForm = () => {
             toast.error("Publish date is required 😢");
             return;
         }
+
+        if (formData.globalStatus === "publish" && selectedDate > now) {
+            toast.error("For publish status, date must be current or past 😢");
+            return;
+        }
+
+        if (globalStatus === "future" && selectedDate <= now) {
+            toast.error("For future status, please select a future date 😢");
+            return;
+        }
+
+        return formData
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
         const formData = await ConvertBase64()
+
+        if (!formData) return;
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
@@ -182,6 +199,7 @@ const BlogForm = () => {
         try {
             const formData = await ConvertBase64();
 
+            if (!formData) return;
             const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
             const BlogFormData = {
@@ -326,7 +344,7 @@ const BlogForm = () => {
                 // setAuthor(blog.author);
                 setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
-                setGlobalStatus((blog.status).toUpperCase());
+                setGlobalStatus(blog.status);
                 setSelectedTags(blog.tags || []);
                 setReadingTime(blog.reading_time || 0);
                 setRelatedBlogs(blog.related || []);
@@ -375,6 +393,7 @@ const BlogForm = () => {
         try {
             const formData = await ConvertBase64()
 
+            if (!formData) return;
             const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
             const BlogFormData = {
