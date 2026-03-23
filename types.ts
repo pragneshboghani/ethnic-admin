@@ -3,6 +3,7 @@ export interface Platform {
   platform_name: string;
   website_url: string;
   api_endpoint: string;
+  plateform_type:'wordpress' | 'custom',
   auth_type: "none" | "token" | "basic";
   auth_token?: string;
   username?: string;

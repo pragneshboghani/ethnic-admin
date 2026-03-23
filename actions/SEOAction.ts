@@ -45,6 +45,25 @@ const SEOActions = {
 
     return await res.json();
   },
+  DeleteSEO: async (blogId: number) => {
+    try {
+      const token = UserActions.getToken();
+      const res = await fetch(`${BACKEND_DOMAIN}/api/seo/delete?id=${blogId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error deleting blog:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default SEOActions;

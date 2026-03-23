@@ -272,16 +272,36 @@ const BlogForm = () => {
 
                 if (!platform) return;
 
-                const canonicalUrl = `${platform.api_endpoint}/blog/${slug}`;
+                const date = publishDate ? new Date(publishDate) : new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+
+                const isWordpress = platform.plateform_type == "wordpress";
+
+                const canonicalUrl = isWordpress
+                    ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                    : `${platform.api_endpoint}/blog/${slug}`;
 
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
                     slug: prev[platformId]?.slug || slug,
-                    publishStatus: prev[platformId]?.publishStatus || "draft",
+                    publishStatus:
+                        !prev[platformId]?.publishStatus ||
+                            prev[platformId]?.publishStatus === "draft"
+                            ? globalStatus
+                            : prev[platformId]?.publishStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
-                    canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
+                    canonicalUrl:
+                        !prev[platformId]?.canonicalUrl ||
+                            prev[platformId]?.canonicalUrl.includes("/blog/")
+                            ? canonicalUrl
+                            : prev[platformId]?.canonicalUrl,
                     ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
-                    ctaButtonLink: prev[platformId]?.ctaButtonLink || canonicalUrl,
+                    ctaButtonLink: !prev[platformId]?.canonicalUrl ||
+                        prev[platformId]?.canonicalUrl.includes("/blog/")
+                        ? canonicalUrl
+                        : prev[platformId]?.canonicalUrl,
                 };
             });
 

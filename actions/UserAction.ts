@@ -170,7 +170,7 @@ const UserActions = {
 
   getToken: () => {
     const token = Cookies.get("token");
-    if (!token) throw new Error("User not logged in");
+    // if (!token) throw new Error("User not logged in");
     return token;
   },
 };

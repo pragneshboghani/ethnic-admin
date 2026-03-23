@@ -2,6 +2,7 @@
 
 import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
+import SEOActions from "@/actions/SEOAction";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Eye, Pencil, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -69,6 +70,7 @@ const Blogs = () => {
   const handleDelete = async (id: number) => {
     try {
       await BlogActions.DeleteBlog(id);
+      await SEOActions.DeleteSEO(id)
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs()

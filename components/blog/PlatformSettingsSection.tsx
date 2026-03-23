@@ -109,7 +109,8 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                     className="w-full px-3 py-2 rounded-lg bg-slate-50 text-black text-sm focus:outline-none"
                                 >
                                     <option value="draft">Draft</option>
-                                    <option value="published">Published</option>
+                                    <option value="future">Scheduled</option>
+                                    <option value="publish">Published</option>
                                 </select>
                             </div>
 

@@ -23,6 +23,7 @@ const AddEditPlatformModal = ({
         platform_name: "",
         website_url: "",
         api_endpoint: "",
+        plateform_type: "custom",
         auth_type: "none",
         auth_token: "",
         username: "",
@@ -38,6 +39,7 @@ const AddEditPlatformModal = ({
                 platform_name: "",
                 website_url: "",
                 api_endpoint: "",
+                plateform_type: "custom",
                 auth_type: "none",
                 auth_token: "",
                 username: "",
@@ -135,6 +137,16 @@ const AddEditPlatformModal = ({
                             placeholder="API Endpoint"
                             className="w-full p-2 rounded bg-white border text-black"
                         />
+
+                        <select
+                            name="plateform_type"
+                            value={formData.plateform_type}
+                            onChange={handleChange}
+                            className="w-full p-2 rounded bg-white border text-black"
+                        >
+                            <option value="custom">Custom</option>
+                            <option value="wordpress">Wordpress</option>
+                        </select>
                         <select
                             name="auth_type"
                             value={formData.auth_type}

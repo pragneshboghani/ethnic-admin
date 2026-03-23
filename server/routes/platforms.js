@@ -72,7 +72,7 @@ platformRouter.get("/active", authMiddleware, async (req, res) => {
 
 platformRouter.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { platform_name, website_url, api_endpoint, auth_type, auth_token, username, password, status } = req.body;
+    const { platform_name, website_url, api_endpoint, plateform_type, auth_type, auth_token, username, password, status } = req.body;
 
     if (!platform_name || !website_url || !auth_type) {
       return res.status(400).json({
@@ -110,11 +110,12 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO platforms 
-      (platform_name, website_url, api_endpoint, auth_type, auth_token, username, password, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (platform_name, website_url, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         platform_name,
         website_url,
+        plateform_type,
         api_endpoint,
         auth_type,
         finalAuthToken,
@@ -145,6 +146,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
     const {
       platform_name,
       website_url,
+      plateform_type,
       api_endpoint,
       auth_type,
       auth_token,
@@ -197,6 +199,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
     const UpdatedData = {
       platform_name: platform_name ?? raw.platform_name,
       website_url: website_url ?? raw.website_url,
+      plateform_type: plateform_type ?? raw.plateform_type,
       api_endpoint: api_endpoint ?? raw.api_endpoint,
       auth_type: finalAuthType,
       auth_token: finalAuthToken,
@@ -207,13 +210,14 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
 
     await mysqlpool.query(
       `UPDATE platforms 
-       SET platform_name = ?, website_url = ?, api_endpoint = ?, 
+       SET platform_name = ?, website_url = ?, plateform_type= ?, api_endpoint = ?, 
            auth_type = ?, auth_token = ?, username = ?, password = ?, 
            status = ?
        WHERE id = ?`,
       [
         UpdatedData.platform_name,
         UpdatedData.website_url,
+        UpdatedData.plateform_type,
         UpdatedData.api_endpoint,
         UpdatedData.auth_type,
         UpdatedData.auth_token,

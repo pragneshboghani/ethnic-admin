@@ -1,8 +1,11 @@
 import { EditorContent } from "@tiptap/react";
-import EditorToolbar from "./EditorToolbar";
 import { BlogGeneralSectionProps } from "@/types";
 
-const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
+import dynamic from "next/dynamic";
+
+const EditorToolbar = dynamic(() => import("./EditorToolbar"), { ssr: false });
+
+const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen,readingTime, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
     <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
             <label className="text-sm font-semibold">Blog Title</label>
@@ -97,7 +100,7 @@ const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, hand
                 <input
                     type="number"
                     placeholder="Enter reading time in minutes"
-                    // value={readingTime}
+                    value={readingTime}
                     onChange={(e) => setReadingTime(Number(e.target.value))}
                     className="w-full px-4 py-3 bg-slate-50 rounded-xl focus:outline-none transition-all text-sm text-black"
                 />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
@@ -89,12 +88,6 @@ export default function SignIn() {
                             onChange={handleChange}
                             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                    </div>
-
-                    <div className="flex justify-between items-center text-sm">
-                        <Link href="#" className="text-blue-600 hover:underline">
-                            Forgot password?
-                        </Link>
                     </div>
 
                     <button
