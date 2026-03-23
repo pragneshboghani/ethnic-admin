@@ -30,9 +30,8 @@ const postToPlatform = async (platform, blogData, slug = null) => {
     if (slug) {
       const res = await axios.get(url, {
         headers,
-        params: { slug },
+        params: { slug, status: "any" },
       });
-
       if (!res.data.length) {
         throw new Error("Post not found on platform with this slug");
       }
@@ -51,6 +50,7 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       title: blogData.blog_title,
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
+      date_gmt: new Date(blogData.publish_date).toISOString(),
       slug: await generateSlug(blogData.blog_title),
       status: blogData.status.toLowerCase(),
       categories: (blogData.category || []).map(Number),

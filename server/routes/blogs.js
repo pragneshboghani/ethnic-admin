@@ -146,7 +146,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
     } = req.body;
 
     const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
-      id,
+      id
     ]);
 
     if (!raw) {
