@@ -17,9 +17,9 @@ import CategoryModal from "@/components/common/CategoryModal";
 import TagModal from "@/components/common/TagModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
-import blogEditor from "@/utils/blogEditor";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import useBlogForm from "@/hooks/useBlogForm";
+import useBlogEditor from "@/utils/blogEditor";
 
 const BlogForm = () => {
     const router = useRouter();
@@ -66,7 +66,7 @@ const BlogForm = () => {
         fetchTags()
     }, []);
 
-    const editor = blogEditor({ content: formContent, setContent: setFormContent });
+    const editor = useBlogEditor({ content: formContent, setContent: setFormContent, platformData:platformData, allBlogs: allBlogs, tagsList:tagsList, categories:categories });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -307,7 +307,7 @@ const BlogForm = () => {
 
             return updated;
         });
-    }, [title, excerpt, selectedPlatforms, activeTab, platformData]);
+    }, [title, excerpt, selectedPlatforms, platformData]);
 
     useEffect(() => {
         if (!blogId) return;
@@ -320,9 +320,9 @@ const BlogForm = () => {
                 setTitle(blog.blog_title);
                 setExcerpt(blog.short_excerpt);
                 setFormContent(blog.full_content);
-                setTimeout(() => {
-                    editor?.commands.setContent(blog.full_content);
-                }, 0);
+                if (editor && blog.full_content) {
+                    editor.commands.setContent(blog.full_content);
+                }
                 // setAuthor(blog.author);
                 setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));

@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const EditorToolbar = dynamic(() => import("./EditorToolbar"), { ssr: false });
 
-const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen,readingTime, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
+const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen, readingTime, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
     <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
             <label className="text-sm font-semibold">Blog Title</label>
@@ -31,8 +31,12 @@ const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, hand
         <div className="space-y-2">
             <label className="text-sm font-semibold">Content</label>
             <div className="rounded-xl overflow-hidden focus-within:border-none text-black transition-all">
-                <EditorToolbar editor={editor} onAddImage={handleAddEditorImage} />
-                <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
+                {editor && (
+                    <>
+                        <EditorToolbar editor={editor} onAddImage={handleAddEditorImage} />
+                        <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
+                    </>
+                )}
             </div>
         </div>
 

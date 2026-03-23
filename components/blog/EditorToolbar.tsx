@@ -79,17 +79,6 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
     },
     {
         type: 'button',
-        title: 'Mention',
-        label: <AtSign size={16} />,
-        action: (e: any) => {
-            const name = window.prompt("Enter mention");
-            if (name) {
-                e.chain().focus().insertContent(`@${name} `).run();
-            }
-        },
-    },
-    {
-        type: 'button',
         title: 'Clear Format',
         label: <BrushCleaning size={16} />,
         action: (e: any) => e.chain().focus().unsetAllMarks().clearNodes().run(),
