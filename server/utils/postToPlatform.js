@@ -5,28 +5,44 @@ const mysqlpool = require("../config/db");
 
 const postToPlatform = async (platform, blogData, slug = null) => {
   try {
-    let url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
-    let method = "post";
+    let url = "";
+    if (platform.plateform_type == "wordpress") {
+      url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
+    } else {
+      url = `${platform.api_endpoint}/blog`;
+    }
 
-    const [[image]] = await mysqlpool.query(
-      `SELECT * FROM media WHERE file_url=?`,
-      [blogData.featured_image],
-    );
+    let method = "post";
+    let featuredMediaId = null;
+
+    if (blogData.featured_image) {
+      const [[image]] = await mysqlpool.query(
+        `SELECT * FROM media WHERE file_url=?`,
+        [blogData.featured_image],
+      );
+
+      if (image) {
+        featuredMediaId = image.wp_id;
+      }
+    }
 
     const headers = getAuthHeaders(platform);
     if (slug) {
       const res = await axios.get(url, {
         headers,
-        params: { slug },
+        params: { slug, status: "any" },
       });
-
       if (!res.data.length) {
         throw new Error("Post not found on platform with this slug");
       }
 
       const postId = res.data[0].id;
 
-      url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+      if (platform.plateform_type == "wordpress") {
+        url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+      } else {
+        url = `${platform.api_endpoint}/blog/${postId}`;
+      }
       method = "put";
     }
 
@@ -34,11 +50,12 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       title: blogData.blog_title,
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
+      date_gmt: new Date(blogData.publish_date).toISOString(),
       slug: await generateSlug(blogData.blog_title),
       status: blogData.status.toLowerCase(),
       categories: (blogData.category || []).map(Number),
       tags: blogData.tags,
-      featured_media: image.wp_id,
+      ...(featuredMediaId && { featured_media: featuredMediaId }),
     };
 
     const response = await axios({

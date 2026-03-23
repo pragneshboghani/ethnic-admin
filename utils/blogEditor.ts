@@ -11,13 +11,73 @@ import Color from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
 import Mention from "@tiptap/extension-mention";
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import { useEffect, useRef } from "react";
 
 type Props = {
   content: string;
   setContent: (value: string) => void;
+  platformData: any;
+  allBlogs: { data: any[] };
+  categories: { id: number; name: string }[];
+  tagsList: { id: number; name: string }[];
 };
 
-const blogEditor = ({ content, setContent }: Props) => {
+function updateList(element: HTMLElement, props: any) {
+  element.innerHTML = "";
+
+  props.items.forEach((item: any) => {
+    const div = document.createElement("div");
+    div.className =
+      "px-2 py-1 cursor-pointer hover:bg-gray-100 hover:text-black";
+
+    div.innerText = item.label;
+
+    div.onclick = () => {
+      props.command({
+        id: item.id,
+        label: item.label,
+      });
+    };
+
+    element.appendChild(div);
+  });
+}
+
+const useBlogEditor = ({  content = "",  setContent,  platformData,  allBlogs,  categories,  tagsList,}: Props) => {
+  const mentionListRef = useRef<any[]>([]);
+
+  useEffect(() => {
+    mentionListRef.current = [
+      ...(platformData?.data?.map((p: any) => ({
+        id: `platform-${p.id}`,
+        label: p.platform_name,
+        type: "platform",
+        url: p.website_url,
+      })) || []),
+
+      ...(allBlogs?.data?.map((b: any) => ({
+        id: `blog-${b.id}`,
+        label: b.blog_title,
+        type: "blog",
+        url: "#",
+      })) || []),
+
+      ...(categories?.map((c: any) => ({
+        id: `category-${c.id}`,
+        label: c.name,
+        type: "category",
+      })) || []),
+
+      ...(tagsList?.map((t: any) => ({
+        id: `tag-${t.id}`,
+        label: t.name,
+        type: "tag",
+      })) || []),
+    ];
+  }, [platformData, allBlogs, categories, tagsList]);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -45,14 +105,53 @@ const blogEditor = ({ content, setContent }: Props) => {
         },
         suggestion: {
           items: ({ query }: any) => {
-            return ["tag1", "tag2", "ankit", "blog"].filter((item) =>
-              item.toLowerCase().startsWith(query.toLowerCase()),
+            return mentionListRef.current.filter((item: any) =>
+              item.label.toLowerCase().includes(query.toLowerCase()),
             );
+          },
+
+          render: () => {
+            let component: any;
+            let popup: any;
+
+            return {
+              onStart: (props: any) => {
+                component = document.createElement("div");
+                component.className = "shadow rounded p-2";
+
+                updateList(component, props);
+
+                popup = tippy("body", {
+                  getReferenceClientRect: props.clientRect,
+                  content: component,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: "manual",
+                  placement: "bottom-start",
+                });
+              },
+
+              onUpdate(props: any) {
+                updateList(component, props);
+              },
+
+              onKeyDown(props: any) {
+                if (props.event.key === "Escape") {
+                  popup[0].hide();
+                  return true;
+                }
+                return false;
+              },
+
+              onExit() {
+                popup[0].destroy();
+              },
+            };
           },
         },
       }),
     ],
-    content: content,
+    content,
     immediatelyRender: false,
     editorProps: {
       handlePaste(view, event) {
@@ -77,4 +176,4 @@ const blogEditor = ({ content, setContent }: Props) => {
   return editor;
 };
 
-export default blogEditor;
+export default useBlogEditor;

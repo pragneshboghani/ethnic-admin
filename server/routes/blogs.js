@@ -86,7 +86,6 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       platformData = data;
     }
 
-    const slug = await generateSlug(blog_title);
     const results = await Promise.all(
       platformData.map((platform) => postToPlatform(platform, req.body, null)),
     );
@@ -108,7 +107,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
         JSON.stringify(related),
         status,
         JSON.stringify(platforms),
-        slug,
+        results[0].data.slug,
       ],
     );
 
@@ -147,7 +146,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
     } = req.body;
 
     const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
-      id,
+      id
     ]);
 
     if (!raw) {
@@ -220,7 +219,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
-        slug,
+        results[0].data.slug,
         id,
       ],
     );

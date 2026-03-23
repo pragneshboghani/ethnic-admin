@@ -163,4 +163,43 @@ seoRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
+seoRouter.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    const [[raw]] = await mysqlpool.query(`SELECT * FROM seo_blog WHERE blog_id = ?`, [
+      id,
+    ]);
+
+    if (!raw) {
+      return res.status(404).json({
+        success: false,
+        message: "SEO not found",
+      });
+    }
+
+    const [result] = await mysqlpool.query("DELETE FROM seo_blog WHERE id = ?", [
+      raw.id,
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "SEO not found",
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "SEO deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting SEO:", error);
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = seoRouter;

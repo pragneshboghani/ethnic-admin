@@ -3,6 +3,7 @@ export interface Platform {
   platform_name: string;
   website_url: string;
   api_endpoint: string;
+  plateform_type: "wordpress" | "custom";
   auth_type: "none" | "token" | "basic";
   auth_token?: string;
   username?: string;
@@ -59,32 +60,55 @@ export type BlogGeneralSectionProps = {
 };
 
 export type PlatformSettingsProps = {
-    platformData: any;
-    selectedPlatforms: number[];
-    setSelectedPlatforms: React.Dispatch<React.SetStateAction<number[]>>;
-    platformSettings: {
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
+  platformData: any;
+  selectedPlatforms: number[];
+  setSelectedPlatforms: React.Dispatch<React.SetStateAction<number[]>>;
+  platformSettings: {
+    [platformId: number]: {
+      seoTitle: string;
+      slug: string;
+      publishStatus: string;
+      metaDescription: string;
+      canonicalUrl: string;
+      ctaButtonText: string;
+      ctaButtonLink: string;
     };
-    setPlatformSettings: React.Dispatch<React.SetStateAction<{
-        [platformId: number]: {
-            seoTitle: string;
-            slug: string;
-            publishStatus: string;
-            metaDescription: string;
-            canonicalUrl: string;
-            ctaButtonText: string;
-            ctaButtonLink: string;
-        };
-    }>>;
-    handlePlatformChange: (platformId: number, field: string, value: string) => void;
-    title: string;
-    excerpt: string;
+  };
+  setPlatformSettings: React.Dispatch<
+    React.SetStateAction<{
+      [platformId: number]: {
+        seoTitle: string;
+        slug: string;
+        publishStatus: string;
+        metaDescription: string;
+        canonicalUrl: string;
+        ctaButtonText: string;
+        ctaButtonLink: string;
+      };
+    }>
+  >;
+  handlePlatformChange: (
+    platformId: number,
+    field: string,
+    value: string,
+  ) => void;
+  title: string;
+  excerpt: string;
+};
+
+export type BlogFormType = {
+  title: string;
+  excerpt: string;
+  formContent: string;
+  image: string;
+  category: any;
+  publishDate: string;
+  globalStatus: string;
+  tags: string[];
+  related_blogs: number[];
+  reading_time: number;
+  platforms: {
+    platformId: number;
+    settings: any;
+  }[];
 };

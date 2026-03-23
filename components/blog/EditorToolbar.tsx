@@ -1,4 +1,6 @@
 import { Highlighter, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Image as ImageIcon, Palette, Eraser, AtSign, BrushCleaning } from "lucide-react";
+import { useEffect, useState } from "react";
+import LinkModal from "./LinkModal";
 
 type ToolbarItem = | {
     type: 'button'; title: string; action: (editor: any) => void; active?: (editor: any) => boolean;
@@ -13,7 +15,7 @@ function ToolbarButton({ children, onClick, active, title }: any) {
             type="button"
             onClick={onClick}
             title={title}
-            className={`w-7.5 h-7.5 flex items-center justify-center rounded text-sm transition-colors 
+            className={`w-6 h-6 flex items-center justify-center rounded text-sm transition-colors 
             ${active ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-200"}`}
         >
             {children}
@@ -34,11 +36,17 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
     { type: 'button', title: 'Numbered List', action: (e: any) => e.chain().focus().toggleOrderedList().run(), active: (e: any) => e.isActive('orderedList'), label: 'OL' },
     { type: 'divider' },
     {
-        type: 'button', title: 'Add Link', active: (e: any) => e.isActive('link'), label: 'Link',
+        type: 'button',
+        title: 'Add Link',
+        active: (e: any) => e.isActive('link'),
+        label: 'Link',
         action: (e: any) => {
-            const url = window.prompt('Enter URL');
-            if (url) e.chain().focus().setLink({ href: url }).run();
-        },
+            (window as any).__linkEditor = e;
+
+            const hasSelection = !e.state.selection.empty;
+
+            (window as any).__openLinkModal(hasSelection);
+        }
     },
     { type: 'divider' },
 
@@ -71,17 +79,6 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
     },
     {
         type: 'button',
-        title: 'Mention',
-        label: <AtSign size={16} />,
-        action: (e: any) => {
-            const name = window.prompt("Enter mention");
-            if (name) {
-                e.chain().focus().insertContent(`@${name} `).run();
-            }
-        },
-    },
-    {
-        type: 'button',
         title: 'Clear Format',
         label: <BrushCleaning size={16} />,
         action: (e: any) => e.chain().focus().unsetAllMarks().clearNodes().run(),
@@ -108,35 +105,85 @@ const getToolbarItems = (onAddImage: () => void): ToolbarItem[] => [
 function EditorToolbar({ editor, onAddImage }: any) {
     if (!editor) return null;
 
+    const [isLinkOpen, setIsLinkOpen] = useState(false);
+    const [hasSelection, setHasSelection] = useState(false);
+
     (window as any).__tiptapEditor = editor;
     const toolbarItems = getToolbarItems(onAddImage);
 
+    useEffect(() => {
+        (window as any).__openLinkModal = (selection: boolean) => {
+            setHasSelection(selection);
+            setIsLinkOpen(true);
+        };
+    }, []);
+
+    const handleApplyLink = ({ url, text, openInNewTab }: any) => {
+        const editor = (window as any).__linkEditor;
+
+        if (!editor || !url) return;
+
+        if (!editor.state.selection.empty) {
+            editor
+                .chain()
+                .focus()
+                .extendMarkRange('link')
+                .setLink({ href: url, target: openInNewTab ? "_blank" : "_self" })
+                .run();
+        } else {
+            if (!text) return;
+
+            editor.chain().focus().insertContent({
+                type: 'text',
+                text: text,
+                marks: [
+                    {
+                        type: 'link',
+                        attrs: { href: url, target: openInNewTab ? "_blank" : "_self" },
+                    },
+                ],
+            }).run();
+        }
+
+        setIsLinkOpen(false);
+    };
+
     return (
-        <div className="flex items-center justify-between p-2 bg-slate-50 border-b border-slate-200">
-            <div className="flex flex-wrap items-center gap-0.75">
-                {toolbarItems.map((item, index) => {
-                    if (item.type === 'divider') {
-                        return <div key={index} className="w-px h-4 bg-slate-300 mx-1" />;
-                    }
+        <>
+            <div className="flex items-center justify-between p-2 bg-slate-50 border-b border-slate-200">
+                <div className="flex flex-wrap items-center gap-0.75">
+                    {toolbarItems.map((item, index) => {
+                        if (item.type === 'divider') {
+                            return <div key={index} className="w-px h-4 bg-slate-300 mx-1" />;
+                        }
 
-                    return (
-                        <ToolbarButton
-                            key={index}
-                            title={item.title}
-                            onClick={() => item.action(editor)}
-                            active={item.active ? item.active(editor) : false}
-                        >
-                            {item.label}
-                        </ToolbarButton>
-                    );
-                })}
-            </div>
-            <div className="text-xs text-gray-500 whitespace-nowrap">
-                {editor.storage.characterCount.characters()} chars ·{" "}
-                {editor.storage.characterCount.words()} words
-            </div>
+                        return (
+                            <ToolbarButton
+                                key={index}
+                                title={item.title}
+                                onClick={() => item.action(editor)}
+                                active={item.active ? item.active(editor) : false}
+                            >
+                                {item.label}
+                            </ToolbarButton>
+                        );
+                    })}
+                </div>
+                <div className="text-xs text-gray-500 whitespace-nowrap">
+                    {editor.storage.characterCount.characters()} chars ·{" "}
+                    {editor.storage.characterCount.words()} words
+                </div>
 
-        </div>
+            </div>
+            {isLinkOpen &&
+                <LinkModal
+                    isOpen={isLinkOpen}
+                    onClose={() => setIsLinkOpen(false)}
+                    onSubmit={handleApplyLink}
+                    hasSelection={hasSelection}
+                />
+            }
+        </>
     );
 }
 

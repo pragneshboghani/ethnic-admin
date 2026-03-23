@@ -12,7 +12,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {platformData?.data.map((platform: any) => {
+                    const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
                     const isSelected = selectedPlatforms.includes(platform.id);
+                    if (!ShowPlatform) return null;
 
                     return (
                         <button
@@ -109,7 +111,8 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                     className="w-full px-3 py-2 rounded-lg bg-slate-50 text-black text-sm focus:outline-none"
                                 >
                                     <option value="draft">Draft</option>
-                                    <option value="published">Published</option>
+                                    <option value="future">Scheduled</option>
+                                    <option value="publish">Published</option>
                                 </select>
                             </div>
 

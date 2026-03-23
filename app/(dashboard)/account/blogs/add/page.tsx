@@ -17,9 +17,10 @@ import CategoryModal from "@/components/common/CategoryModal";
 import TagModal from "@/components/common/TagModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
-import blogEditor from "@/utils/blogEditor";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import useBlogForm from "@/hooks/useBlogForm";
+import useBlogEditor from "@/utils/blogEditor";
+import { BlogFormType } from "@/types";
 
 const BlogForm = () => {
     const router = useRouter();
@@ -66,7 +67,7 @@ const BlogForm = () => {
         fetchTags()
     }, []);
 
-    const editor = blogEditor({ content: formContent, setContent: setFormContent });
+    const editor = useBlogEditor({ content: formContent, setContent: setFormContent, platformData:platformData, allBlogs: allBlogs, tagsList:tagsList, categories:categories });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -77,7 +78,7 @@ const BlogForm = () => {
         }
     };
 
-    const ConvertBase64 = async () => {
+    const ConvertBase64 = async (): Promise<BlogFormType | undefined> => {
         let uploadedImageUrl = image || "";
 
         if (selectedFile) {
@@ -116,11 +117,8 @@ const BlogForm = () => {
             })),
         };
 
-        return formData
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        const now = new Date().getTime();
+        const selectedDate = new Date(publishDate).getTime();
 
         if (selectedPlatforms.length === 0) {
             toast.error("Please select at least one platform 😢");
@@ -131,7 +129,26 @@ const BlogForm = () => {
             toast.error("Publish date is required 😢");
             return;
         }
+
+        if (formData.globalStatus === "publish" && selectedDate > now) {
+            toast.error("For publish status, date must be current or past 😢");
+            return;
+        }
+
+        if (globalStatus === "future" && selectedDate <= now) {
+            toast.error("For future status, please select a future date 😢");
+            return;
+        }
+
+        return formData
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
         const formData = await ConvertBase64()
+
+        if (!formData) return;
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
@@ -182,6 +199,7 @@ const BlogForm = () => {
         try {
             const formData = await ConvertBase64();
 
+            if (!formData) return;
             const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
             const BlogFormData = {
@@ -272,22 +290,42 @@ const BlogForm = () => {
 
                 if (!platform) return;
 
-                const canonicalUrl = `${platform.api_endpoint}/blog/${slug}`;
+                const date = publishDate ? new Date(publishDate) : new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+
+                const isWordpress = platform.plateform_type == "wordpress";
+
+                const canonicalUrl = isWordpress
+                    ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                    : `${platform.api_endpoint}/blog/${slug}`;
 
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
                     slug: prev[platformId]?.slug || slug,
-                    publishStatus: prev[platformId]?.publishStatus || "draft",
+                    publishStatus:
+                        !prev[platformId]?.publishStatus ||
+                            prev[platformId]?.publishStatus === "draft"
+                            ? globalStatus
+                            : prev[platformId]?.publishStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
-                    canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
+                    canonicalUrl:
+                        !prev[platformId]?.canonicalUrl ||
+                            prev[platformId]?.canonicalUrl.includes("/blog/")
+                            ? canonicalUrl
+                            : prev[platformId]?.canonicalUrl,
                     ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
-                    ctaButtonLink: prev[platformId]?.ctaButtonLink || canonicalUrl,
+                    ctaButtonLink: !prev[platformId]?.canonicalUrl ||
+                        prev[platformId]?.canonicalUrl.includes("/blog/")
+                        ? canonicalUrl
+                        : prev[platformId]?.canonicalUrl,
                 };
             });
 
             return updated;
         });
-    }, [title, excerpt, selectedPlatforms, activeTab, platformData]);
+    }, [title, excerpt, selectedPlatforms, platformData]);
 
     useEffect(() => {
         if (!blogId) return;
@@ -300,13 +338,13 @@ const BlogForm = () => {
                 setTitle(blog.blog_title);
                 setExcerpt(blog.short_excerpt);
                 setFormContent(blog.full_content);
-                setTimeout(() => {
-                    editor?.commands.setContent(blog.full_content);
-                }, 0);
+                if (editor && blog.full_content) {
+                    editor.commands.setContent(blog.full_content);
+                }
                 // setAuthor(blog.author);
                 setCategory(blog.category || []);
                 setPublishDate(normalizeDateForInput(blog.publish_date));
-                setGlobalStatus((blog.status).toUpperCase());
+                setGlobalStatus(blog.status);
                 setSelectedTags(blog.tags || []);
                 setReadingTime(blog.reading_time || 0);
                 setRelatedBlogs(blog.related || []);
@@ -355,6 +393,7 @@ const BlogForm = () => {
         try {
             const formData = await ConvertBase64()
 
+            if (!formData) return;
             const Selected_PlateForms = formData.platforms.map(p => p.platformId);
 
             const BlogFormData = {
