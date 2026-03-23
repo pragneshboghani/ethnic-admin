@@ -3,6 +3,7 @@
 import BlogActions from "@/actions/BlogAction";
 import PlateformActions from "@/actions/PlateFormActions";
 import SEOActions from "@/actions/SEOAction";
+import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Eye, Pencil, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,8 +18,10 @@ const Blogs = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState<number | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
   const [selectUpdate, setSelectUpdate] = useState<number | null>(null);
+  const [platformSettings, setPlatformSettings] = useState<any>({});
 
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("0");
@@ -87,6 +90,49 @@ const Blogs = () => {
     }
   }, [selectUpdate, router]);
 
+
+  useEffect(() => {
+    const fetchPlatformSettings = async (blog: any) => {
+      if (!blog) return;
+
+      try {
+        const results: any = {};
+
+        await Promise.all(
+          blog.platforms.map(async (platformId: number) => {
+            try {
+              const res = await SEOActions.GetByBlogsAndPlatform(
+                blog.id,
+                platformId
+              );
+
+              if (res?.data?.length > 0) {
+                const seo = res.data[0];
+
+                results[platformId] = {
+                  slug: seo.slug,
+                  publishStatus: seo.publish_status,
+                  seoTitle: seo.seo_title,
+                  metaDescription: seo.meta_description,
+                  canonicalUrl: seo.canonical_url,
+                  ctaButtonText: seo.cta_button_text,
+                  ctaButtonLink: seo.cta_button_link,
+                };
+              }
+            } catch (err) {
+              console.error("Error fetching platform setting", err);
+            }
+          })
+        );
+
+        setPlatformSettings(results);
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    };
+
+    fetchPlatformSettings(selectedBlog)
+  }, [selectedBlog != null])
   return (
     <>
       <div className="glass-card p-4">
@@ -213,7 +259,10 @@ const Blogs = () => {
                       <button
                         className="text-white hover:text-blue-500"
                         title="Show Blog"
-                        onClick={() => setSelectedBlog(b)}
+                        onClick={() => {
+                          setSelectedBlog(b);
+                          setShowPreview(true);
+                        }}
                       >
                         <Eye size={18} />
                       </button>
@@ -275,75 +324,29 @@ const Blogs = () => {
         </div>
       )}
       {selectedBlog && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 text-white rounded-xl p-6 w-full max-w-[1000px] relative glass-card">
-            <button
-              className="absolute top-2 right-2 text-white hover:text-red-500"
-              onClick={() => setSelectedBlog(null)}
-            >
-              <X size={20} />
-            </button>
-
-            <img src={`${process.env.BACKEND_DOMAIN}/${selectedBlog.featured_image}`} alt={`${selectedBlog.blog_title}`} className="float-right w-[300px] h-[300px] rounded-[15px]" />
-            <h2 className="text-2xl font-bold mb-4">{selectedBlog.blog_title}</h2>
-            <div className="text-white flex gap-10">
-              {selectedBlog.author && (<p className="mb-2"><strong className="text-gray-700">Author:</strong> By {selectedBlog.author}</p>)}
-              {" • "}
-              {selectedBlog.readingTime || 0} min read
-            </div>
-            <p className="mb-2"><strong className="text-gray-700">Platform:</strong> {selectedBlog.platforms.map((pId: number) => {
-              const platform = platformData?.data.find((plat: any) => plat.id === pId);
-              return (
-                <span key={pId}>{platform ? platform.platform_name : "N/A"} </span>
-              );
-            })}</p>
-            <p className="mb-2"><strong className="text-gray-700">Status:</strong> {selectedBlog.status}</p>
-            <p className="mb-2"><strong className="text-gray-700">Category: </strong>
-              {Array.isArray(selectedBlog.category)
-                ? selectedBlog.category
-                  .map((cId: number) => {
-                    const cat = categoryData?.data?.find((c: any) => c.id === cId);
-                    return cat ? cat.name : null;
-                  })
-                  .filter(Boolean)
-                  .join(", ")
-                : ""}
-            </p>
-            <p className="mb-2"><strong className="text-gray-700">Tags: </strong>
-              {Array.isArray(selectedBlog.tags)
-                ? selectedBlog.tags
-                  .map((tId: number) => {
-                    const tag = tagData?.data?.find((t: any) => t.id === tId);
-                    return tag ? tag.name : null;
-                  })
-                  .filter(Boolean)
-                  .join(", ")
-                : ""}
-            </p>
-            <p className="mb-2">
-              <strong className="text-gray-700">Create Date:</strong>{formatDateTime(selectedBlog.created_at)}</p>
-            <p className="mb-2">
-              <strong className="text-gray-700">Publish Date:</strong>
-              {formatDateTime(selectedBlog.publish_date)}
-            </p>
-            <p className="mb-2"><strong className="text-gray-700">Short Excerpt:</strong> {selectedBlog.short_excerpt}</p>
-            {selectedBlog.related.length > 0 && (
-              <p className="mb-2">
-                <strong className="text-gray-700">Related:</strong>{" "}
-                {selectedBlog.related
-                  .map((r: number) => {
-                    const blog = blogs?.find((b: any) => b.id === r);
-                    return blog?.blog_title;
-                  })
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-            )}
-            <p className="mb-2 h-full max-h-[250px] overflow-y-auto">
-              <strong className="text-gray-700">Content:</strong> <span className="mt-4" dangerouslySetInnerHTML={{ __html: selectedBlog.full_content }} />
-            </p>
-          </div>
-        </div>
+        <BlogPreviewModal
+          showPreview={showPreview}
+          setShowPreview={setShowPreview}
+          image={selectedBlog?.featured_image || ""}
+          category={selectedBlog?.category || []}
+          categories={categoryData?.data || []}
+          publishDate={selectedBlog?.publish_date}
+          readingTime={selectedBlog?.reading_time}
+          title={selectedBlog?.blog_title}
+          excerpt={selectedBlog?.short_excerpt}
+          formContent={selectedBlog?.full_content}
+          tags={
+            selectedBlog?.tags?.map((tId: number) => {
+              const tag = tagData?.data?.find((t: any) => t.id === tId);
+              return tag?.name;
+            }).filter(Boolean) || []
+          }
+          relatedBlogs={selectedBlog?.related || []}
+          allBlogs={{ data: blogs }}
+          selectedPlatforms={selectedBlog?.platforms || []}
+          platformData={platformData}
+          platformSettings={platformSettings}
+        />
       )}
     </>
   );

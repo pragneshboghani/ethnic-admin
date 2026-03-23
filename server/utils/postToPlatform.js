@@ -5,13 +5,26 @@ const mysqlpool = require("../config/db");
 
 const postToPlatform = async (platform, blogData, slug = null) => {
   try {
-    let url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
-    let method = "post";
+    let url = "";
+    if (platform.plateform_type == "wordpress") {
+      url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
+    } else {
+      url = `${platform.api_endpoint}/blog`;
+    }
 
-    const [[image]] = await mysqlpool.query(
-      `SELECT * FROM media WHERE file_url=?`,
-      [blogData.featured_image],
-    );
+    let method = "post";
+    let featuredMediaId = null;
+
+    if (blogData.featured_image) {
+      const [[image]] = await mysqlpool.query(
+        `SELECT * FROM media WHERE file_url=?`,
+        [blogData.featured_image],
+      );
+
+      if (image) {
+        featuredMediaId = image.wp_id;
+      }
+    }
 
     const headers = getAuthHeaders(platform);
     if (slug) {
@@ -26,7 +39,11 @@ const postToPlatform = async (platform, blogData, slug = null) => {
 
       const postId = res.data[0].id;
 
-      url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+      if (platform.plateform_type == "wordpress") {
+        url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+      } else {
+        url = `${platform.api_endpoint}/blog/${postId}`;
+      }
       method = "put";
     }
 
@@ -38,7 +55,7 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       status: blogData.status.toLowerCase(),
       categories: (blogData.category || []).map(Number),
       tags: blogData.tags,
-      featured_media: image.wp_id,
+      ...(featuredMediaId && { featured_media: featuredMediaId }),
     };
 
     const response = await axios({
