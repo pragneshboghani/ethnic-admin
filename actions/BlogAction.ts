@@ -283,6 +283,26 @@ const BlogActions = {
       throw error;
     }
   },
+
+  deleteCategory: async (id: number, type: string) => {
+    try {
+      const token = UserActions.getToken();
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/delete?id=${id}&type=${type}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error deleting blog:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default BlogActions;

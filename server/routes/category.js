@@ -3,6 +3,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const mysqlpool = require("../config/db");
 const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 const generateSlug = require("../utils/generateSlug");
+const deleteCategory = require("../utils/deleteCategory");
 
 const categoryRouter = express.Router();
 
@@ -39,12 +40,16 @@ categoryRouter.post("/add", authMiddleware, async (req, res) => {
     const slug = await generateSlug(name);
     const results = await Promise.all(
       platformData.map((platform) =>
-        postCategoryToPlatform(platform, {
-          name,
-          slug,
-          description,
-          status,
-        }, 'categories'),
+        postCategoryToPlatform(
+          platform,
+          {
+            name,
+            slug,
+            description,
+            status,
+          },
+          "categories",
+        ),
       ),
     );
 
@@ -66,4 +71,59 @@ categoryRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
+categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+    const { id, type } = req.query;
+
+    const [[raw]] = await mysqlpool.query(
+      `SELECT * FROM ${type} WHERE id = ?`,
+      [id],
+    );
+
+    if (!raw) {
+      return res.status(404).json({
+        success: false,
+        message: `${type} not found`,
+      });
+    }
+
+    let platformData = [];
+
+    if (raw.platform_ids && raw.platform_ids.length > 0) {
+      const [data] = await mysqlpool.query(
+        `SELECT * FROM platforms WHERE id IN (?)`,
+        [raw.platform_ids],
+      );
+      platformData = data;
+    }
+
+    const results = await Promise.all(
+      platformData.map((platform) => deleteCategory(platform, raw.slug, type == 'category'? "categories" : "tags")),
+    );
+
+    const [result] = await mysqlpool.query(
+      `DELETE FROM ${type} WHERE id = ?`,
+      [id],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send({
+        success: false,
+        message: `${type} not found`,
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      plarformResult: results,
+      message: `${type} deleted successfully`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = categoryRouter;
