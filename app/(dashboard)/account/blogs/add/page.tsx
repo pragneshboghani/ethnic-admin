@@ -21,6 +21,7 @@ import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import useBlogForm from "@/hooks/useBlogForm";
 import useBlogEditor from "@/utils/blogEditor";
 import { BlogFormType } from "@/types";
+import DashBoardActions from "@/actions/DashboardAction";
 
 const BlogForm = () => {
     const router = useRouter();
@@ -38,36 +39,27 @@ const BlogForm = () => {
         setBlogId(params.get("id"));
     }, []);
 
-    const fetchCategories = async () => {
-        const res = await BlogActions.fetchCategory();
-        setCategories(res.data);
-    };
-
-    const fetchTags = async () => {
-        const res = await BlogActions.fetchTags();
-        setTagsList(res.data);
-    };
-    const fetchMedia = async () => {
-        const res = await MediaActions.getAllMedia();
-        setMediaFiles(res.data);
-    };
-    const fetchPlatforms = async () => {
-        const res = await PlateformActions.getAllPlateform();
-        setPlatformData(res);
-    };
-    const loadBlogs = async () => {
-        const blogs = await BlogActions.getAllBlogs()
-        setAllBlogs(blogs);
+    const fetchAll = async () => {
+        try {
+            const res = await DashBoardActions.getAllData();
+            setAllBlogs({ data: res.blogData });
+            setCategories(res.categoryData);
+            setTagsList(res.tagsData);
+            setMediaFiles(res.mediaData);
+            setPlatformData({
+                data: res.plateformData,
+                totalPlatforms: res.plateformData?.length
+            });
+        } catch (err) {
+            console.error("Error fetching all data:", err);
+            toast.error("Failed to load initial data 😢");
+        }
     };
     useEffect(() => {
-        fetchPlatforms();
-        loadBlogs();
-        // fetchMedia();
-        fetchCategories();
-        fetchTags()
+        fetchAll();
     }, []);
 
-    const editor = useBlogEditor({ content: formContent, setContent: setFormContent, platformData:platformData, allBlogs: allBlogs, tagsList:tagsList, categories:categories });
+    const editor = useBlogEditor({ content: formContent, setContent: setFormContent, platformData: platformData, allBlogs: allBlogs, tagsList: tagsList, categories: categories });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -563,7 +555,7 @@ const BlogForm = () => {
                     isOpen={isCategoryModalOpen}
                     onClose={() => setIsCategoryModalOpen(false)}
                     onSuccess={async () => {
-                        await fetchCategories();
+                        await fetchAll();
                     }}
                 />
             )}
@@ -572,7 +564,7 @@ const BlogForm = () => {
                     isOpen={isTagModalOpen}
                     onClose={() => setIsTagModalOpen(false)}
                     onSuccess={async () => {
-                        await fetchTags();
+                        await fetchAll();
                     }}
                 />
             )}
@@ -581,7 +573,7 @@ const BlogForm = () => {
                     isOpen={isUploadModalOpen}
                     onClose={() => setIsUploadModalOpen(false)}
                     platformData={platformData}
-                    onUploadComplete={fetchMedia}
+                    onUploadComplete={fetchAll}
                     onSelectImage={(url) => {
                         if (mediaFor === 'feature') {
                             // 🖼️ Feature Image

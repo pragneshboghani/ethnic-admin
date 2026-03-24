@@ -1,7 +1,7 @@
 "use client";
 
 import BlogActions from "@/actions/BlogAction";
-import PlateformActions from "@/actions/PlateFormActions";
+import DashBoardActions from "@/actions/DashboardAction";
 import SEOActions from "@/actions/SEOAction";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import { formatDateTime } from "@/utils/formatDateTime";
@@ -31,23 +31,25 @@ const Blogs = () => {
   const [tags, setTags] = useState("");
 
   useEffect(() => {
-    const fetchPlatforms = async () => {
-      const res = await PlateformActions.getAllPlateform();
-      setPlatformData(res);
-    };
-    const fetchCategory = async () => {
-      const category = await BlogActions.fetchCategory();
-      setCategoryData(category);
-    }
-    const fetchTag = async () => {
-      const tag = await BlogActions.fetchTags();
-      setTagData(tag);
-    }
-    fetchPlatforms();
-    fetchCategory()
-    fetchTag()
-  }, []);
+    const fetchAll = async () => {
+      try {
+        const res = await DashBoardActions.getAllData();
 
+        setBlogs(res.blogData || []);
+        setPlatformData({
+          data: res.plateformData,
+          totalPlatforms: res.plateformData?.length
+        });
+        setCategoryData({ data: res.categoryData });
+        setTagData({ data: res.tagsData });
+
+      } catch (err) {
+        console.error("Error fetching all data:", err);
+      }
+    };
+
+    fetchAll();
+  }, []);
   const fetchBlogs = async () => {
     setLoading(true);
     try {

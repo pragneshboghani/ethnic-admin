@@ -76,6 +76,29 @@ const DashBoardActions = {
       throw error;
     }
   },
+
+  getAllData: async () => {
+    try {
+      const token = UserActions.getToken();
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/dashboard/allData`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch dashboard data");
+      }
+
+      const data = await res.json();
+      return data.data;
+    } catch (error: any) {
+      console.error("Error fetching GetAllDashboardData:", error.message);
+      throw error;
+    }
+  },
 };
 
 export default DashBoardActions;
