@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
-import PlateformActions from "@/actions/PlateFormActions";
+import { useEffect, useState } from "react";
 import BlogActions from "@/actions/BlogAction";
 import MediaActions from "@/actions/MediaAction";
 import { toast } from "react-toastify";
@@ -18,21 +17,82 @@ import TagModal from "@/components/common/TagModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
-import useBlogForm from "@/hooks/useBlogForm";
 import useBlogEditor from "@/utils/blogEditor";
-import { BlogFormType } from "@/types";
+import { BlogFormType, CategoryType, PlatformSettings } from "@/types";
 import DashBoardActions from "@/actions/DashboardAction";
+import { useFieldArray, useForm } from "react-hook-form";
+import blogSchema from "@/hooks/blogSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type AllDataType = {
+    allBlogs: any[];
+    categories: CategoryType[];
+    tagsList: { id: number; name: string }[];
+    mediaFiles: any[];
+    platformData: {
+        data: any[];
+        totalPlatforms: number;
+    } | null;
+};
 
 const BlogForm = () => {
     const router = useRouter();
 
-    const {
-        blogId, setBlogId, activeTab, setActiveTab, selectedPlatforms, setSelectedPlatforms, platformData, setPlatformData, formContent, setFormContent, image,
-        setImage, title, setTitle, excerpt, setExcerpt, category, setCategory, isCategoryModalOpen, setIsCategoryModalOpen, publishDate, setPublishDate, globalStatus,
-        setGlobalStatus, tags, setTags, relatedBlogs, setRelatedBlogs, isPopupOpen, setIsPopupOpen, allBlogs, setAllBlogs, readingTime, setReadingTime, selectedFile,
-        setSelectedFile, mediaFor, setMediaFor, mediaFiles, setMediaFiles, showPreview, setShowPreview, tagsList, setTagsList, isUploadModalOpen, setIsUploadModalOpen,
-        selectedTags, setSelectedTags, isTagModalOpen, setIsTagModalOpen, platformSettings, setPlatformSettings, categories, setCategories,
-    } = useBlogForm()
+    const [blogId, setBlogId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<"general" | "platforms">("general");
+    const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
+    const [image, setImage] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
+    const [platformSettings, setPlatformSettings] = useState<PlatformSettings>({});
+    const [formContent, setFormContent] = useState<string>("");
+    const [mediaFor, setMediaFor] = useState<"feature" | "editor">("feature");
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+    const [allData, setAllData] = useState<AllDataType>({
+        allBlogs: [],
+        categories: [],
+        tagsList: [],
+        mediaFiles: [],
+        platformData: null,
+    });
+
+    const form = useForm({
+        resolver: zodResolver(blogSchema),
+        defaultValues: {
+            title: "",
+            excerpt: "",
+            content: "",
+            publishDate: "",
+            globalStatus: "draft",
+            category: [],
+            reading_time: 0,
+            tags: [],
+            relatedBlogs: [],
+            platforms: []
+        }
+    });
+
+    const { watch, register, setValue, control, reset } = form
+
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "platforms"
+    });
+
+    const title = watch("title");
+    const excerpt = watch('excerpt');
+    const content = watch("content");
+    const tagsValue = watch("tags");
+    const related = watch('relatedBlogs')
+    const readingTime = watch('reading_time')
+    const selectedTags = watch("tags") || [];
+    const globalStatus = watch('globalStatus')
+    const publishDate = watch('publishDate')
+    const selectedCategories = watch("category") || [];
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -42,13 +102,15 @@ const BlogForm = () => {
     const fetchAll = async () => {
         try {
             const res = await DashBoardActions.getAllData();
-            setAllBlogs({ data: res.blogData });
-            setCategories(res.categoryData);
-            setTagsList(res.tagsData);
-            setMediaFiles(res.mediaData);
-            setPlatformData({
-                data: res.plateformData,
-                totalPlatforms: res.plateformData?.length
+            setAllData({
+                allBlogs: res.blogData || [],
+                categories: res.categoryData || [],
+                tagsList: res.tagsData || [],
+                mediaFiles: res.mediaData || [],
+                platformData: {
+                    data: res.plateformData || [],
+                    totalPlatforms: res.plateformData?.length || 0,
+                },
             });
         } catch (err) {
             console.error("Error fetching all data:", err);
@@ -59,16 +121,12 @@ const BlogForm = () => {
         fetchAll();
     }, []);
 
-    const editor = useBlogEditor({ content: formContent, setContent: setFormContent, platformData: platformData, allBlogs: allBlogs, tagsList: tagsList, categories: categories });
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setImage(url);
-            setSelectedFile(file);
-        }
-    };
+    const editor = useBlogEditor({
+        content: formContent, setContent: (value) => {
+            setFormContent(value);
+            setValue("content", value);
+        }, platformData: allData.platformData, allBlogs: { data: allData.allBlogs }, tagsList: allData.tagsList, categories: allData.categories
+    });
 
     const ConvertBase64 = async (): Promise<BlogFormType | undefined> => {
         let uploadedImageUrl = image || "";
@@ -91,18 +149,17 @@ const BlogForm = () => {
             });
         }
 
-        const formData = {
-            title,
-            excerpt,
-            formContent,
+        const formData: BlogFormType = {
+            BlogTitle: title,
+            BlogExcerpt: excerpt,
+            BlogContent: content,
+            BlogTags: tagsValue,
+            BlogRalated: related,
+            BlogReadingTime: readingTime,
+            BlogGlobalStatus: globalStatus,
+            BlogPublishDate: publishDate,
+            BlogSelectedCategories: selectedCategories,
             image: uploadedImageUrl,
-            // author,
-            category,
-            publishDate,
-            globalStatus,
-            tags,
-            related_blogs: relatedBlogs,
-            reading_time: readingTime,
             platforms: selectedPlatforms.map(platformId => ({
                 platformId,
                 settings: platformSettings[platformId] || {},
@@ -112,22 +169,16 @@ const BlogForm = () => {
         const now = new Date().getTime();
         const selectedDate = new Date(publishDate).getTime();
 
-        if (selectedPlatforms.length === 0) {
-            toast.error("Please select at least one platform 😢");
-            return;
-        }
+        if (selectedPlatforms.length === 0) { toast.error("Please select at least one platform 😢"); return; }
 
-        if (!publishDate || publishDate.trim() === "") {
-            toast.error("Publish date is required 😢");
-            return;
-        }
+        if (!publishDate || publishDate.trim() === "") { toast.error("Publish date is required 😢"); return; }
 
-        if (formData.globalStatus === "publish" && selectedDate > now) {
+        if (formData.BlogGlobalStatus === "publish" && selectedDate > now) {
             toast.error("For publish status, date must be current or past 😢");
             return;
         }
 
-        if (globalStatus === "future" && selectedDate <= now) {
+        if (formData.BlogGlobalStatus === "future" && selectedDate <= now) {
             toast.error("For future status, please select a future date 😢");
             return;
         }
@@ -135,39 +186,31 @@ const BlogForm = () => {
         return formData
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const handleSubmit = async (isDraft: boolean = false) => {
         const formData = await ConvertBase64()
 
         if (!formData) return;
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
-
         try {
             const BlogFormData = {
-                blog_title: formData.title,
-                short_excerpt: formData.excerpt,
-                full_content: formData.formContent,
+                blog_title: formData.BlogTitle,
+                short_excerpt: formData.BlogExcerpt,
+                full_content: formData.BlogContent,
                 featured_image: formData.image,
-                category: formData.category,
-                // tags: formData.tags,
-                tags: selectedTags,
-                // author: formData.author,
-                publish_date: formData.publishDate,
-                reading_time: formData.reading_time,
-                related: formData.related_blogs,
-                status: globalStatus,
+                category: formData.BlogSelectedCategories,
+                tags: formData.BlogTags,
+                publish_date: formData.BlogPublishDate,
+                reading_time: formData.BlogReadingTime,
+                related: formData.BlogRalated,
+                status: isDraft ? "draft" : formData.BlogGlobalStatus,
                 platforms: Selected_PlateForms
             };
-
-            const AddedBlogs = await BlogActions.addBlog(BlogFormData);
-            const blogId = AddedBlogs.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
                 platform_id: p.platformId,
                 slug: p.settings.slug || "",
-                publish_status: p.settings.publishStatus || "draft",
+                publish_status: isDraft ? "draft" : (p.settings.publishStatus || "draft"),
                 seo_title: p.settings.seoTitle || "",
                 meta_description: p.settings.metaDescription || "",
                 canonical_url: p.settings.canonicalUrl || "",
@@ -175,9 +218,19 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            await BlogActions.addSEO(blogId, seoFormDataArray);
+            let newBlogId = null
+            if (blogId == null) {
+                const AddedBlogs = await BlogActions.addBlog(BlogFormData);
+                newBlogId = AddedBlogs.blogId;
 
-            toast.success("Blog Successfully Added!");
+                await BlogActions.addSEO(newBlogId, seoFormDataArray);
+
+                toast.success(isDraft ? "Draft Successfully Saved!" : "Blog Successfully Added!");
+            } else {
+                await BlogActions.updateBlog(Number(blogId), BlogFormData);
+                await SEOActions.updateSEO(Number(blogId), seoFormDataArray);
+                toast.success(isDraft ? "Draft updated successfully!" : "Blog updated successfully!");
+            }
 
             router.push('/account/blogs')
 
@@ -187,63 +240,19 @@ const BlogForm = () => {
         }
     };
 
-    const handleSaveDraft = async () => {
-        try {
-            const formData = await ConvertBase64();
-
-            if (!formData) return;
-            const Selected_PlateForms = formData.platforms.map(p => p.platformId);
-
-            const BlogFormData = {
-                blog_title: formData.title || '',
-                short_excerpt: formData.excerpt || '',
-                full_content: formData.formContent || '',
-                featured_image: formData.image || '',
-                category: formData.category || '',
-                tags: formData.tags || [],
-                // author: formData.author || '',
-                publish_date: formData.publishDate || '',
-                reading_time: formData.reading_time || 0,
-                related: formData.related_blogs || [],
-                status: "draft",
-                platforms: Selected_PlateForms || []
-            };
-
-            const AddedBlogs = await BlogActions.addBlog(BlogFormData);
-            const blogId = AddedBlogs.data.blogId;
-
-            const seoFormDataArray = formData.platforms.map(p => ({
-                platform_id: p.platformId,
-                slug: p.settings.slug || "",
-                publish_status: "draft",
-                seo_title: p.settings.seoTitle || "",
-                meta_description: p.settings.metaDescription || "",
-                canonical_url: p.settings.canonicalUrl || "",
-                cta_button_text: p.settings.ctaButtonText || "",
-                cta_button_link: p.settings.ctaButtonLink || "",
-            }));
-
-            await BlogActions.addSEO(blogId, seoFormDataArray);
-
-            toast.success("Draft Successfully Saved!");
-
-        } catch (error) {
-            toast.error(`Draft save error 😢: ${(error as Error).message}`);
-        }
-    };
-
-    const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        const newTags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-        setTags(newTags);
-    };
-
     const handleBlogSelect = (blogId: number) => {
         setRelatedBlogs(prev => {
+            let updated;
+
             if (prev.includes(blogId)) {
-                return prev.filter(id => id !== blogId);
+                updated = prev.filter(id => id !== blogId);
+            } else {
+                updated = [...prev, blogId];
             }
-            return [...prev, blogId];
+
+            setValue("relatedBlogs", updated);
+
+            return updated;
         });
     };
 
@@ -252,7 +261,10 @@ const BlogForm = () => {
             ...prev,
             [platformId]: {
                 ...prev[platformId],
-                [field]: value,
+                [field]:
+                    field === "publishStatus"
+                        ? (value as "draft" | "publish" | "future")
+                        : value,
             }
         }));
     };
@@ -267,27 +279,73 @@ const BlogForm = () => {
         setIsUploadModalOpen(true);
     };
 
-    useEffect(() => {
-        if (!title) return;
+    // useEffect(() => {
+    //     if (!title) return;
 
-        const slug = generateSlug(title);
+    //     const slug = generateSlug(title);
+
+    //     setPlatformSettings(prev => {
+    //         const updated = { ...prev };
+
+    //         selectedPlatforms.forEach(platformId => {
+    //             const platform = allData.platformData?.data.find(
+    //                 (p: any) => p.id === platformId
+    //             );
+
+    //             if (!platform) return;
+
+    //             const date = publishDate ? new Date(publishDate) : new Date();
+    //             const year = date.getFullYear();
+    //             const month = String(date.getMonth() + 1).padStart(2, "0");
+    //             const day = String(date.getDate()).padStart(2, "0");
+
+    //             const isWordpress = platform.plateform_type == "wordpress";
+
+    //             const canonicalUrl = isWordpress
+    //                 ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+    //                 : `${platform.api_endpoint}/blog/${slug}`;
+
+    //             updated[platformId] = {
+    //                 seoTitle: prev[platformId]?.seoTitle || title,
+    //                 slug: prev[platformId]?.slug || slug,
+    //                 publishStatus: prev[platformId]?.publishStatus || globalStatus,
+    //                 metaDescription: prev[platformId]?.metaDescription || excerpt,
+    //                 canonicalUrl:
+    //                     !prev[platformId]?.canonicalUrl ||
+    //                         prev[platformId]?.canonicalUrl.includes("/blog/")
+    //                         ? canonicalUrl
+    //                         : prev[platformId]?.canonicalUrl,
+    //                 ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
+    //                 ctaButtonLink: !prev[platformId]?.canonicalUrl ||
+    //                     prev[platformId]?.canonicalUrl.includes("/blog/")
+    //                     ? canonicalUrl
+    //                     : prev[platformId]?.canonicalUrl,
+    //             };
+    //         });
+
+    //         return updated;
+    //     });
+    // }, [title, excerpt, selectedPlatforms, allData.platformData]);
+
+
+    useEffect(() => {
+        if (!selectedPlatforms.length) return;
+
+        const slug = generateSlug(title || "");
 
         setPlatformSettings(prev => {
             const updated = { ...prev };
 
             selectedPlatforms.forEach(platformId => {
-                const platform = platformData?.data.find(
-                    (p: any) => p.id === platformId
-                );
-
+                const platform = allData.platformData?.data.find(p => p.id === platformId);
                 if (!platform) return;
 
                 const date = publishDate ? new Date(publishDate) : new Date();
                 const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); 
                 const day = String(date.getDate()).padStart(2, "0");
 
-                const isWordpress = platform.plateform_type == "wordpress";
+                const isWordpress = platform.plateform_type === "wordpress";
 
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
@@ -296,28 +354,17 @@ const BlogForm = () => {
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
                     slug: prev[platformId]?.slug || slug,
-                    publishStatus:
-                        !prev[platformId]?.publishStatus ||
-                            prev[platformId]?.publishStatus === "draft"
-                            ? globalStatus
-                            : prev[platformId]?.publishStatus,
+                    publishStatus: prev[platformId]?.publishStatus || globalStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
-                    canonicalUrl:
-                        !prev[platformId]?.canonicalUrl ||
-                            prev[platformId]?.canonicalUrl.includes("/blog/")
-                            ? canonicalUrl
-                            : prev[platformId]?.canonicalUrl,
+                    canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
                     ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
-                    ctaButtonLink: !prev[platformId]?.canonicalUrl ||
-                        prev[platformId]?.canonicalUrl.includes("/blog/")
-                        ? canonicalUrl
-                        : prev[platformId]?.canonicalUrl,
+                    ctaButtonLink: prev[platformId]?.ctaButtonLink || canonicalUrl,
                 };
             });
 
             return updated;
         });
-    }, [title, excerpt, selectedPlatforms, platformData]);
+    }, [selectedPlatforms, title, excerpt, publishDate, allData.platformData, globalStatus]);
 
     useEffect(() => {
         if (!blogId) return;
@@ -327,19 +374,25 @@ const BlogForm = () => {
                 const res = await BlogActions.getById(Number(blogId));
                 const blog = res.data;
 
-                setTitle(blog.blog_title);
-                setExcerpt(blog.short_excerpt);
+                reset({
+                    title: blog.blog_title || "",
+                    excerpt: blog.short_excerpt || "",
+                    content: blog.full_content || "",
+                    publishDate: normalizeDateForInput(blog.publish_date),
+                    globalStatus: blog.status || "draft",
+                    category: blog.category || [],
+                    reading_time: blog.reading_time || 0,
+                    tags: blog.tags || [],
+                    relatedBlogs: blog.related || [],
+                    platforms: blog.platforms?.map((id: number) => ({
+                        platformId: id,
+                        settings: {}
+                    })) || []
+                });
                 setFormContent(blog.full_content);
                 if (editor && blog.full_content) {
                     editor.commands.setContent(blog.full_content);
                 }
-                // setAuthor(blog.author);
-                setCategory(blog.category || []);
-                setPublishDate(normalizeDateForInput(blog.publish_date));
-                setGlobalStatus(blog.status);
-                setSelectedTags(blog.tags || []);
-                setReadingTime(blog.reading_time || 0);
-                setRelatedBlogs(blog.related || []);
 
                 if (blog.featured_image) {
                     setImage(blog.featured_image);
@@ -381,61 +434,15 @@ const BlogForm = () => {
         fetchBlogForEdit();
     }, [blogId]);
 
-    const handleUpdateBlog = async () => {
-        try {
-            const formData = await ConvertBase64()
-
-            if (!formData) return;
-            const Selected_PlateForms = formData.platforms.map(p => p.platformId);
-
-            const BlogFormData = {
-                blog_title: formData.title,
-                short_excerpt: formData.excerpt,
-                full_content: formData.formContent,
-                featured_image: formData.image,
-                category: formData.category,
-                tags: selectedTags,
-                // author: formData.author,
-                publish_date: formData.publishDate,
-                reading_time: formData.reading_time,
-                related: formData.related_blogs,
-                status: globalStatus,
-                platforms: Selected_PlateForms
-            };
-
-            const res = await BlogActions.updateBlog(Number(blogId), BlogFormData);
-            const seoFormDataArray = formData.platforms.map(p => ({
-                platform_id: p.platformId,
-                slug: p.settings.slug || "",
-                publish_status: p.settings.publishStatus || "draft",
-                seo_title: p.settings.seoTitle || "",
-                meta_description: p.settings.metaDescription || "",
-                canonical_url: p.settings.canonicalUrl || "",
-                cta_button_text: p.settings.ctaButtonText || "",
-                cta_button_link: p.settings.ctaButtonLink || "",
-            }));
-
-            await SEOActions.updateSEO(Number(blogId), seoFormDataArray);
-            toast.success("Blog updated successfully!");
-            router.push('/account/blogs')
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update blog 😢");
-        }
-    };
-
     return (
         <form
             className="space-y-8"
             onSubmit={(e) => {
                 e.preventDefault();
-                if (blogId) {
-                    handleUpdateBlog();
-                } else {
-                    handleSubmit(e);
-                }
+                handleSubmit(false);
             }}
         >
-            <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={handleSaveDraft} />
+            <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={() => handleSubmit(true)} />
             <BlogTabSwitcher
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -446,27 +453,20 @@ const BlogForm = () => {
                 <div className="lg:col-span-2 space-y-8">
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
-                            title={title}
-                            setTitle={setTitle}
-                            excerpt={excerpt}
-                            setExcerpt={setExcerpt}
+                            register={register}
                             editor={editor}
-                            handleTagsChange={handleTagsChange}
-                            tags={tags}
+                            setValue={setValue}
                             relatedBlogs={relatedBlogs}
-                            allBlogs={allBlogs}
+                            allBlogs={{ data: allData.allBlogs }}
                             setIsPopupOpen={setIsPopupOpen}
-                            setReadingTime={setReadingTime}
-                            readingTime={readingTime}
-                            tagsList={tagsList}
                             selectedTags={selectedTags}
-                            setSelectedTags={setSelectedTags}
+                            tagsList={allData.tagsList}
                             setIsTagModalOpen={setIsTagModalOpen}
                             handleAddEditorImage={handleAddEditorImage}
                         />
                     ) : (
                         <PlatformSettingsSection
-                            platformData={platformData}
+                            platformData={allData.platformData}
                             selectedPlatforms={selectedPlatforms}
                             setSelectedPlatforms={setSelectedPlatforms}
                             platformSettings={platformSettings}
@@ -474,24 +474,21 @@ const BlogForm = () => {
                             handlePlatformChange={handlePlatformChange}
                             title={title}
                             excerpt={excerpt}
+                            fields={fields as any}
+                            append={append as any}
+                            remove={remove}
                         />
                     )}
                 </div>
 
                 <BlogSidebar
-                    globalStatus={globalStatus}
-                    setGlobalStatus={setGlobalStatus}
-                    publishDate={publishDate}
-                    setPublishDate={setPublishDate}
-                    // author={author}
-                    // setAuthor={setAuthor}
-                    category={category}
-                    setCategory={setCategory}
-                    categories={categories}
+                    register={register}
+                    category={selectedCategories}
+                    setValue={setValue}
+                    categories={allData.categories}
                     setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}
                     handleRemoveImage={handleRemoveImage}
-                    handleFileChange={handleFileChange}
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
                 />
@@ -501,7 +498,7 @@ const BlogForm = () => {
                     <div className="p-6 w-96 glass-card">
                         <h3 className="text-xl font-semibold text-white mb-4">Select Related Blogs</h3>
                         <div className="space-y-2">
-                            {allBlogs.data.map(blog => (
+                            {allData.allBlogs.map(blog => (
                                 <div key={blog.id} className="flex items-center">
                                     <input
                                         type="checkbox"
@@ -535,18 +532,18 @@ const BlogForm = () => {
                     showPreview={showPreview}
                     setShowPreview={setShowPreview}
                     image={image}
-                    category={category}
-                    categories={categories}
+                    category={selectedCategories}
+                    categories={allData.categories}
                     publishDate={publishDate}
                     readingTime={readingTime}
                     title={title}
                     excerpt={excerpt}
                     formContent={formContent}
-                    tags={tags}
+                    tags={selectedTags}
                     relatedBlogs={relatedBlogs}
-                    allBlogs={allBlogs}
+                    allBlogs={{ data: allData.allBlogs }}
                     selectedPlatforms={selectedPlatforms}
-                    platformData={platformData}
+                    platformData={allData.platformData}
                     platformSettings={platformSettings}
                 />
             )}
@@ -572,7 +569,7 @@ const BlogForm = () => {
                 <UploadMediaModal
                     isOpen={isUploadModalOpen}
                     onClose={() => setIsUploadModalOpen(false)}
-                    platformData={platformData}
+                    platformData={allData.platformData}
                     onUploadComplete={fetchAll}
                     onSelectImage={(url) => {
                         if (mediaFor === 'feature') {

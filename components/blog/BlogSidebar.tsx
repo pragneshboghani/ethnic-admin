@@ -1,45 +1,9 @@
 'use client';
 
+import { BlogSidebarProps } from '@/types';
 import { Trash2 } from 'lucide-react';
 
-type BlogSidebarProps = {
-    globalStatus: string;
-    setGlobalStatus: React.Dispatch<React.SetStateAction<string>>;
-    publishDate: string;
-    setPublishDate: React.Dispatch<React.SetStateAction<string>>;
-    // author: string;
-    // setAuthor: React.Dispatch<React.SetStateAction<string>>;
-    category: number[];
-    setCategory: React.Dispatch<React.SetStateAction<number[]>>;
-    categories: {
-        id: number;
-        name: string;
-    }[];
-    image: string | null;
-    handleRemoveImage: () => void;
-    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setMediaFor: React.Dispatch<React.SetStateAction<'feature' | 'editor'>>;
-};
-
-const BlogSidebar = ({
-    globalStatus,
-    setGlobalStatus,
-    publishDate,
-    setPublishDate,
-    // author,
-    // setAuthor,
-    category,
-    setCategory,
-    categories,
-    image,
-    handleRemoveImage,
-    handleFileChange,
-    setIsCategoryModalOpen,
-    setIsUploadModalOpen,
-    setMediaFor
-}: BlogSidebarProps) => (
+const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor }: BlogSidebarProps) => (
 
     <>
         <div className="space-y-6">
@@ -53,8 +17,7 @@ const BlogSidebar = ({
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Global Status</label>
                         <select
-                            value={globalStatus}
-                            onChange={(e) => setGlobalStatus(e.target.value)}
+                            {...register("globalStatus")}
                             className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
                         >
                             <option value="draft" className="text-black">Draft</option>
@@ -68,22 +31,11 @@ const BlogSidebar = ({
                         <input
                             type="datetime-local"
                             placeholder="YYYY-MM-DDTHH:mm"
-                            value={publishDate}
-                            onChange={(e) => setPublishDate(e.target.value)}
+                            {...register("publishDate")}
                             onClick={(e) => (e.target as HTMLInputElement).showPicker()}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                         />
                     </div>
-
-                    {/* <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
-                        <input
-                            type="text"
-                            value={author}
-                            onChange={(e) => setAuthor(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
-                        />
-                    </div> */}
 
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -110,11 +62,15 @@ const BlogSidebar = ({
                                         type="checkbox"
                                         checked={category.includes(cat.id)}
                                         onChange={() => {
+                                            let updated;
+
                                             if (category.includes(cat.id)) {
-                                                setCategory(category.filter(id => id !== cat.id));
+                                                updated = category.filter(id => id !== cat.id);
                                             } else {
-                                                setCategory([...category, cat.id]);
+                                                updated = [...category, cat.id];
                                             }
+
+                                            setValue("category", updated);
                                         }}
                                         className="w-4 h-4 accent-blue-600"
                                     />
@@ -160,15 +116,6 @@ const BlogSidebar = ({
                     )}
 
                     <div className="flex gap-3 my-4">
-                        {/* <label className="btn cursor-pointer">
-                            Upload New
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </label> */}
                         <button
                             type="button"
                             onClick={() => {
