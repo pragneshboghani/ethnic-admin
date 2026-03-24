@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const UserActions = {
-  CreateUser: async (data: any) => {
+  createUser: async (data: any) => {
     try {
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/create`, {
         method: "POST",
@@ -24,7 +24,7 @@ const UserActions = {
     }
   },
 
-  LoginUser: async (data: any) => {
+  loginUser: async (data: any) => {
     try {
       const res = await fetch(`${BACKEND_DOMAIN}/api/user/login`, {
         method: "POST",
@@ -44,7 +44,7 @@ const UserActions = {
     }
   },
 
-  GetAllUsers: async () => {
+  getAllUsers: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -64,7 +64,7 @@ const UserActions = {
     }
   },
 
-  GetUserById: async (id: number) => {
+  getUserById: async (id: number) => {
     try {
       const token = UserActions.getToken();
 
@@ -84,7 +84,7 @@ const UserActions = {
     }
   },
 
-  UpdateUser: async (id: number, data: any) => {
+  updateUser: async (id: number, data: any) => {
     try {
       const token = UserActions.getToken();
 
@@ -109,7 +109,7 @@ const UserActions = {
     }
   },
 
-  DeleteUser: async (id: number) => {
+  deleteUser: async (id: number) => {
     try {
       const token = UserActions.getToken();
 
@@ -130,7 +130,7 @@ const UserActions = {
     }
   },
 
-  Logout: () => {
+  logout: () => {
     Cookies.remove("token");
   },
 
@@ -142,7 +142,7 @@ const UserActions = {
     });
   },
 
-  IsLogin: (router: any) => {
+  isLogin: (router: any) => {
     const token = UserActions.getToken();
 
     if (!token) {

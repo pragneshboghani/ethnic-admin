@@ -65,10 +65,10 @@ const AddEditPlatformModal = ({
 
         try {
             if (editingPlatform?.id) {
-                await PlateformActions.UpdatePlateForm(editingPlatform.id, formData);
+                await PlateformActions.updatePlateForm(editingPlatform.id, formData);
                 toast.success(`Platform updated successfully 🎉`);
             } else {
-                await PlateformActions.AddPlateformData(formData);
+                await PlateformActions.addPlateformData(formData);
                 toast.success(`Platform added successfully 🚀`);
             }
 

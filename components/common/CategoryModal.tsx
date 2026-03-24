@@ -20,7 +20,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
     useEffect(() => {
         const fetchPlatforms = async () => {
-            const res = await PlateformActions.GetAllPlateform();
+            const res = await PlateformActions.getAllPlateform();
             setPlatformData(res);
         };
         fetchPlatforms();
@@ -35,7 +35,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
         try {
             setLoading(true);
 
-            await BlogActions.CreateCategory({
+            await BlogActions.createCategory({
                 name: categoryName,
                 description,
                 status,

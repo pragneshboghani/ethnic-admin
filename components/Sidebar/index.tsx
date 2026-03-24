@@ -42,7 +42,7 @@ const Sidebar = () => {
     }
 
     const handleLogout = () => {
-        UserActions.Logout();
+        UserActions.logout();
         setUser(null);
         router.push("/");
     };

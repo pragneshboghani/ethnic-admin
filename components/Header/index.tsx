@@ -13,7 +13,7 @@ const Header = () => {
   const [IsLogin, setIsLogin] = useState(false)
 
   useEffect(() => {
-    const Login = UserActions.IsLogin(router);
+    const Login = UserActions.isLogin(router);
     setIsLogin(Login)
   }, [pathname]);
 

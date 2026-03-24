@@ -17,7 +17,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const router = useRouter();
 
     useEffect(() => {
-        UserActions.IsLogin(router);
+        UserActions.isLogin(router);
     }, [pathname]);
 
     const activeTab = navItems.find((item) =>

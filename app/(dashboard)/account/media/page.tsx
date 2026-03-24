@@ -70,7 +70,7 @@ const Media = () => {
     };
 
     const fetchPlatforms = async () => {
-        const res = await PlateformActions.GetAllPlateform();
+        const res = await PlateformActions.getAllPlateform();
         setPlatformData(res);
     };
     const handleTabClick = (tab: any) => {
@@ -85,7 +85,7 @@ const Media = () => {
 
     const handleUpdateAlt = async (id: number, currentAlt: string) => {
         try {
-            await MediaActions.UpdateALT(id, currentAlt);
+            await MediaActions.updateALT(id, currentAlt);
             fetchMedia()
             toast.success("ALT text updated successfully!");
             setSelectedMedia(null)
@@ -99,7 +99,7 @@ const Media = () => {
         if (!mediaToDelete) return;
 
         try {
-            await MediaActions.DeleteMedia(mediaToDelete.id);
+            await MediaActions.deleteMedia(mediaToDelete.id);
             toast.success("Media deleted successfully!");
             setMedia((prev) => prev.filter((m) => m.id !== mediaToDelete.id));
         } catch (err: any) {

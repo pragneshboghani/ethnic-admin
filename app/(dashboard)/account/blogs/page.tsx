@@ -32,15 +32,15 @@ const Blogs = () => {
 
   useEffect(() => {
     const fetchPlatforms = async () => {
-      const res = await PlateformActions.GetAllPlateform();
+      const res = await PlateformActions.getAllPlateform();
       setPlatformData(res);
     };
     const fetchCategory = async () => {
-      const category = await BlogActions.FetchCategory();
+      const category = await BlogActions.fetchCategory();
       setCategoryData(category);
     }
     const fetchTag = async () => {
-      const tag = await BlogActions.FetchTags();
+      const tag = await BlogActions.fetchTags();
       setTagData(tag);
     }
     fetchPlatforms();
@@ -51,7 +51,7 @@ const Blogs = () => {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const res = await BlogActions.GetFilteredBlogs({
+      const res = await BlogActions.getFilteredBlogs({
         platform,
         status,
         search,
@@ -72,8 +72,8 @@ const Blogs = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await BlogActions.DeleteBlog(id);
-      await SEOActions.DeleteSEO(id)
+      await BlogActions.deleteBlog(id);
+      await SEOActions.deleteSEO(id)
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs()

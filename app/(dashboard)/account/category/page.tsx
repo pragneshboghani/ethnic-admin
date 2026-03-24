@@ -12,11 +12,11 @@ const page = () => {
     const [isOpenTags, setIsOpenTags] = useState(false)
 
     const fetchCategories = async () => {
-        const res = await BlogActions.FetchCategory();
+        const res = await BlogActions.fetchCategory();
         const names = res.data.map((c: any) => c.name);
         setCategories(names);
 
-        const Res = await BlogActions.FetchTags()
+        const Res = await BlogActions.fetchTags()
         const TagNames = Res.data.map((c: any) => c.name)
         setTags(TagNames)
     };

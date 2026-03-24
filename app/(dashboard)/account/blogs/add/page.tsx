@@ -39,12 +39,12 @@ const BlogForm = () => {
     }, []);
 
     const fetchCategories = async () => {
-        const res = await BlogActions.FetchCategory();
+        const res = await BlogActions.fetchCategory();
         setCategories(res.data);
     };
 
     const fetchTags = async () => {
-        const res = await BlogActions.FetchTags();
+        const res = await BlogActions.fetchTags();
         setTagsList(res.data);
     };
     const fetchMedia = async () => {
@@ -52,11 +52,11 @@ const BlogForm = () => {
         setMediaFiles(res.data);
     };
     const fetchPlatforms = async () => {
-        const res = await PlateformActions.GetAllPlateform();
+        const res = await PlateformActions.getAllPlateform();
         setPlatformData(res);
     };
     const loadBlogs = async () => {
-        const blogs = await BlogActions.GetAllBlogs()
+        const blogs = await BlogActions.getAllBlogs()
         setAllBlogs(blogs);
     };
     useEffect(() => {
@@ -169,7 +169,7 @@ const BlogForm = () => {
                 platforms: Selected_PlateForms
             };
 
-            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const AddedBlogs = await BlogActions.addBlog(BlogFormData);
             const blogId = AddedBlogs.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
@@ -183,7 +183,7 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            await BlogActions.AddSEO(blogId, seoFormDataArray);
+            await BlogActions.addSEO(blogId, seoFormDataArray);
 
             toast.success("Blog Successfully Added!");
 
@@ -217,7 +217,7 @@ const BlogForm = () => {
                 platforms: Selected_PlateForms || []
             };
 
-            const AddedBlogs = await BlogActions.AddBlog(BlogFormData);
+            const AddedBlogs = await BlogActions.addBlog(BlogFormData);
             const blogId = AddedBlogs.data.blogId;
 
             const seoFormDataArray = formData.platforms.map(p => ({
@@ -231,7 +231,7 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            await BlogActions.AddSEO(blogId, seoFormDataArray);
+            await BlogActions.addSEO(blogId, seoFormDataArray);
 
             toast.success("Draft Successfully Saved!");
 
@@ -332,7 +332,7 @@ const BlogForm = () => {
 
         const fetchBlogForEdit = async () => {
             try {
-                const res = await BlogActions.GetById(Number(blogId));
+                const res = await BlogActions.getById(Number(blogId));
                 const blog = res.data;
 
                 setTitle(blog.blog_title);
@@ -411,7 +411,7 @@ const BlogForm = () => {
                 platforms: Selected_PlateForms
             };
 
-            const res = await BlogActions.UpdateBlog(Number(blogId), BlogFormData);
+            const res = await BlogActions.updateBlog(Number(blogId), BlogFormData);
             const seoFormDataArray = formData.platforms.map(p => ({
                 platform_id: p.platformId,
                 slug: p.settings.slug || "",
@@ -423,7 +423,7 @@ const BlogForm = () => {
                 cta_button_link: p.settings.ctaButtonLink || "",
             }));
 
-            await SEOActions.UpdateSEO(Number(blogId), seoFormDataArray);
+            await SEOActions.updateSEO(Number(blogId), seoFormDataArray);
             toast.success("Blog updated successfully!");
             router.push('/account/blogs')
         } catch (error: any) {

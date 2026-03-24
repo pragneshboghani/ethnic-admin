@@ -26,7 +26,7 @@ const SEOActions = {
       throw error;
     }
   },
-  UpdateSEO: async (blogId: number, seoData: any[]) => {
+  updateSEO: async (blogId: number, seoData: any[]) => {
     const token = UserActions.getToken();
 
     const res = await fetch(`${BACKEND_DOMAIN}/api/seo/update`, {
@@ -45,7 +45,7 @@ const SEOActions = {
 
     return await res.json();
   },
-  DeleteSEO: async (blogId: number) => {
+  deleteSEO: async (blogId: number) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/seo/delete?id=${blogId}`, {

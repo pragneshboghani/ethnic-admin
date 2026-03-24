@@ -4,7 +4,7 @@ import UserActions from "./UserAction";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const DashBoardActions = {
-  GetAllDashboardData: async () => {
+  getAllDashboardData: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -27,7 +27,7 @@ const DashBoardActions = {
     }
   },
 
-  GetRecentlyBlog: async (days: string) => {
+  getRecentlyBlog: async (days: string) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(
@@ -52,7 +52,7 @@ const DashBoardActions = {
     }
   },
 
-  GetActivePlatform: async () => {
+  getActivePlatform: async () => {
     try {
       const token = UserActions.getToken();
 
