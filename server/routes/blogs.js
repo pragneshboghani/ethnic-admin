@@ -506,7 +506,6 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      totalBlogs: updatedBlogs.length,
       data: updatedBlogs[0],
     });
   } catch (error) {
