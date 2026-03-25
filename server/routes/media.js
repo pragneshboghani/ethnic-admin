@@ -3,6 +3,7 @@ const mysqlpool = require("../config/db");
 const saveBase64File = require("../utils/saveBase64File");
 const authMiddleware = require("../middleware/authMiddleware");
 const postMediaToPlateform = require("../utils/postMediaToPlateform");
+const { getPlatformsByIds } = require("../utils/platformHelper");
 
 const mediarouter = Router();
 
@@ -34,15 +35,7 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
 
     const type = mimeType.startsWith("image") ? "image" : "video";
 
-    let platformData = [];
-
-    if (selectedPlatforms && selectedPlatforms.length > 0) {
-      const [data] = await mysqlpool.query(
-        `SELECT * FROM platforms WHERE id IN (?)`,
-        [selectedPlatforms],
-      );
-      platformData = data;
-    }
+    const platformData = await getPlatformsByIds(selectedPlatforms);
 
     const [results] = await Promise.all(
       platformData.map((platform) => postMediaToPlateform(platform, req.body)),
@@ -52,7 +45,16 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
       `INSERT INTO media
       (file_name,file_url,file_type,mime_type,file_size,alt_text,wp_url,wp_id)
       VALUES (?,?,?,?,?,?,?,?)`,
-      [filename, filepath, type, mimeType, fileSize, alt || null, results.url, results.mediaId],
+      [
+        filename,
+        filepath,
+        type,
+        mimeType,
+        fileSize,
+        alt || null,
+        results.url,
+        results.mediaId,
+      ],
     );
 
     res.send({
