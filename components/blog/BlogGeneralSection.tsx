@@ -1,12 +1,20 @@
-import { EditorContent } from "@tiptap/react";
 import { BlogGeneralSectionProps } from "@/types";
+import {
+  Editor,
+  EditorProvider,
+  Toolbar,
+  BtnBold,
+  BtnItalic,
+  BtnUnderline,
+  BtnBulletList,
+  BtnNumberedList,
+  BtnLink,
+  BtnUndo,
+  BtnRedo,
+} from "react-simple-wysiwyg";
 
-import dynamic from "next/dynamic";
-
-const EditorToolbar = dynamic(() => import("./EditorToolbar"), { ssr: false });
-
-const BlogGeneralSection = ({ register, editor, setValue, relatedBlogs, allBlogs,selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
-    <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">   
+const BlogGeneralSection = ({ register, setValue, relatedBlogs,content, allBlogs, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen }: BlogGeneralSectionProps) => (
+    <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
         <div className="space-y-2">
             <label className="text-sm font-semibold">Blog Title</label>
             <input
@@ -28,13 +36,26 @@ const BlogGeneralSection = ({ register, editor, setValue, relatedBlogs, allBlogs
 
         <div className="space-y-2">
             <label className="text-sm font-semibold">Content</label>
-            <div className="rounded-xl overflow-hidden focus-within:border-none text-black transition-all">
-                {editor && (
-                    <>
-                        <EditorToolbar editor={editor} onAddImage={handleAddEditorImage} />
-                        <EditorContent editor={editor} className={`prose max-w-none p-4 min-h-[400px] bg-white text-black focus:outline-none !focus-visible:outline-none whitespace-pre-wrap`} />
-                    </>
-                )}
+
+            <div className="rounded-xl overflow-hidden bg-white text-black">
+                <EditorProvider>
+                    <Toolbar>
+                        <BtnBold  className="p-2"/>
+                        <BtnItalic />
+                        <BtnUnderline />
+                        <BtnBulletList />
+                        <BtnNumberedList />
+                        <BtnLink />
+                        <BtnUndo />
+                        <BtnRedo />
+                    </Toolbar>
+
+                    <Editor
+                        value={content}
+                        onChange={(e) => setValue("content", e.target.value)}
+                        className="min-h-[400px] p-4"
+                    />
+                </EditorProvider>
             </div>
         </div>
 
