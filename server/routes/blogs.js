@@ -4,6 +4,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const blogRouter = express.Router();
 
@@ -146,7 +147,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
     } = req.body;
 
     const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
-      id
+      id,
     ]);
 
     if (!raw) {
@@ -384,6 +385,52 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Error filtering blogs:", error);
     res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+blogRouter.get("/platform", verifyApiKey, async (req, res) => {
+  try {
+
+    const { platformName } = req.query;
+
+    if (!platformName) {
+      return res.status(400).json({
+        success: false,
+        message: "Platform name required",
+      });
+    }
+
+    const [platformRows] = await mysqlpool.query(
+      `SELECT * FROM platforms 
+     WHERE REPLACE(REPLACE(LOWER(platform_name), '\n', ''), '\r', '') = ?`,
+      [platformName.trim().toLowerCase()],
+    );
+
+    if (platformRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Platform not found",
+      });
+    }
+
+    const platformId = platformRows[0].id;
+    const [blogs] = await mysqlpool.query(
+      `SELECT * FROM blogs
+       WHERE JSON_CONTAINS(platforms, CAST(? AS JSON))`,
+      [platformId],
+    );
+
+    res.status(200).json({
+      success: true,
+      totalBlogs: blogs.length,
+      data: blogs,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs by platform name", error);
+    res.status(500).json({
       success: false,
       message: error.message,
     });
