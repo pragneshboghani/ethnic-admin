@@ -4,6 +4,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const blogRouter = express.Router();
 
@@ -146,7 +147,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
     } = req.body;
 
     const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
-      id
+      id,
     ]);
 
     if (!raw) {
@@ -390,4 +391,65 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
+blogRouter.get("/platform", verifyApiKey, async (req, res) => {
+  try {
+    const { platformName } = req.query;
+
+    if (!platformName) {
+      return res.status(400).json({
+        success: false,
+        message: "Platform name required",
+      });
+    }
+
+    const [blogs] = await mysqlpool.query(
+      `SELECT b.*
+   FROM blogs b
+   JOIN platforms p
+     ON JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
+   WHERE REPLACE(REPLACE(LOWER(p.platform_name), '\n', ''), '\r', '') = ?`,
+      [platformName.trim().toLowerCase()],
+    );
+
+    res.status(200).json({
+      success: true,
+      totalBlogs: blogs.length,
+      data: blogs,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs by platform name", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+blogRouter.get("/slug", verifyApiKey, async (req, res) => {
+  try {
+    const { slug } = req.query;
+
+    if (!slug) {
+      return res.status(400).json({
+        success: false,
+        message: "slug required",
+      });
+    }
+
+    const [rows] = await mysqlpool.query("SELECT * FROM blogs WHERE slug = ?", [
+      slug.trim(),
+    ]);
+    res.status(200).send({
+      success: true,
+      totalBlogs: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = blogRouter;
