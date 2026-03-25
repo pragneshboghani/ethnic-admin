@@ -425,4 +425,31 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
   }
 });
 
+blogRouter.get("/slug", verifyApiKey, async (req, res) => {
+  try {
+    const { slug } = req.query;
+
+    if (!slug) {
+      return res.status(400).json({
+        success: false,
+        message: "slug required",
+      });
+    }
+
+    const [rows] = await mysqlpool.query("SELECT * FROM blogs WHERE slug = ?", [
+      slug.trim(),
+    ]);
+    res.status(200).send({
+      success: true,
+      totalBlogs: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = blogRouter;
