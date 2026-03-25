@@ -37,24 +37,28 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
 
     const platformData = await getPlatformsByIds(selectedPlatforms);
 
-    const [results] = await Promise.all(
-      platformData.map((platform) => postMediaToPlateform(platform, req.body)),
-    );
+    let results = [];
+
+    if (platformData.length > 0) {
+      results = await Promise.all(
+        platformData.map((platform) =>
+          postMediaToPlateform(platform, req.body),
+        ),
+      );
+    }
+
+    const platformJson = results
+      .filter((r) => r && r.mediaId && r.url)
+      .map((r) => ({
+        id: r.mediaId,
+        url: r.url,
+      }));
 
     const [result] = await mysqlpool.query(
       `INSERT INTO media
-      (file_name,file_url,file_type,mime_type,file_size,alt_text,wp_url,wp_id)
-      VALUES (?,?,?,?,?,?,?,?)`,
-      [
-        filename,
-        filepath,
-        type,
-        mimeType,
-        fileSize,
-        alt || null,
-        results.url,
-        results.mediaId,
-      ],
+      (file_name,file_url,file_type,mime_type,file_size,alt_text,platforms)
+      VALUES (?,?,?,?,?,?,?)`,
+      [filename, filepath, type, mimeType, fileSize, alt || null, JSON.stringify(platformJson)],
     );
 
     res.send({
@@ -62,6 +66,7 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
       message: "File uploaded successfully",
       mediaId: result.insertId,
       fileUrl: filepath,
+      platformResults: results,
     });
   } catch (error) {
     console.error(error);
