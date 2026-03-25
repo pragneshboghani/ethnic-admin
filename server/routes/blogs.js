@@ -5,6 +5,7 @@ const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
 const verifyApiKey = require("../middleware/verifyApiKey");
+require("dotenv").config();
 
 const blogRouter = express.Router();
 
