@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const verifyApiKey = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
 
