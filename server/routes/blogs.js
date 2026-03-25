@@ -23,6 +23,8 @@ const safeParse = (value) => {
   }
 };
 
+const BASE_URL = "https://api-admin.ethnicinfotech.in/";
+
 blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
@@ -396,7 +398,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(
       `
       SELECT 
-        b.*,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -411,18 +413,13 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data,
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', p.id, 'name', p.platform_name))
-          FROM platforms p
-          WHERE JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
-        ) AS platform_data
+        ) AS related_data
 
       FROM blogs b
       JOIN platforms p2
         ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
 
-      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ?
+      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND b.status = "publish"
       `,
       [platformName.trim().toLowerCase()],
     );
@@ -430,16 +427,17 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const updatedBlogs = blogs.map((blog) => {
       const updated = {
         ...blog,
+        featured_image: blog.featured_image
+          ? BASE_URL + blog.featured_image
+          : null,
         category: safeParse(blog.category_data),
         tags: safeParse(blog.tag_data),
         related: safeParse(blog.related_data),
-        platforms: safeParse(blog.platform_data),
       };
 
       delete updated.category_data;
       delete updated.tag_data;
       delete updated.related_data;
-      delete updated.platform_data;
 
       return updated;
     });
@@ -471,7 +469,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(
       `
       SELECT 
-        b.*,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -486,33 +484,30 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data,
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', p.id, 'name', p.platform_name))
-          FROM platforms p
-          WHERE JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
-        ) AS platform_data
+        ) AS related_data
 
       FROM blogs b
-      WHERE b.slug = ?
+      WHERE b.slug = ? AND b.status = "publish"
       `,
       [slug.trim()],
     );
 
     const updatedBlogs = blogs.map(
-      ({ category_data, tag_data, related_data, platform_data, ...rest }) => ({
+      ({ category_data, tag_data, related_data, ...rest }) => ({
         ...rest,
+        featured_image: rest.featured_image
+          ? BASE_URL + rest.featured_image
+          : null,
         category: safeParse(category_data),
         tags: safeParse(tag_data),
         related: safeParse(related_data),
-        platforms: safeParse(platform_data),
       }),
     );
 
     res.status(200).json({
       success: true,
       totalBlogs: updatedBlogs.length,
-      data: updatedBlogs,
+      data: updatedBlogs[0],
     });
   } catch (error) {
     console.error("Error fetching blog by slug:", error);
@@ -522,4 +517,5 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     });
   }
 });
+
 module.exports = blogRouter;
