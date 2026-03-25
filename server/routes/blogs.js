@@ -393,7 +393,6 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
 
 blogRouter.get("/platform", verifyApiKey, async (req, res) => {
   try {
-
     const { platformName } = req.query;
 
     if (!platformName) {
@@ -403,24 +402,13 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [platformRows] = await mysqlpool.query(
-      `SELECT * FROM platforms 
-     WHERE REPLACE(REPLACE(LOWER(platform_name), '\n', ''), '\r', '') = ?`,
-      [platformName.trim().toLowerCase()],
-    );
-
-    if (platformRows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Platform not found",
-      });
-    }
-
-    const platformId = platformRows[0].id;
     const [blogs] = await mysqlpool.query(
-      `SELECT * FROM blogs
-       WHERE JSON_CONTAINS(platforms, CAST(? AS JSON))`,
-      [platformId],
+      `SELECT b.*
+   FROM blogs b
+   JOIN platforms p
+     ON JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
+   WHERE REPLACE(REPLACE(LOWER(p.platform_name), '\n', ''), '\r', '') = ?`,
+      [platformName.trim().toLowerCase()],
     );
 
     res.status(200).json({
