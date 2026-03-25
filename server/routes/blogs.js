@@ -382,7 +382,7 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
 
 blogRouter.get("/platform", verifyApiKey, async (req, res) => {
   try {
-    const { platformName } = req.query;
+    const { platformName, page = 1, limit = 12 } = req.query;
 
     if (!platformName) {
       return res.status(400).json({
@@ -391,6 +391,35 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       });
     }
 
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    const [[{ total }]] = await mysqlpool.query(
+      `
+      SELECT COUNT(*) as total
+      FROM blogs b
+      JOIN platforms p2
+        ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ?
+      AND b.status = "publish"
+      `,
+      [platformName.trim().toLowerCase()],
+    );
+
+    const totalPages = Math.ceil(total / limitNumber);
+
+    if (pageNumber > totalPages && totalPages !== 0) {
+      return res.status(200).json({
+        success: true,
+        totalBlogs: total,
+        currentPage: pageNumber,
+        totalPages: totalPages,
+        data: [],
+        message: "No data - page exceeds total pages",
+      });
+    }
+    
     const [blogs] = await mysqlpool.query(
       `
       SELECT 
@@ -416,8 +445,10 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
         ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
 
       WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND b.status = "publish"
+      ORDER BY b.created_at DESC
+       LIMIT ? OFFSET ?
       `,
-      [platformName.trim().toLowerCase()],
+      [platformName.trim().toLowerCase(), limitNumber, offset],
     );
 
     const updatedBlogs = blogs.map((blog) => {
@@ -439,7 +470,9 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     });
     res.status(200).json({
       success: true,
-      totalBlogs: updatedBlogs.length,
+      totalBlogs: total,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(total / limitNumber),
       data: updatedBlogs,
     });
   } catch (error) {
@@ -480,7 +513,25 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data
+        ) AS related_data,
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'platform_id', s.platform_id,
+              'platform_name', p.platform_name,
+              'slug', s.slug,
+              'publish_status', s.publish_status,
+              'seo_title', s.seo_title,
+              'meta_description', s.meta_description,
+              'canonical_url', s.canonical_url,
+              'cta_button_text', s.cta_button_text,
+              'cta_button_link', s.cta_button_link
+            )
+          )
+          FROM seo_blog s
+          LEFT JOIN platforms p ON p.id = s.platform_id 
+          WHERE s.blog_id = b.id
+        ) AS seo_data 
 
       FROM blogs b
       WHERE b.slug = ? AND b.status = "publish"
@@ -489,7 +540,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     );
 
     const updatedBlogs = blogs.map(
-      ({ category_data, tag_data, related_data, ...rest }) => ({
+      ({ category_data, tag_data, related_data, seo_data, ...rest }) => ({
         ...rest,
         featured_image: rest.featured_image
           ? BASE_URL + rest.featured_image
@@ -497,6 +548,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
         category: safeParse(category_data),
         tags: safeParse(tag_data),
         related: safeParse(related_data),
+        seo: safeParse(seo_data),
       }),
     );
 

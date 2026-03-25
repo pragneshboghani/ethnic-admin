@@ -300,7 +300,7 @@ const BlogForm = () => {
 
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.api_endpoint}/blog/${slug}`;
+                    : `${platform.website_url}blog/${slug}`;
 
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
