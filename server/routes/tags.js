@@ -3,6 +3,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const mysqlpool = require("../config/db");
 const generateSlug = require("../utils/generateSlug");
 const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
+const { getPlatformsByIds } = require("../utils/platformHelper");
 
 const tagRouter = express.Router();
 
@@ -26,15 +27,7 @@ tagRouter.post("/add", authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
-    let platformData = [];
-
-    if (platforms && platforms.length > 0) {
-      const [data] = await mysqlpool.query(
-        `SELECT * FROM platforms WHERE id IN (?)`,
-        [platforms],
-      );
-      platformData = data;
-    }
+    const platformData = await getPlatformsByIds(platforms);
 
     const slug = await generateSlug(name);
     const results = await Promise.all(

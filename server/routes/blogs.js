@@ -5,9 +5,26 @@ const postToPlatform = require("../utils/postToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
 const verifyApiKey = require("../middleware/verifyApiKey");
+const { getPlatformsByIds } = require("../utils/platformHelper");
+const generateUniqueBlogSlug = require("../utils/generateUniqueBlogSlug");
 require("dotenv").config();
 
 const blogRouter = express.Router();
+
+const safeParse = (value) => {
+  try {
+    if (!value) return [];
+
+    if (Array.isArray(value)) return value;
+
+    return JSON.parse(value);
+  } catch (err) {
+    console.error("JSON parse error:", value);
+    return [];
+  }
+};
+
+const BASE_URL = process.env.BACKEND_API;
 
 blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
@@ -78,19 +95,19 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       });
     }
 
-    let platformData = [];
-
-    if (platforms && platforms.length > 0) {
-      const [data] = await mysqlpool.query(
-        `SELECT * FROM platforms WHERE id IN (?)`,
-        [platforms],
-      );
-      platformData = data;
-    }
+    const platformData = await getPlatformsByIds(platforms);
 
     const results = await Promise.all(
       platformData.map((platform) => postToPlatform(platform, req.body, null)),
     );
+
+    let slug = null;
+
+    if (results.length > 0 && results[0]?.data?.slug) {
+      slug = results[0].data.slug;
+    } else {
+      slug = await generateUniqueBlogSlug(blog_title);
+    }
 
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
@@ -109,7 +126,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
         JSON.stringify(related),
         status,
         JSON.stringify(platforms),
-        results[0].data.slug,
+        slug,
       ],
     );
 
@@ -158,31 +175,13 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
-    let platformData = [];
-
-    if (platforms && platforms.length > 0) {
-      const [data] = await mysqlpool.query(
-        `SELECT * FROM platforms WHERE id IN (?)`,
-        [platforms],
-      );
-      platformData = data;
-    }
+    const platformData = await getPlatformsByIds(platforms);
 
     const results = await Promise.all(
       platformData.map((platform) =>
         postToPlatform(platform, req.body, raw.slug),
       ),
     );
-
-    // const failed = results.filter((r) => !r.success);
-
-    // if (failed.length > 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Platform update failed",
-    //     errors: failed,
-    //   });
-    // }
 
     const UpdatedData = {
       blog_title: blog_title ?? raw.blog_title,
@@ -200,7 +199,14 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       status: status ?? raw.status,
       platforms: JSON.stringify(platforms ?? raw.platforms),
     };
-    const slug = await generateSlug(UpdatedData.blog_title);
+
+    let slug = null;
+
+    if (results.length > 0 && results[0]?.data?.slug) {
+      slug = results[0].data.slug;
+    } else {
+      slug = await generateUniqueBlogSlug(UpdatedData.blog_title, id);
+    }
 
     await mysqlpool.query(
       `UPDATE blogs
@@ -221,7 +227,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
-        results[0].data.slug,
+        slug,
         id,
       ],
     );
@@ -255,29 +261,11 @@ blogRouter.delete("/delete", authMiddleware, async (req, res) => {
       });
     }
 
-    let platformData = [];
-
-    if (raw.platforms && raw.platforms.length > 0) {
-      const [data] = await mysqlpool.query(
-        `SELECT * FROM platforms WHERE id IN (?)`,
-        [raw.platforms],
-      );
-      platformData = data;
-    }
+    const platformData = await getPlatformsByIds(raw.platforms);
 
     const results = await Promise.all(
       platformData.map((platform) => deletePost(platform, raw.slug)),
     );
-
-    // const failed = results.filter((r) => !r.success);
-
-    // if (failed.length > 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Platform delete failed",
-    //     errors: failed,
-    //   });
-    // }
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [
       id,
@@ -404,18 +392,55 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     }
 
     const [blogs] = await mysqlpool.query(
-      `SELECT b.*
-   FROM blogs b
-   JOIN platforms p
-     ON JSON_CONTAINS(b.platforms, CAST(p.id AS JSON))
-   WHERE REPLACE(REPLACE(LOWER(p.platform_name), '\n', ''), '\r', '') = ?`,
+      `
+      SELECT 
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+          FROM category c
+          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+        ) AS category_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+          FROM tags t
+          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+        ) AS tag_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+          FROM blogs rb
+          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        ) AS related_data
+
+      FROM blogs b
+      JOIN platforms p2
+        ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+
+      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND b.status = "publish"
+      `,
       [platformName.trim().toLowerCase()],
     );
 
+    const updatedBlogs = blogs.map((blog) => {
+      const updated = {
+        ...blog,
+        featured_image: blog.featured_image
+          ? BASE_URL + blog.featured_image
+          : null,
+        category: safeParse(blog.category_data),
+        tags: safeParse(blog.tag_data),
+        related: safeParse(blog.related_data),
+      };
+
+      delete updated.category_data;
+      delete updated.tag_data;
+      delete updated.related_data;
+
+      return updated;
+    });
     res.status(200).json({
       success: true,
-      totalBlogs: blogs.length,
-      data: blogs,
+      totalBlogs: updatedBlogs.length,
+      data: updatedBlogs,
     });
   } catch (error) {
     console.error("Error fetching blogs by platform name", error);
@@ -433,24 +458,59 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     if (!slug) {
       return res.status(400).json({
         success: false,
-        message: "slug required",
+        message: "Slug required",
       });
     }
 
-    const [rows] = await mysqlpool.query("SELECT * FROM blogs WHERE slug = ?", [
-      slug.trim(),
-    ]);
-    res.status(200).send({
+    const [blogs] = await mysqlpool.query(
+      `
+      SELECT 
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+          FROM category c
+          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+        ) AS category_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+          FROM tags t
+          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+        ) AS tag_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+          FROM blogs rb
+          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        ) AS related_data
+
+      FROM blogs b
+      WHERE b.slug = ? AND b.status = "publish"
+      `,
+      [slug.trim()],
+    );
+
+    const updatedBlogs = blogs.map(
+      ({ category_data, tag_data, related_data, ...rest }) => ({
+        ...rest,
+        featured_image: rest.featured_image
+          ? BASE_URL + rest.featured_image
+          : null,
+        category: safeParse(category_data),
+        tags: safeParse(tag_data),
+        related: safeParse(related_data),
+      }),
+    );
+
+    res.status(200).json({
       success: true,
-      totalBlogs: rows.length,
-      data: rows,
+      data: updatedBlogs[0],
     });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+    console.error("Error fetching blog by slug:", error);
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 });
+
 module.exports = blogRouter;
