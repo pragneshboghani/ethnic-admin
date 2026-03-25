@@ -33,7 +33,7 @@ export default function SignIn() {
         setLoading(true);
 
         try {
-            const res = await UserActions.LoginUser(formData);
+            const res = await UserActions.loginUser(formData);
 
             if (res.success) {
                 UserActions.setToken(res.token);

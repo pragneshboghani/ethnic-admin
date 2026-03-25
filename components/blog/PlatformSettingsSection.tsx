@@ -2,7 +2,7 @@ import { PlatformSettingsProps } from "@/types";
 import { CheckCircle2 } from "lucide-react";
 
 const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedPlatforms, platformSettings, setPlatformSettings,
-    handlePlatformChange, title, excerpt }: PlatformSettingsProps) => (
+    handlePlatformChange, title, excerpt, fields, remove, append }: PlatformSettingsProps) => (
     <div className="space-y-6">
         <div className="p-6 rounded-2xl glass-card">
             <h3 className="text-lg font-semibold  mb-4 flex items-center gap-2">
@@ -21,38 +21,39 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                             key={platform.id}
                             type="button"
                             onClick={() => {
-                                setSelectedPlatforms(prev => {
-                                    const newSelection = isSelected
-                                        ? prev.filter(id => id !== platform.id)
-                                        : [...prev, platform.id];
+                                const isSelected = selectedPlatforms.includes(platform.id);
 
-                                    if (!isSelected) {
-                                        const slug = title
-                                            ? title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-")
-                                            : "";
+                                if (isSelected) {
+                                    setSelectedPlatforms(prev => prev.filter(id => id !== platform.id));
 
-                                        const canonicalUrl = `${platform.website_url}/blog/${slug}`;
+                                    const index = fields.findIndex(f => f.platformId === platform.id);
+                                    if (index !== -1) remove(index);
 
-                                        setPlatformSettings(ps => ({
-                                            ...ps,
-                                            [platform.id]: {
-                                                seoTitle: title || "",
-                                                slug: slug || "",
-                                                publishStatus: "draft",
-                                                metaDescription: excerpt || "",
-                                                canonicalUrl,
-                                                ctaButtonText: "Read more",
-                                                ctaButtonLink: canonicalUrl,
-                                            }
-                                        }));
-                                    } else {
-                                        const copy = { ...platformSettings };
-                                        delete copy[platform.id];
-                                        setPlatformSettings(copy);
-                                    }
+                                    setPlatformSettings(prev => {
+                                        const updated = { ...prev };
+                                        delete updated[platform.id];
+                                        return updated;
+                                    });
+                                } else {
+                                    setSelectedPlatforms(prev => [...prev, platform.id]);
 
-                                    return newSelection;
-                                });
+                                    const slug = title
+                                        ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                                        : "";
+
+                                    append({
+                                        platformId: platform.id,
+                                        settings: {
+                                            seoTitle: title || "",
+                                            slug,
+                                            publishStatus: "draft",
+                                            metaDescription: excerpt || "",
+                                            canonicalUrl: `${platform.website_url}/blog/${slug}`,
+                                            ctaButtonText: "Read more",
+                                            ctaButtonLink: `${platform.website_url}/blog/${slug}`,
+                                        }
+                                    });
+                                }
                             }}
                             className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left
                                                     ${isSelected

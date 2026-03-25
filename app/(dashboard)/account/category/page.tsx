@@ -3,28 +3,53 @@
 import BlogActions from '@/actions/BlogAction';
 import CategoryModal from '@/components/common/CategoryModal';
 import TagModal from '@/components/common/TagModal';
+import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify';
+
+type Category = {
+    id: number;
+    name: string;
+}
 
 const page = () => {
-    const [categories, setCategories] = useState<string[]>([]);
-    const [tags, setTags] = useState<string[]>([])
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [tags, setTags] = useState<Category[]>([])
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenTags, setIsOpenTags] = useState(false)
 
     const fetchCategories = async () => {
-        const res = await BlogActions.FetchCategory();
-        const names = res.data.map((c: any) => c.name);
-        setCategories(names);
+        const res = await BlogActions.fetchCategory();
+        const categoryData: Category[] = res.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+        }));
+        setCategories(categoryData);
 
-        const Res = await BlogActions.FetchTags()
-        const TagNames = Res.data.map((c: any) => c.name)
-        setTags(TagNames)
+        const Res = await BlogActions.fetchTags()
+        const tagData: Category[] = Res.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+        }));
+        setTags(tagData)
     };
 
     useEffect(() => {
         fetchCategories();
     }, []);
 
+    const handleDeleteCategory = async (category: Category, type: string) => {
+        if (!category) return null
+        if (!confirm(`Are you sure you want to delete "${category?.name}"?, type "${type}"`)) return;
+        try {
+            await BlogActions.deleteCategory(category?.id, type)
+            fetchCategories();
+            toast.success(`${type} successfully deleted! 🗑️`)
+        } catch (error) {
+            console.error('Failed to delete category or tag', error);
+            alert('Failed to delete category or tag.');
+        }
+    };
     return (
         <>
             <div className="flex justify-between items-center mb-8">
@@ -48,8 +73,16 @@ const page = () => {
                 <h2 className='text-lg'>Categories</h2>
                 <div className='flex gap-4 flex-wrap'>
                     {categories.map((c, index) => (
-                        <div key={index} className='px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-white/20 text-white shadow-lg border border-white/20 rounded-xl w-fit'>
-                            {c}
+                        <div
+                            key={c.id}
+                            className='relative group px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-white/20 text-white shadow-lg border border-white/20 rounded-xl w-fit'
+                        >
+                            {c.name}
+                            {/* Delete icon appears on hover */}
+                            <Trash2
+                                className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+                                onClick={() => handleDeleteCategory(c, 'category')}
+                            />
                         </div>
                     ))}
                 </div>
@@ -58,8 +91,16 @@ const page = () => {
                 <h2 className='text-lg'>Tags</h2>
                 <div className='flex gap-4 flex-wrap'>
                     {tags.map((c, index) => (
-                        <div key={index} className='px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-white/20 text-white shadow-lg border border-white/20 rounded-xl w-fit'>
-                            {c}
+                        <div
+                            key={c.id}
+                            className='relative group px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-white/20 text-white shadow-lg border border-white/20 rounded-xl w-fit'
+                        >
+                            {c.name}
+                            {/* Delete icon appears on hover */}
+                            <Trash2
+                                className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+                                onClick={() => handleDeleteCategory(c,'tags')}
+                            />
                         </div>
                     ))}
                 </div>

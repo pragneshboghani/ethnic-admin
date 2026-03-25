@@ -79,7 +79,7 @@ const MediaActions = {
     }
   },
 
-  UpdateALT: async (id: number, altText: string) => {
+  updateALT: async (id: number, altText: string) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/update-alt/${id}`, {
@@ -103,7 +103,7 @@ const MediaActions = {
     }
   },
 
-  DeleteMedia: async (id: number) => {
+  deleteMedia: async (id: number) => {
     try {
       const token = UserActions.getToken();
 

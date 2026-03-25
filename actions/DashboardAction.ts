@@ -4,7 +4,7 @@ import UserActions from "./UserAction";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const DashBoardActions = {
-  GetAllDashboardData: async () => {
+  getAllDashboardData: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -27,7 +27,7 @@ const DashBoardActions = {
     }
   },
 
-  GetRecentlyBlog: async (days: string) => {
+  getRecentlyBlog: async (days: string) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(
@@ -52,7 +52,7 @@ const DashBoardActions = {
     }
   },
 
-  GetActivePlatform: async () => {
+  getActivePlatform: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -73,6 +73,29 @@ const DashBoardActions = {
       return data;
     } catch (error: any) {
       console.error("Error fetching GetActivePlatform:", error.message);
+      throw error;
+    }
+  },
+
+  getAllData: async () => {
+    try {
+      const token = UserActions.getToken();
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/dashboard/allData`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch dashboard data");
+      }
+
+      const data = await res.json();
+      return data.data;
+    } catch (error: any) {
+      console.error("Error fetching GetAllDashboardData:", error.message);
       throw error;
     }
   },

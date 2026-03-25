@@ -1,7 +1,7 @@
 "use client";
 
 import BlogActions from "@/actions/BlogAction";
-import PlateformActions from "@/actions/PlateFormActions";
+import DashBoardActions from "@/actions/DashboardAction";
 import SEOActions from "@/actions/SEOAction";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import { formatDateTime } from "@/utils/formatDateTime";
@@ -31,27 +31,29 @@ const Blogs = () => {
   const [tags, setTags] = useState("");
 
   useEffect(() => {
-    const fetchPlatforms = async () => {
-      const res = await PlateformActions.GetAllPlateform();
-      setPlatformData(res);
-    };
-    const fetchCategory = async () => {
-      const category = await BlogActions.FetchCategory();
-      setCategoryData(category);
-    }
-    const fetchTag = async () => {
-      const tag = await BlogActions.FetchTags();
-      setTagData(tag);
-    }
-    fetchPlatforms();
-    fetchCategory()
-    fetchTag()
-  }, []);
+    const fetchAll = async () => {
+      try {
+        const res = await DashBoardActions.getAllData();
 
+        setBlogs(res.blogData || []);
+        setPlatformData({
+          data: res.plateformData,
+          totalPlatforms: res.plateformData?.length
+        });
+        setCategoryData({ data: res.categoryData });
+        setTagData({ data: res.tagsData });
+
+      } catch (err) {
+        console.error("Error fetching all data:", err);
+      }
+    };
+
+    fetchAll();
+  }, []);
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const res = await BlogActions.GetFilteredBlogs({
+      const res = await BlogActions.getFilteredBlogs({
         platform,
         status,
         search,
@@ -72,8 +74,8 @@ const Blogs = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await BlogActions.DeleteBlog(id);
-      await SEOActions.DeleteSEO(id)
+      await BlogActions.deleteBlog(id);
+      await SEOActions.deleteSEO(id)
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs()

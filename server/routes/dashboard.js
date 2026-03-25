@@ -37,4 +37,37 @@ dashboardRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
+dashboardRouter.get("/allData", authMiddleware, async (req, res) => {
+  try {
+
+    const [results] = await mysqlpool.query(`
+      SELECT * FROM blogs;
+      SELECT * FROM platforms;
+      SELECT * FROM category;
+      SELECT * FROM tags;
+      SELECT * FROM media;
+      SELECT * FROM seo_blog;
+    `);
+
+    const data = {
+      blogData: results[0],
+      plateformData: results[1],
+      categoryData: results[2],
+      tagsData: results[3],
+      mediaData: results[4],
+      seoData: results[5],
+    };
+
+    res.status(200).send({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error("Error fetching Data:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = dashboardRouter;

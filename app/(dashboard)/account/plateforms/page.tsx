@@ -15,7 +15,7 @@ const Plateforms = () => {
     const [openModal, setOpenModal] = useState(false);
 
     const fetchPlatforms = async () => {
-        const res = await PlateformActions.GetAllPlateform();
+        const res = await PlateformActions.getAllPlateform();
         setPlatformData(res);
     };
 
@@ -25,10 +25,10 @@ const Plateforms = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            await PlateformActions.DeletePlateForm(id);
+            await PlateformActions.deletePlateForm(id);
 
             toast.success("Platform successfully deleted! 🗑️");
-            const res = await PlateformActions.GetAllPlateform();
+            const res = await PlateformActions.getAllPlateform();
             setPlatformData(res);
 
         } catch (error) {

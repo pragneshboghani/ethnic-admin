@@ -20,7 +20,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
     useEffect(() => {
         const fetchPlatforms = async () => {
-            const res = await PlateformActions.GetAllPlateform();
+            const res = await PlateformActions.getAllPlateform();
             setPlatformData(res);
         };
         fetchPlatforms();
@@ -35,7 +35,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
         try {
             setLoading(true);
 
-            await BlogActions.CreateCategory({
+            await BlogActions.createCategory({
                 name: categoryName,
                 description,
                 status,
@@ -87,24 +87,29 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     <label className="text-sm text-white">Select Platforms</label>
 
                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {platformData?.data?.map((platform: any) => (
-                            <div key={platform.id} className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedPlatforms.includes(platform.id)}
-                                    onChange={() => {
-                                        setSelectedPlatforms((prev) =>
-                                            prev.includes(platform.id)
-                                                ? prev.filter((id) => id !== platform.id)
-                                                : [...prev, platform.id]
-                                        );
-                                    }}
-                                />
-                                <span className="text-white text-sm">
-                                    {platform.platform_name}
-                                </span>
-                            </div>
-                        ))}
+                        {platformData?.data?.map((platform: any) => {
+
+                            const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
+
+                            if (!ShowPlatform) return null;
+                            return (
+                                <div key={platform.id} className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedPlatforms.includes(platform.id)}
+                                        onChange={() => {
+                                            setSelectedPlatforms((prev) =>
+                                                prev.includes(platform.id)
+                                                    ? prev.filter((id) => id !== platform.id)
+                                                    : [...prev, platform.id]
+                                            );
+                                        }}
+                                    />
+                                    <span className="text-white text-sm">
+                                        {platform.platform_name}
+                                    </span>
+                                </div>)
+                        })}
                     </div>
                 </div>
                 <select

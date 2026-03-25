@@ -4,7 +4,7 @@ import UserActions from "./UserAction";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const BlogActions = {
-  GetAllBlogs: async () => {
+  getAllBlogs: async () => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/all`, {
@@ -23,7 +23,7 @@ const BlogActions = {
     }
   },
 
-  GetById: async (id: number) => {
+  getById: async (id: number) => {
     try {
       const token = UserActions.getToken();
 
@@ -42,7 +42,7 @@ const BlogActions = {
     }
   },
 
-  GetFilteredBlogs: async (filters: {
+  getFilteredBlogs: async (filters: {
     platform?: string | number;
     status?: string;
     search?: string;
@@ -89,7 +89,7 @@ const BlogActions = {
     }
   },
 
-  AddBlog: async (data: any) => {
+  addBlog: async (data: any) => {
     try {
       const token = UserActions.getToken();
 
@@ -114,7 +114,7 @@ const BlogActions = {
     }
   },
 
-  AddSEO: async (blogId: number, seoData: any[]) => {
+  addSEO: async (blogId: number, seoData: any[]) => {
     try {
       const token = UserActions.getToken();
 
@@ -139,7 +139,7 @@ const BlogActions = {
     }
   },
 
-  DeleteBlog: async (id: number) => {
+  deleteBlog: async (id: number) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/delete?id=${id}`, {
@@ -159,7 +159,7 @@ const BlogActions = {
     }
   },
 
-  UpdateBlog: async (id: number, data: any) => {
+  updateBlog: async (id: number, data: any) => {
     try {
       const token = UserActions.getToken();
 
@@ -184,7 +184,7 @@ const BlogActions = {
     }
   },
 
-  FetchCategory: async () => {
+  fetchCategory: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -204,7 +204,7 @@ const BlogActions = {
     }
   },
 
-  CreateCategory: async (data: {
+  createCategory: async (data: {
     name: string;
     description: string;
     status: string;
@@ -234,7 +234,7 @@ const BlogActions = {
     }
   },
 
-  FetchTags: async () => {
+  fetchTags: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -254,7 +254,7 @@ const BlogActions = {
     }
   },
 
-  CreateTag: async (data: {
+  createTag: async (data: {
     name: string;
     description: string;
     status: string;
@@ -280,6 +280,26 @@ const BlogActions = {
       return await res.json();
     } catch (error: any) {
       console.error("Error adding Tag:", error.message);
+      throw error;
+    }
+  },
+
+  deleteCategory: async (id: number, type: string) => {
+    try {
+      const token = UserActions.getToken();
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/delete?id=${id}&type=${type}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete blog");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error deleting blog:", error.message);
       throw error;
     }
   },

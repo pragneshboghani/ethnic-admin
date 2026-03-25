@@ -12,7 +12,7 @@ export const FetchDashBoardData = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await DashBoardActions.GetAllDashboardData();
+      const res = await DashBoardActions.getAllDashboardData();
       setData(res);
     };
 

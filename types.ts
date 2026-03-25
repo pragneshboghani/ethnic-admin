@@ -1,3 +1,10 @@
+import {
+  FieldArrayWithId,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFormSetValue,
+} from "react-hook-form";
+
 export interface Platform {
   id?: number;
   platform_name: string;
@@ -40,53 +47,27 @@ export type BlogPreviewModalProps = {
 };
 
 export type BlogGeneralSectionProps = {
-  title: string;
-  setTitle: React.Dispatch<React.SetStateAction<string>>;
-  excerpt: string;
-  setExcerpt: React.Dispatch<React.SetStateAction<string>>;
+  register: any;
   editor: any;
-  handleTagsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  tags: string[];
+  setValue: UseFormSetValue<any>;
   relatedBlogs: any[];
   allBlogs: { data: any[] };
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  readingTime: number;
-  setReadingTime: React.Dispatch<React.SetStateAction<number>>;
   tagsList: { id: number; name: string }[];
-  selectedTags: number[];
-  setSelectedTags: React.Dispatch<React.SetStateAction<number[]>>;
   setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleAddEditorImage: () => void;
+  selectedTags: number[];
 };
 
 export type PlatformSettingsProps = {
   platformData: any;
   selectedPlatforms: number[];
   setSelectedPlatforms: React.Dispatch<React.SetStateAction<number[]>>;
-  platformSettings: {
-    [platformId: number]: {
-      seoTitle: string;
-      slug: string;
-      publishStatus: string;
-      metaDescription: string;
-      canonicalUrl: string;
-      ctaButtonText: string;
-      ctaButtonLink: string;
-    };
-  };
-  setPlatformSettings: React.Dispatch<
-    React.SetStateAction<{
-      [platformId: number]: {
-        seoTitle: string;
-        slug: string;
-        publishStatus: string;
-        metaDescription: string;
-        canonicalUrl: string;
-        ctaButtonText: string;
-        ctaButtonLink: string;
-      };
-    }>
-  >;
+  fields: FieldArrayWithId<BlogFormUIType, "platforms", "id">[];
+  append: UseFieldArrayAppend<BlogFormUIType, "platforms">;
+  remove: UseFieldArrayRemove;
+  platformSettings: PlatformSettings;
+  setPlatformSettings: React.Dispatch<React.SetStateAction<PlatformSettings>>;
   handlePlatformChange: (
     platformId: number,
     field: string,
@@ -96,19 +77,79 @@ export type PlatformSettingsProps = {
   excerpt: string;
 };
 
+export type PlatformSettingFields = {
+  seoTitle: string;
+  slug: string;
+  publishStatus: "draft" | "future" | "publish";
+  metaDescription: string;
+  canonicalUrl: string;
+  ctaButtonText: string;
+  ctaButtonLink: string;
+};
+
+export type PlatformItem = {
+  platformId: number;
+  settings: PlatformSettingFields;
+};
+
 export type BlogFormType = {
+  BlogTitle: string;
+  BlogExcerpt: string;
+  BlogContent: string;
+  image: string;
+  BlogSelectedCategories: number[];
+  BlogPublishDate: string;
+  BlogGlobalStatus: "draft" | "publish" | "future";
+  BlogTags: number[] | undefined;
+  BlogRalated: number[] | undefined;
+  BlogReadingTime: number;
+  platforms: PlatformItem[];
+};
+
+export type BlogFormUIType = {
   title: string;
   excerpt: string;
-  formContent: string;
-  image: string;
-  category: any;
+  content: string;
   publishDate: string;
-  globalStatus: string;
-  tags: string[];
-  related_blogs: number[];
+  globalStatus: "draft" | "publish" | "future";
+  category: number[];
   reading_time: number;
-  platforms: {
-    platformId: number;
-    settings: any;
+  tags: number[];
+  relatedBlogs: number[];
+  platforms: PlatformItem[];
+};
+
+export type PlatformSetting = {
+  seoTitle: string;
+  slug: string;
+  publishStatus: "draft" | "publish" | "future";
+  metaDescription: string;
+  canonicalUrl: string;
+  ctaButtonText: string;
+  ctaButtonLink: string;
+};
+
+export type PlatformSettings = {
+  [platformId: number]: PlatformSetting;
+};
+
+export type BlogSidebarProps = {
+  category: number[];
+  setValue: any;
+  register: any;
+  categories: {
+    id: number;
+    name: string;
   }[];
+  image: string | null;
+  handleRemoveImage: () => void;
+  setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setMediaFor: React.Dispatch<React.SetStateAction<"feature" | "editor">>;
+};
+
+
+export type CategoryType = {
+  id: number;
+  name: string;
 };

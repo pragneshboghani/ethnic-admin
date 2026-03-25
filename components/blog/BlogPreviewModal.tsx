@@ -56,7 +56,7 @@ const BlogPreviewModal = ({
                             <div className="flex flex-wrap gap-2">
                                 {tags.map((tag, index) => (
                                     <span key={index} className="rounded-full text-sm">
-                                        {`${tag}`}
+                                        {tag}{index < tags.length - 1 ? ", " : ""}
                                     </span>
                                 ))}
                             </div>

@@ -1,30 +1,26 @@
 const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
 
-async function deletePost(platform, slug) {
+async function deleteCategory(platform, slug, type) {
   try {
     let url = "";
     if (platform.plateform_type == "wordpress") {
-      url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
+      url = `${platform.api_endpoint}/wp-json/wp/v2/${type}`;
     } else {
       url = `${platform.api_endpoint}/blog`;
     }
     const headers = getAuthHeaders(platform);
     const resg = await axios.get(url, {
-      params: { slug, status: "any" },
+      params: { slug },
       headers,
     });
 
     if (!resg.data.length) {
-      throw new Error("Post not found on platform with this slug");
+      throw new Error(`${type} not found on platform with this slug`);
     }
 
-    const postId = resg.data[0].id;
-
-    const res = await axios.delete(
-      `${url}/${postId}?force=true`,
-      { headers },
-    );
+    const catId = resg.data[0].id;
+    const res = await axios.delete(`${url}/${catId}?force=true`, { headers });
 
     return {
       success: true,
@@ -35,4 +31,4 @@ async function deletePost(platform, slug) {
   }
 }
 
-module.exports = deletePost;
+module.exports = deleteCategory;

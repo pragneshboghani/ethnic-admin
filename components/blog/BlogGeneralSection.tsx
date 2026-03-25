@@ -5,14 +5,13 @@ import dynamic from "next/dynamic";
 
 const EditorToolbar = dynamic(() => import("./EditorToolbar"), { ssr: false });
 
-const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, handleTagsChange, tags, relatedBlogs, allBlogs, setIsPopupOpen, readingTime, setReadingTime, tagsList, selectedTags, setSelectedTags, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
-    <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">
+const BlogGeneralSection = ({ register, editor, setValue, relatedBlogs, allBlogs,selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, handleAddEditorImage }: BlogGeneralSectionProps) => (
+    <div className="p-6 md:p-8 rounded-2xl space-y-6 glass-card">   
         <div className="space-y-2">
             <label className="text-sm font-semibold">Blog Title</label>
             <input
+                {...register("title")}
                 placeholder="Enter a catchy title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 rounded-xl focus:outline-none  focus:border-none transition-all text-lg text-black font-medium"
             />
         </div>
@@ -20,10 +19,9 @@ const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, hand
         <div className="space-y-2">
             <label className="text-sm font-semibold">Short Excerpt</label>
             <textarea
+                {...register("excerpt")}
                 placeholder="Brief summary for cards and search results..."
                 rows={3}
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 rounded-xl focus:outline-none focus:border-none transition-all text-sm text-black resize-none"
             />
         </div>
@@ -58,12 +56,16 @@ const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, hand
                             <input
                                 type="checkbox"
                                 checked={selectedTags.includes(tag.id)}
-                                onChange={() => {
-                                    if (selectedTags.includes(tag.id)) {
-                                        setSelectedTags(selectedTags.filter(id => id !== tag.id));
+                                onChange={(e) => {
+                                    let updatedTags;
+
+                                    if (e.target.checked) {
+                                        updatedTags = [...selectedTags, tag.id];
                                     } else {
-                                        setSelectedTags([...selectedTags, tag.id]);
+                                        updatedTags = selectedTags.filter(id => id !== tag.id);
                                     }
+
+                                    setValue("tags", updatedTags);
                                 }}
                                 className="w-4 h-4 accent-blue-600"
                             />
@@ -103,9 +105,8 @@ const BlogGeneralSection = ({ title, setTitle, excerpt, setExcerpt, editor, hand
                 <label className="text-sm font-semibold">Reading Time (minutes)</label>
                 <input
                     type="number"
+                    {...register("reading_time", { valueAsNumber: true })}
                     placeholder="Enter reading time in minutes"
-                    value={readingTime}
-                    onChange={(e) => setReadingTime(Number(e.target.value))}
                     className="w-full px-4 py-3 bg-slate-50 rounded-xl focus:outline-none transition-all text-sm text-black"
                 />
             </div>

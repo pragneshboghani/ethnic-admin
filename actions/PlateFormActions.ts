@@ -5,7 +5,7 @@ import UserActions from "./UserAction";
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const PlateformActions = {
-  GetAllPlateform: async () => {
+  getAllPlateform: async () => {
     try {
       const token = UserActions.getToken();
 
@@ -25,7 +25,7 @@ const PlateformActions = {
     }
   },
 
-  AddPlateformData: async (data: Platform) => {
+  addPlateformData: async (data: Platform) => {
     try {
       const token = UserActions.getToken();
 
@@ -50,7 +50,7 @@ const PlateformActions = {
     }
   },
 
-  DeletePlateForm: async (id: number) => {
+  deletePlateForm: async (id: number) => {
     try {
       const token = UserActions.getToken();
 
@@ -74,7 +74,7 @@ const PlateformActions = {
     }
   },
 
-  UpdatePlateForm: async (id: number, data: Platform) => {
+  updatePlateForm: async (id: number, data: Platform) => {
     try {
       const token = UserActions.getToken();
       const res = await fetch(

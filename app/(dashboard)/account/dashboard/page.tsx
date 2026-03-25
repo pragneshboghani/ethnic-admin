@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchRecentBlogs = async () => {
-      const res = await DashBoardActions.GetRecentlyBlog(days);
+      const res = await DashBoardActions.getRecentlyBlog(days);
       setRecentBlogs(res.data);
     };
 
@@ -30,7 +30,7 @@ const Dashboard = () => {
   }, [days]);
 
   const fetchActivePlatform = async () => {
-    const res = await DashBoardActions.GetActivePlatform()
+    const res = await DashBoardActions.getActivePlatform()
     setactivePlateform(res.data)
   }
 
