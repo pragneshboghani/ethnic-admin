@@ -7,7 +7,7 @@ const getPlatformsByIds = async (platformIds = []) => {
     }
 
     const [data] = await mysqlpool.query(
-      `SELECT * FROM platforms WHERE id IN (?)`,
+      `SELECT * FROM platforms WHERE id IN (?) AND data_source = 'platform'`,
       [platformIds],
     );
 

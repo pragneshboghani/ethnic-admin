@@ -6,6 +6,7 @@ const generateSlug = require("../utils/generateSlug");
 const deletePost = require("../utils/deletePost");
 const verifyApiKey = require("../middleware/verifyApiKey");
 const { getPlatformsByIds } = require("../utils/platformHelper");
+const generateUniqueBlogSlug = require("../utils/generateUniqueBlogSlug");
 require("dotenv").config();
 
 const blogRouter = express.Router();
@@ -23,7 +24,7 @@ const safeParse = (value) => {
   }
 };
 
-const BASE_URL = "https://api-admin.ethnicinfotech.in/";
+const BASE_URL = process.env.BACKEND_API;
 
 blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
@@ -100,6 +101,14 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       platformData.map((platform) => postToPlatform(platform, req.body, null)),
     );
 
+    let slug = null;
+
+    if (results.length > 0 && results[0]?.data?.slug) {
+      slug = results[0].data.slug;
+    } else {
+      slug = await generateUniqueBlogSlug(blog_title);
+    }
+
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
       (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms, slug)
@@ -117,7 +126,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
         JSON.stringify(related),
         status,
         JSON.stringify(platforms),
-        results[0].data.slug,
+        slug,
       ],
     );
 
@@ -174,16 +183,6 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       ),
     );
 
-    // const failed = results.filter((r) => !r.success);
-
-    // if (failed.length > 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Platform update failed",
-    //     errors: failed,
-    //   });
-    // }
-
     const UpdatedData = {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
@@ -200,7 +199,14 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       status: status ?? raw.status,
       platforms: JSON.stringify(platforms ?? raw.platforms),
     };
-    const slug = await generateSlug(UpdatedData.blog_title);
+
+    let slug = null;
+
+    if (results.length > 0 && results[0]?.data?.slug) {
+      slug = results[0].data.slug;
+    } else {
+      slug = await generateUniqueBlogSlug(UpdatedData.blog_title, id);
+    }
 
     await mysqlpool.query(
       `UPDATE blogs
@@ -221,7 +227,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.related,
         UpdatedData.status,
         UpdatedData.platforms,
-        results[0].data.slug,
+        slug,
         id,
       ],
     );
@@ -260,16 +266,6 @@ blogRouter.delete("/delete", authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => deletePost(platform, raw.slug)),
     );
-
-    // const failed = results.filter((r) => !r.success);
-
-    // if (failed.length > 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Platform delete failed",
-    //     errors: failed,
-    //   });
-    // }
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [
       id,
