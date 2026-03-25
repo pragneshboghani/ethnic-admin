@@ -336,16 +336,13 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
     }
 
     if (category) {
-      query += ` AND category LIKE ?`;
-      params.push(`%${category}%`);
+      query += ` AND JSON_CONTAINS(category, CAST(? AS JSON))`;
+      params.push(category);
     }
 
     if (tags) {
-      const tagArray = tags.split(",").map((t) => t.trim());
-      tagArray.forEach((tag) => {
-        query += ` AND JSON_SEARCH(tags, 'one', CONCAT('%', ?, '%')) IS NOT NULL`;
-        params.push(tag);
-      });
+      query += ` AND JSON_CONTAINS(tags, JSON_ARRAY(?))`;
+      params.push(Number(tags));
     }
 
     if (platform && platform !== "0") {
@@ -419,7 +416,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
         message: "No data - page exceeds total pages",
       });
     }
-    
+
     const [blogs] = await mysqlpool.query(
       `
       SELECT 

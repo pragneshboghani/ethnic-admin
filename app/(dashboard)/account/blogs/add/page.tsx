@@ -17,7 +17,6 @@ import TagModal from "@/components/common/TagModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
-import useBlogEditor from "@/utils/blogEditor";
 import { BlogFormType, CategoryType, PlatformSettings } from "@/types";
 import DashBoardActions from "@/actions/DashboardAction";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -45,7 +44,6 @@ const BlogForm = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
     const [platformSettings, setPlatformSettings] = useState<PlatformSettings>({});
-    const [formContent, setFormContent] = useState<string>("");
     const [mediaFor, setMediaFor] = useState<"feature" | "editor">("feature");
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -120,13 +118,6 @@ const BlogForm = () => {
     useEffect(() => {
         fetchAll();
     }, []);
-
-    const editor = useBlogEditor({
-        content: formContent, setContent: (value) => {
-            setFormContent(value);
-            setValue("content", value);
-        }, platformData: allData.platformData, allBlogs: { data: allData.allBlogs }, tagsList: allData.tagsList, categories: allData.categories
-    });
 
     const ConvertBase64 = async (): Promise<BlogFormType | undefined> => {
         let uploadedImageUrl = image || "";
@@ -274,11 +265,6 @@ const BlogForm = () => {
         setSelectedFile(null);
     };
 
-    const handleAddEditorImage = () => {
-        setMediaFor('editor');
-        setIsUploadModalOpen(true);
-    };
-
     useEffect(() => {
         if (!selectedPlatforms.length) return;
 
@@ -340,10 +326,7 @@ const BlogForm = () => {
                         settings: {}
                     })) || []
                 });
-                setFormContent(blog.full_content);
-                if (editor && blog.full_content) {
-                    editor.commands.setContent(blog.full_content);
-                }
+                setValue("content", blog.full_content);
 
                 if (blog.featured_image) {
                     setImage(blog.featured_image);
@@ -405,15 +388,14 @@ const BlogForm = () => {
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
                             register={register}
-                            editor={editor}
                             setValue={setValue}
                             relatedBlogs={relatedBlogs}
                             allBlogs={{ data: allData.allBlogs }}
                             setIsPopupOpen={setIsPopupOpen}
                             selectedTags={selectedTags}
+                            content={content} 
                             tagsList={allData.tagsList}
                             setIsTagModalOpen={setIsTagModalOpen}
-                            handleAddEditorImage={handleAddEditorImage}
                         />
                     ) : (
                         <PlatformSettingsSection
@@ -489,7 +471,7 @@ const BlogForm = () => {
                     readingTime={readingTime}
                     title={title}
                     excerpt={excerpt}
-                    formContent={formContent}
+                    formContent={content}
                     tags={selectedTags.map(tagId => {
                         const tagObj = allData.tagsList.find(t => t.id === tagId);
                         return tagObj ? tagObj.name : '';
@@ -526,16 +508,8 @@ const BlogForm = () => {
                     platformData={allData.platformData}
                     onUploadComplete={fetchAll}
                     onSelectImage={(url) => {
-                        if (mediaFor === 'feature') {
-                            // 🖼️ Feature Image
                             setImage(url);
                             setSelectedFile(null);
-                        } else {
-                            // ✍️ Editor Image
-                            editor?.chain().focus().setImage({
-                                src: `${process.env.BACKEND_DOMAIN}/${url}`
-                            }).run();
-                        }
                     }}
                 />
             )}

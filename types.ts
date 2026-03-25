@@ -49,14 +49,13 @@ export type BlogPreviewModalProps = {
 
 export type BlogGeneralSectionProps = {
   register: any;
-  editor: any;
   setValue: UseFormSetValue<any>;
+  content: string;
   relatedBlogs: any[];
   allBlogs: { data: any[] };
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
   tagsList: { id: number; name: string }[];
   setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAddEditorImage: () => void;
   selectedTags: number[];
 };
 

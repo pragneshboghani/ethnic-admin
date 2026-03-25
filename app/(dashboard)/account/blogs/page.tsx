@@ -138,7 +138,7 @@ const Blogs = () => {
   return (
     <>
       <div className="glass-card p-4">
-        <div className="flex flex-wrap items-center justify-between">
+        <div className="flex flex-wrap items-center gap-5">
 
           <input
             type="text"
@@ -155,26 +155,35 @@ const Blogs = () => {
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
           /> */}
-
-          <input
-            type="text"
-            placeholder="Category"
-            className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
+          <select
+            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-          />
+          >
+            <option value="">All Categories</option>
+            {categoryData?.data?.map((cat: any) => (
+              <option key={cat.id} value={cat.id} className="text-black">
+                {cat.name}
+              </option>
+            ))}
+          </select>
 
-          <input
-            type="text"
-            placeholder="Tags (comma separated)"
-            className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
+          <select
+            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-          />
+          >
+            <option value="">All Tags</option>
+            {tagData?.data?.map((tag: any) => (
+              <option key={tag.id} value={tag.id} className="text-black">
+                {tag.name}
+              </option>
+            ))}
+          </select>
 
           {platformData?.totalPlatforms > 0 && (
             <select
-              className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+              className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
             >
@@ -188,7 +197,7 @@ const Blogs = () => {
           )}
 
           <select
-            className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
