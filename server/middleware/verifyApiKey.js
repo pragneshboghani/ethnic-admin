@@ -7,7 +7,7 @@ const verifyApiKey = (req, res, next) => {
     return res.status(401).json({
       success: false,
       apiKey,
-      API_KEY: process.env.API_KEY,
+      API_KEY: `${process.env.API_KEY}`,
       message: "Unauthorized - Invalid API Key",
     });
   }
