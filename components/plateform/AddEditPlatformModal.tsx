@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Platform } from "@/types";
 import PlateformActions from "@/actions/PlateFormActions";
 import { toast } from "react-toastify";
@@ -37,14 +37,18 @@ const AddEditPlatformModal = ({
             username: "",
             password: "",
             status: "Active",
+            data_source: "platform",
         },
     });
 
     const authType = watch("auth_type");
+    const dataSource = watch("data_source");
 
     useEffect(() => {
         if (editingPlatform) {
-            reset(editingPlatform);
+            reset({
+                ...editingPlatform
+            });
         } else {
             reset({
                 platform_name: "",
@@ -56,6 +60,7 @@ const AddEditPlatformModal = ({
                 username: "",
                 password: "",
                 status: "Active",
+                data_source: "platform",
             });
         }
     }, [editingPlatform, reset]);
@@ -110,53 +115,79 @@ const AddEditPlatformModal = ({
                             className="w-full p-2 rounded bg-white border text-black"
                         />
 
-                        <input
-                            type="text"
-                            {...register("api_endpoint")}
-                            placeholder="API Endpoint"
-                            className="w-full p-2 rounded bg-white border text-black"
-                        />
+                        <div className="space-y-2">
+                            <label className="text-white font-medium">Data Source</label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-1 text-white">
+                                    <input
+                                        type="radio"
+                                        value="platform"
+                                        {...register("data_source")}
+                                    />
+                                    Platform
+                                </label>
+                                <label className="flex items-center gap-1 text-white">
+                                    <input
+                                        type="radio"
+                                        value="admin"
+                                        {...register("data_source")}
+                                    />
+                                    Admin
+                                </label>
+                            </div>
+                        </div>
 
-                        <select
-                            {...register("plateform_type")}
-                            className="w-full p-2 rounded bg-white border text-black"
-                        >
-                            <option value="custom">Custom</option>
-                            <option value="wordpress">Wordpress</option>
-                        </select>
-                        <select
-                            {...register("auth_type")}
-                            className="w-full p-2 rounded bg-white border text-black"
-                        >
-                            <option value="none">No Auth</option>
-                            <option value="token">Token Based</option>
-                            <option value="basic">Basic Auth (Username & Password)</option>
-                        </select>
-
-                        {authType === "token" && (
-                            <input
-                                type="text"
-                                placeholder="Enter Token"
-                                {...register("auth_token")}
-                                className="w-full p-2 rounded bg-white text-black"
-                            />
-                        )}
-                        {authType === "basic" && (
-                            <div className="space-y-3">
+                        {dataSource === "platform" && (
+                            <>
                                 <input
                                     type="text"
-                                    placeholder="Username"
-                                    {...register("username")}
-                                    className="w-full p-2 rounded bg-white text-black"
+                                    {...register("api_endpoint")}
+                                    placeholder="API Endpoint"
+                                    className="w-full p-2 rounded bg-white border text-black"
                                 />
 
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    {...register("password")}
-                                    className="w-full p-2 rounded bg-white text-black"
-                                />
-                            </div>
+                                <select
+                                    {...register("plateform_type")}
+                                    className="w-full p-2 rounded bg-white border text-black"
+                                >
+                                    <option value="custom">Custom</option>
+                                    <option value="wordpress">Wordpress</option>
+                                </select>
+                                <select
+                                    {...register("auth_type")}
+                                    className="w-full p-2 rounded bg-white border text-black"
+                                >
+                                    <option value="none">No Auth</option>
+                                    <option value="token">Token Based</option>
+                                    <option value="basic">Basic Auth (Username & Password)</option>
+                                </select>
+
+                                {authType === "token" && (
+                                    <input
+                                        type="text"
+                                        placeholder="Enter Token"
+                                        {...register("auth_token")}
+                                        className="w-full p-2 rounded bg-white text-black"
+                                    />
+                                )}
+                                {authType === "basic" && (
+                                    <div className="space-y-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Username"
+                                            {...register("username")}
+                                            className="w-full p-2 rounded bg-white text-black"
+                                        />
+
+                                        <input
+                                            type="password"
+                                            placeholder="Password"
+                                            {...register("password")}
+                                            className="w-full p-2 rounded bg-white text-black"
+                                        />
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         <select

@@ -72,27 +72,50 @@ platformRouter.get("/active", authMiddleware, async (req, res) => {
 
 platformRouter.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { platform_name, website_url, api_endpoint, plateform_type, auth_type, auth_token, username, password, status } = req.body;
+    let {
+      platform_name,
+      website_url,
+      api_endpoint,
+      plateform_type,
+      auth_type,
+      auth_token,
+      data_source,
+      username,
+      password,
+      status,
+    } = req.body;
 
-    if (!platform_name || !website_url || !auth_type) {
+    if (data_source === "admin") {
+      plateform_type = null;
+      api_endpoint = null;
+      auth_type = "none";
+      auth_token = null;
+      username = null;
+      password = null;
+    }
+
+    if (!platform_name || !website_url || !auth_type || !data_source) {
       return res.status(400).json({
         success: false,
-        message: "platform_name, website_url, auth_type are required",
+        message:
+          "Platform Name, Website URL, Auth Type, Data Source are required",
       });
     }
 
-    if (auth_type === "token" && !auth_token) {
-      return res.status(400).json({
-        success: false,
-        message: "Auth token is required for token type",
-      });
-    }
+    if (data_source !== "admin") {
+      if (auth_type === "token" && !auth_token) {
+        return res.status(400).json({
+          success: false,
+          message: "Auth token is required for token type",
+        });
+      }
 
-    if (auth_type === "basic" && (!username || !password)) {
-      return res.status(400).json({
-        success: false,
-        message: "Username and Password are required for basic auth",
-      });
+      if (auth_type === "basic" && (!username || !password)) {
+        return res.status(400).json({
+          success: false,
+          message: "Username and Password are required for basic auth",
+        });
+      }
     }
 
     let finalAuthToken = null;
@@ -110,11 +133,12 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO platforms 
-      (platform_name, website_url, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (platform_name, website_url, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         platform_name,
         website_url,
+        data_source,
         plateform_type,
         api_endpoint,
         auth_type,
@@ -143,9 +167,10 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
-    const {
+    let {
       platform_name,
       website_url,
+      data_source,
       plateform_type,
       api_endpoint,
       auth_type,
@@ -154,6 +179,15 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       password,
       status,
     } = req.body;
+
+    if (data_source === "admin") {
+      plateform_type = null;
+      api_endpoint = null;
+      auth_type = "none";
+      auth_token = null;
+      username = null;
+      password = null;
+    }
 
     const [[raw]] = await mysqlpool.query(
       `SELECT * FROM platforms WHERE id = ?`,
@@ -167,21 +201,24 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
-    if (auth_type === "token" && !auth_token) {
-      return res.status(400).json({
-        success: false,
-        message: "Auth token is required for token type",
-      });
+    if (data_source !== "admin") {
+      if (auth_type === "token" && !auth_token) {
+        return res.status(400).json({
+          success: false,
+          message: "Auth token is required for token type",
+        });
+      }
+
+      if (auth_type === "basic" && (!username || !password)) {
+        return res.status(400).json({
+          success: false,
+          message: "Username and Password are required for basic auth",
+        });
+      }
     }
 
-    if (auth_type === "basic" && (!username || !password)) {
-      return res.status(400).json({
-        success: false,
-        message: "Username and Password are required for basic auth",
-      });
-    }
-
-    let finalAuthType = auth_type && auth_type !== "" ? auth_type : raw.auth_type;
+    let finalAuthType =
+      auth_type && auth_type !== "" ? auth_type : raw.auth_type;
 
     let finalAuthToken = null;
     let finalUsername = null;
@@ -196,27 +233,46 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       finalPassword = password ?? raw.password;
     }
 
-    const UpdatedData = {
-      platform_name: platform_name ?? raw.platform_name,
-      website_url: website_url ?? raw.website_url,
-      plateform_type: plateform_type ?? raw.plateform_type,
-      api_endpoint: api_endpoint ?? raw.api_endpoint,
-      auth_type: finalAuthType,
-      auth_token: finalAuthToken,
-      username: finalUsername,
-      password: finalPassword,
-      status: status ?? raw.status,
-    };
+    let UpdatedData;
+
+    if (data_source === "admin") {
+      UpdatedData = {
+        platform_name: platform_name ?? raw.platform_name,
+        website_url: website_url ?? raw.website_url,
+        data_source: "admin",
+        plateform_type: null,
+        api_endpoint: null,
+        auth_type: "none",
+        auth_token: null,
+        username: null,
+        password: null,
+        status: status ?? raw.status,
+      };
+    } else {
+      UpdatedData = {
+        platform_name: platform_name ?? raw.platform_name,
+        website_url: website_url ?? raw.website_url,
+        data_source: data_source ?? raw.data_source,
+        plateform_type: plateform_type ?? raw.plateform_type,
+        api_endpoint: api_endpoint ?? raw.api_endpoint,
+        auth_type: finalAuthType,
+        auth_token: finalAuthToken,
+        username: finalUsername,
+        password: finalPassword,
+        status: status ?? raw.status,
+      };
+    }
 
     await mysqlpool.query(
       `UPDATE platforms 
-       SET platform_name = ?, website_url = ?, plateform_type= ?, api_endpoint = ?, 
+       SET platform_name = ?, website_url = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
            auth_type = ?, auth_token = ?, username = ?, password = ?, 
            status = ?
        WHERE id = ?`,
       [
         UpdatedData.platform_name,
         UpdatedData.website_url,
+        UpdatedData.data_source,
         UpdatedData.plateform_type,
         UpdatedData.api_endpoint,
         UpdatedData.auth_type,

@@ -18,6 +18,7 @@ export interface Platform {
   status: "Active" | "Inactive";
   created_at?: string;
   updated_at?: string;
+  data_source: string
 }
 
 export interface Media {
