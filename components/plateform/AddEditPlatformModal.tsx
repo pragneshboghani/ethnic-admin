@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { Platform } from "@/types";
 import PlateformActions from "@/actions/PlateFormActions";
 import { toast } from "react-toastify";
@@ -19,23 +20,33 @@ const AddEditPlatformModal = ({
     refreshPlatforms,
 }: Props) => {
 
-    const [formData, setFormData] = useState<Platform>({
-        platform_name: "",
-        website_url: "",
-        api_endpoint: "",
-        plateform_type: "custom",
-        auth_type: "none",
-        auth_token: "",
-        username: "",
-        password: "",
-        status: "Active",
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        control
+    } = useForm<Platform>({
+        defaultValues: {
+            platform_name: "",
+            website_url: "",
+            api_endpoint: "",
+            plateform_type: "custom",
+            auth_type: "none",
+            auth_token: "",
+            username: "",
+            password: "",
+            status: "Active",
+        },
     });
+
+    const authType = watch("auth_type");
 
     useEffect(() => {
         if (editingPlatform) {
-            setFormData(editingPlatform);
+            reset(editingPlatform);
         } else {
-            setFormData({
+            reset({
                 platform_name: "",
                 website_url: "",
                 api_endpoint: "",
@@ -47,49 +58,23 @@ const AddEditPlatformModal = ({
                 status: "Active",
             });
         }
-    }, [editingPlatform]);
+    }, [editingPlatform, reset]);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const onSubmit = async (data: Platform) => {
         try {
             if (editingPlatform?.id) {
-                await PlateformActions.updatePlateForm(editingPlatform.id, formData);
-                toast.success(`Platform updated successfully 🎉`);
+                await PlateformActions.updatePlateForm(editingPlatform.id, data);
+                toast.success("Platform updated successfully 🎉");
             } else {
-                await PlateformActions.addPlateformData(formData);
-                toast.success(`Platform added successfully 🚀`);
+                await PlateformActions.addPlateformData(data);
+                toast.success("Platform added successfully 🚀");
             }
 
             refreshPlatforms();
             onClose();
-
         } catch (error) {
             toast.error("Failed to save platform 😢");
         }
-    };
-
-    const handleAuthChange = (e: any) => {
-        const value = e.target.value;
-
-        setFormData((prev) => ({
-            ...prev,
-            auth_type: value,
-            auth_token: "",
-            username: "",
-            password: "",
-        }));
     };
 
     if (!open) return null;
@@ -109,48 +94,38 @@ const AddEditPlatformModal = ({
                         </button>
                     </div>
 
-                    <form className="space-y-4" onSubmit={handleSubmit}>
+                    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
 
                         <input
                             type="text"
-                            name="platform_name"
-                            value={formData.platform_name}
-                            onChange={handleChange}
+                            {...register("platform_name", { required: true })}
                             placeholder="Platform Name"
                             className="w-full p-2 rounded bg-white border text-black"
                         />
 
                         <input
                             type="text"
-                            name="website_url"
-                            value={formData.website_url}
-                            onChange={handleChange}
+                            {...register("website_url")}
                             placeholder="Website URL"
                             className="w-full p-2 rounded bg-white border text-black"
                         />
 
                         <input
                             type="text"
-                            name="api_endpoint"
-                            value={formData.api_endpoint}
-                            onChange={handleChange}
+                            {...register("api_endpoint")}
                             placeholder="API Endpoint"
                             className="w-full p-2 rounded bg-white border text-black"
                         />
 
                         <select
-                            name="plateform_type"
-                            value={formData.plateform_type}
-                            onChange={handleChange}
+                            {...register("plateform_type")}
                             className="w-full p-2 rounded bg-white border text-black"
                         >
                             <option value="custom">Custom</option>
                             <option value="wordpress">Wordpress</option>
                         </select>
                         <select
-                            name="auth_type"
-                            value={formData.auth_type}
-                            onChange={handleAuthChange}
+                            {...register("auth_type")}
                             className="w-full p-2 rounded bg-white border text-black"
                         >
                             <option value="none">No Auth</option>
@@ -158,54 +133,34 @@ const AddEditPlatformModal = ({
                             <option value="basic">Basic Auth (Username & Password)</option>
                         </select>
 
-                        {formData.auth_type === "token" && (
+                        {authType === "token" && (
                             <input
                                 type="text"
                                 placeholder="Enter Token"
-                                value={formData.auth_token}
-                                onChange={(e) =>
-                                    setFormData((prev: any) => ({
-                                        ...prev,
-                                        auth_token: e.target.value,
-                                    }))
-                                }
+                                {...register("auth_token")}
                                 className="w-full p-2 rounded bg-white text-black"
                             />
                         )}
-                        {formData.auth_type === "basic" && (
+                        {authType === "basic" && (
                             <div className="space-y-3">
                                 <input
                                     type="text"
                                     placeholder="Username"
-                                    value={formData.username}
-                                    onChange={(e) =>
-                                        setFormData((prev: any) => ({
-                                            ...prev,
-                                            username: e.target.value,
-                                        }))
-                                    }
+                                    {...register("username")}
                                     className="w-full p-2 rounded bg-white text-black"
                                 />
 
                                 <input
                                     type="password"
                                     placeholder="Password"
-                                    value={formData.password}
-                                    onChange={(e) =>
-                                        setFormData((prev: any) => ({
-                                            ...prev,
-                                            password: e.target.value,
-                                        }))
-                                    }
+                                    {...register("password")}
                                     className="w-full p-2 rounded bg-white text-black"
                                 />
                             </div>
                         )}
 
                         <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
+                            {...register("status")}
                             className="w-full p-2 rounded bg-white border text-black"
                         >
                             <option value="Active">Active</option>

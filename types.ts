@@ -38,7 +38,7 @@ export type BlogPreviewModalProps = {
   title: string;
   excerpt: string;
   formContent: string;
-  tags: number[];
+  tags: string[];
   relatedBlogs: number[];
   allBlogs: { data: any[] };
   selectedPlatforms: number[];

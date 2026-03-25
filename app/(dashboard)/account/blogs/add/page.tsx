@@ -279,55 +279,6 @@ const BlogForm = () => {
         setIsUploadModalOpen(true);
     };
 
-    // useEffect(() => {
-    //     if (!title) return;
-
-    //     const slug = generateSlug(title);
-
-    //     setPlatformSettings(prev => {
-    //         const updated = { ...prev };
-
-    //         selectedPlatforms.forEach(platformId => {
-    //             const platform = allData.platformData?.data.find(
-    //                 (p: any) => p.id === platformId
-    //             );
-
-    //             if (!platform) return;
-
-    //             const date = publishDate ? new Date(publishDate) : new Date();
-    //             const year = date.getFullYear();
-    //             const month = String(date.getMonth() + 1).padStart(2, "0");
-    //             const day = String(date.getDate()).padStart(2, "0");
-
-    //             const isWordpress = platform.plateform_type == "wordpress";
-
-    //             const canonicalUrl = isWordpress
-    //                 ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-    //                 : `${platform.api_endpoint}/blog/${slug}`;
-
-    //             updated[platformId] = {
-    //                 seoTitle: prev[platformId]?.seoTitle || title,
-    //                 slug: prev[platformId]?.slug || slug,
-    //                 publishStatus: prev[platformId]?.publishStatus || globalStatus,
-    //                 metaDescription: prev[platformId]?.metaDescription || excerpt,
-    //                 canonicalUrl:
-    //                     !prev[platformId]?.canonicalUrl ||
-    //                         prev[platformId]?.canonicalUrl.includes("/blog/")
-    //                         ? canonicalUrl
-    //                         : prev[platformId]?.canonicalUrl,
-    //                 ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
-    //                 ctaButtonLink: !prev[platformId]?.canonicalUrl ||
-    //                     prev[platformId]?.canonicalUrl.includes("/blog/")
-    //                     ? canonicalUrl
-    //                     : prev[platformId]?.canonicalUrl,
-    //             };
-    //         });
-
-    //         return updated;
-    //     });
-    // }, [title, excerpt, selectedPlatforms, allData.platformData]);
-
-
     useEffect(() => {
         if (!selectedPlatforms.length) return;
 
@@ -539,7 +490,10 @@ const BlogForm = () => {
                     title={title}
                     excerpt={excerpt}
                     formContent={formContent}
-                    tags={selectedTags}
+                    tags={selectedTags.map(tagId => {
+                        const tagObj = allData.tagsList.find(t => t.id === tagId);
+                        return tagObj ? tagObj.name : '';
+                    }).filter(name => name !== '') }
                     relatedBlogs={relatedBlogs}
                     allBlogs={{ data: allData.allBlogs }}
                     selectedPlatforms={selectedPlatforms}
