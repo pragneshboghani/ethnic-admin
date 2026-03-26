@@ -22,6 +22,7 @@ import DashBoardActions from "@/actions/DashboardAction";
 import { useFieldArray, useForm } from "react-hook-form";
 import blogSchema from "@/hooks/blogSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
 
 type AllDataType = {
     allBlogs: any[];
@@ -66,6 +67,7 @@ const BlogForm = () => {
             content: "",
             publishDate: "",
             globalStatus: "draft",
+            author: "",
             category: [],
             reading_time: 0,
             tags: [],
@@ -91,6 +93,7 @@ const BlogForm = () => {
     const globalStatus = watch('globalStatus')
     const publishDate = watch('publishDate')
     const selectedCategories = watch("category") || [];
+    const author = watch('author')
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -140,15 +143,22 @@ const BlogForm = () => {
             });
         }
 
+        let finalPublishDate = publishDate;
+
+        if (!finalPublishDate || finalPublishDate.trim() === "") {
+            finalPublishDate = getDefaultPublishDate(globalStatus);
+        }
+
         const formData: BlogFormType = {
             BlogTitle: title,
             BlogExcerpt: excerpt,
             BlogContent: content,
             BlogTags: tagsValue,
             BlogRalated: related,
+            BlogAuthor: author,
             BlogReadingTime: readingTime,
             BlogGlobalStatus: globalStatus,
-            BlogPublishDate: publishDate,
+            BlogPublishDate: finalPublishDate,
             BlogSelectedCategories: selectedCategories,
             image: uploadedImageUrl,
             platforms: selectedPlatforms.map(platformId => ({
@@ -157,22 +167,7 @@ const BlogForm = () => {
             })),
         };
 
-        const now = new Date().getTime();
-        const selectedDate = new Date(publishDate).getTime();
-
         if (selectedPlatforms.length === 0) { toast.error("Please select at least one platform 😢"); return; }
-
-        if (!publishDate || publishDate.trim() === "") { toast.error("Publish date is required 😢"); return; }
-
-        if (formData.BlogGlobalStatus === "publish" && selectedDate > now) {
-            toast.error("For publish status, date must be current or past 😢");
-            return;
-        }
-
-        if (formData.BlogGlobalStatus === "future" && selectedDate <= now) {
-            toast.error("For future status, please select a future date 😢");
-            return;
-        }
 
         return formData
     }
@@ -190,6 +185,7 @@ const BlogForm = () => {
                 full_content: formData.BlogContent,
                 featured_image: formData.image,
                 category: formData.BlogSelectedCategories,
+                author: formData.BlogAuthor,
                 tags: formData.BlogTags,
                 publish_date: formData.BlogPublishDate,
                 reading_time: formData.BlogReadingTime,
@@ -214,7 +210,7 @@ const BlogForm = () => {
                 const AddedBlogs = await BlogActions.addBlog(BlogFormData);
                 newBlogId = AddedBlogs.blogId;
 
-                await BlogActions.addSEO(newBlogId, seoFormDataArray);
+                await SEOActions.addSEO(newBlogId, seoFormDataArray);
 
                 toast.success(isDraft ? "Draft Successfully Saved!" : "Blog Successfully Added!");
             } else {
@@ -279,7 +275,7 @@ const BlogForm = () => {
 
                 const date = publishDate ? new Date(publishDate) : new Date();
                 const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0"); 
+                const month = String(date.getMonth() + 1).padStart(2, "0");
                 const day = String(date.getDate()).padStart(2, "0");
 
                 const isWordpress = platform.plateform_type === "wordpress";
@@ -288,9 +284,14 @@ const BlogForm = () => {
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
                     : `${platform.website_url}blog/${slug}`;
 
+                const oldSlug = prev[platformId]?.slug;
+
+                const shouldUpdateSlug =
+                    !oldSlug || oldSlug === generateSlug(prev[platformId]?.seoTitle || "");
+
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
-                    slug: prev[platformId]?.slug || slug,
+                    slug: shouldUpdateSlug ? slug : oldSlug,
                     publishStatus: prev[platformId]?.publishStatus || globalStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
                     canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
@@ -301,7 +302,7 @@ const BlogForm = () => {
 
             return updated;
         });
-    }, [selectedPlatforms, title, excerpt, publishDate, allData.platformData, globalStatus]);
+    }, [selectedPlatforms, title, excerpt, publishDate, blogId, allData.platformData, globalStatus]);
 
     useEffect(() => {
         if (!blogId) return;
@@ -316,6 +317,7 @@ const BlogForm = () => {
                     excerpt: blog.short_excerpt || "",
                     content: blog.full_content || "",
                     publishDate: normalizeDateForInput(blog.publish_date),
+                    author: blog.author,
                     globalStatus: blog.status || "draft",
                     category: blog.category || [],
                     reading_time: blog.reading_time || 0,
@@ -368,6 +370,13 @@ const BlogForm = () => {
         fetchBlogForEdit();
     }, [blogId]);
 
+    useEffect(() => {
+        if (!publishDate || publishDate.trim() === "") {
+            const defaultDate = getDefaultPublishDate(globalStatus);
+            setValue("publishDate", defaultDate);
+        }
+    }, [globalStatus]);
+
     return (
         <form
             className="space-y-8"
@@ -391,9 +400,10 @@ const BlogForm = () => {
                             setValue={setValue}
                             relatedBlogs={relatedBlogs}
                             allBlogs={{ data: allData.allBlogs }}
+                            platformData={allData.platformData}
                             setIsPopupOpen={setIsPopupOpen}
                             selectedTags={selectedTags}
-                            content={content} 
+                            content={content}
                             tagsList={allData.tagsList}
                             setIsTagModalOpen={setIsTagModalOpen}
                         />
@@ -424,6 +434,8 @@ const BlogForm = () => {
                     handleRemoveImage={handleRemoveImage}
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
+                    globalStatus={globalStatus}
+                    publishDate={publishDate}
                 />
             </div>
             {isPopupOpen && (
@@ -475,7 +487,7 @@ const BlogForm = () => {
                     tags={selectedTags.map(tagId => {
                         const tagObj = allData.tagsList.find(t => t.id === tagId);
                         return tagObj ? tagObj.name : '';
-                    }).filter(name => name !== '') }
+                    }).filter(name => name !== '')}
                     relatedBlogs={relatedBlogs}
                     allBlogs={{ data: allData.allBlogs }}
                     selectedPlatforms={selectedPlatforms}
@@ -508,8 +520,8 @@ const BlogForm = () => {
                     platformData={allData.platformData}
                     onUploadComplete={fetchAll}
                     onSelectImage={(url) => {
-                            setImage(url);
-                            setSelectedFile(null);
+                        setImage(url);
+                        setSelectedFile(null);
                     }}
                 />
             )}

@@ -1,6 +1,6 @@
 'use client';
 
-import BlogActions from "@/actions/BlogAction";
+import CategoryAndTagAction from "@/actions/categoryAndTagAction";
 import PlateformActions from "@/actions/PlateFormActions";
 import { useEffect, useState } from "react";
 
@@ -35,7 +35,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
         try {
             setLoading(true);
 
-            await BlogActions.createCategory({
+            await CategoryAndTagAction.createCategory({
                 name: categoryName,
                 description,
                 status,

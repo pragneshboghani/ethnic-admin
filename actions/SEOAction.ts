@@ -26,6 +26,30 @@ const SEOActions = {
       throw error;
     }
   },
+  addSEO: async (blogId: number, seoData: any[]) => {
+    try {
+      const token = UserActions.getToken();
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/seo/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ blog_id: blogId, seo: seoData }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add SEO data");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error adding SEO data:", error.message);
+      throw error;
+    }
+  },
   updateSEO: async (blogId: number, seoData: any[]) => {
     const token = UserActions.getToken();
 
