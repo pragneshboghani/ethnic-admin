@@ -1,6 +1,6 @@
 'use client';
 
-import BlogActions from '@/actions/BlogAction';
+import CategoryAndTagAction from '@/actions/categoryAndTagAction';
 import CategoryModal from '@/components/common/CategoryModal';
 import TagModal from '@/components/common/TagModal';
 import { Trash2 } from 'lucide-react';
@@ -19,14 +19,14 @@ const page = () => {
     const [isOpenTags, setIsOpenTags] = useState(false)
 
     const fetchCategories = async () => {
-        const res = await BlogActions.fetchCategory();
+        const res = await CategoryAndTagAction.fetchCategory()
         const categoryData: Category[] = res.data.map((c: any) => ({
             id: c.id,
             name: c.name,
         }));
         setCategories(categoryData);
 
-        const Res = await BlogActions.fetchTags()
+        const Res = await CategoryAndTagAction.fetchTags()
         const tagData: Category[] = Res.data.map((c: any) => ({
             id: c.id,
             name: c.name,
@@ -40,9 +40,9 @@ const page = () => {
 
     const handleDeleteCategory = async (category: Category, type: string) => {
         if (!category) return null
-        if (!confirm(`Are you sure you want to delete "${category?.name}"?, type "${type}"`)) return;
+        if (!confirm(`Are you sure you want to delete ${type} "${category?.name}"?`)) return;
         try {
-            await BlogActions.deleteCategory(category?.id, type)
+            await CategoryAndTagAction.deleteCategory(category?.id, type)
             fetchCategories();
             toast.success(`${type} successfully deleted! 🗑️`)
         } catch (error) {

@@ -1,6 +1,6 @@
 'use client';
 
-import BlogActions from "@/actions/BlogAction";
+import CategoryAndTagAction from "@/actions/categoryAndTagAction";
 import PlateformActions from "@/actions/PlateFormActions";
 import { useEffect, useState } from "react";
 
@@ -35,7 +35,7 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
         try {
             setLoading(true);
 
-            await BlogActions.createTag({
+            await CategoryAndTagAction.createTag({
                 name: TagName,
                 description,
                 status,
