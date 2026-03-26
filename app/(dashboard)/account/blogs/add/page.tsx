@@ -277,9 +277,14 @@ const BlogForm = () => {
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
                     : `${platform.website_url}blog/${slug}`;
 
+                const oldSlug = prev[platformId]?.slug;
+
+                const shouldUpdateSlug =
+                    !oldSlug || oldSlug === generateSlug(prev[platformId]?.seoTitle || "");
+
                 updated[platformId] = {
                     seoTitle: prev[platformId]?.seoTitle || title,
-                    slug: prev[platformId]?.slug || slug,
+                    slug: shouldUpdateSlug ? slug : oldSlug,
                     publishStatus: prev[platformId]?.publishStatus || globalStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
                     canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
@@ -290,7 +295,7 @@ const BlogForm = () => {
 
             return updated;
         });
-    }, [selectedPlatforms, title, excerpt, publishDate, allData.platformData, globalStatus]);
+    }, [selectedPlatforms, title, excerpt, publishDate, blogId, allData.platformData, globalStatus]);
 
     useEffect(() => {
         if (!blogId) return;
