@@ -66,6 +66,7 @@ const BlogForm = () => {
             content: "",
             publishDate: "",
             globalStatus: "draft",
+            author: "",
             category: [],
             reading_time: 0,
             tags: [],
@@ -91,6 +92,7 @@ const BlogForm = () => {
     const globalStatus = watch('globalStatus')
     const publishDate = watch('publishDate')
     const selectedCategories = watch("category") || [];
+    const author = watch('author')
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -146,6 +148,7 @@ const BlogForm = () => {
             BlogContent: content,
             BlogTags: tagsValue,
             BlogRalated: related,
+            BlogAuthor: author,
             BlogReadingTime: readingTime,
             BlogGlobalStatus: globalStatus,
             BlogPublishDate: publishDate,
@@ -157,22 +160,7 @@ const BlogForm = () => {
             })),
         };
 
-        const now = new Date().getTime();
-        const selectedDate = new Date(publishDate).getTime();
-
         if (selectedPlatforms.length === 0) { toast.error("Please select at least one platform 😢"); return; }
-
-        if (!publishDate || publishDate.trim() === "") { toast.error("Publish date is required 😢"); return; }
-
-        if (formData.BlogGlobalStatus === "publish" && selectedDate > now) {
-            toast.error("For publish status, date must be current or past 😢");
-            return;
-        }
-
-        if (formData.BlogGlobalStatus === "future" && selectedDate <= now) {
-            toast.error("For future status, please select a future date 😢");
-            return;
-        }
 
         return formData
     }
@@ -190,6 +178,7 @@ const BlogForm = () => {
                 full_content: formData.BlogContent,
                 featured_image: formData.image,
                 category: formData.BlogSelectedCategories,
+                author: formData.BlogAuthor,
                 tags: formData.BlogTags,
                 publish_date: formData.BlogPublishDate,
                 reading_time: formData.BlogReadingTime,
@@ -279,7 +268,7 @@ const BlogForm = () => {
 
                 const date = publishDate ? new Date(publishDate) : new Date();
                 const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0"); 
+                const month = String(date.getMonth() + 1).padStart(2, "0");
                 const day = String(date.getDate()).padStart(2, "0");
 
                 const isWordpress = platform.plateform_type === "wordpress";
@@ -316,6 +305,7 @@ const BlogForm = () => {
                     excerpt: blog.short_excerpt || "",
                     content: blog.full_content || "",
                     publishDate: normalizeDateForInput(blog.publish_date),
+                    author: blog.author,
                     globalStatus: blog.status || "draft",
                     category: blog.category || [],
                     reading_time: blog.reading_time || 0,
@@ -393,7 +383,7 @@ const BlogForm = () => {
                             allBlogs={{ data: allData.allBlogs }}
                             setIsPopupOpen={setIsPopupOpen}
                             selectedTags={selectedTags}
-                            content={content} 
+                            content={content}
                             tagsList={allData.tagsList}
                             setIsTagModalOpen={setIsTagModalOpen}
                         />
@@ -424,6 +414,8 @@ const BlogForm = () => {
                     handleRemoveImage={handleRemoveImage}
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
+                    globalStatus={globalStatus}
+                    publishDate={publishDate}
                 />
             </div>
             {isPopupOpen && (
@@ -475,7 +467,7 @@ const BlogForm = () => {
                     tags={selectedTags.map(tagId => {
                         const tagObj = allData.tagsList.find(t => t.id === tagId);
                         return tagObj ? tagObj.name : '';
-                    }).filter(name => name !== '') }
+                    }).filter(name => name !== '')}
                     relatedBlogs={relatedBlogs}
                     allBlogs={{ data: allData.allBlogs }}
                     selectedPlatforms={selectedPlatforms}
@@ -508,8 +500,8 @@ const BlogForm = () => {
                     platformData={allData.platformData}
                     onUploadComplete={fetchAll}
                     onSelectImage={(url) => {
-                            setImage(url);
-                            setSelectedFile(null);
+                        setImage(url);
+                        setSelectedFile(null);
                     }}
                 />
             )}

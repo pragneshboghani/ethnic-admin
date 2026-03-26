@@ -18,7 +18,7 @@ export interface Platform {
   status: "Active" | "Inactive";
   created_at?: string;
   updated_at?: string;
-  data_source: string
+  data_source: string;
 }
 
 export interface Media {
@@ -98,6 +98,7 @@ export type BlogFormType = {
   BlogContent: string;
   image: string;
   BlogSelectedCategories: number[];
+  BlogAuthor: string;
   BlogPublishDate: string;
   BlogGlobalStatus: "draft" | "publish" | "future";
   BlogTags: number[] | undefined;
@@ -146,8 +147,9 @@ export type BlogSidebarProps = {
   setIsCategoryModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMediaFor: React.Dispatch<React.SetStateAction<"feature" | "editor">>;
+  globalStatus: "draft" | "publish" | "future";
+  publishDate: string;
 };
-
 
 export type CategoryType = {
   id: number;

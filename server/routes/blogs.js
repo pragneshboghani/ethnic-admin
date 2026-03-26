@@ -183,6 +183,14 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       ),
     );
 
+    let finalPublishDate = raw.publish_date;
+
+    if (raw.status === "publish") {
+      finalPublishDate = raw.publish_date;
+    } else {
+      finalPublishDate = publish_date ?? raw.publish_date;
+    }
+
     const UpdatedData = {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
@@ -192,7 +200,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
 
       tags: JSON.stringify(tags ?? raw.tags),
       author: author ?? raw.author,
-      publish_date: publish_date ?? raw.publish_date,
+      publish_date: finalPublishDate,
       reading_time: reading_time ?? raw.reading_time,
 
       related: JSON.stringify(related ?? raw.related),

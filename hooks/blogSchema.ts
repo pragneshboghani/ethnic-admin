@@ -10,6 +10,7 @@ const blogSchema = z.object({
   reading_time: z.number(),
   tags: z.array(z.number()).default([]),
   relatedBlogs: z.array(z.number()).default([]),
+  author:z.string(),
 
   platforms: z.array(
     z.object({
