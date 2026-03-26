@@ -53,6 +53,7 @@ export type BlogGeneralSectionProps = {
   content: string;
   relatedBlogs: any[];
   allBlogs: { data: any[] };
+  platformData: any;
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
   tagsList: { id: number; name: string }[];
   setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;

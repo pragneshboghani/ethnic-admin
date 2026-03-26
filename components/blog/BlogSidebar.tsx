@@ -1,7 +1,6 @@
 'use client';
 
 import { BlogSidebarProps } from '@/types';
-import getDefaultPublishDate from '@/utils/getDefaultPublishDate';
 import { Trash2 } from 'lucide-react';
 
 const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, publishDate }: BlogSidebarProps) => (
@@ -33,7 +32,7 @@ const BlogSidebar = ({ register, categories, category, setValue, image, handleRe
                             type="datetime-local"
                             placeholder="YYYY-MM-DDTHH:mm"
                             {...register("publishDate")}
-                            value={getDefaultPublishDate(globalStatus, publishDate)}
+                            // value={getDefaultPublishDate(globalStatus, publishDate)}
                             disabled={globalStatus === "publish"}
                             onClick={(e) => (e.target as HTMLInputElement).showPicker()}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"

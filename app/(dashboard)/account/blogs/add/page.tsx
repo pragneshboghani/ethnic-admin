@@ -22,6 +22,7 @@ import DashBoardActions from "@/actions/DashboardAction";
 import { useFieldArray, useForm } from "react-hook-form";
 import blogSchema from "@/hooks/blogSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
 
 type AllDataType = {
     allBlogs: any[];
@@ -142,6 +143,12 @@ const BlogForm = () => {
             });
         }
 
+        let finalPublishDate = publishDate;
+
+        if (!finalPublishDate || finalPublishDate.trim() === "") {
+            finalPublishDate = getDefaultPublishDate(globalStatus);
+        }
+
         const formData: BlogFormType = {
             BlogTitle: title,
             BlogExcerpt: excerpt,
@@ -151,7 +158,7 @@ const BlogForm = () => {
             BlogAuthor: author,
             BlogReadingTime: readingTime,
             BlogGlobalStatus: globalStatus,
-            BlogPublishDate: publishDate,
+            BlogPublishDate: finalPublishDate,
             BlogSelectedCategories: selectedCategories,
             image: uploadedImageUrl,
             platforms: selectedPlatforms.map(platformId => ({
@@ -363,6 +370,13 @@ const BlogForm = () => {
         fetchBlogForEdit();
     }, [blogId]);
 
+    useEffect(() => {
+        if (!publishDate || publishDate.trim() === "") {
+            const defaultDate = getDefaultPublishDate(globalStatus);
+            setValue("publishDate", defaultDate);
+        }
+    }, [globalStatus]);
+
     return (
         <form
             className="space-y-8"
@@ -386,6 +400,7 @@ const BlogForm = () => {
                             setValue={setValue}
                             relatedBlogs={relatedBlogs}
                             allBlogs={{ data: allData.allBlogs }}
+                            platformData={allData.platformData}
                             setIsPopupOpen={setIsPopupOpen}
                             selectedTags={selectedTags}
                             content={content}
