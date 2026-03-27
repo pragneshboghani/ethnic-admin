@@ -148,19 +148,19 @@ const Blogs = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          {/* <input
+          <input
             type="text"
             placeholder="Author"
             className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-          /> */}
+          />
           <select
             className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="">All Categories</option>
+            <option value="" className="text-black">All Categories</option>
             {categoryData?.data?.map((cat: any) => (
               <option key={cat.id} value={cat.id} className="text-black">
                 {cat.name}
@@ -173,7 +173,7 @@ const Blogs = () => {
             value={tags}
             onChange={(e) => setTags(e.target.value)}
           >
-            <option value="">All Tags</option>
+            <option value="" className="text-black">All Tags</option>
             {tagData?.data?.map((tag: any) => (
               <option key={tag.id} value={tag.id} className="text-black">
                 {tag.name}
@@ -219,7 +219,7 @@ const Blogs = () => {
                 <th className="p-2">Blog Title</th>
                 <th className="p-2">Platform</th>
                 <th className="p-2">Status</th>
-                {/* <th className="p-2">Author</th> */}
+                <th className="p-2">Author</th>
                 <th className="p-2">Category</th>
                 <th className="p-2">Tags</th>
                 <th className="p-2">Date</th>
@@ -242,7 +242,7 @@ const Blogs = () => {
                       })}
                     </td>
                     <td className="p-2 max-w-[100px] truncate">{b.status == 'future' ? 'scheduled' : b.status}</td>
-                    {/* <td className="p-2 max-w-[125px] truncate">{b.author}</td> */}
+                    <td className="p-2 max-w-[125px] truncate">{b.author}</td>
                     <td className="p-2 max-w-[165px] truncate">
                       {Array.isArray(b.category)
                         ? b.category
