@@ -556,7 +556,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       'reading_time', b.reading_time,
       'status', b.status,
       'created_at', b.created_at,
-      'content', b.full_content,
+      'full_content', b.full_content,
 
       'category_data', IFNULL((
         SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
