@@ -299,6 +299,7 @@ const Media = () => {
                     isOpen={uploadModalOpen}
                     onClose={() => setUploadModalOpen(false)}
                     onUploadComplete={fetchMedia}
+                    allowedMediaType="all"
                     platformData={platformData}
                 />
             )}

@@ -24,6 +24,14 @@ const safeParse = (value) => {
   }
 };
 
+const normalizePlatformIds = (value) => {
+  if (Array.isArray(value)) {
+    return value.map(Number).filter(Boolean);
+  }
+
+  return safeParse(value).map(Number).filter(Boolean);
+};
+
 const BASE_URL = process.env.BACKEND_API;
 
 blogRouter.get("/all", authMiddleware, async (req, res) => {
@@ -175,13 +183,10 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
-    const platformData = await getPlatformsByIds(platforms);
-
-    const results = await Promise.all(
-      platformData.map((platform) =>
-        postToPlatform(platform, req.body, raw.slug),
-      ),
-    );
+    const parsedRawCategory = safeParse(raw.category);
+    const parsedRawTags = safeParse(raw.tags);
+    const parsedRawRelated = safeParse(raw.related);
+    const parsedRawPlatforms = normalizePlatformIds(raw.platforms);
 
     let finalPublishDate = raw.publish_date;
 
@@ -191,21 +196,57 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       finalPublishDate = publish_date ?? raw.publish_date;
     }
 
-    const UpdatedData = {
+    const updatedPlatformIds =
+      platforms !== undefined
+        ? normalizePlatformIds(platforms)
+        : parsedRawPlatforms;
+
+    const platformPayload = {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
       full_content: full_content ?? raw.full_content,
       featured_image: featured_image ?? raw.featured_image,
-      category: JSON.stringify(category ?? raw.category),
-
-      tags: JSON.stringify(tags ?? raw.tags),
+      category: category ?? parsedRawCategory,
+      tags: tags ?? parsedRawTags,
       author: author ?? raw.author,
       publish_date: finalPublishDate,
       reading_time: reading_time ?? raw.reading_time,
-
-      related: JSON.stringify(related ?? raw.related),
+      related: related ?? parsedRawRelated,
       status: status ?? raw.status,
-      platforms: JSON.stringify(platforms ?? raw.platforms),
+      platforms: updatedPlatformIds,
+    };
+
+    const platformData = await getPlatformsByIds(updatedPlatformIds);
+
+    const results = await Promise.all(
+      platformData.map((platform) =>
+        postToPlatform(platform, platformPayload, raw.slug),
+      ),
+    );
+
+    const removedPlatformIds = parsedRawPlatforms.filter(
+      (platformId) => !updatedPlatformIds.includes(platformId),
+    );
+
+    const removedPlatformData = await getPlatformsByIds(removedPlatformIds);
+
+    const deleteResults = await Promise.all(
+      removedPlatformData.map((platform) => deletePost(platform, raw.slug)),
+    );
+
+    const UpdatedData = {
+      blog_title: platformPayload.blog_title,
+      short_excerpt: platformPayload.short_excerpt,
+      full_content: platformPayload.full_content,
+      featured_image: platformPayload.featured_image,
+      category: JSON.stringify(platformPayload.category),
+      tags: JSON.stringify(platformPayload.tags),
+      author: platformPayload.author,
+      publish_date: finalPublishDate,
+      reading_time: platformPayload.reading_time,
+      related: JSON.stringify(platformPayload.related),
+      status: platformPayload.status,
+      platforms: JSON.stringify(updatedPlatformIds),
     };
 
     let slug = null;
@@ -244,6 +285,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       success: true,
       message: "Blog updated successfully",
       results,
+      deleteResults,
     });
   } catch (error) {
     console.error("Error updating blog:", error);
@@ -428,7 +470,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(
       `
       SELECT 
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -448,6 +490,8 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       FROM blogs b
       JOIN platforms p2
         ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+      JOIN seo_blog sb
+        ON b.id = sb.blog_id AND p2.id = sb.platform_id
 
       WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND b.status = "publish"
       ORDER BY b.created_at DESC
@@ -500,67 +544,68 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [blogs] = await mysqlpool.query(
-      `
-      SELECT 
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.slug,b.created_at,
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
-          FROM category c
-          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
-        ) AS category_data,
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
-          FROM tags t
-          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
-        ) AS tag_data,
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
-          FROM blogs rb
-          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data,
-        (
-          SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'platform_id', s.platform_id,
-              'platform_name', p.platform_name,
-              'slug', s.slug,
-              'publish_status', s.publish_status,
-              'seo_title', s.seo_title,
-              'meta_description', s.meta_description,
-              'canonical_url', s.canonical_url,
-              'cta_button_text', s.cta_button_text,
-              'cta_button_link', s.cta_button_link
-            )
-          )
-          FROM seo_blog s
-          LEFT JOIN platforms p ON p.id = s.platform_id 
-          WHERE s.blog_id = b.id
-        ) AS seo_data 
+    const [[raw]] = await mysqlpool.query(
+      `SELECT 
+    JSON_OBJECT(
+      'id', b.id,
+      'blog_title', b.blog_title,
+      'short_excerpt', b.short_excerpt,
+      'featured_image', b.featured_image,
+      'author', b.author,
+      'publish_date', b.publish_date,
+      'reading_time', b.reading_time,
+      'status', b.status,
+      'created_at', b.created_at,
+      'content', b.full_content,
 
-      FROM blogs b
-      WHERE b.slug = ? AND b.status = "publish"
-      `,
+      'category_data', IFNULL((
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+        FROM category c
+        WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+      ), JSON_ARRAY()),
+
+      'tag_data', IFNULL((
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+        FROM tags t
+        WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+      ), JSON_ARRAY()),
+
+      'related_data', IFNULL((
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+        FROM blogs rb
+        WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+      ), JSON_ARRAY()),
+
+      'seo_data', JSON_OBJECT(
+        'seo_title', sb.seo_title,
+        'meta_description', sb.meta_description,
+        'canonical_url', sb.canonical_url,
+        'cta_button_text', sb.cta_button_text,
+        'cta_button_link', sb.cta_button_link
+      )
+
+    ) AS blog_data
+   FROM seo_blog sb
+   JOIN blogs b ON b.id = sb.blog_id
+   WHERE sb.slug = ?`,
       [slug.trim()],
     );
 
-    const updatedBlogs = blogs.map(
-      ({ category_data, tag_data, related_data, seo_data, ...rest }) => ({
-        ...rest,
-        featured_image: rest.featured_image
-          ? BASE_URL + rest.featured_image
-          : null,
-        category: safeParse(category_data),
-        tags: safeParse(tag_data),
-        related: safeParse(related_data),
-        seo: safeParse(seo_data),
-      }),
-    );
+    let data = raw.blog_data;
+
+    if (typeof data === "string") {
+      data = JSON.parse(data);
+    }
+
+    if (data.featured_image) {
+      data.featured_image = `${BASE_URL}${data.featured_image}`;
+    }
 
     res.status(200).json({
       success: true,
-      data: updatedBlogs[0],
+      data,
     });
+
   } catch (error) {
     console.error("Error fetching blog by slug:", error);
     res.status(500).json({

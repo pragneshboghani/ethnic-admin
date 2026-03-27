@@ -146,7 +146,7 @@ const BlogForm = () => {
         let finalPublishDate = publishDate;
 
         if (!finalPublishDate || finalPublishDate.trim() === "") {
-            finalPublishDate = getDefaultPublishDate(globalStatus);
+            finalPublishDate = getDefaultPublishDate(globalStatus) || "";
         }
 
         const formData: BlogFormType = {
@@ -329,6 +329,7 @@ const BlogForm = () => {
                     })) || []
                 });
                 setValue("content", blog.full_content);
+                setRelatedBlogs(blog.related || []);
 
                 if (blog.featured_image) {
                     setImage(blog.featured_image);
@@ -371,11 +372,52 @@ const BlogForm = () => {
     }, [blogId]);
 
     useEffect(() => {
-        if (!publishDate || publishDate.trim() === "") {
-            const defaultDate = getDefaultPublishDate(globalStatus);
-            setValue("publishDate", defaultDate);
-        }
+        const defaultDate = getDefaultPublishDate(globalStatus) || "";
+        setValue("publishDate", defaultDate);
     }, [globalStatus]);
+
+    useEffect(() => {
+        if (!selectedPlatforms.length) return;
+
+        setPlatformSettings(prev => {
+            let hasChanges = false;
+            const updated = { ...prev };
+
+            selectedPlatforms.forEach(platformId => {
+                const settings = prev[platformId];
+                const platform = allData.platformData?.data.find(p => p.id === platformId);
+
+                if (!settings || !platform) return;
+
+                const slug = settings.slug;
+                if (!slug) return;
+
+                const isWordpress = platform.plateform_type === "wordpress";
+
+                const date = publishDate ? new Date(publishDate) : new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+
+                const newCanonicalUrl = isWordpress
+                    ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                    : `${platform.website_url}blog/${slug}`;
+
+
+                if (settings.canonicalUrl !== newCanonicalUrl) {
+                    updated[platformId] = {
+                        ...settings,
+                        canonicalUrl: newCanonicalUrl,
+                        ctaButtonLink: newCanonicalUrl,
+                    };
+                    hasChanges = true;
+                }
+            });
+
+            return hasChanges ? updated : prev;
+        });
+
+    }, [selectedPlatforms, platformSettings]);
 
     return (
         <form
@@ -435,7 +477,6 @@ const BlogForm = () => {
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
                     globalStatus={globalStatus}
-                    publishDate={publishDate}
                 />
             </div>
             {isPopupOpen && (
@@ -443,7 +484,7 @@ const BlogForm = () => {
                     <div className="p-6 w-96 glass-card">
                         <h3 className="text-xl font-semibold text-white mb-4">Select Related Blogs</h3>
                         <div className="space-y-2">
-                            {allData.allBlogs.map(blog => (
+                            {allData.allBlogs.filter(blog => blog.id !== Number(blogId)).map(blog => (
                                 <div key={blog.id} className="flex items-center">
                                     <input
                                         type="checkbox"

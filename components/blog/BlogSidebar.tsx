@@ -3,7 +3,7 @@
 import { BlogSidebarProps } from '@/types';
 import { Trash2 } from 'lucide-react';
 
-const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, publishDate }: BlogSidebarProps) => (
+const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus }: BlogSidebarProps) => (
 
     <>
         <div className="space-y-6">
@@ -32,8 +32,16 @@ const BlogSidebar = ({ register, categories, category, setValue, image, handleRe
                             type="datetime-local"
                             placeholder="YYYY-MM-DDTHH:mm"
                             {...register("publishDate")}
-                            // value={getDefaultPublishDate(globalStatus, publishDate)}
-                            disabled={globalStatus === "publish"}
+                            min={
+                                globalStatus === "future"
+                                    ? new Date().toISOString().slice(0, 16)
+                                    : undefined
+                            }
+                            max={
+                                globalStatus === "publish"
+                                    ? new Date().toISOString().slice(0, 16)
+                                    : undefined
+                            }
                             onClick={(e) => (e.target as HTMLInputElement).showPicker()}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                         />
