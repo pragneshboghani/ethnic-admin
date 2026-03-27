@@ -5,6 +5,7 @@ import UploadMediaModal from "../media/UploadMediaModal";
 import {
     Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight, Undo, Redo,
     Type, Heading1, Heading2, Heading3, Highlighter, Palette, Eraser, DropletOff,
+    ListIndentIncrease, ListIndentDecrease,
 } from "lucide-react";
 
 type ToolbarButtonProps = {
@@ -27,6 +28,17 @@ type EditorPlatformData = {
         api_endpoint?: string;
     }>;
 } | null;
+
+const getPlainTextContent = (content: string) =>
+    (content || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/\s+/g, " ")
+        .trim();
+
 const escapeHtml = (value: string) =>
     value
         .replaceAll("&", "&amp;")
@@ -43,7 +55,7 @@ const ToolbarButton = ({ title, icon, onAction }: ToolbarButtonProps) => (
             e.preventDefault();
             onAction();
         }}
-        className="min-w-8 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+        className="min-w-9 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
     >
         {icon}
     </button>
@@ -128,7 +140,7 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
                     savedRangeRef.current = getCurrentRange();
                     inputRef.current?.click();
                 }}
-                className="min-w-8 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+                className="min-w-9 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
             >
                 {icon}
             </button>
@@ -146,17 +158,30 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
     );
 };
 
-const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData }) => {
+const RichTextToolbar = ({
+    platformData,
+    content,
+}: {
+    platformData: EditorPlatformData;
+    content: string;
+}) => {
     const editorState = useEditorState();
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [hasLinkSelection, setHasLinkSelection] = useState(false);
     const savedRangeRef = useRef<Range | null>(null);
+    const plainTextContent = getPlainTextContent(content);
+    const wordCount = plainTextContent ? plainTextContent.split(" ").length : 0;
+    const characterCount = plainTextContent.length;
 
     if (editorState.htmlMode) {
         return (
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
                 <HtmlButton />
+                <div className="ml-auto flex items-center gap-3 text-xs text-slate-500">
+                    <span>Words: {wordCount}</span>
+                    <span>Characters: {characterCount}</span>
+                </div>
             </div>
         );
     }
@@ -229,7 +254,7 @@ const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData })
 
     return (
         <>
-            <div className="flex flex-wrap items-center gap-1.75 border-b border-slate-200 bg-slate-50 px-3 py-2">
+            <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
                 <ToolbarButton
                     title="Normal"
                     icon={<Type size={15} />}
@@ -279,6 +304,20 @@ const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData })
                     icon={<ListOrdered size={15} />}
                     onAction={() =>
                         runEditorCommand(editorElement, "insertOrderedList", undefined, savedRangeRef.current)
+                    }
+                />
+                <ToolbarButton
+                    title="Increase List Level"
+                    icon={<ListIndentIncrease size={15} />}
+                    onAction={() =>
+                        runEditorCommand(editorElement, "indent", undefined, savedRangeRef.current)
+                    }
+                />
+                <ToolbarButton
+                    title="Decrease List Level"
+                    icon={<ListIndentDecrease size={15} />}
+                    onAction={() =>
+                        runEditorCommand(editorElement, "outdent", undefined, savedRangeRef.current)
                     }
                 />
                 <ToolbarButton title="Link" icon={<LinkIcon size={15} />} onAction={handleOpenLinkModal} />
@@ -349,6 +388,11 @@ const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData })
                 />
 
                 <HtmlButton />
+
+                <div className="ml-auto flex items-center gap-3 text-sm text-black">
+                    <span>Words: {wordCount}</span>
+                    <span>Characters: {characterCount}</span>
+                </div>
             </div>
 
             <LinkModal
