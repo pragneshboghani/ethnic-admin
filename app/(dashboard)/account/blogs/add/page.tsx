@@ -470,6 +470,7 @@ const BlogForm = () => {
                     register={register}
                     category={selectedCategories}
                     setValue={setValue}
+                    publishDate={publishDate}
                     categories={allData.categories}
                     setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}

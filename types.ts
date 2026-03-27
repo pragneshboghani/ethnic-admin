@@ -139,6 +139,7 @@ export type BlogSidebarProps = {
   category: number[];
   setValue: any;
   register: any;
+  publishDate: string;
   categories: {
     id: number;
     name: string;
