@@ -31,7 +31,7 @@ const BlogGeneralSection = ({ register, setValue, relatedBlogs, content, allBlog
 
                 <div className="blog-editor overflow-hidden rounded-xl border border-slate-200 bg-white text-black shadow-sm">
                     <EditorProvider>
-                        <RichTextToolbar platformData={platformData} />
+                        <RichTextToolbar platformData={platformData} content={content || ""} />
                         <Editor
                             value={content || ""}
                             onChange={(e) =>

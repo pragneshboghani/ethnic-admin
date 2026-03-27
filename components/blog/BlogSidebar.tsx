@@ -1,154 +1,529 @@
 'use client';
 
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BlogSidebarProps } from '@/types';
-import { Trash2 } from 'lucide-react';
+import {
+    Calendar,
+    ChevronLeft,
+    ChevronRight,
+    Clock3,
+    Trash2,
+} from 'lucide-react';
 
-const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus }: BlogSidebarProps) => (
+const WEEK_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-    <>
-        <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 glass-card">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                    {/* <Settings2 size={18} className="text-indigo-600" /> */}
-                    Publishing Settings
-                </h3>
+const getNow = () => new Date();
 
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Global Status</label>
-                        <select
-                            {...register("globalStatus")}
-                            className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
-                        >
-                            <option value="draft" className="text-black">Draft</option>
-                            <option value="future" className="text-black">Scheduled</option>
-                            <option value="publish" className="text-black">Published</option>
-                        </select>
-                    </div>
+const formatInputDateTime = (date: Date) => date.toISOString().slice(0, 16);
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Publish Date</label>
-                        <input
-                            type="datetime-local"
-                            placeholder="YYYY-MM-DDTHH:mm"
-                            {...register("publishDate")}
-                            min={
-                                globalStatus === "future"
-                                    ? new Date().toISOString().slice(0, 16)
-                                    : undefined
-                            }
-                            max={
-                                globalStatus === "publish"
-                                    ? new Date().toISOString().slice(0, 16)
-                                    : undefined
-                            }
-                            onClick={(e) => (e.target as HTMLInputElement).showPicker()}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
-                        />
-                    </div>
+const parseInputDateTime = (value?: string) => {
+    if (!value) return null;
+    const normalizedValue =
+        value.endsWith('Z') || value.includes('+') ? value : `${value}:00Z`;
+    const parsed = new Date(normalizedValue);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
-                        <input
-                            {...register("author")}
-                            placeholder="Enter Blog Author Name ...."
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
-                        />
-                    </div>
+const startOfDay = (date: Date) =>
+    new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Category
-                        </label>
+const isSameDay = (a: Date, b: Date) =>
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate();
 
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+const clampPublishDate = (
+    date: Date,
+    globalStatus: 'draft' | 'publish' | 'future',
+    now: Date,
+) => {
+    if (globalStatus === 'future' && date < now) {
+        return now;
+    }
 
-                            {/* Add New */}
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsCategoryModalOpen(true)}
-                                    className="text-blue-600 text-sm hover:underline"
-                                >
-                                    + Add New Category
-                                </button>
-                            </div>
+    if (globalStatus === 'publish' && date > now) {
+        return now;
+    }
 
-                            {/* Category List */}
-                            {categories.map((cat) => (
-                                <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={category.includes(cat.id)}
-                                        onChange={() => {
-                                            let updated;
+    return date;
+};
 
-                                            if (category.includes(cat.id)) {
-                                                updated = category.filter(id => id !== cat.id);
-                                            } else {
-                                                updated = [...category, cat.id];
+const getCalendarDays = (monthDate: Date) => {
+    const start = new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth(), 1));
+    const end = new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth() + 1, 0));
+    const days: Array<Date | null> = [];
+
+    for (let i = 0; i < start.getUTCDay(); i += 1) {
+        days.push(null);
+    }
+
+    for (let day = 1; day <= end.getUTCDate(); day += 1) {
+        days.push(new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth(), day)));
+    }
+
+    return days;
+};
+
+const HOUR_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) =>
+    String(index).padStart(2, '0'),
+);
+const PERIOD_OPTIONS = ['AM', 'PM'] as const;
+
+const get24HourTime = (hour12: string, minute: string, period: 'AM' | 'PM') => {
+    const parsedHour = Number(hour12);
+    let hour24 = parsedHour % 12;
+
+    if (period === 'PM') {
+        hour24 += 12;
+    }
+
+    return `${String(hour24).padStart(2, '0')}:${minute}`;
+};
+
+const formatDisplayValue = (value: string) => {
+    const date = parseInputDateTime(value);
+    if (!date) return 'Select publish date & time';
+
+    return date.toLocaleString([], {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'UTC',
+    });
+};
+
+const BlogSidebar = ({
+    register,
+    publishDate,
+    categories,
+    category,
+    setValue,
+    image,
+    handleRemoveImage,
+    setIsCategoryModalOpen,
+    setIsUploadModalOpen,
+    setMediaFor,
+    globalStatus,
+    blogId,
+}: BlogSidebarProps) => {
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [currentLocalDateTime, setCurrentLocalDateTime] = useState(formatInputDateTime(getNow()));
+    const pickerRef = useRef<HTMLDivElement>(null);
+    const disabledPicker = blogId !== null && globalStatus === 'publish';
+
+    const now = useMemo(
+        () => parseInputDateTime(currentLocalDateTime) || getNow(),
+        [currentLocalDateTime],
+    );
+    const selectedDateTime = parseInputDateTime(publishDate) || now;
+    const selectedDate = startOfDay(selectedDateTime);
+    const selectedTime = publishDate?.slice(11, 16) || currentLocalDateTime.slice(11, 16);
+    const selectedHour24 = selectedDateTime.getUTCHours();
+    const selectedMinute = String(selectedDateTime.getUTCMinutes()).padStart(2, '0');
+    const selectedPeriod = selectedHour24 >= 12 ? 'PM' : 'AM';
+    const selectedHour12 = String(selectedHour24 % 12 || 12);
+
+    const [visibleMonth, setVisibleMonth] = useState(
+        new Date(Date.UTC(selectedDateTime.getUTCFullYear(), selectedDateTime.getUTCMonth(), 1)),
+    );
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentLocalDateTime(formatInputDateTime(getNow()));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        setVisibleMonth(
+            new Date(Date.UTC(selectedDateTime.getUTCFullYear(), selectedDateTime.getUTCMonth(), 1)),
+        );
+    }, [
+        publishDate,
+        selectedDateTime.getUTCFullYear(),
+        selectedDateTime.getUTCMonth(),
+    ]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!pickerRef.current?.contains(event.target as Node)) {
+                setIsPickerOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (!publishDate) return;
+
+        const parsed = parseInputDateTime(publishDate);
+        if (!parsed) return;
+
+        const clamped = clampPublishDate(parsed, globalStatus, now);
+        const nextValue = formatInputDateTime(clamped);
+
+        if (nextValue !== publishDate) {
+            setValue('publishDate', nextValue, {
+                shouldDirty: true,
+                shouldValidate: true,
+            });
+        }
+    }, [globalStatus, now, publishDate, setValue]);
+
+    const hiddenPublishDateRegister = register('publishDate');
+    const calendarDays = useMemo(() => getCalendarDays(visibleMonth), [visibleMonth]);
+
+    const isDateDisabled = (date: Date) => {
+        const today = startOfDay(now);
+
+        if (globalStatus === 'future') {
+            return date < today;
+        }
+
+        if (globalStatus === 'publish') {
+            return date > today;
+        }
+
+        return false;
+    };
+
+    const isHourDisabled = (hour12: string) =>
+        PERIOD_OPTIONS.every((period) =>
+            MINUTE_OPTIONS.every((minute) =>
+                isTimeDisabled(get24HourTime(hour12, minute, period)),
+            ),
+        );
+
+    const isMinuteDisabled = (minute: string) =>
+        isTimeDisabled(get24HourTime(selectedHour12, minute, selectedPeriod));
+
+    const isPeriodDisabled = (period: 'AM' | 'PM') =>
+        HOUR_OPTIONS.every((hour12) =>
+            isTimeDisabled(get24HourTime(hour12, selectedMinute, period)),
+        );
+
+    const isTimeDisabled = (time: string) => {
+        const [hours, minutes] = time.split(':').map(Number);
+        const candidate = new Date(selectedDate);
+        candidate.setUTCHours(hours, minutes, 0, 0);
+
+        if (globalStatus === 'future') {
+            return candidate < now;
+        }
+
+        if (globalStatus === 'publish') {
+            return candidate > now;
+        }
+
+        return false;
+    };
+
+    const updatePublishDate = (nextDate: Date, nextTime: string) => {
+        const [hours, minutes] = nextTime.split(':').map(Number);
+        const combined = new Date(nextDate);
+        combined.setUTCHours(hours, minutes, 0, 0);
+
+        const clamped = clampPublishDate(combined, globalStatus, getNow());
+        setValue('publishDate', formatInputDateTime(clamped), {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+    };
+
+    return (
+        <>
+            <div className="space-y-6">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 glass-card">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                        Publishing Settings
+                    </h3>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Global Status</label>
+                            <select
+                                {...register('globalStatus')}
+                                className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
+                            >
+                                <option value="draft" className="text-black">Draft</option>
+                                <option value="future" className="text-black">Scheduled</option>
+                                <option value="publish" className="text-black">Published</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-2" ref={pickerRef}>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Publish Date</label>
+                            <input type="hidden" {...hiddenPublishDateRegister} />
+
+                            <button
+                                type="button"
+                                disabled={disabledPicker}
+                                onClick={() => setIsPickerOpen((prev) => !prev)}
+                                className={`w-full px-3 py-2 border rounded-lg text-black text-sm flex items-center justify-between gap-3 ${disabledPicker
+                                    ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                                    : 'bg-slate-50 border-slate-200'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Calendar size={16} className="text-slate-500" />
+                                    <span>{formatDisplayValue(publishDate)}</span>
+                                </span>
+                                <Clock3 size={16} className="text-slate-500" />
+                            </button>
+
+                            {isPickerOpen && !disabledPicker && (
+                                <div className="mt-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xl space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <button
+                                            type="button"
+                                            onClick={() => setVisibleMonth(
+                                                new Date(Date.UTC(visibleMonth.getUTCFullYear(), visibleMonth.getUTCMonth() - 1, 1)),
+                                            )}
+                                            className="p-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50"
+                                        >
+                                            <ChevronLeft size={16} />
+                                        </button>
+
+                                        <div className="text-sm font-semibold text-slate-800">
+                                            {visibleMonth.toLocaleString([], { month: 'long', year: 'numeric', timeZone: 'UTC' })}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setVisibleMonth(
+                                                new Date(Date.UTC(visibleMonth.getUTCFullYear(), visibleMonth.getUTCMonth() + 1, 1)),
+                                            )}
+                                            className="p-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50"
+                                        >
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-7 gap-2">
+                                        {WEEK_DAYS.map((day) => (
+                                            <div key={day} className="text-center text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                                                {day}
+                                            </div>
+                                        ))}
+
+                                        {calendarDays.map((date, index) => {
+                                            if (!date) {
+                                                return <div key={`empty-${index}`} className="h-9" />;
                                             }
 
-                                            setValue("category", updated);
-                                        }}
-                                        className="w-4 h-4 accent-blue-600"
-                                    />
-                                    <span className="text-sm text-black">{cat.name}</span>
-                                </label>
-                            ))}
+                                            const isDisabled = isDateDisabled(date);
+                                            const isSelected =
+                                                isSameDay(date, selectedDate) && !isDisabled;
+
+                                            return (
+                                                <button
+                                                    key={date.toISOString()}
+                                                    type="button"
+                                                    disabled={isDisabled}
+                                                    onClick={() => updatePublishDate(date, selectedTime)}
+                                                    className={`h-9 rounded-md text-sm border transition ${isDisabled
+                                                        ? 'bg-slate-100 text-slate-300 border-slate-100 cursor-not-allowed'
+                                                        : isSelected
+                                                            ? 'bg-slate-900 text-white border-slate-900'
+                                                            : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
+                                                        }`}
+                                                >
+                                                    {date.getUTCDate()}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Time</div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <select
+                                                value={selectedHour12}
+                                                onChange={(e) =>
+                                                    updatePublishDate(
+                                                        selectedDate,
+                                                        get24HourTime(
+                                                            e.target.value,
+                                                            selectedMinute,
+                                                            selectedPeriod,
+                                                        ),
+                                                    )
+                                                }
+                                                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none"
+                                            >
+                                                {HOUR_OPTIONS.map((hour) => (
+                                                    <option
+                                                        key={hour}
+                                                        value={hour}
+                                                        disabled={isHourDisabled(hour)}
+                                                    >
+                                                        {hour.padStart(2, '0')}
+                                                    </option>
+                                                ))}
+                                            </select>
+
+                                            <select
+                                                value={selectedMinute}
+                                                onChange={(e) =>
+                                                    updatePublishDate(
+                                                        selectedDate,
+                                                        get24HourTime(
+                                                            selectedHour12,
+                                                            e.target.value,
+                                                            selectedPeriod,
+                                                        ),
+                                                    )
+                                                }
+                                                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none"
+                                            >
+                                                {MINUTE_OPTIONS.map((minute) => (
+                                                    <option
+                                                        key={minute}
+                                                        value={minute}
+                                                        disabled={isMinuteDisabled(minute)}
+                                                    >
+                                                        {minute}
+                                                    </option>
+                                                ))}
+                                            </select>
+
+                                            <select
+                                                value={selectedPeriod}
+                                                onChange={(e) =>
+                                                    updatePublishDate(
+                                                        selectedDate,
+                                                        get24HourTime(
+                                                            selectedHour12,
+                                                            selectedMinute,
+                                                            e.target.value as 'AM' | 'PM',
+                                                        ),
+                                                    )
+                                                }
+                                                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none"
+                                            >
+                                                {PERIOD_OPTIONS.map((period) => (
+                                                    <option
+                                                        key={period}
+                                                        value={period}
+                                                        disabled={isPeriodDisabled(period)}
+                                                    >
+                                                        {period}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <div className="bg-white p-6 rounded-2xl space-y-4 glass-card">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                    {/* <ImageIcon size={18} className="text-indigo-600" /> */}
-                    Featured Image
-                </h3>
-
-                <div className="aspect-video glass-card flex flex-col items-center justify-center text-center">
-                    {image ? (
-                        <div className="relative w-full h-full group">
-                            <img
-                                src={
-                                    image?.startsWith("blob:")
-                                        ? image
-                                        : `${process.env.BACKEND_DOMAIN}/${image}`
-                                }
-                                alt="Selected"
-                                className="w-full h-full object-cover rounded-xl"
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
+                            <input
+                                {...register('author')}
+                                placeholder="Enter Blog Author Name ...."
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                             />
+                        </div>
 
-                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl">
-                                <button
-                                    type="button"
-                                    onClick={handleRemoveImage}
-                                    className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                Category
+                            </label>
+
+                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCategoryModalOpen(true)}
+                                        className="text-blue-600 text-sm hover:underline"
+                                    >
+                                        + Add New Category
+                                    </button>
+                                </div>
+
+                                {categories.map((cat) => (
+                                    <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={category.includes(cat.id)}
+                                            onChange={() => {
+                                                let updated;
+
+                                                if (category.includes(cat.id)) {
+                                                    updated = category.filter(id => id !== cat.id);
+                                                } else {
+                                                    updated = [...category, cat.id];
+                                                }
+
+                                                setValue('category', updated);
+                                            }}
+                                            className="w-4 h-4 accent-blue-600"
+                                        />
+                                        <span className="text-sm text-black">{cat.name}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
-                    ) : (
-                        <p className="text-sm text-white">Select Featured Image</p>
-                    )}
+                    </div>
+                </div>
 
-                    <div className="flex gap-3 my-4">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setMediaFor('feature');
-                                setIsUploadModalOpen(true)
-                            }}
-                            className="btn"
-                        >
-                            Select Image
-                        </button>
+                <div className="bg-white p-6 rounded-2xl space-y-4 glass-card">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                        Featured Image
+                    </h3>
+
+                    <div className="aspect-video glass-card flex flex-col items-center justify-center text-center">
+                        {image ? (
+                            <div className="relative w-full h-full group">
+                                <img
+                                    src={
+                                        image?.startsWith('blob:')
+                                            ? image
+                                            : `${process.env.BACKEND_DOMAIN}/${image}`
+                                    }
+                                    alt="Selected"
+                                    className="w-full h-full object-cover rounded-xl"
+                                />
+
+                                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl">
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveImage}
+                                        className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-white">Select Featured Image</p>
+                        )}
+
+                        <div className="flex gap-3 my-4">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMediaFor('feature');
+                                    setIsUploadModalOpen(true);
+                                }}
+                                className="btn"
+                            >
+                                Select Image
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div></>
-);
+        </>
+    );
+};
 
-export default BlogSidebar
+export default BlogSidebar;

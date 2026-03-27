@@ -470,6 +470,7 @@ const BlogForm = () => {
                     register={register}
                     category={selectedCategories}
                     setValue={setValue}
+                    publishDate={publishDate}
                     categories={allData.categories}
                     setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}
@@ -477,6 +478,7 @@ const BlogForm = () => {
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
                     globalStatus={globalStatus}
+                    blogId={blogId}
                 />
             </div>
             {isPopupOpen && (
