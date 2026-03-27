@@ -477,6 +477,7 @@ const BlogForm = () => {
                     setIsUploadModalOpen={setIsUploadModalOpen}
                     setMediaFor={setMediaFor}
                     globalStatus={globalStatus}
+                    blogId={blogId}
                 />
             </div>
             {isPopupOpen && (

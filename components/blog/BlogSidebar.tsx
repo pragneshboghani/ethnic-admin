@@ -3,8 +3,9 @@
 import { BlogSidebarProps } from '@/types';
 import { Trash2 } from 'lucide-react';
 
-const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus }: BlogSidebarProps) => (
+const BlogSidebar = ({ register, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, blogId }: BlogSidebarProps) => {
 
+    return (
     <>
         <div className="space-y-6">
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 glass-card">
@@ -42,6 +43,7 @@ const BlogSidebar = ({ register, categories, category, setValue, image, handleRe
                                     ? new Date().toISOString().slice(0, 16)
                                     : undefined
                             }
+                            disabled={blogId !== null && globalStatus === "publish"}
                             onClick={(e) => (e.target as HTMLInputElement).showPicker()}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
                         />
@@ -149,6 +151,6 @@ const BlogSidebar = ({ register, categories, category, setValue, image, handleRe
                 </div>
             </div>
         </div></>
-);
+)};
 
 export default BlogSidebar

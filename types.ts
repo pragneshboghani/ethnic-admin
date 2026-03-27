@@ -149,6 +149,7 @@ export type BlogSidebarProps = {
   setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMediaFor: React.Dispatch<React.SetStateAction<"feature" | "editor">>;
   globalStatus: "draft" | "publish" | "future";
+  blogId: string | null;
 };
 
 export type CategoryType = {
