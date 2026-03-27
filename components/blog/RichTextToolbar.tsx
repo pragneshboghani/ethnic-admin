@@ -3,7 +3,7 @@ import { HtmlButton, useEditorState } from "react-simple-wysiwyg";
 import LinkModal from "./LinkModal";
 import UploadMediaModal from "../media/UploadMediaModal";
 import {
-    Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Image, AlignLeft, AlignCenter, AlignRight, Undo, Redo,
+    Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight, Undo, Redo,
     Type, Heading1, Heading2, Heading3, Highlighter, Palette, Eraser, DropletOff,
 } from "lucide-react";
 
@@ -20,7 +20,12 @@ type LinkFormValues = {
 };
 
 type EditorPlatformData = {
-    data?: Array<{ id: number }>;
+    data?: Array<{
+        id: number;
+        platform_name?: string;
+        status?: string;
+        api_endpoint?: string;
+    }>;
 } | null;
 const escapeHtml = (value: string) =>
     value
@@ -310,7 +315,7 @@ const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData })
 
                 <ToolbarButton
                     title="Image"
-                    icon={<Image size={15} />}
+                    icon={<ImageIcon size={15} />}
                     onAction={handleOpenImageModal}
                 />
 
@@ -360,18 +365,29 @@ const RichTextToolbar = ({ platformData }: { platformData: EditorPlatformData })
                     isOpen={isImageModalOpen}
                     onClose={() => setIsImageModalOpen(false)}
                     platformData={platformData}
-                    onSelectImage={(url) => {
+                    allowedMediaType="all"
+                    onSelectMedia={({ url, fileType }) => {
                         const normalizedUrl =
                             url.startsWith("http://") || url.startsWith("https://")
                                 ? url
                                 : `${process.env.BACKEND_DOMAIN}/${url}`;
 
-                        runEditorCommand(
-                            editorElement,
-                            "insertImage",
-                            normalizedUrl,
-                            savedRangeRef.current,
-                        );
+                        if (fileType === "video") {
+                            focusEditor(editorElement);
+                            restoreRange(savedRangeRef.current);
+                            document.execCommand(
+                                "insertHTML",
+                                false,
+                                `<video controls preload="metadata" style="max-width:100%;height:auto;" src="${escapeHtml(normalizedUrl)}"></video>`,
+                            );
+                        } else {
+                            runEditorCommand(
+                                editorElement,
+                                "insertImage",
+                                normalizedUrl,
+                                savedRangeRef.current,
+                            );
+                        }
                         setIsImageModalOpen(false);
                     }}
                 />

@@ -443,7 +443,7 @@ const BlogForm = () => {
                     <div className="p-6 w-96 glass-card">
                         <h3 className="text-xl font-semibold text-white mb-4">Select Related Blogs</h3>
                         <div className="space-y-2">
-                            {allData.allBlogs.map(blog => (
+                            {allData.allBlogs.filter(blog => blog.id !== Number(blogId)).map(blog => (
                                 <div key={blog.id} className="flex items-center">
                                     <input
                                         type="checkbox"

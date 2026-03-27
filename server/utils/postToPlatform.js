@@ -32,18 +32,16 @@ const postToPlatform = async (platform, blogData, slug = null) => {
         headers,
         params: { slug, status: "any" },
       });
-      if (!res.data.length) {
-        throw new Error("Post not found on platform with this slug");
-      }
+      if (res.data.length) {
+        const postId = res.data[0].id;
 
-      const postId = res.data[0].id;
-
-      if (platform.plateform_type == "wordpress") {
-        url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
-      } else {
-        url = `${platform.api_endpoint}/blog/${postId}`;
+        if (platform.plateform_type == "wordpress") {
+          url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
+        } else {
+          url = `${platform.api_endpoint}/blog/${postId}`;
+        }
+        method = "put";
       }
-      method = "put";
     }
 
     const payload = {
@@ -51,7 +49,7 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       excerpt: blogData.short_excerpt,
       content: blogData.full_content,
       date_gmt: new Date(blogData.publish_date).toISOString(),
-      slug: await generateSlug(blogData.blog_title),
+      slug: slug || (await generateSlug(blogData.blog_title)),
       status: blogData.status.toLowerCase(),
       categories: (blogData.category || []).map(Number),
       tags: blogData.tags,
