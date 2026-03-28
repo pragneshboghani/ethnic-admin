@@ -10,7 +10,7 @@ export default function SignIn() {
     const router = useRouter();
 
     const [formData, setFormData] = useState({
-        email: "",
+        username: "",
         password: "",
     });
 
@@ -67,12 +67,12 @@ export default function SignIn() {
 
                 <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
-                        <label className="block text-sm font-medium mb-1">Email Address</label>
+                        <label className="block text-sm font-medium mb-1">Username</label>
                         <input
-                            type="email"
-                            name="email"
-                            placeholder="Enter your email"
-                            value={formData.email}
+                            type="text"
+                            name="username"
+                            placeholder="Enter your secure username"
+                            value={formData.username}
                             onChange={handleChange}
                             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />

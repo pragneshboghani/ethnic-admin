@@ -5,8 +5,9 @@ import { createContext, useContext, useState } from "react";
 export type UserType = {
     id: number;
     name: string;
+    username: string;
     phone?: string;
-    email: string;
+    email?: string | null;
 };
 
 type UserContextType = {
