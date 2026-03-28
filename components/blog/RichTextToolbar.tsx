@@ -7,7 +7,7 @@ import {
     Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight, Undo, Redo,
     Type, Heading1, Heading2, Heading3, Highlighter, Palette, Eraser, DropletOff,
     ListIndentIncrease, ListIndentDecrease,
-    Table2, Subscript as SubscriptIcon, Superscript as SuperscriptIcon, Trash2,
+    Table, Subscript as SubscriptIcon, Superscript as SuperscriptIcon, Trash2,
 } from "lucide-react";
 
 type ToolbarButtonProps = {
@@ -522,7 +522,7 @@ const RichTextToolbar = ({
                 <ToolbarButton title="Link" icon={<LinkIcon size={15} />} onAction={handleOpenLinkModal} />
                 <ToolbarButton
                     title="Insert Table"
-                    icon={<Table2 size={15} />}
+                    icon={<Table size={15} />}
                     onAction={handleOpenTableModal}
                 />
                 {isTableContextActive && (
