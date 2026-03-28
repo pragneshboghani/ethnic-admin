@@ -6,6 +6,9 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const userRouter = Router();
 
+const adminUserName = process.env.ADMIN_USER_NAME;
+const adminUserPassword = process.env.ADMIN_USER_PASSWORD;
+
 // userRouter.get("/all", authMiddleware, async (req, res) => {
 //   try {
 //     const [rows] = await mysqlpool.query("SELECT * FROM users");
@@ -170,68 +173,101 @@ const userRouter = Router();
 //   }
 // });
 
+// userRouter.post("/login", async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+
+//     if (!username || !password) {
+//       return res.status(400).send({
+//         success: false,
+//         message: "Username and password are required",
+//       });
+//     }
+
+//     const [[user]] = await mysqlpool.query(
+//       "SELECT * FROM users WHERE username=?",
+//       [username],
+//     );
+
+//     if (!user) {
+//       return res.status(404).send({
+//         success: false,
+//         message: "username or password is incorrect",
+//       });
+//     }
+
+//     const match = await bcrypt.compare(password, user.password);
+
+//     if (!match) {
+//       return res.status(401).send({
+//         success: false,
+//         message: "username or password is incorrect",
+//       });
+//     }
+
+//     // JWT TOKEN
+//     const token = jwt.sign(
+//       {
+//         id: user.id,
+//         username: user.username,
+//         email: user.email,
+//         role: user.role,
+//       },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1d" },
+//     );
+
+//     res.status(200).send({
+//       success: true,
+//       message: "Login successful",
+//       token,
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         username: user.username,
+//         email: user.email,
+//         role: user.role,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).send({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
+
 userRouter.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).send({
-        success: false,
-        message: "Username and password are required",
-      });
-    }
-
-    const [[user]] = await mysqlpool.query(
-      "SELECT * FROM users WHERE username=?",
-      [username],
-    );
-
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: "username or password is incorrect",
-      });
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.status(401).send({
-        success: false,
-        message: "username or password is incorrect",
-      });
-    }
-
-    // JWT TOKEN
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" },
-    );
-
-    res.status(200).send({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    res.status(500).send({
+  if (!username || !password) {
+    return res.status(400).send({
       success: false,
-      message: error.message,
+      message: "Username and password are required",
     });
   }
+
+  const isMatch = username === adminUserName && password === adminUserPassword;
+  if (!isMatch) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid username and password" });
+  }
+
+  const token = jwt.sign(
+    {
+      username:username,
+      password:password
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN },
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful",
+    token,
+  });
 });
 
 module.exports = userRouter;
