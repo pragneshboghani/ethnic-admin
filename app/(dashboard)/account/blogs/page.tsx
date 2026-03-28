@@ -138,12 +138,12 @@ const Blogs = () => {
   return (
     <>
       <div className="glass-card p-4">
-        <div className="flex flex-wrap items-center gap-5">
+        <div className="flex flex-wrap items-center gap-3">
 
           <input
             type="text"
             placeholder="Search blogs..."
-            className="border px-4 py-2 rounded-lg w-60 border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
+            className="border px-2 py-2 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -151,12 +151,12 @@ const Blogs = () => {
           <input
             type="text"
             placeholder="Author"
-            className="border px-3 py-2 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
+            className="border px-2 py-2 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
           />
           <select
-            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none"
+            className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -169,7 +169,7 @@ const Blogs = () => {
           </select>
 
           <select
-            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none"
+            className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
           >
@@ -183,7 +183,7 @@ const Blogs = () => {
 
           {platformData?.totalPlatforms > 0 && (
             <select
-              className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+              className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
             >
@@ -197,7 +197,7 @@ const Blogs = () => {
           )}
 
           <select
-            className="border p-3 rounded-lg border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+            className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
