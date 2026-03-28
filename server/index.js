@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("./cron/publishStatus");
 
 const express = require("express");
 const cors = require("cors");

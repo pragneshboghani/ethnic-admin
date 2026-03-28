@@ -1,7 +1,7 @@
 const cron = require("node-cron");
-const axios = require("axios");
 const mysqlpool = require("../config/db");
-const getAuthHeaders = require("../utils/getAuthHeaders");
+const postToPlatform = require("../utils/postToPlatform");
+const { getPlatformsByIds } = require("../utils/platformHelper");
 
 cron.schedule("* * * * *", async () => {
   try {
@@ -10,51 +10,35 @@ cron.schedule("* * * * *", async () => {
       WHERE status = 'future'
     `);
 
-    const currentTime = new Date();
-    const now = currentTime.getTime();
+    if (blogs.length > 0) {
+      const currentTime = new Date();
+      const now = currentTime.getTime();
 
-    for (const blog of blogs) {
-      const publishDate = blog.publish_date;
-      const publishTime = publishDate.getTime();
+      for (const blog of blogs) {
+        const publishDate = blog.publish_date;
+        const publishTime = publishDate.getTime();
 
-      if (now >= publishTime) {
+        if (now >= publishTime) {
+          const platformData = await getPlatformsByIds(blog.platforms);
 
-        const [platforms] = await mysqlpool.query(
-          `SELECT * FROM platforms WHERE id IN (?)`,
-          [blog.platforms],
-        );
+          const payload = {
+            status: "publish",
+            slug: blog.slug,
+          };
 
-        for (const platform of platforms) {
-          let url = "";
-          if (platform.plateform_type == "wordpress") {
-            url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
-          } else {
-            url = `${platform.api_endpoint}/blog`;
-          }
-
-          const headers = getAuthHeaders(platform);
-          const res = await axios.get(`${url}`, {
-            headers,
-            params: { slug: blog.slug, status: "any" },
-          });
-
-          const postId = res.data[0].id;
-
-          const update = await axios.put(
-            `${url}/${postId}`,
-            { status: "publish" },
-            { headers },
+          const results = await Promise.all(
+            platformData.map((platform) =>
+              postToPlatform(platform, payload, payload.slug),
+            ),
           );
 
-          console.log("update", update.data);
           const responce = await mysqlpool.query(
             `UPDATE blogs SET status = 'publish' WHERE id = ?`,
             [blog.id],
           );
 
-          console.log("responce", responce);
+          console.log(`Published blog ID ${blog.id}`);
         }
-        console.log(`Published blog ID ${blog.id}`);
       }
     }
   } catch (err) {

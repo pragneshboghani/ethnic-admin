@@ -588,9 +588,16 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     ) AS blog_data
    FROM seo_blog sb
    JOIN blogs b ON b.id = sb.blog_id
-   WHERE sb.slug = ?`,
+   WHERE sb.slug = ? AND b.status = "publish"`,
       [slug.trim()],
     );
+
+    if (!raw) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
+    }
 
     let data = raw.blog_data;
 
@@ -606,7 +613,6 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       success: true,
       data,
     });
-
   } catch (error) {
     console.error("Error fetching blog by slug:", error);
     res.status(500).json({

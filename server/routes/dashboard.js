@@ -7,12 +7,12 @@ const dashboardRouter = Router();
 dashboardRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [[statusCount]] = await mysqlpool.query(`
-      SELECT 
-        COUNT(*) as TotalBlogs,
-        SUM(status='publish') as PublishedBlogs,
-        SUM(status='future') as ScheduledBlogs,
-        SUM(status='draft') as DraftBlogs
-      FROM blogs
+SELECT 
+  COUNT(*) as TotalBlogs,
+  COALESCE(SUM(status='publish'), 0) as PublishedBlogs,
+  COALESCE(SUM(status='future'), 0) as ScheduledBlogs,
+  COALESCE(SUM(status='draft'), 0) as DraftBlogs
+FROM blogs
     `);
 
     const [[platformCount]] = await mysqlpool.query(`
@@ -39,7 +39,6 @@ dashboardRouter.get("/all", authMiddleware, async (req, res) => {
 
 dashboardRouter.get("/allData", authMiddleware, async (req, res) => {
   try {
-
     const [results] = await mysqlpool.query(`
       SELECT * FROM blogs;
       SELECT * FROM platforms;
