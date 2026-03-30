@@ -513,7 +513,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       JOIN seo_blog sb
         ON b.id = sb.blog_id AND p2.id = sb.platform_id
 
-      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND b.status = "publish"
+      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"
       ORDER BY b.created_at DESC
        LIMIT ? OFFSET ?
       `,
@@ -610,7 +610,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     ) AS blog_data
    FROM seo_blog sb
    JOIN blogs b ON b.id = sb.blog_id
-   WHERE sb.slug = ? AND b.status = "publish"`,
+   WHERE sb.slug = ? AND sb.publish_status = "publish"`,
       [slug.trim()],
     );
 

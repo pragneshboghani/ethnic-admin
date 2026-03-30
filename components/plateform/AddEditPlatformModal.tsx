@@ -130,7 +130,7 @@ const AddEditPlatformModal = ({
                         </div>
 
                         <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Default API Endpoint</label>
+                            <label className="text-sm font-semibold">Default Blog Path</label>
                             <input
                                 type="text"
                                 {...register("blog_path")}

@@ -5,7 +5,7 @@ import DashBoardActions from "@/actions/DashboardAction";
 import SEOActions from "@/actions/SEOAction";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import { formatDateTime } from "@/utils/formatDateTime";
-import { Eye, Pencil, Trash2, X } from "lucide-react";
+import { Copy, Eye, Pencil, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -21,6 +21,7 @@ const Blogs = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
   const [selectUpdate, setSelectUpdate] = useState<number | null>(null);
+  const [duplicateBlogId, setDuplicateBlogId] = useState<number | null>(null);
   const [platformSettings, setPlatformSettings] = useState<any>({});
 
   const [search, setSearch] = useState("");
@@ -91,6 +92,12 @@ const Blogs = () => {
       router.push(`/account/blogs/add?id=${selectUpdate}`);
     }
   }, [selectUpdate, router]);
+
+  useEffect(() => {
+    if (duplicateBlogId) {
+      router.push(`/account/blogs/add?duplicateId=${duplicateBlogId}`);
+    }
+  }, [duplicateBlogId, router]);
 
 
   useEffect(() => {
@@ -283,6 +290,13 @@ const Blogs = () => {
                         onClick={() => setSelectUpdate(b.id!)}
                       >
                         <Pencil size={16} />
+                      </button>
+                      <button
+                        className="text-white hover:text-emerald-400"
+                        title="Duplicate Blog"
+                        onClick={() => setDuplicateBlogId(b.id!)}
+                      >
+                        <Copy size={16} />
                       </button>
                       <button
                         className="text-white hover:text-red-500"
