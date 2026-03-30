@@ -344,6 +344,7 @@ const Blogs = () => {
           publishDate={selectedBlog?.publish_date}
           readingTime={selectedBlog?.reading_time}
           title={selectedBlog?.blog_title}
+          faq={selectedBlog?.faq || []}
           excerpt={selectedBlog?.short_excerpt}
           formContent={selectedBlog?.full_content}
           tags={

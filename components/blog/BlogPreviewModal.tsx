@@ -6,7 +6,7 @@ import { BlogPreviewModalProps } from "@/types";
 
 const BlogPreviewModal = ({
     showPreview, setShowPreview, image, category, categories, publishDate, readingTime, title, excerpt, formContent, tags,
-    relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings }: BlogPreviewModalProps) => {
+    relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, faq }: BlogPreviewModalProps) => {
 
     if (!showPreview) return null;
 
@@ -50,6 +50,19 @@ const BlogPreviewModal = ({
                         <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic"><strong>Short Excerpt: </strong>{excerpt}</p>
                     )}
                     <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
+                    {faq.length > 0 && (
+                        <div>
+                            <h3 className="font-semibold mb-2">FAQ</h3>
+                            <div className="space-y-4">
+                                {faq.map((item, index) => (
+                                    <div key={index} className="border rounded-xl p-4">
+                                        <p className="font-medium"><strong>Question:</strong> {item.question}</p>
+                                        <p><strong>Answer:</strong> {item.answer}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {tags.length > 0 && (
                         <div>
                             <h3 className="font-semibold mb-2">Tags</h3>

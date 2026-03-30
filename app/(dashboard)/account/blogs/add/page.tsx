@@ -214,7 +214,7 @@ const BlogForm = () => {
                 const AddedBlogs = await BlogActions.addBlog(BlogFormData);
                 newBlogId = AddedBlogs.blogId;
 
-                // await SEOActions.addSEO(newBlogId, seoFormDataArray);
+                await SEOActions.addSEO(newBlogId, seoFormDataArray);
 
                 toast.success(isDraft ? "Draft Successfully Saved!" : "Blog Successfully Added!");
             } else {
@@ -531,6 +531,7 @@ const BlogForm = () => {
                     publishDate={publishDate}
                     readingTime={readingTime}
                     title={title}
+                    faq={faq}
                     excerpt={excerpt}
                     formContent={content}
                     tags={selectedTags.map(tagId => {

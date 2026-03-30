@@ -49,6 +49,7 @@ export type BlogPreviewModalProps = {
   selectedPlatforms: number[];
   platformData: any;
   platformSettings: any;
+  faq: { question: string; answer: string }[];
 };
 
 export type BlogGeneralSectionProps = {
