@@ -5,7 +5,7 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import { BlogPreviewModalProps } from "@/types";
 
 const BlogPreviewModal = ({
-    showPreview, setShowPreview, image, category, categories, publishDate, readingTime, title, excerpt, formContent, tags,
+    showPreview, setShowPreview, mode = "preview", onConfirmPublish, image, category, categories, publishDate, readingTime, title, excerpt, formContent, tags,
     relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, faq }: BlogPreviewModalProps) => {
 
     if (!showPreview) return null;
@@ -14,7 +14,7 @@ const BlogPreviewModal = ({
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
             <div className="w-[1000px] max-h-[90vh] overflow-y-auto rounded-2xl text-white glass-card">
                 <div className="flex justify-between items-center border-b p-6">
-                    <h2 className="text-xl font-bold">Blog Preview</h2>
+                    <h2 className="text-xl font-bold">{mode === "publish" ? "Preview Before Publish" : "Blog Preview"}</h2>
                     <button onClick={() => setShowPreview(false)} className="text-white">
                         <X />
                     </button>
@@ -108,6 +108,24 @@ const BlogPreviewModal = ({
                                     </div>
                                 )
                             })}
+                        </div>
+                    )}
+                    {mode === "publish" && (
+                        <div className="sticky bottom-5 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowPreview(false)}
+                                className="btn"
+                            >
+                                Back
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onConfirmPublish}
+                                className="btn"
+                            >
+                                Confirm And Publish
+                            </button>
                         </div>
                     )}
                 </div>

@@ -52,6 +52,7 @@ const BlogForm = () => {
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [previewMode, setPreviewMode] = useState<"preview" | "publish">("preview");
     const [allData, setAllData] = useState<AllDataType>({
         allBlogs: [],
         categories: [],
@@ -439,10 +440,21 @@ const BlogForm = () => {
             className="space-y-8"
             onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit(false);
+                setPreviewMode("publish");
+                setShowPreview(true);
             }}
         >
-            <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={() => handleSubmit(true)} />
+            <BlogHeader
+                onPreview={() => {
+                    setPreviewMode("preview");
+                    setShowPreview(true);
+                }}
+                onSaveDraft={() => handleSubmit(true)}
+                onPublish={() => {
+                    setPreviewMode("publish");
+                    setShowPreview(true);
+                }}
+            />
             <BlogTabSwitcher
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -535,6 +547,11 @@ const BlogForm = () => {
                 <BlogPreviewModal
                     showPreview={showPreview}
                     setShowPreview={setShowPreview}
+                    mode={previewMode}
+                    onConfirmPublish={() => {
+                        setShowPreview(false);
+                        handleSubmit(false);
+                    }}
                     image={image}
                     category={selectedCategories}
                     categories={allData.categories}

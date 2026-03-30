@@ -35,6 +35,8 @@ export interface Media {
 export type BlogPreviewModalProps = {
   showPreview: boolean;
   setShowPreview: (val: boolean) => void;
+  mode?: "preview" | "publish";
+  onConfirmPublish?: () => void;
   image: string | null;
   category: number[];
   categories: { id: number; name: string }[];
