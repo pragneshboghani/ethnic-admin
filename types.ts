@@ -19,7 +19,9 @@ export interface Platform {
   created_at?: string;
   updated_at?: string;
   data_source: string;
-  blog_path: string
+  blog_path: string;
+  CTA_link: string;
+  CTA_button_text: string;
 }
 
 export interface Media {

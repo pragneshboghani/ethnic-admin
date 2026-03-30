@@ -84,9 +84,9 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
       password,
       status,
       blog_path,
+      CTA_link,
+      CTA_button_text,
     } = req.body;
-
-    console.log("Received data for new platform:", req.body);
 
     if (data_source === "admin") {
       plateform_type = null;
@@ -136,12 +136,14 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO platforms 
-      (platform_name, website_url, blog_path, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (platform_name, website_url, blog_path, CTA_link, CTA_button_text, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         platform_name,
         website_url,
         blog_path,
+        CTA_link,
+        CTA_button_text,
         data_source,
         plateform_type,
         api_endpoint,
@@ -175,6 +177,8 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       platform_name,
       website_url,
       blog_path,
+      CTA_link,
+      CTA_button_text,
       data_source,
       plateform_type,
       api_endpoint,
@@ -245,6 +249,8 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         platform_name: platform_name ?? raw.platform_name,
         website_url: website_url ?? raw.website_url,
         blog_path: blog_path ?? raw.blog_path,
+        CTA_link: CTA_link ?? raw.CTA_link,
+        CTA_button_text: CTA_button_text ?? raw.CTA_button_text,
         data_source: "admin",
         plateform_type: null,
         api_endpoint: null,
@@ -259,6 +265,8 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         platform_name: platform_name ?? raw.platform_name,
         website_url: website_url ?? raw.website_url,
         blog_path: blog_path ?? raw.blog_path,
+        CTA_link: CTA_link ?? raw.CTA_link,
+        CTA_button_text: CTA_button_text ?? raw.CTA_button_text,
         data_source: data_source ?? raw.data_source,
         plateform_type: plateform_type ?? raw.plateform_type,
         api_endpoint: api_endpoint ?? raw.api_endpoint,
@@ -272,7 +280,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
 
     await mysqlpool.query(
       `UPDATE platforms 
-       SET platform_name = ?, website_url = ?, blog_path = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
+       SET platform_name = ?, website_url = ?, blog_path = ?, CTA_link = ?, CTA_button_text = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
            auth_type = ?, auth_token = ?, username = ?, password = ?, 
            status = ?
        WHERE id = ?`,
@@ -280,6 +288,8 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.platform_name,
         UpdatedData.website_url,
         UpdatedData.blog_path,
+        UpdatedData.CTA_link,
+        UpdatedData.CTA_button_text,
         UpdatedData.data_source,
         UpdatedData.plateform_type,
         UpdatedData.api_endpoint,
