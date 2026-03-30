@@ -405,8 +405,9 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
         blog_title LIKE ? 
         OR short_excerpt LIKE ?
         OR full_content LIKE ?
+        OR slug LIKE ?
       )`;
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY created_at DESC`;
