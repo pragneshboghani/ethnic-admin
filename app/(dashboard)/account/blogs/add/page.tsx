@@ -65,6 +65,7 @@ const BlogForm = () => {
             title: "",
             excerpt: "",
             content: "",
+            faq: [],
             publishDate: "",
             globalStatus: "draft",
             author: "",
@@ -86,6 +87,7 @@ const BlogForm = () => {
     const title = watch("title");
     const excerpt = watch('excerpt');
     const content = watch("content");
+    const faq = watch("faq") || [];
     const tagsValue = watch("tags");
     const related = watch('relatedBlogs')
     const readingTime = watch('reading_time')
@@ -153,6 +155,7 @@ const BlogForm = () => {
             BlogTitle: title,
             BlogExcerpt: excerpt,
             BlogContent: content,
+            BlogFaq: faq,
             BlogTags: tagsValue,
             BlogRalated: related,
             BlogAuthor: author,
@@ -183,6 +186,7 @@ const BlogForm = () => {
                 blog_title: formData.BlogTitle,
                 short_excerpt: formData.BlogExcerpt,
                 full_content: formData.BlogContent,
+                faq: formData.BlogFaq,
                 featured_image: formData.image,
                 category: formData.BlogSelectedCategories,
                 author: formData.BlogAuthor,
@@ -210,7 +214,7 @@ const BlogForm = () => {
                 const AddedBlogs = await BlogActions.addBlog(BlogFormData);
                 newBlogId = AddedBlogs.blogId;
 
-                await SEOActions.addSEO(newBlogId, seoFormDataArray);
+                // await SEOActions.addSEO(newBlogId, seoFormDataArray);
 
                 toast.success(isDraft ? "Draft Successfully Saved!" : "Blog Successfully Added!");
             } else {
@@ -316,6 +320,7 @@ const BlogForm = () => {
                     title: blog.blog_title || "",
                     excerpt: blog.short_excerpt || "",
                     content: blog.full_content || "",
+                    faq: blog.faq || [],
                     publishDate: normalizeDateForInput(blog.publish_date),
                     author: blog.author,
                     globalStatus: blog.status || "draft",
@@ -439,6 +444,7 @@ const BlogForm = () => {
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
                             register={register}
+                            control={control as any}
                             setValue={setValue}
                             relatedBlogs={relatedBlogs}
                             allBlogs={{ data: allData.allBlogs }}

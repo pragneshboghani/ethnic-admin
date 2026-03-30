@@ -4,6 +4,12 @@ const blogSchema = z.object({
   title: z.string(),
   excerpt: z.string(),
   content: z.string(),
+  faq: z.array(
+    z.object({
+      question: z.string(),
+      answer: z.string(),
+    }),
+  ).default([]),
   publishDate: z.string(),
   globalStatus: z.enum(["draft", "publish", "future"]),
   category: z.array(z.number()),

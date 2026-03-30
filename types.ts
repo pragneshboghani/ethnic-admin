@@ -1,4 +1,5 @@
 import {
+  Control,
   FieldArrayWithId,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
@@ -52,6 +53,7 @@ export type BlogPreviewModalProps = {
 
 export type BlogGeneralSectionProps = {
   register: any;
+  control: Control<any>;
   setValue: UseFormSetValue<any>;
   content: string;
   relatedBlogs: any[];
@@ -100,6 +102,7 @@ export type BlogFormType = {
   BlogTitle: string;
   BlogExcerpt: string;
   BlogContent: string;
+  BlogFaq: { question: string; answer: string }[];
   image: string;
   BlogSelectedCategories: number[];
   BlogAuthor: string;
@@ -115,6 +118,7 @@ export type BlogFormUIType = {
   title: string;
   excerpt: string;
   content: string;
+  faq: { question: string; answer: string }[];
   publishDate: string;
   globalStatus: "draft" | "publish" | "future";
   category: number[];

@@ -37,10 +37,16 @@ const BASE_URL = process.env.BACKEND_API;
 blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
+
+    const data = rows.map((row) => ({
+      ...row,
+      faq: safeParse(row.faq),
+    }));
+
     res.status(200).send({
       success: true,
-      totalBlogs: rows.length,
-      data: rows,
+      totalBlogs: data.length,
+      data,
     });
   } catch (error) {
     console.error("Error fetching blogs:", error);
@@ -68,7 +74,10 @@ blogRouter.get("/get", authMiddleware, async (req, res) => {
 
     res.status(200).send({
       success: true,
-      data: rows[0],
+      data: {
+        ...rows[0],
+        faq: safeParse(rows[0].faq),
+      },
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
@@ -85,6 +94,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       blog_title,
       short_excerpt,
       full_content,
+      faq,
       featured_image,
       category,
       tags,
@@ -95,7 +105,6 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       status,
       platforms,
     } = req.body;
-
     if (!publish_date || publish_date.trim() === "") {
       return res.status(400).json({
         success: false,
@@ -119,12 +128,13 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO blogs 
-      (blog_title, short_excerpt, full_content, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms, slug)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (blog_title, short_excerpt, full_content, faq, featured_image, category, tags, author, publish_date, reading_time, related, status, platforms, slug)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         blog_title,
         short_excerpt,
         full_content,
+        JSON.stringify(faq || []),
         featured_image,
         JSON.stringify(category),
         JSON.stringify(tags),
@@ -161,6 +171,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       blog_title,
       short_excerpt,
       full_content,
+      faq,
       featured_image,
       category,
       tags,
@@ -205,6 +216,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       blog_title: blog_title ?? raw.blog_title,
       short_excerpt: short_excerpt ?? raw.short_excerpt,
       full_content: full_content ?? raw.full_content,
+      faq: faq ?? safeParse(raw.faq),
       featured_image: featured_image ?? raw.featured_image,
       category: category ?? parsedRawCategory,
       tags: tags ?? parsedRawTags,
@@ -238,6 +250,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       blog_title: platformPayload.blog_title,
       short_excerpt: platformPayload.short_excerpt,
       full_content: platformPayload.full_content,
+      faq: JSON.stringify(platformPayload.faq),
       featured_image: platformPayload.featured_image,
       category: JSON.stringify(platformPayload.category),
       tags: JSON.stringify(platformPayload.tags),
@@ -259,7 +272,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
 
     await mysqlpool.query(
       `UPDATE blogs
-       SET blog_title = ?, short_excerpt = ?, full_content = ?, featured_image = ?,
+       SET blog_title = ?, short_excerpt = ?, full_content = ?, faq = ?, featured_image = ?,
            category = ?, tags = ?, author = ?, publish_date = ?, reading_time = ?,
            related = ?, status = ?, platforms = ?, slug = ?
        WHERE id = ?`,
@@ -267,6 +280,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.blog_title,
         UpdatedData.short_excerpt,
         UpdatedData.full_content,
+        UpdatedData.faq,
         UpdatedData.featured_image,
         UpdatedData.category,
         UpdatedData.tags,
@@ -414,10 +428,15 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
 
     const [rows] = await mysqlpool.query(query, params);
 
+    const data = rows.map((row) => ({
+      ...row,
+      faq: safeParse(row.faq),
+    }));
+
     res.status(200).send({
       success: true,
-      totalBlogs: rows.length,
-      data: rows,
+      totalBlogs: data.length,
+      data,
     });
   } catch (error) {
     console.error("Error filtering blogs:", error);
@@ -471,7 +490,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(
       `
       SELECT 
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -504,6 +523,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const updatedBlogs = blogs.map((blog) => {
       const updated = {
         ...blog,
+        faq: safeParse(blog.faq),
         featured_image: blog.featured_image
           ? BASE_URL + blog.featured_image
           : null,
@@ -558,6 +578,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       'status', b.status,
       'created_at', b.created_at,
       'full_content', b.full_content,
+      'faq', IFNULL(b.faq, JSON_ARRAY()),
       'slug', sb.slug,
 
       'category_data', IFNULL((
