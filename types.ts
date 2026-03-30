@@ -19,6 +19,7 @@ export interface Platform {
   created_at?: string;
   updated_at?: string;
   data_source: string;
+  blog_path: string
 }
 
 export interface Media {

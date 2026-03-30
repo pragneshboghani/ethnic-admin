@@ -38,6 +38,7 @@ const AddEditPlatformModal = ({
             password: "",
             status: "Active",
             data_source: "platform",
+            blog_path:""
         },
     });
 
@@ -61,6 +62,7 @@ const AddEditPlatformModal = ({
                 password: "",
                 status: "Active",
                 data_source: "platform",
+                blog_path:""
             });
         }
     }, [editingPlatform, reset]);
@@ -115,6 +117,12 @@ const AddEditPlatformModal = ({
                             className="w-full p-2 rounded bg-white border text-black"
                         />
 
+                        <input
+                            type="text"
+                            {...register("blog_path")}
+                            placeholder="Default Blog Path"
+                            className="w-full p-2 rounded bg-white border text-black"
+                        />
                         <div className="space-y-2">
                             <label className="text-white font-medium">Data Source</label>
                             <div className="flex gap-4">
