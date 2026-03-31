@@ -11,12 +11,16 @@ cron.schedule("* * * * *", async () => {
     `);
 
     if (blogs.length > 0) {
+      console.log(`Found ${blogs.length} blogs scheduled for publishing.`);
       const currentTime = new Date();
       const now = currentTime.getTime();
 
       for (const blog of blogs) {
         const publishDate = blog.publish_date;
         const publishTime = publishDate.getTime();
+
+        console.log(`Checking blog ID ${blog.id} - Scheduled publish time: ${publishDate}`);
+        console.log(`Current time: ${currentTime}`);
 
         if (now >= publishTime) {
           const platformData = await getPlatformsByIds(blog.platforms);
