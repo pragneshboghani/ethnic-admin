@@ -32,16 +32,74 @@ const normalizePlatformIds = (value) => {
   return safeParse(value).map(Number).filter(Boolean);
 };
 
+const formatDateForDb = (value) => {
+  if (!value) return value;
+
+  if (
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)
+  ) {
+    return `${value.replace("T", " ")}:00`;
+  }
+
+  if (
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(value)
+  ) {
+    return `${value}:00`;
+  }
+
+  if (
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)
+  ) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  const pad = (num) => String(num).padStart(2, "0");
+  return `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(
+    parsed.getDate(),
+  )} ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}:${pad(
+    parsed.getSeconds(),
+  )}`;
+};
+
+const formatDateForResponse = (value) => {
+  if (!value) return value;
+
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  const pad = (num) => String(num).padStart(2, "0");
+  return `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(
+    parsed.getDate(),
+  )} ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}:${pad(
+    parsed.getSeconds(),
+  )}`;
+};
+
+const formatBlogRowForResponse = (row) => ({
+  ...row,
+  faq: safeParse(row.faq),
+  publish_date: formatDateForResponse(row.publish_date),
+  created_at: formatDateForResponse(row.created_at),
+  updated_at: formatDateForResponse(row.updated_at),
+});
+
 const BASE_URL = process.env.BACKEND_API;
 
 blogRouter.get("/all", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
 
-    const data = rows.map((row) => ({
-      ...row,
-      faq: safeParse(row.faq),
-    }));
+    const data = rows.map(formatBlogRowForResponse);
 
     res.status(200).send({
       success: true,
@@ -74,10 +132,7 @@ blogRouter.get("/get", authMiddleware, async (req, res) => {
 
     res.status(200).send({
       success: true,
-      data: {
-        ...rows[0],
-        faq: safeParse(rows[0].faq),
-      },
+      data: formatBlogRowForResponse(rows[0]),
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
@@ -105,6 +160,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       status,
       platforms,
     } = req.body;
+    const formattedPublishDate = formatDateForDb(publish_date);
     if (!publish_date || publish_date.trim() === "") {
       return res.status(400).json({
         success: false,
@@ -139,7 +195,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
         JSON.stringify(category),
         JSON.stringify(tags),
         author,
-        publish_date,
+        formattedPublishDate,
         reading_time,
         JSON.stringify(related),
         status,
@@ -182,7 +238,6 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       status,
       platforms,
     } = req.body;
-
     const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
       id,
     ]);
@@ -194,18 +249,14 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       });
     }
 
+    const formattedPublishDate = publish_date
+      ? formatDateForDb(publish_date)
+      : raw?.publish_date;
+
     const parsedRawCategory = safeParse(raw.category);
     const parsedRawTags = safeParse(raw.tags);
     const parsedRawRelated = safeParse(raw.related);
     const parsedRawPlatforms = normalizePlatformIds(raw.platforms);
-
-    let finalPublishDate = raw.publish_date;
-
-    if (raw.status === "publish") {
-      finalPublishDate = raw.publish_date;
-    } else {
-      finalPublishDate = publish_date ?? raw.publish_date;
-    }
 
     const updatedPlatformIds =
       platforms !== undefined
@@ -221,7 +272,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       category: category ?? parsedRawCategory,
       tags: tags ?? parsedRawTags,
       author: author ?? raw.author,
-      publish_date: finalPublishDate,
+      publish_date: formattedPublishDate ?? raw.publish_date,
       reading_time: reading_time ?? raw.reading_time,
       related: related ?? parsedRawRelated,
       status: status ?? raw.status,
@@ -255,7 +306,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       category: JSON.stringify(platformPayload.category),
       tags: JSON.stringify(platformPayload.tags),
       author: platformPayload.author,
-      publish_date: finalPublishDate,
+      publish_date: platformPayload.publish_date,
       reading_time: platformPayload.reading_time,
       related: JSON.stringify(platformPayload.related),
       status: platformPayload.status,
@@ -428,10 +479,7 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
 
     const [rows] = await mysqlpool.query(query, params);
 
-    const data = rows.map((row) => ({
-      ...row,
-      faq: safeParse(row.faq),
-    }));
+    const data = rows.map(formatBlogRowForResponse);
 
     res.status(200).send({
       success: true,
