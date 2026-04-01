@@ -52,6 +52,7 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
       .map((r) => ({
         id: r.mediaId,
         url: r.url,
+        platformId: r.platformId,
       }));
 
     const [result] = await mysqlpool.query(

@@ -11,6 +11,16 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
         control,
         name: "faq",
     });
+    const sortedTagsList = [...tagsList].sort((a, b) => {
+        const aSelected = selectedTags.includes(a.id);
+        const bSelected = selectedTags.includes(b.id);
+
+        if (aSelected === bSelected) {
+            return a.name.localeCompare(b.name);
+        }
+
+        return aSelected ? -1 : 1;
+    });
 
     return (
         <div className="space-y-6 rounded-2xl p-6 md:p-8 glass-card">
@@ -83,7 +93,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                         onClick={() => removeFaq(index)}
                                         className="text-sm font-medium text-red-600 transition-all hover:text-red-700"
                                     >
-                                        <Trash2 size={19}/>
+                                        <Trash2 size={19} />
                                     </button>
                                 </div>
 
@@ -92,7 +102,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                     <input
                                         {...register(`faq.${index}.question`)}
                                         placeholder="Enter FAQ question..."
-                                         className="w-full rounded-xl bg-slate-50 px-4 py-2.5 text-lg font-medium text-black transition-all focus:border-none focus:outline-none"
+                                        className="w-full rounded-xl bg-slate-50 px-4 py-2.5 text-lg font-medium text-black transition-all focus:border-none focus:outline-none"
                                     />
                                 </div>
 
@@ -114,43 +124,51 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                     </div>
                 )}
             </div>
-            <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold">Tags</label>
-                    <div className="max-h-48 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <div>
-                            <button
-                                type="button"
-                                onClick={() => setIsTagModalOpen(true)}
-                                className="text-sm text-blue-600 hover:underline"
-                            >
-                                + Add New Tag
-                            </button>
-                        </div>
-                        {tagsList.map((tag) => (
-                            <label key={tag.id} className="flex cursor-pointer items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedTags.includes(tag.id)}
-                                    onChange={(e) => {
-                                        let updatedTags;
 
-                                        if (e.target.checked) {
-                                            updatedTags = [...selectedTags, tag.id];
-                                        } else {
-                                            updatedTags = selectedTags.filter((id) => id !== tag.id);
-                                        }
+            <div className="space-y-2 mt-4">
+                <div className="flex justify-between items-center gap-3">
+                    <label className="text-md font-semibold">Tags</label>
+                    <button
+                        type="button"
+                        onClick={() => setIsTagModalOpen(true)}
+                        className="btn"
+                    >
+                        + Add New Tag
+                    </button>
+                </div>
+                <div className="max-h-50 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex flex-wrap gap-2">
+                        {sortedTagsList.map((tag) => {
+                            const isSelected = selectedTags.includes(tag.id);
 
-                                        setValue("tags", updatedTags);
+                            return (
+                                <button
+                                    key={tag.id}
+                                    type="button"
+                                    onClick={() => {
+                                        const updatedTags = isSelected
+                                            ? selectedTags.filter((id) => id !== tag.id)
+                                            : [...selectedTags, tag.id];
+
+                                        setValue("tags", updatedTags, {
+                                            shouldDirty: true,
+                                            shouldTouch: true,
+                                        });
                                     }}
-                                    className="h-4 w-4 accent-blue-600"
-                                />
-                                <span className="text-sm text-black">{tag.name}</span>
-                            </label>
-                        ))}
+                                    className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${isSelected
+                                        ? "border-blue-600 bg-blue-600 text-white"
+                                        : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:text-blue-600"
+                                        }`}
+                                >
+                                    {tag.name}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
+            </div>
 
+            <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
                 {allBlogs.data.length > 0 && (
                     <div className="m-0">
                         <label className="text-sm font-semibold">Related Blogs</label>

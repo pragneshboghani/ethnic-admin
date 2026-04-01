@@ -44,6 +44,7 @@ const postMediaToPlateform = async (platform, data) => {
       platform: platform.platform_name,
       mediaId: wpMedia.id,
       url: wpMedia.source_url,
+      platformId: platform.id,
     };
   } catch (error) {
     return {
