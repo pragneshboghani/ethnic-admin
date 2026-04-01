@@ -81,7 +81,7 @@ const Plateforms = () => {
                                 API Endpoint : {platform.api_endpoint}
                             </p>
                         ) : <p className="text-gray-400 text-sm mb-2">
-                            Plateform Type : {platform.data_source}
+                            Platform Type : {platform.data_source}
                         </p>
                         }
 

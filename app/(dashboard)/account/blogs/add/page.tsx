@@ -287,9 +287,12 @@ const BlogForm = () => {
 
                 const isWordpress = platform.plateform_type === "wordpress";
 
+                const baseUrl = platform.website_url.replace(/\/$/, '');
+                const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
+
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.blog_path}/${slug}`;  
+                    : `${baseUrl}${blogPath}/${slug}`;  
 
                 const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;
