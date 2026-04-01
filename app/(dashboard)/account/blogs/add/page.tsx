@@ -39,6 +39,7 @@ const BlogForm = () => {
     const router = useRouter();
 
     const [blogId, setBlogId] = useState<string | null>(null);
+    const [duplicateBlogId, setDuplicateBlogId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"general" | "platforms">("general");
     const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
     const [image, setImage] = useState<string | null>(null);
@@ -51,6 +52,7 @@ const BlogForm = () => {
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [previewMode, setPreviewMode] = useState<"preview" | "publish">("preview");
     const [allData, setAllData] = useState<AllDataType>({
         allBlogs: [],
         categories: [],
@@ -65,6 +67,7 @@ const BlogForm = () => {
             title: "",
             excerpt: "",
             content: "",
+            faq: [],
             publishDate: "",
             globalStatus: "draft",
             author: "",
@@ -86,6 +89,7 @@ const BlogForm = () => {
     const title = watch("title");
     const excerpt = watch('excerpt');
     const content = watch("content");
+    const faq = watch("faq") || [];
     const tagsValue = watch("tags");
     const related = watch('relatedBlogs')
     const readingTime = watch('reading_time')
@@ -98,6 +102,7 @@ const BlogForm = () => {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setBlogId(params.get("id"));
+        setDuplicateBlogId(params.get("duplicateId"));
     }, []);
 
     const fetchAll = async () => {
@@ -153,6 +158,7 @@ const BlogForm = () => {
             BlogTitle: title,
             BlogExcerpt: excerpt,
             BlogContent: content,
+            BlogFaq: faq,
             BlogTags: tagsValue,
             BlogRalated: related,
             BlogAuthor: author,
@@ -183,6 +189,7 @@ const BlogForm = () => {
                 blog_title: formData.BlogTitle,
                 short_excerpt: formData.BlogExcerpt,
                 full_content: formData.BlogContent,
+                faq: formData.BlogFaq,
                 featured_image: formData.image,
                 category: formData.BlogSelectedCategories,
                 author: formData.BlogAuthor,
@@ -282,8 +289,9 @@ const BlogForm = () => {
 
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.website_url}blog/${slug}`;
+                    : `${platform.blog_path}/${slug}`;  
 
+                const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;
 
                 const shouldUpdateSlug =
@@ -295,7 +303,7 @@ const BlogForm = () => {
                     publishStatus: prev[platformId]?.publishStatus || globalStatus,
                     metaDescription: prev[platformId]?.metaDescription || excerpt,
                     canonicalUrl: prev[platformId]?.canonicalUrl || canonicalUrl,
-                    ctaButtonText: prev[platformId]?.ctaButtonText || "Read more",
+                    ctaButtonText: prev[platformId]?.ctaButtonText || CTA_Button_text,
                     ctaButtonLink: prev[platformId]?.ctaButtonLink || canonicalUrl,
                 };
             });
@@ -305,20 +313,24 @@ const BlogForm = () => {
     }, [selectedPlatforms, title, excerpt, publishDate, blogId, allData.platformData, globalStatus]);
 
     useEffect(() => {
-        if (!blogId) return;
+        if (!blogId && !duplicateBlogId) return;
+
+        const sourceBlogId = blogId || duplicateBlogId;
+        const isDuplicateMode = !blogId && !!duplicateBlogId;
 
         const fetchBlogForEdit = async () => {
             try {
-                const res = await BlogActions.getById(Number(blogId));
+                const res = await BlogActions.getById(Number(sourceBlogId));
                 const blog = res.data;
 
                 reset({
-                    title: blog.blog_title || "",
+                    title: isDuplicateMode ? `${blog.blog_title || ""} (Copy)` : blog.blog_title || "",
                     excerpt: blog.short_excerpt || "",
                     content: blog.full_content || "",
-                    publishDate: normalizeDateForInput(blog.publish_date),
+                    faq: blog.faq || [],
+                    publishDate: isDuplicateMode ? getDefaultPublishDate("draft") || "" : normalizeDateForInput(blog.publish_date),
                     author: blog.author,
-                    globalStatus: blog.status || "draft",
+                    globalStatus: isDuplicateMode ? "draft" : blog.status || "draft",
                     category: blog.category || [],
                     reading_time: blog.reading_time || 0,
                     tags: blog.tags || [],
@@ -338,38 +350,42 @@ const BlogForm = () => {
                 const platforms = blog.platforms || [];
                 setSelectedPlatforms(platforms);
 
-                const seoPromises = platforms.map(async (platformId: number) => {
-                    const seoRes = await SEOActions.GetByBlogsAndPlatform(blog.id, platformId);
-                    return seoRes.data;
-                });
-
-                const seoDataArray = await Promise.all(seoPromises);
-
-                const newPlatformSettings: Record<number, any> = {};
-                seoDataArray.forEach((seoArray) => {
-                    seoArray.forEach((seo: any) => {
-                        newPlatformSettings[seo.platform_id] = {
-                            slug: seo.slug || "",
-                            publishStatus: seo.publish_status || "draft",
-                            seoTitle: seo.seo_title || "",
-                            metaDescription: seo.meta_description || "",
-                            canonicalUrl: seo.canonical_url || "",
-                            ctaButtonText: seo.cta_button_text || "",
-                            ctaButtonLink: seo.cta_button_link || "",
-                        };
+                if (isDuplicateMode) {
+                    setPlatformSettings({});
+                } else {
+                    const seoPromises = platforms.map(async (platformId: number) => {
+                        const seoRes = await SEOActions.GetByBlogsAndPlatform(blog.id, platformId);
+                        return seoRes.data;
                     });
-                });
 
-                setPlatformSettings(newPlatformSettings);
+                    const seoDataArray = await Promise.all(seoPromises);
+
+                    const newPlatformSettings: Record<number, any> = {};
+                    seoDataArray.forEach((seoArray) => {
+                        seoArray.forEach((seo: any) => {
+                            newPlatformSettings[seo.platform_id] = {
+                                slug: seo.slug || "",
+                                publishStatus: seo.publish_status || "draft",
+                                seoTitle: seo.seo_title || "",
+                                metaDescription: seo.meta_description || "",
+                                canonicalUrl: seo.canonical_url || "",
+                                ctaButtonText: seo.cta_button_text || "",
+                                ctaButtonLink: seo.cta_button_link || "",
+                            };
+                        });
+                    });
+
+                    setPlatformSettings(newPlatformSettings);
+                }
 
             } catch (error) {
-                toast.error("Failed to load blog for editing 😢");
+                toast.error(isDuplicateMode ? "Failed to load blog for duplication 😢" : "Failed to load blog for editing 😢");
                 console.error(error);
             }
         };
 
         fetchBlogForEdit();
-    }, [blogId]);
+    }, [blogId, duplicateBlogId, reset, setValue]);
 
     useEffect(() => {
         const defaultDate = getDefaultPublishDate(globalStatus) || "";
@@ -401,7 +417,7 @@ const BlogForm = () => {
 
                 const newCanonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.website_url}blog/${slug}`;
+                    : `${platform.blog_path}/${slug}`;
 
 
                 if (settings.canonicalUrl !== newCanonicalUrl) {
@@ -424,10 +440,21 @@ const BlogForm = () => {
             className="space-y-8"
             onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit(false);
+                setPreviewMode("publish");
+                setShowPreview(true);
             }}
         >
-            <BlogHeader onPreview={() => setShowPreview(true)} onSaveDraft={() => handleSubmit(true)} />
+            <BlogHeader
+                onPreview={() => {
+                    setPreviewMode("preview");
+                    setShowPreview(true);
+                }}
+                onSaveDraft={() => handleSubmit(true)}
+                onPublish={() => {
+                    setPreviewMode("publish");
+                    setShowPreview(true);
+                }}
+            />
             <BlogTabSwitcher
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -439,6 +466,7 @@ const BlogForm = () => {
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
                             register={register}
+                            control={control as any}
                             setValue={setValue}
                             relatedBlogs={relatedBlogs}
                             allBlogs={{ data: allData.allBlogs }}
@@ -519,12 +547,18 @@ const BlogForm = () => {
                 <BlogPreviewModal
                     showPreview={showPreview}
                     setShowPreview={setShowPreview}
+                    mode={previewMode}
+                    onConfirmPublish={() => {
+                        setShowPreview(false);
+                        handleSubmit(false);
+                    }}
                     image={image}
                     category={selectedCategories}
                     categories={allData.categories}
                     publishDate={publishDate}
                     readingTime={readingTime}
                     title={title}
+                    faq={faq}
                     excerpt={excerpt}
                     formContent={content}
                     tags={selectedTags.map(tagId => {

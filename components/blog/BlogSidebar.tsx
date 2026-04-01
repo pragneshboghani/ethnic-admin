@@ -14,23 +14,25 @@ const WEEK_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 const getNow = () => new Date();
 
-const formatInputDateTime = (date: Date) => date.toISOString().slice(0, 16);
+const formatInputDateTime = (date: Date) => {
+    const pad = (value: number) => String(value).padStart(2, '0');
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
 
 const parseInputDateTime = (value?: string) => {
     if (!value) return null;
-    const normalizedValue =
-        value.endsWith('Z') || value.includes('+') ? value : `${value}:00Z`;
-    const parsed = new Date(normalizedValue);
+    const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
 const startOfDay = (date: Date) =>
-    new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 const isSameDay = (a: Date, b: Date) =>
-    a.getUTCFullYear() === b.getUTCFullYear() &&
-    a.getUTCMonth() === b.getUTCMonth() &&
-    a.getUTCDate() === b.getUTCDate();
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
 
 const clampPublishDate = (
     date: Date,
@@ -49,16 +51,16 @@ const clampPublishDate = (
 };
 
 const getCalendarDays = (monthDate: Date) => {
-    const start = new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth(), 1));
-    const end = new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth() + 1, 0));
+    const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
     const days: Array<Date | null> = [];
 
-    for (let i = 0; i < start.getUTCDay(); i += 1) {
+    for (let i = 0; i < start.getDay(); i += 1) {
         days.push(null);
     }
 
-    for (let day = 1; day <= end.getUTCDate(); day += 1) {
-        days.push(new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth(), day)));
+    for (let day = 1; day <= end.getDate(); day += 1) {
+        days.push(new Date(monthDate.getFullYear(), monthDate.getMonth(), day));
     }
 
     return days;
@@ -92,7 +94,6 @@ const formatDisplayValue = (value: string) => {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true,
-        timeZone: 'UTC',
     });
 };
 
@@ -122,13 +123,13 @@ const BlogSidebar = ({
     const selectedDateTime = parseInputDateTime(publishDate) || now;
     const selectedDate = startOfDay(selectedDateTime);
     const selectedTime = publishDate?.slice(11, 16) || currentLocalDateTime.slice(11, 16);
-    const selectedHour24 = selectedDateTime.getUTCHours();
-    const selectedMinute = String(selectedDateTime.getUTCMinutes()).padStart(2, '0');
+    const selectedHour24 = selectedDateTime.getHours();
+    const selectedMinute = String(selectedDateTime.getMinutes()).padStart(2, '0');
     const selectedPeriod = selectedHour24 >= 12 ? 'PM' : 'AM';
     const selectedHour12 = String(selectedHour24 % 12 || 12);
 
     const [visibleMonth, setVisibleMonth] = useState(
-        new Date(Date.UTC(selectedDateTime.getUTCFullYear(), selectedDateTime.getUTCMonth(), 1)),
+        new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), 1),
     );
 
     useEffect(() => {
@@ -141,12 +142,12 @@ const BlogSidebar = ({
 
     useEffect(() => {
         setVisibleMonth(
-            new Date(Date.UTC(selectedDateTime.getUTCFullYear(), selectedDateTime.getUTCMonth(), 1)),
+            new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), 1),
         );
     }, [
         publishDate,
-        selectedDateTime.getUTCFullYear(),
-        selectedDateTime.getUTCMonth(),
+        selectedDateTime.getFullYear(),
+        selectedDateTime.getMonth(),
     ]);
 
     useEffect(() => {
@@ -212,7 +213,7 @@ const BlogSidebar = ({
     const isTimeDisabled = (time: string) => {
         const [hours, minutes] = time.split(':').map(Number);
         const candidate = new Date(selectedDate);
-        candidate.setUTCHours(hours, minutes, 0, 0);
+        candidate.setHours(hours, minutes, 0, 0);
 
         if (globalStatus === 'future') {
             return candidate < now;
@@ -228,7 +229,7 @@ const BlogSidebar = ({
     const updatePublishDate = (nextDate: Date, nextTime: string) => {
         const [hours, minutes] = nextTime.split(':').map(Number);
         const combined = new Date(nextDate);
-        combined.setUTCHours(hours, minutes, 0, 0);
+        combined.setHours(hours, minutes, 0, 0);
 
         const clamped = clampPublishDate(combined, globalStatus, getNow());
         setValue('publishDate', formatInputDateTime(clamped), {
@@ -284,7 +285,7 @@ const BlogSidebar = ({
                                         <button
                                             type="button"
                                             onClick={() => setVisibleMonth(
-                                                new Date(Date.UTC(visibleMonth.getUTCFullYear(), visibleMonth.getUTCMonth() - 1, 1)),
+                                                new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1),
                                             )}
                                             className="p-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50"
                                         >
@@ -292,13 +293,13 @@ const BlogSidebar = ({
                                         </button>
 
                                         <div className="text-sm font-semibold text-slate-800">
-                                            {visibleMonth.toLocaleString([], { month: 'long', year: 'numeric', timeZone: 'UTC' })}
+                                            {visibleMonth.toLocaleString([], { month: 'long', year: 'numeric' })}
                                         </div>
 
                                         <button
                                             type="button"
                                             onClick={() => setVisibleMonth(
-                                                new Date(Date.UTC(visibleMonth.getUTCFullYear(), visibleMonth.getUTCMonth() + 1, 1)),
+                                                new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1),
                                             )}
                                             className="p-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50"
                                         >
@@ -332,10 +333,10 @@ const BlogSidebar = ({
                                                         ? 'bg-slate-100 text-slate-300 border-slate-100 cursor-not-allowed'
                                                         : isSelected
                                                             ? 'bg-slate-900 text-white border-slate-900'
-                                                            : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
+                                                        : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
                                                         }`}
                                                 >
-                                                    {date.getUTCDate()}
+                                                    {date.getDate()}
                                                 </button>
                                             );
                                         })}

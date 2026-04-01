@@ -1,4 +1,5 @@
 import {
+  Control,
   FieldArrayWithId,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
@@ -19,6 +20,9 @@ export interface Platform {
   created_at?: string;
   updated_at?: string;
   data_source: string;
+  blog_path: string;
+  CTA_link: string;
+  CTA_button_text: string;
 }
 
 export interface Media {
@@ -31,10 +35,14 @@ export interface Media {
 export type BlogPreviewModalProps = {
   showPreview: boolean;
   setShowPreview: (val: boolean) => void;
+  mode?: "preview" | "publish";
+  onConfirmPublish?: () => void;
   image: string | null;
   category: number[];
   categories: { id: number; name: string }[];
   publishDate: string;
+  updateDate?: string;
+  createDate?: string;
   readingTime: number;
   title: string;
   excerpt: string;
@@ -45,10 +53,12 @@ export type BlogPreviewModalProps = {
   selectedPlatforms: number[];
   platformData: any;
   platformSettings: any;
+  faq: { question: string; answer: string }[];
 };
 
 export type BlogGeneralSectionProps = {
   register: any;
+  control: Control<any>;
   setValue: UseFormSetValue<any>;
   content: string;
   relatedBlogs: any[];
@@ -97,6 +107,7 @@ export type BlogFormType = {
   BlogTitle: string;
   BlogExcerpt: string;
   BlogContent: string;
+  BlogFaq: { question: string; answer: string }[];
   image: string;
   BlogSelectedCategories: number[];
   BlogAuthor: string;
@@ -112,6 +123,7 @@ export type BlogFormUIType = {
   title: string;
   excerpt: string;
   content: string;
+  faq: { question: string; answer: string }[];
   publishDate: string;
   globalStatus: "draft" | "publish" | "future";
   category: number[];

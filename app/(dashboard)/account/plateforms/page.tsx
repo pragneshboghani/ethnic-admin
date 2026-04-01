@@ -76,9 +76,14 @@ const Plateforms = () => {
                             Website URL :  {platform.website_url}
                         </p>
 
-                        <p className="text-gray-400 text-sm mb-2">
-                            API Endpoint : {platform.api_endpoint}
+                        {platform.api_endpoint ? (
+                            <p className="text-gray-400 text-sm mb-2">
+                                API Endpoint : {platform.api_endpoint}
+                            </p>
+                        ) : <p className="text-gray-400 text-sm mb-2">
+                            Plateform Type : {platform.data_source}
                         </p>
+                        }
 
                         <p className="text-xs flex gap-2 items-center">
                             Status:

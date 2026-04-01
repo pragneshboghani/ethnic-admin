@@ -5,9 +5,11 @@ import { Save, Send, Eye } from 'lucide-react';
 const BlogHeader = ({
     onPreview,
     onSaveDraft,
+    onPublish,
 }: {
     onPreview: () => void;
     onSaveDraft: () => void;
+    onPublish: () => void;
 }) => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 glass-card">
         <div>
@@ -23,7 +25,11 @@ const BlogHeader = ({
                 <Save size={18} />
                 Save Draft
             </button>
-            <button type="submit" className="btn">
+            <button
+                type="button"
+                className="btn"
+                onClick={onPublish}
+            >
                 <Send size={18} />
                 Publish All
             </button>

@@ -5,7 +5,6 @@ export const formatDateTime = (date: string | Date) => {
 
   const formattedDate = d
     .toLocaleDateString("en-GB", {
-      timeZone: "UTC",
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -13,7 +12,6 @@ export const formatDateTime = (date: string | Date) => {
     .replace(/\//g, "-");
 
   const formattedTime = d.toLocaleTimeString("en-US", {
-    timeZone: "UTC",
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
