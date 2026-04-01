@@ -82,6 +82,21 @@ categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
 
     const platformData = await getPlatformsByIds(raw.platform_ids);
 
+    const [blogs] = await mysqlpool.query(
+      `SELECT id, ${type} FROM blogs WHERE JSON_CONTAINS(${type}, ?)`,
+      [id],
+    );
+
+    for (const blog of blogs) {
+      const target = type == "category" ? blog.category : blog.tags;
+      const categories = target.filter((cat) => cat !== Number(id));
+
+      await mysqlpool.query(`UPDATE blogs SET ${type} = ? WHERE id = ?`, [
+        JSON.stringify(categories),
+        blog.id,
+      ])
+    }
+
     const results = await Promise.all(
       platformData.map((platform) =>
         deleteCategory(

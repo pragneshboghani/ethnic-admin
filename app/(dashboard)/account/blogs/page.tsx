@@ -76,7 +76,6 @@ const Blogs = () => {
   const handleDelete = async (id: number) => {
     try {
       await BlogActions.deleteBlog(id);
-      await SEOActions.deleteSEO(id)
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs()
