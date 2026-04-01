@@ -41,6 +41,8 @@ export type BlogPreviewModalProps = {
   category: number[];
   categories: { id: number; name: string }[];
   publishDate: string;
+  updateDate?: string;
+  createDate?: string;
   readingTime: number;
   title: string;
   excerpt: string;

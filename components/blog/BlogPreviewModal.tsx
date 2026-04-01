@@ -5,7 +5,7 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import { BlogPreviewModalProps } from "@/types";
 
 const BlogPreviewModal = ({
-    showPreview, setShowPreview, mode = "preview", onConfirmPublish, image, category, categories, publishDate, readingTime, title, excerpt, formContent, tags,
+    showPreview, setShowPreview, mode = "preview", onConfirmPublish, image, category, categories, publishDate, updateDate, createDate, readingTime, title, excerpt, formContent, tags,
     relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, faq }: BlogPreviewModalProps) => {
 
     if (!showPreview) return null;
@@ -33,7 +33,6 @@ const BlogPreviewModal = ({
                                     .join(', ')
                                 }
                             </span></span>
-                            {publishDate && (<span>{formatDateTime(publishDate)}</span>)}
                         </div>
                         <div className="text-white text-sm">
                             {/* {author && (<span className="font-medium"> By {author}</span>)} */}
@@ -49,6 +48,26 @@ const BlogPreviewModal = ({
                     {excerpt && (
                         <p className="text-lg text-gray-700 border-l-4 border-blue-500 pl-4 italic"><strong>Short Excerpt: </strong>{excerpt}</p>
                     )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
+                        {publishDate && (
+                            <div className="flex flex-col">
+                                <span>Publish Date :</span>
+                                <span>{formatDateTime(publishDate)}</span>
+                            </div>
+                        )}
+                        {updateDate && (
+                            <div className="flex flex-col">
+                                <span>Last Update Date :</span>
+                                <span>{formatDateTime(updateDate)}</span>
+                            </div>
+                        )}
+                        {createDate && (
+                            <div className="flex flex-col">
+                                <span>Created Date :</span>
+                                <span>{formatDateTime(createDate)}</span>
+                            </div>
+                        )}
+                    </div>
                     <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: formContent }} />
                     {faq.length > 0 && (
                         <div>

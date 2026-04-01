@@ -258,6 +258,14 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
     const parsedRawRelated = safeParse(raw.related);
     const parsedRawPlatforms = normalizePlatformIds(raw.platforms);
 
+    let finalPublishDate = raw.publish_date;
+
+    if (raw.status === "publish" && status === "publish") {
+      finalPublishDate = raw.publish_date;
+    } else {
+      finalPublishDate = publish_date ?? raw.publish_date;
+    }
+
     const updatedPlatformIds =
       platforms !== undefined
         ? normalizePlatformIds(platforms)
@@ -272,7 +280,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       category: category ?? parsedRawCategory,
       tags: tags ?? parsedRawTags,
       author: author ?? raw.author,
-      publish_date: formattedPublishDate ?? raw.publish_date,
+      publish_date: finalPublishDate,
       reading_time: reading_time ?? raw.reading_time,
       related: related ?? parsedRawRelated,
       status: status ?? raw.status,
@@ -306,7 +314,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       category: JSON.stringify(platformPayload.category),
       tags: JSON.stringify(platformPayload.tags),
       author: platformPayload.author,
-      publish_date: platformPayload.publish_date,
+      publish_date: finalPublishDate,
       reading_time: platformPayload.reading_time,
       related: JSON.stringify(platformPayload.related),
       status: platformPayload.status,

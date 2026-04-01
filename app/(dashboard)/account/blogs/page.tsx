@@ -229,7 +229,7 @@ const Blogs = () => {
                 <th className="p-2">Author</th>
                 <th className="p-2">Category</th>
                 <th className="p-2">Tags</th>
-                <th className="p-2">Date</th>
+                <th className="p-2">Last Updated Date</th>
                 <th className="p-2">Action</th>
               </tr>
             </thead>
@@ -272,7 +272,7 @@ const Blogs = () => {
                           .join(", ")
                         : ""}
                     </td>
-                    <td className="p-2 max-w-[150px] truncate">{formatDateTime(b.created_at)}</td>
+                    <td className="p-2 max-w-[150px] truncate">{formatDateTime(b.updated_at)}</td>
                     <td className="p-2 flex items-center gap-2">
                       <button
                         className="text-white hover:text-blue-500"
@@ -356,6 +356,8 @@ const Blogs = () => {
           category={selectedBlog?.category || []}
           categories={categoryData?.data || []}
           publishDate={selectedBlog?.publish_date}
+          updateDate={selectedBlog?.updated_at}
+          createDate={selectedBlog?.created_at}
           readingTime={selectedBlog?.reading_time}
           title={selectedBlog?.blog_title}
           faq={selectedBlog?.faq || []}
