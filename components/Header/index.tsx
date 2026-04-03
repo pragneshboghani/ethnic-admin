@@ -21,7 +21,7 @@ const Header = () => {
     <header className={`fixed w-full top-0 z-50`}>
       <div className="w-full border-b px-15 py-5 flex justify-center bg-[#1a1a1a] opacity-100">
         <div className="w-full flex justify-between items-center">
-          <Link href="/" className="flex items-center">
+          <Link href={IsLogin ? "/account/dashboard" : "/"} className="flex items-center">
             <Image
               src="/assets/Logo.svg"
               alt="Statixoup Logo"
