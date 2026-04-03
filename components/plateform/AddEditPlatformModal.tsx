@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Platform } from "@/types";
 import PlateformActions from "@/actions/PlateFormActions";
 import { toast } from "react-toastify";
+import { X } from "lucide-react";
 
 interface Props {
     open: boolean;
@@ -19,13 +20,18 @@ const AddEditPlatformModal = ({
     editingPlatform,
     refreshPlatforms,
 }: Props) => {
+    const inputClassName =
+        "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
+    const selectClassName =
+        "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] transition focus:border-[#31425e] focus:outline-none";
+    const labelClassName =
+        "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
 
     const {
         register,
         handleSubmit,
         watch,
-        reset,
-        control
+        reset
     } = useForm<Platform>({
         defaultValues: {
             platform_name: "",
@@ -92,194 +98,241 @@ const AddEditPlatformModal = ({
 
     return (
         <>
-            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-                <div className="w-[900px] rounded-xl p-6 glass-card max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 sm:p-6">
+                <div className="relative max-h-[88vh] w-full max-w-[980px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#151d2c] text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                    >
+                        <X size={18} />
+                    </button>
 
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-semibold text-white">
+                    <div className="pr-12">
+                        <p className={labelClassName}>Platform Manager</p>
+                        <h2 className="mt-2 text-2xl font-semibold text-[#eef4ff]">
                             {editingPlatform ? "Update Platform" : "Add New Platform"}
                         </h2>
-
-                        <button onClick={onClose} className="text-gray-400 hover:text-white">
-                            ✕
-                        </button>
+                        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#8ea0b8]">
+                            Configure destination details, publishing defaults, and connection settings in one place.
+                        </p>
                     </div>
 
-                    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-
-                        <div className="flex gap-4">
-                            <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Platform Name</label>
-                                <input
-                                    type="text"
-                                    {...register("platform_name", { required: true })}
-                                    placeholder="Platform Name"
-                                    className="w-full p-2 rounded bg-white border text-black"
-                                />
+                    <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
+                        <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">
+                            <div className="border-b border-white/8 pb-4">
+                                <h3 className="text-lg font-semibold text-[#eef4ff]">Basic Details</h3>
+                                <p className="mt-1 text-sm text-[#8ea0b8]">
+                                    Set the main platform information used across the dashboard.
+                                </p>
                             </div>
 
-                            <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Website URL</label>
-                                <input
-                                    type="text"
-                                    {...register("website_url")}
-                                    placeholder="Website URL"
-                                    className="w-full p-2 rounded bg-white border text-black"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Default Blog Path</label>
-                            <input
-                                type="text"
-                                {...register("blog_path")}
-                                placeholder="Default Blog Path"
-                                className="w-full p-2 rounded bg-white border text-black"
-                            />
-                        </div>
-
-                        <div className="flex gap-4">
-
-                            <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Default CTA Link</label>
-                                <input
-                                    type="text"
-                                    {...register("CTA_link")}
-                                    placeholder="Default CTA Link"
-                                    className="w-full p-2 rounded bg-white border text-black"
-                                />
-                            </div>
-
-                            <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Default CTA Button Text</label>
-                                <input
-                                    type="text"
-                                    {...register("CTA_button_text")}
-                                    placeholder="Default Button text for CTA"
-                                    className="w-full p-2 rounded bg-white border text-black"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2 w-full">
-                            <label className="text-white font-medium">Data Source</label>
-                            <div className="flex gap-4">
-                                <label className="flex items-center gap-1 text-white">
-                                    <input
-                                        type="radio"
-                                        value="platform"
-                                        {...register("data_source")}
-                                    />
-                                    Platform
-                                </label>
-                                <label className="flex items-center gap-1 text-white">
-                                    <input
-                                        type="radio"
-                                        value="admin"
-                                        {...register("data_source")}
-                                    />
-                                    Admin
-                                </label>
-                            </div>
-                        </div>
-
-                        {dataSource === "platform" && (
-                            <>
-                                <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">API Endpoint</label>
+                            <div className="mt-5 grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Platform Name</label>
                                     <input
                                         type="text"
-                                        {...register("api_endpoint")}
-                                        placeholder="API Endpoint"
-                                        className="w-full p-2 rounded bg-white border text-black"
+                                        {...register("platform_name", { required: true })}
+                                        placeholder="Platform Name"
+                                        className={inputClassName}
                                     />
                                 </div>
 
-                                <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">Platform Type</label>
-                                    <select
-                                        {...register("plateform_type")}
-                                        className="w-full p-2 rounded bg-white border text-black"
-                                    >
-                                        <option value="custom">Custom</option>
-                                        <option value="wordpress">Wordpress</option>
-                                    </select>
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Website URL</label>
+                                    <input
+                                        type="text"
+                                        {...register("website_url")}
+                                        placeholder="Website URL"
+                                        className={inputClassName}
+                                    />
                                 </div>
 
-                                <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">Authentication Type</label>
-                                    <select
-                                        {...register("auth_type")}
-                                        className="w-full p-2 rounded bg-white border text-black"
-                                    >
-                                        <option value="none">No Auth</option>
-                                        <option value="token">Token Based</option>
-                                        <option value="basic">Basic Auth (Username & Password)</option>
-                                    </select>
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className={labelClassName}>Default Blog Path</label>
+                                    <input
+                                        type="text"
+                                        {...register("blog_path")}
+                                        placeholder="Default Blog Path"
+                                        className={inputClassName}
+                                    />
                                 </div>
 
-                                {authType === "token" && (
-                                    <div className="space-y-2 w-full">
-                                        <label className="text-sm font-semibold">Auth Token</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Token"
-                                            {...register("auth_token")}
-                                            className="w-full p-2 rounded bg-white text-black"
-                                        />
-                                    </div>
-                                )}
-                                {authType === "basic" && (
-                                    <div className="flex gap-4">
-                                        <div className="space-y-2 w-full">
-                                            <label className="text-sm font-semibold">Username</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Username"
-                                                {...register("username")}
-                                                className="w-full p-2 rounded bg-white text-black"
-                                            />
-                                        </div>
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Default CTA Link</label>
+                                    <input
+                                        type="text"
+                                        {...register("CTA_link")}
+                                        placeholder="Default CTA Link"
+                                        className={inputClassName}
+                                    />
+                                </div>
 
-                                        <div className="space-y-2 w-full">
-                                            <label className="text-sm font-semibold">Password</label>
-                                            <input
-                                                type="password"
-                                                placeholder="Password"
-                                                {...register("password")}
-                                                className="w-full p-2 rounded bg-white text-black"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        )}
-
-                        <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Status</label>
-                            <select
-                                {...register("status")}
-                                className="w-full p-2 rounded bg-white border text-black"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Default CTA Button Text</label>
+                                    <input
+                                        type="text"
+                                        {...register("CTA_button_text")}
+                                        placeholder="Default button text for CTA"
+                                        className={inputClassName}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-3">
+                        <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">
+                            <div className="border-b border-white/8 pb-4">
+                                <h3 className="text-lg font-semibold text-[#eef4ff]">Connection Settings</h3>
+                                <p className="mt-1 text-sm text-[#8ea0b8]">
+                                    Choose where the content comes from and how this platform should authenticate.
+                                </p>
+                            </div>
+
+                            <div className="mt-5 space-y-5">
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Data Source</label>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <label
+                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${
+                                                dataSource === "platform"
+                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                value="platform"
+                                                {...register("data_source")}
+                                                className="sr-only"
+                                            />
+                                            <span className="block text-sm font-semibold text-[#eef4ff]">Platform</span>
+                                            <span className="mt-1 block text-xs leading-6 text-[#8ea0b8]">
+                                                Publish through a connected API endpoint.
+                                            </span>
+                                        </label>
+
+                                        <label
+                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${
+                                                dataSource === "admin"
+                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                value="admin"
+                                                {...register("data_source")}
+                                                className="sr-only"
+                                            />
+                                            <span className="block text-sm font-semibold text-[#eef4ff]">Admin</span>
+                                            <span className="mt-1 block text-xs leading-6 text-[#8ea0b8]">
+                                                Manage content internally without a remote endpoint.
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {dataSource === "platform" && (
+                                    <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            <div className="space-y-2 md:col-span-2">
+                                                <label className={labelClassName}>API Endpoint</label>
+                                                <input
+                                                    type="text"
+                                                    {...register("api_endpoint")}
+                                                    placeholder="API Endpoint"
+                                                    className={inputClassName}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className={labelClassName}>Platform Type</label>
+                                                <select
+                                                    {...register("plateform_type")}
+                                                    className={selectClassName}
+                                                >
+                                                    <option value="custom">Custom</option>
+                                                    <option value="wordpress">Wordpress</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className={labelClassName}>Authentication Type</label>
+                                                <select
+                                                    {...register("auth_type")}
+                                                    className={selectClassName}
+                                                >
+                                                    <option value="none">No Auth</option>
+                                                    <option value="token">Token Based</option>
+                                                    <option value="basic">Basic Auth (Username & Password)</option>
+                                                </select>
+                                            </div>
+
+                                            {authType === "token" && (
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <label className={labelClassName}>Auth Token</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Enter token"
+                                                        {...register("auth_token")}
+                                                        className={inputClassName}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {authType === "basic" && (
+                                                <>
+                                                    <div className="space-y-2">
+                                                        <label className={labelClassName}>Username</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Username"
+                                                            {...register("username")}
+                                                            className={inputClassName}
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <label className={labelClassName}>Password</label>
+                                                        <input
+                                                            type="password"
+                                                            placeholder="Password"
+                                                            {...register("password")}
+                                                            className={inputClassName}
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2">
+                                    <label className={labelClassName}>Status</label>
+                                    <select
+                                        {...register("status")}
+                                        className={selectClassName}
+                                    >
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col-reverse gap-3 border-t border-white/8 pt-1 sm:flex-row sm:items-center sm:justify-end">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border rounded text-gray-300"
+                                className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-green-600 rounded text-white"
+                                className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
                             >
-                                {editingPlatform ? "Update" : "Save"}
+                                {editingPlatform ? "Update Platform" : "Save Platform"}
                             </button>
                         </div>
                     </form>

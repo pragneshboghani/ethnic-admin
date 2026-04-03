@@ -7,7 +7,7 @@ const LayoutContainer = ({
    
     return (
         <html lang="en">
-            <body className={`bg-primary text-white min-h-screen overflow-x-hidden`}>
+            <body className="min-h-screen overflow-x-hidden bg-[#0b1018] text-white">
                     {children}
             </body>
         </html>
