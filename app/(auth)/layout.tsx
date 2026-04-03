@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import LayoutContainer from "@/components/common/LayoutContainer";
-import Header from "@/components/Header";
 import { UserProvider } from "@/context/UserContext";
 
 const geistSans = Geist({
@@ -33,10 +32,9 @@ export default function RootLayout({
                         <main className="max-w-full w-full h-full min-h-screen sticky top-0">
                             <div className="page-wrapper max-w-full w-full h-full relative">
                                 <div className="App">
-                                    <Header />
-                                    <main className="pt-[105px]">
+                                    <main>
                                         <UserProvider>
-                                            <div className="w-full flex justify-center items-center min-h-[calc(100vh-80px)]">
+                                            <div className="w-full flex justify-center items-center min-h-screen">
                                                 {children}
                                             </div>
                                         </UserProvider>
