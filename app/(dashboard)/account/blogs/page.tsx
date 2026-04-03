@@ -30,6 +30,7 @@ const Blogs = () => {
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
+  const [sort, setSort] = useState("");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -60,7 +61,8 @@ const Blogs = () => {
         search,
         author,
         category,
-        tags
+        tags,
+        sort
       });
       setBlogs(res.data || []);
     } catch (err) {
@@ -71,7 +73,7 @@ const Blogs = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, [platform, status, search, tags, category, author]);
+  }, [platform, status, search, tags, category, author, sort]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -97,7 +99,6 @@ const Blogs = () => {
       router.push(`/account/blogs/add?duplicateId=${duplicateBlogId}`);
     }
   }, [duplicateBlogId, router]);
-
 
   useEffect(() => {
     const fetchPlatformSettings = async (blog: any) => {
@@ -213,6 +214,15 @@ const Blogs = () => {
             <option value="future" className="text-black">Scheduled</option>
           </select>
 
+          <select
+            className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="none" className="text-black">Sort By Create Date</option>
+            <option value="asc" className="text-black">Ascending</option>
+            <option value="desc" className="text-black">Descending</option>
+          </select>
         </div>
       </div>
       <div className="glass-card p-4 mt-5">
