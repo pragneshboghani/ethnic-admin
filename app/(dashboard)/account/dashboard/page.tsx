@@ -219,14 +219,14 @@ const Dashboard = () => {
           },
         ];
 
-  const getPlatformNames = (platformIds: number[] = []) =>
+  const getPlatformNames = (platformIds: number[] = []): string[] =>
     Array.isArray(platformIds)
       ? platformIds
           .map((platformId) => {
             const matchedPlatform = allPlatforms.find((platform) => platform.id === platformId);
             return matchedPlatform?.platform_name || null;
           })
-          .filter(Boolean)
+          .filter((platformName): platformName is string => Boolean(platformName))
       : [];
 
   const getBlogPlatformNames = (blogId: number) => {

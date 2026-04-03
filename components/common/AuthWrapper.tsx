@@ -93,11 +93,11 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                         newestOnTop
                         theme="dark"
                         className="dashboard-toast-container"
-                        toastClassName={({ type, defaultClassName }) =>
-                            `${defaultClassName || ""} dashboard-toast dashboard-toast--${type || "default"}`
+                        toastClassName={(context) =>
+                            `${context?.defaultClassName || ""} dashboard-toast dashboard-toast--${context?.type || "default"}`
                         }
-                        progressClassName={({ type, defaultClassName }) =>
-                            `${defaultClassName || ""} dashboard-toast-progress dashboard-toast-progress--${type || "default"}`
+                        progressClassName={(context) =>
+                            `${context?.defaultClassName || ""} dashboard-toast-progress dashboard-toast-progress--${context?.type || "default"}`
                         }
                     />
 

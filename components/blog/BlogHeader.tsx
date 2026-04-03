@@ -26,6 +26,10 @@ const BlogHeader = ({
     const animationFrameRef = useRef<number | null>(null);
 
     useEffect(() => {
+        const isHTMLElement = (
+            value: HTMLElement | Window | null,
+        ): value is HTMLElement => value instanceof HTMLElement;
+
         const getScrollParent = (element: HTMLElement | null) => {
             let current = element?.parentElement || null;
 
@@ -43,7 +47,7 @@ const BlogHeader = ({
         };
 
         const getScrollOffset = () => {
-            if (scrollParentRef.current && scrollParentRef.current !== window) {
+            if (isHTMLElement(scrollParentRef.current)) {
                 return scrollParentRef.current.scrollTop;
             }
 
