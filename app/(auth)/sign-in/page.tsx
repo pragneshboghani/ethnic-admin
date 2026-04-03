@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Poppins } from "next/font/google";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
 import { CheckCircle2 } from "lucide-react";
@@ -57,11 +59,25 @@ export default function SignIn() {
 
     return (
         <section
-            className={`${authFont.className} relative flex min-h-[calc(100vh-105px)] w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(73,112,164,0.22),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(80,62,128,0.18),_transparent_24%),linear-gradient(180deg,#0b1018_0%,#0e1622_52%,#091019_100%)] px-4 py-10 sm:px-6 lg:px-8`}
+            className={`${authFont.className} relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(73,112,164,0.22),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(80,62,128,0.18),_transparent_24%),linear-gradient(180deg,#0b1018_0%,#0e1622_52%,#091019_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8`}
         >
             <div className="absolute bottom-[-3rem] left-[-4rem] h-60 w-60 rounded-full bg-[#36527b]/24 blur-3xl" />
             <div className="absolute right-[6%] top-[14%] h-28 w-28 rounded-full bg-[#5c3b8d]/16 blur-3xl" />
             <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] [background-size:88px_88px]" />
+
+            <Link
+                href="/"
+                className="absolute left-4 top-5 z-10 sm:left-6 sm:top-6 lg:left-8 lg:top-8"
+            >
+                <Image
+                    src="/assets/Logo.svg"
+                    alt="Ethnic Infotech"
+                    width={188}
+                    height={62}
+                    priority
+                    className="h-auto w-[148px] sm:w-[182px]"
+                />
+            </Link>
 
             <div className="relative w-full max-w-md">
                 <div className="rounded-[30px] border border-white/10 bg-[#101826]/92 p-7 shadow-[0_30px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-8">
