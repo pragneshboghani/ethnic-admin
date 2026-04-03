@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignIn() {
     const { setUser } = useUser();
@@ -15,6 +16,7 @@ export default function SignIn() {
     });
 
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     const handleChange = (
@@ -50,6 +52,7 @@ export default function SignIn() {
         }
     };
 
+    const PasswordIcon = showPassword ? <EyeOff /> : <Eye />;
     return (
         <div className="w-full flex justify-center items-center min-h-[80vh] px-4">
             <div className="w-full max-w-md glass-card p-5">
@@ -78,16 +81,22 @@ export default function SignIn() {
                         />
                     </div>
 
-                    <div>
+                    <div className="relative">
                         <label className="block text-sm font-medium mb-1">Password</label>
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             name="password"
                             placeholder="Enter your password"
                             value={formData.password}
                             onChange={handleChange}
                             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                        <span
+                            className="absolute text-black right-3 bottom-2.5 cursor-pointer"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {PasswordIcon}
+                        </span>
                     </div>
 
                     <button
