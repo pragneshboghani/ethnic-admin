@@ -57,7 +57,7 @@ const ToolbarButton = ({ title, icon, onAction }: ToolbarButtonProps) => (
             e.preventDefault();
             onAction();
         }}
-        className="min-w-9 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+        className="min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
     >
         {icon}
     </button>
@@ -148,11 +148,11 @@ const ensureTableHeader = (table: HTMLTableElement) => {
     Array.from(firstRow.cells).forEach((cell, index) => {
         const headerCell = document.createElement("th");
         headerCell.innerHTML = cell.innerHTML || `Header ${index + 1}`;
-        headerCell.style.border = "1px solid #d1d5db";
+        headerCell.style.border = "1px solid #31425e";
         headerCell.style.padding = "8px";
         headerCell.style.minWidth = "120px";
         headerCell.style.fontWeight = "600";
-        headerCell.style.background = "#f8fafc";
+        headerCell.style.background = "#162131";
         headerRow.appendChild(headerCell);
     });
 
@@ -169,12 +169,12 @@ const ensureTableHeader = (table: HTMLTableElement) => {
 
 const buildTableHtml = (rows: number, columns: number) => {
     const headerRow = Array.from({ length: columns }, (_, columnIndex) =>
-        `<th style="border:1px solid #d1d5db;padding:8px;min-width:120px;font-weight:600;background:#f8fafc;">Header ${columnIndex + 1}</th>`
+        `<th style="border:1px solid #31425e;padding:8px;min-width:120px;font-weight:600;background:#162131;">Header ${columnIndex + 1}</th>`
     ).join("");
 
     const bodyRows = Array.from({ length: rows }, (_, rowIndex) => {
         const cells = Array.from({ length: columns }, (_, columnIndex) =>
-            `<td style="border:1px solid #d1d5db;padding:8px;min-width:120px;">Cell ${rowIndex + 1}-${columnIndex + 1}</td>`
+            `<td style="border:1px solid #31425e;padding:8px;min-width:120px;">Cell ${rowIndex + 1}-${columnIndex + 1}</td>`
         ).join("");
 
         return `<tr>${cells}</tr>`;
@@ -229,7 +229,7 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
                     savedRangeRef.current = getCurrentRange();
                     inputRef.current?.click();
                 }}
-                className="min-w-9 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+                className="min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
             >
                 {icon}
             </button>
@@ -280,9 +280,9 @@ const RichTextToolbar = ({
 
     if (editorState.htmlMode) {
         return (
-            <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
-                <HtmlButton />
-                <div className="ml-auto flex items-center gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3">
+                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]" />
+                <div className="ml-auto flex items-center gap-3 text-xs text-[#8ea0b8]">
                     <span>Words: {wordCount}</span>
                     <span>Characters: {characterCount}</span>
                 </div>
@@ -356,7 +356,7 @@ const RichTextToolbar = ({
         restoreRange(savedRangeRef.current);
         document.execCommand("removeFormat");
         document.execCommand("unlink");
-        document.execCommand("foreColor", false, "#000000");
+        document.execCommand("foreColor", false, "#dbe5f3");
         document.execCommand("hiliteColor", false, "transparent");
         document.execCommand("formatBlock", false, "P");
     };
@@ -405,12 +405,12 @@ const RichTextToolbar = ({
                 const referenceCell = tableRow.cells[columnIndex] || tableRow.cells[tableRow.cells.length - 1];
                 const isHeaderRow = tableRow.parentElement?.tagName === "THEAD";
                 const newCell = document.createElement(isHeaderRow ? "th" : "td");
-                newCell.style.border = "1px solid #d1d5db";
+                newCell.style.border = "1px solid #31425e";
                 newCell.style.padding = "8px";
                 newCell.style.minWidth = "120px";
                 if (isHeaderRow) {
                     newCell.style.fontWeight = "600";
-                    newCell.style.background = "#f8fafc";
+                    newCell.style.background = "#162131";
                     newCell.innerHTML = `Header ${tableRow.cells.length + 1}`;
                 } else {
                     newCell.innerHTML = `Cell ${rowIndex}-${tableRow.cells.length + 1}`;
@@ -444,7 +444,7 @@ const RichTextToolbar = ({
 
     return (
         <>
-            <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3">
                 <ToolbarButton
                     title="Normal"
                     icon={<Type size={15} />}
@@ -559,7 +559,7 @@ const RichTextToolbar = ({
                 <ColorPickerButton
                     title="Text Color"
                     icon={<Palette size={15} />}
-                    defaultColor="#000000"
+                    defaultColor="#dbe5f3"
                     onPick={(color) =>
                         runEditorCommand(editorElement, "foreColor", color, savedRangeRef.current)
                     }
@@ -568,7 +568,7 @@ const RichTextToolbar = ({
                     title="Remove Color"
                     icon={<Eraser size={15} />}
                     onAction={() => {
-                        runEditorCommand(editorElement, "foreColor", "#000000", savedRangeRef.current);
+                        runEditorCommand(editorElement, "foreColor", "#dbe5f3", savedRangeRef.current);
                         runEditorCommand(editorElement, "hiliteColor", "transparent", savedRangeRef.current);
                     }}
                 />
@@ -621,9 +621,9 @@ const RichTextToolbar = ({
                     onAction={() => runEditorCommand(editorElement, "redo")}
                 />
 
-                <HtmlButton />
+                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]" />
 
-                <div className="ml-auto flex items-center gap-3 text-sm text-black">
+                <div className="ml-auto flex items-center gap-3 text-sm text-[#8ea0b8]">
                     <span>Words: {wordCount}</span>
                     <span>Characters: {characterCount}</span>
                 </div>

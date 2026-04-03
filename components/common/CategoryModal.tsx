@@ -59,8 +59,8 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="p-6 w-[400px] glass-card space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-md space-y-4 rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
 
                 <h2 className="text-xl font-semibold text-white">
                     Create Category
@@ -73,20 +73,20 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     onChange={(e) => {
                         setCategoryName(e.target.value);
                     }}
-                    className="w-full px-4 py-2 rounded-lg text-white border"
+                    className="w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-white placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
                 />
 
                 <textarea
                     placeholder="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg text-white border"
+                    className="w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-white placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
                 />
 
                 <div className="space-y-2">
-                    <label className="text-sm text-white">Select Platforms</label>
+                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Select Platforms</label>
 
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <div className="max-h-40 space-y-2 overflow-y-auto rounded-[18px] border border-white/8 bg-[#151d2c] p-4">
                         {platformData?.data?.map((platform: any) => {
 
                             const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
@@ -115,18 +115,27 @@ const CategoryModal = ({ isOpen, onClose, onSuccess }: Props) => {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg text-white border"
+                    className="w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-white focus:border-[#31425e] focus:outline-none"
                 >
-                    <option value="publish" className="text-black">Publish</option>
-                    <option value="draft" className="text-black">Draft</option>
+                    <option value="publish">Publish</option>
+                    <option value="draft">Draft</option>
                 </select>
 
                 <div className="flex justify-end gap-3">
-                    <button onClick={onClose} className="btn">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                    >
                         Cancel
                     </button>
 
-                    <button onClick={handleCreate} disabled={loading} className="btn">
+                    <button
+                        type="button"
+                        onClick={handleCreate}
+                        disabled={loading}
+                        className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
                         {loading ? "Creating..." : "Create"}
                     </button>
                 </div>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "prod:start": "concurrently -n main,server -c blue,green \"npm run build && npm run start\" \"cd server && npm install && npm run prod:api-start\"",
-    "dev": "next dev --turbopack -p 5002",
+    "dev": "next dev --turbopack -p 2687",
     "build": "next build --turbopack",
     "start": "next start -p 5004",
     "lint": "eslint"
