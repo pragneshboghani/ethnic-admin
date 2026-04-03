@@ -93,7 +93,9 @@ const TagModal = ({ isOpen, onClose, onSuccess, tag }: Props) => {
                     {tag ? "Update Tag" : "Create Tag"}
                 </h2>
 
+                <label htmlFor="tag-name" className="text-sm text-white">Tag Name</label>
                 <input
+                    id="tag-name"
                     type="text"
                     placeholder="Tag Name"
                     value={TagName}
@@ -103,7 +105,9 @@ const TagModal = ({ isOpen, onClose, onSuccess, tag }: Props) => {
                     className="w-full px-4 py-2 rounded-lg text-white border"
                 />
 
+                <label htmlFor="tag-description" className="text-sm text-white">Description</label>
                 <textarea
+                    id="tag-description"
                     placeholder="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -111,36 +115,19 @@ const TagModal = ({ isOpen, onClose, onSuccess, tag }: Props) => {
                 />
 
                 <div className="space-y-2">
-                    <label className="text-sm text-white">Select Platforms</label>
+                    <label htmlFor="tag-platforms" className="text-sm text-white">Select Platforms</label>
 
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <div id="tag-platforms" className="space-y-2 max-h-40 overflow-y-auto">
                         {platformData?.data?.map((platform) => {
 
                             const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
 
                             if (!ShowPlatform || platform.id === undefined) return null;
                             const id = platform.id;
-                            // return (
-                            //     <div key={platform.id} className="flex items-center gap-2">
-                            //         <input
-                            //             type="checkbox"
-                            //             checked={selectedPlatforms.includes(platform.id)}
-                            //             onChange={() => {
-                            //                 setSelectedPlatforms((prev) =>
-                            //                     prev.includes(platform.id)
-                            //                         ? prev.filter((id) => id !== platform.id)
-                            //                         : [...prev, platform.id]
-                            //                 );
-                            //             }}
-                            //         />
-                            //         <span className="text-white text-sm">
-                            //             {platform.platform_name}
-                            //         </span>
-                            //     </div>
-                            // )
                             return (
                                 <div key={id} className="flex items-center gap-2">
                                     <input
+                                        id={`tag-platform-${id}`}
                                         type="checkbox"
                                         checked={selectedPlatforms.includes(id)}
                                         onChange={() => {
@@ -151,15 +138,17 @@ const TagModal = ({ isOpen, onClose, onSuccess, tag }: Props) => {
                                             );
                                         }}
                                     />
-                                    <span className="text-white text-sm">
+                                    <label htmlFor={`tag-platform-${id}`} className="text-white text-sm">
                                         {platform.platform_name}
-                                    </span>
+                                    </label>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
+                <label htmlFor="tag-status" className="text-sm text-white">Status</label>
                 <select
+                    id="tag-status"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     className="w-full px-4 py-2 rounded-lg text-white border"

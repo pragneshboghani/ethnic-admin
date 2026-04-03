@@ -521,11 +521,12 @@ const BlogForm = () => {
                                 <div key={blog.id} className="flex items-center">
                                     <input
                                         type="checkbox"
+                                        id={`blog-${blog.id}`}
                                         checked={relatedBlogs.includes(blog.id)}
                                         onChange={() => handleBlogSelect(blog.id)}
                                         className="mr-3"
                                     />
-                                    <label className="text-sm text-white">{blog.blog_title}</label>
+                                    <label htmlFor={`blog-${blog.id}`} className="text-sm text-white">{blog.blog_title}</label>
                                 </div>
                             ))}
                         </div>

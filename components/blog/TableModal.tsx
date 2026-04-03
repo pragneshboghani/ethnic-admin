@@ -29,8 +29,9 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Rows</label>
+            <label htmlFor="table-rows" className="text-sm font-medium text-slate-700">Rows</label>
             <input
+              id="table-rows"
               type="number"
               min={1}
               max={20}
@@ -41,8 +42,9 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Columns</label>
+            <label htmlFor="table-columns" className="text-sm font-medium text-slate-700">Columns</label>
             <input
+              id="table-columns"
               type="number"
               min={1}
               max={10}

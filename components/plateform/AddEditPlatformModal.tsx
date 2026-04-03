@@ -143,8 +143,9 @@ const AddEditPlatformModal = ({
 
                         <div className="flex gap-4">
                             <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Platform Name</label>
+                                <label htmlFor="platform-name" className="text-sm font-semibold">Platform Name</label>
                                 <input
+                                    id="platform-name"
                                     type="text"
                                     {...register("platform_name", { required: true })}
                                     placeholder="Platform Name"
@@ -153,8 +154,9 @@ const AddEditPlatformModal = ({
                             </div>
 
                             <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Website URL</label>
+                                <label htmlFor="platform-website-url" className="text-sm font-semibold">Website URL</label>
                                 <input
+                                    id="platform-website-url"
                                     type="text"
                                     {...register("website_url")}
                                     placeholder="Website URL"
@@ -164,8 +166,9 @@ const AddEditPlatformModal = ({
                         </div>
 
                         <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Default Blog Path</label>
+                            <label htmlFor="platform-blog-path" className="text-sm font-semibold">Default Blog Path</label>
                             <input
+                                id="platform-blog-path"
                                 type="text"
                                 {...register("blog_path")}
                                 placeholder="Default Blog Path"
@@ -199,11 +202,12 @@ const AddEditPlatformModal = ({
 
                             {selectedPaths.map((path) => (
                                 <div key={path} className="space-y-1">
-                                    <label className="text-sm text-white capitalize">
+                                    <label htmlFor={`platform-extra-path-${path}`} className="text-sm text-white capitalize">
                                         {path} Path
                                     </label>
 
                                     <input
+                                        id={`platform-extra-path-${path}`}
                                         type="text"
                                         placeholder={`Enter ${path} path`}
                                         value={extra_paths[path] || ""}
@@ -221,8 +225,9 @@ const AddEditPlatformModal = ({
                         <div className="flex gap-4">
 
                             <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Default CTA Link</label>
+                                <label htmlFor="platform-cta-link" className="text-sm font-semibold">Default CTA Link</label>
                                 <input
+                                    id="platform-cta-link"
                                     type="text"
                                     {...register("CTA_link")}
                                     placeholder="Default CTA Link"
@@ -231,8 +236,9 @@ const AddEditPlatformModal = ({
                             </div>
 
                             <div className="space-y-2 w-full">
-                                <label className="text-sm font-semibold">Default CTA Button Text</label>
+                                <label htmlFor="platform-cta-button-text" className="text-sm font-semibold">Default CTA Button Text</label>
                                 <input
+                                    id="platform-cta-button-text"
                                     type="text"
                                     {...register("CTA_button_text")}
                                     placeholder="Default Button text for CTA"
@@ -244,16 +250,18 @@ const AddEditPlatformModal = ({
                         <div className="space-y-2 w-full">
                             <label className="text-white font-medium">Data Source</label>
                             <div className="flex gap-4">
-                                <label className="flex items-center gap-1 text-white">
+                                <label htmlFor="platform-data-source-platform" className="flex items-center gap-1 text-white">
                                     <input
+                                        id="platform-data-source-platform"
                                         type="radio"
                                         value="platform"
                                         {...register("data_source")}
                                     />
                                     Platform
                                 </label>
-                                <label className="flex items-center gap-1 text-white">
+                                <label htmlFor="platform-data-source-admin" className="flex items-center gap-1 text-white">
                                     <input
+                                        id="platform-data-source-admin"
                                         type="radio"
                                         value="admin"
                                         {...register("data_source")}
@@ -266,8 +274,9 @@ const AddEditPlatformModal = ({
                         {dataSource === "platform" && (
                             <>
                                 <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">API Endpoint</label>
+                                    <label htmlFor="platform-api-endpoint" className="text-sm font-semibold">API Endpoint</label>
                                     <input
+                                        id="platform-api-endpoint"
                                         type="text"
                                         {...register("api_endpoint")}
                                         placeholder="API Endpoint"
@@ -276,8 +285,9 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">Platform Type</label>
+                                    <label htmlFor="platform-type" className="text-sm font-semibold">Platform Type</label>
                                     <select
+                                        id="platform-type"
                                         {...register("plateform_type")}
                                         className="w-full p-2 rounded bg-white border text-black"
                                     >
@@ -287,8 +297,9 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2 w-full">
-                                    <label className="text-sm font-semibold">Authentication Type</label>
+                                    <label htmlFor="platform-auth-type" className="text-sm font-semibold">Authentication Type</label>
                                     <select
+                                        id="platform-auth-type"
                                         {...register("auth_type")}
                                         className="w-full p-2 rounded bg-white border text-black"
                                     >
@@ -300,8 +311,9 @@ const AddEditPlatformModal = ({
 
                                 {authType === "token" && (
                                     <div className="space-y-2 w-full">
-                                        <label className="text-sm font-semibold">Auth Token</label>
+                                        <label htmlFor="platform-auth-token" className="text-sm font-semibold">Auth Token</label>
                                         <input
+                                            id="platform-auth-token"
                                             type="text"
                                             placeholder="Enter Token"
                                             {...register("auth_token")}
@@ -312,8 +324,9 @@ const AddEditPlatformModal = ({
                                 {authType === "basic" && (
                                     <div className="flex gap-4">
                                         <div className="space-y-2 w-full">
-                                            <label className="text-sm font-semibold">Username</label>
+                                            <label htmlFor="platform-username" className="text-sm font-semibold">Username</label>
                                             <input
+                                                id="platform-username"
                                                 type="text"
                                                 placeholder="Username"
                                                 {...register("username")}
@@ -322,8 +335,9 @@ const AddEditPlatformModal = ({
                                         </div>
 
                                         <div className="space-y-2 w-full">
-                                            <label className="text-sm font-semibold">Password</label>
+                                            <label htmlFor="platform-password" className="text-sm font-semibold">Password</label>
                                             <input
+                                                id="platform-password"
                                                 type="password"
                                                 placeholder="Password"
                                                 {...register("password")}
@@ -336,8 +350,9 @@ const AddEditPlatformModal = ({
                         )}
 
                         <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Status</label>
+                            <label htmlFor="platform-status" className="text-sm font-semibold">Status</label>
                             <select
+                                id="platform-status"
                                 {...register("status")}
                                 className="w-full p-2 rounded bg-white border text-black"
                             >

@@ -93,7 +93,9 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                     {category ? "Update Category" : "Create Category"}
                 </h2>
 
+                <label htmlFor="category-name" className="text-sm text-white">Category Name</label>
                 <input
+                    id="category-name"
                     type="text"
                     placeholder="Category Name"
                     value={categoryName}
@@ -103,7 +105,9 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                     className="w-full px-4 py-2 rounded-lg text-white border"
                 />
 
+                <label htmlFor="category-description" className="text-sm text-white">Description</label>
                 <textarea
+                    id="category-description"
                     placeholder="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -111,9 +115,9 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                 />
 
                 <div className="space-y-2">
-                    <label className="text-sm text-white">Select Platforms</label>
+                    <label htmlFor="category-platforms" className="text-sm text-white">Select Platforms</label>
 
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <div id="category-platforms" className="space-y-2 max-h-40 overflow-y-auto">
                         {platformData?.data?.map((platform) => {
 
                             const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
@@ -121,26 +125,10 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                             if (!ShowPlatform || platform.id === undefined) return null;
 
                             const id = platform.id;
-                            // return (
-                            //     <div key={platform.id} className="flex items-center gap-2">
-                            //         <input
-                            //             type="checkbox"
-                            //             checked={selectedPlatforms.includes(platform.id)}
-                            //             onChange={() => {
-                            //                 setSelectedPlatforms((prev) =>
-                            //                     prev.includes(platform.id)
-                            //                         ? prev.filter((id) => id !== platform.id)
-                            //                         : [...prev, platform.id]
-                            //                 );
-                            //             }}
-                            //         />
-                            //         <span className="text-white text-sm">
-                            //             {platform.platform_name}
-                            //         </span>
-                            //     </div>)
                             return (
                                 <div key={id} className="flex items-center gap-2">
                                     <input
+                                        id={`category-platform-${id}`}
                                         type="checkbox"
                                         checked={selectedPlatforms.includes(id)}
                                         onChange={() => {
@@ -151,15 +139,17 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                                             );
                                         }}
                                     />
-                                    <span className="text-white text-sm">
+                                    <label htmlFor={`category-platform-${id}`} className="text-white text-sm">
                                         {platform.platform_name}
-                                    </span>
+                                    </label>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
+                <label htmlFor="category-status" className="text-sm text-white">Status</label>
                 <select
+                    id="category-status"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     className="w-full px-4 py-2 rounded-lg text-white border"

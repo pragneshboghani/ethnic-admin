@@ -103,8 +103,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 <h4 className="font-semibold text-lg text-white">{platform.platform_name}</h4>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">URL Slug</label>
+                                    <label htmlFor={`platform-slug-${platformId}`} className="text-sm font-medium text-slate-700">URL Slug</label>
                                     <input
+                                        id={`platform-slug-${platformId}`}
                                         type="text"
                                         placeholder="/your-blog-slug"
                                         value={platformSettings[platformId]?.slug || ''}
@@ -114,8 +115,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">Publish Status</label>
+                                    <label htmlFor={`platform-publish-status-${platformId}`} className="text-sm font-medium text-slate-700">Publish Status</label>
                                     <select
+                                        id={`platform-publish-status-${platformId}`}
                                         value={platformSettings[platformId]?.publishStatus || 'draft'}
                                         onChange={(e) => handlePlatformChange(platformId, 'publishStatus', e.target.value)}
                                         className="w-full px-3 py-2 rounded-lg bg-slate-50 text-black text-sm focus:outline-none"
@@ -127,8 +129,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">SEO Title</label>
+                                    <label htmlFor={`platform-seo-title-${platformId}`} className="text-sm font-medium text-slate-700">SEO Title</label>
                                     <input
+                                        id={`platform-seo-title-${platformId}`}
                                         type="text"
                                         placeholder="Enter SEO title..."
                                         value={platformSettings[platformId]?.seoTitle || ''}
@@ -138,8 +141,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">Meta Description</label>
+                                    <label htmlFor={`platform-meta-description-${platformId}`} className="text-sm font-medium text-slate-700">Meta Description</label>
                                     <textarea
+                                        id={`platform-meta-description-${platformId}`}
                                         placeholder="Enter meta description..."
                                         rows={3}
                                         value={platformSettings[platformId]?.metaDescription || ''}
@@ -149,8 +153,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">Canonical URL</label>
+                                    <label htmlFor={`platform-canonical-url-${platformId}`} className="text-sm font-medium text-slate-700">Canonical URL</label>
                                     <input
+                                        id={`platform-canonical-url-${platformId}`}
                                         type="text"
                                         placeholder="https://..."
                                         value={platformSettings[platformId]?.canonicalUrl || ''}
@@ -161,8 +166,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">CTA Button Text</label>
+                                    <label htmlFor={`platform-cta-text-${platformId}`} className="text-sm font-medium text-slate-700">CTA Button Text</label>
                                     <input
+                                        id={`platform-cta-text-${platformId}`}
                                         type="text"
                                         placeholder="Learn More"
                                         value={platformSettings[platformId]?.ctaButtonText || ''}
@@ -172,8 +178,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-700">CTA Button Link</label>
+                                    <label htmlFor={`platform-cta-link-${platformId}`} className="text-sm font-medium text-slate-700">CTA Button Link</label>
                                     <input
+                                        id={`platform-cta-link-${platformId}`}
                                         type="text"
                                         placeholder="https://..."
                                         value={platformSettings[platformId]?.ctaButtonLink || ''}

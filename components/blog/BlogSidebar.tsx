@@ -248,8 +248,9 @@ const BlogSidebar = ({
 
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Global Status</label>
+                            <label htmlFor="global-status" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Global Status</label>
                             <select
+                                id="global-status"
                                 {...register('globalStatus')}
                                 className="w-full px-3 py-2 bg-slate-50 text-black rounded-lg focus:outline-none text-sm"
                             >
@@ -260,10 +261,11 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2" ref={pickerRef}>
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Publish Date</label>
+                            <label htmlFor="publish-date-trigger" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Publish Date</label>
                             <input type="hidden" {...hiddenPublishDateRegister} />
 
                             <button
+                                id="publish-date-trigger"
                                 type="button"
                                 disabled={disabledPicker}
                                 onClick={() => setIsPickerOpen((prev) => !prev)}
@@ -426,8 +428,9 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
+                            <label htmlFor="blog-author" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Author</label>
                             <input
+                                id="blog-author"
                                 {...register('author')}
                                 placeholder="Enter Blog Author Name ...."
                                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-black text-sm"
@@ -435,13 +438,14 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <label htmlFor="add-category-trigger" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                                 Category
                             </label>
 
                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                                 <div className="flex items-center gap-2">
                                     <button
+                                        id="add-category-trigger"
                                         type="button"
                                         onClick={() => setIsCategoryModalOpen(true)}
                                         className="text-blue-600 text-sm hover:underline"
@@ -453,6 +457,7 @@ const BlogSidebar = ({
                                 {categories.map((cat) => (
                                     <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
                                         <input
+                                            id={`sidebar-category-${cat.id}`}
                                             type="checkbox"
                                             checked={category.includes(cat.id)}
                                             onChange={() => {

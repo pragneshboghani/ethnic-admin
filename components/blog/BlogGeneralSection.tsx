@@ -25,18 +25,20 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
     return (
         <div className="space-y-6 rounded-2xl p-6 md:p-8 glass-card">
             <div className="space-y-2">
-                <label className="text-sm font-semibold">Blog Title</label>
+                <label htmlFor="title" className="text-sm font-semibold">Blog Title</label>
                 <input
                     {...register("title")}
+                    id="title"
                     placeholder="Enter a catchy title..."
                     className="w-full rounded-xl bg-slate-50 px-4 py-3 text-lg font-medium text-black transition-all focus:border-none focus:outline-none"
                 />
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-semibold">Short Excerpt</label>
+                <label htmlFor="excerpt" className="text-sm font-semibold">Short Excerpt</label>
                 <textarea
                     {...register("excerpt")}
+                    id="excerpt"
                     placeholder="Brief summary for cards and search results..."
                     rows={3}
                     className="w-full resize-none rounded-xl bg-slate-50 px-4 py-3 text-sm text-black transition-all focus:border-none focus:outline-none"
@@ -44,7 +46,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-semibold">Content</label>
+                <label htmlFor="content" className="text-sm font-semibold">Content</label>
 
                 <div className="blog-editor overflow-hidden rounded-xl border border-slate-200 bg-white text-black shadow-sm">
                     <EditorProvider>
@@ -62,6 +64,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                             }}
                             className="min-h-[420px] px-4 py-3 text-sm text-black focus:outline-none"
                             placeholder="Write your blog content here or switch to HTML mode..."
+                            id="content"
                         />
                     </EditorProvider>
                 </div>
@@ -98,8 +101,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-white">Question</label>
+                                    <label htmlFor={`faq-question-${index}`} className="text-sm font-medium text-white">Question</label>
                                     <input
+                                        id={`faq-question-${index}`}
                                         {...register(`faq.${index}.question`)}
                                         placeholder="Enter FAQ question..."
                                         className="w-full rounded-xl bg-slate-50 px-4 py-2.5 text-lg font-medium text-black transition-all focus:border-none focus:outline-none"
@@ -107,8 +111,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-white">Answer</label>
+                                    <label htmlFor={`faq-answer-${index}`} className="text-sm font-medium text-white">Answer</label>
                                     <textarea
+                                        id={`faq-answer-${index}`}
                                         {...register(`faq.${index}.answer`)}
                                         placeholder="Write the answer..."
                                         rows={3}
@@ -171,8 +176,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
             <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
                 {allBlogs.data.length > 0 && (
                     <div className="m-0">
-                        <label className="text-sm font-semibold">Related Blogs</label>
+                        <label htmlFor="related-blogs-trigger" className="text-sm font-semibold">Related Blogs</label>
                         <button
+                            id="related-blogs-trigger"
                             type="button"
                             onClick={() => setIsPopupOpen(true)}
                             className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-white transition-all focus:outline-none"
@@ -197,8 +203,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                 )}
 
                 <div className="m-0">
-                    <label className="text-sm font-semibold">Reading Time (minutes)</label>
+                    <label htmlFor="reading-time" className="text-sm font-semibold">Reading Time (minutes)</label>
                     <input
+                        id="reading-time"
                         type="number"
                         {...register("reading_time", { valueAsNumber: true })}
                         placeholder="Enter reading time in minutes"

@@ -70,10 +70,11 @@ export default function SignIn() {
 
                 <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
-                        <label className="block text-sm font-medium mb-1">Username</label>
+                        <label htmlFor="username" className="block text-sm font-medium mb-1">Username</label>
                         <input
                             type="text"
                             name="username"
+                            id="username"
                             placeholder="Enter your secure username"
                             value={formData.username}
                             onChange={handleChange}
@@ -82,9 +83,10 @@ export default function SignIn() {
                     </div>
 
                     <div className="relative">
-                        <label className="block text-sm font-medium mb-1">Password</label>
+                        <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                         <input
                             type={showPassword ? "text" : "password"}
+                            id="password"
                             name="password"
                             placeholder="Enter your password"
                             value={formData.password}
