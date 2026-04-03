@@ -2,20 +2,32 @@
 
 import CategoryAndTagAction from "@/actions/categoryAndTagAction";
 import PlateformActions from "@/actions/PlateFormActions";
+import { Platform } from "@/types";
 import { useEffect, useState } from "react";
 
 type Props = {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
+    tag?: {
+        id: number;
+        name: string;
+        description?: string;
+        status?: string;
+        platform_ids?: number[];
+    } | null;
 };
 
-const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
+type PlatformResponse = {
+    data?: Platform[];
+};
+
+const TagModal = ({ isOpen, onClose, onSuccess, tag }: Props) => {
     const [TagName, setTagName] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState("publish");
     const [loading, setLoading] = useState(false);
-    const [platformData, setPlatformData] = useState<any>(null);
+    const [platformData, setPlatformData] = useState<PlatformResponse | null>(null);
     const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
 
     useEffect(() => {
@@ -26,6 +38,15 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
         fetchPlatforms();
     }, []);
 
+    useEffect(() => {
+        if (!isOpen) return;
+
+        setTagName(tag?.name ?? "");
+        setDescription(tag?.description ?? "");
+        setStatus(tag?.status ?? "publish");
+        setSelectedPlatforms(tag?.platform_ids ?? []);
+    }, [tag, isOpen]);
+
     const handleCreate = async () => {
         if (!TagName.trim()) {
             alert("Category name required");
@@ -35,12 +56,18 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
         try {
             setLoading(true);
 
-            await CategoryAndTagAction.createTag({
+            const payload = {
                 name: TagName,
                 description,
                 status,
                 platforms: selectedPlatforms.length ? selectedPlatforms : [],
-            });
+            };
+
+            if (tag?.id) {
+                await CategoryAndTagAction.updateTag(tag.id, payload);
+            } else {
+                await CategoryAndTagAction.createTag(payload);
+            }
 
             setTagName("");
             setDescription("");
@@ -49,8 +76,8 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
             onClose();
             onSuccess?.();
-        } catch (err: any) {
-            console.error(err.message);
+        } catch (err: unknown) {
+            console.error(err instanceof Error ? err.message : "Failed to save tag");
         } finally {
             setLoading(false);
         }
@@ -63,7 +90,7 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
             <div className="p-6 w-[400px] glass-card space-y-4">
 
                 <h2 className="text-xl font-semibold text-white">
-                    Create Tag
+                    {tag ? "Update Tag" : "Create Tag"}
                 </h2>
 
                 <input
@@ -87,21 +114,40 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     <label className="text-sm text-white">Select Platforms</label>
 
                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {platformData?.data?.map((platform: any) => {
+                        {platformData?.data?.map((platform) => {
 
                             const ShowPlatform = platform.status === 'Active' && platform.api_endpoint && platform.api_endpoint.trim() !== "";
 
-                            if (!ShowPlatform) return null;
+                            if (!ShowPlatform || platform.id === undefined) return null;
+                            const id = platform.id;
+                            // return (
+                            //     <div key={platform.id} className="flex items-center gap-2">
+                            //         <input
+                            //             type="checkbox"
+                            //             checked={selectedPlatforms.includes(platform.id)}
+                            //             onChange={() => {
+                            //                 setSelectedPlatforms((prev) =>
+                            //                     prev.includes(platform.id)
+                            //                         ? prev.filter((id) => id !== platform.id)
+                            //                         : [...prev, platform.id]
+                            //                 );
+                            //             }}
+                            //         />
+                            //         <span className="text-white text-sm">
+                            //             {platform.platform_name}
+                            //         </span>
+                            //     </div>
+                            // )
                             return (
-                                <div key={platform.id} className="flex items-center gap-2">
+                                <div key={id} className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
-                                        checked={selectedPlatforms.includes(platform.id)}
+                                        checked={selectedPlatforms.includes(id)}
                                         onChange={() => {
                                             setSelectedPlatforms((prev) =>
-                                                prev.includes(platform.id)
-                                                    ? prev.filter((id) => id !== platform.id)
-                                                    : [...prev, platform.id]
+                                                prev.includes(id)
+                                                    ? prev.filter((i) => i !== id)
+                                                    : [...prev, id]
                                             );
                                         }}
                                     />
@@ -109,7 +155,7 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
                                         {platform.platform_name}
                                     </span>
                                 </div>
-                            )
+                            );
                         })}
                     </div>
                 </div>
@@ -128,7 +174,7 @@ const TagModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     </button>
 
                     <button onClick={handleCreate} disabled={loading} className="btn">
-                        {loading ? "Creating..." : "Create"}
+                        {loading ? (tag ? "Updating..." : "Creating...") : (tag ? "Update" : "Create")}
                     </button>
                 </div>
             </div>

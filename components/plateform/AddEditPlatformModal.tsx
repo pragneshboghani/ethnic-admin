@@ -139,6 +139,14 @@ const AddEditPlatformModal = ({
                             />
                         </div>
 
+                        <div className="space-y-2 w-full">
+                            <label className="text-sm font-semibold">Other Paths</label>
+                            <div>
+                                <button>media path</button>
+                                <button>tag path</button>
+                                <button>category path</button>
+                            </div>
+                        </div>
                         <div className="flex gap-4">
 
                             <div className="space-y-2 w-full">

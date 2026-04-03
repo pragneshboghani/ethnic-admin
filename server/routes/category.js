@@ -5,6 +5,7 @@ const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 const generateSlug = require("../utils/generateSlug");
 const deleteCategory = require("../utils/deleteCategory");
 const { getPlatformsByIds } = require("../utils/platformHelper");
+const updateCategoryOnPlatform = require("../utils/updateCategoryOnPlatform");
 
 const categoryRouter = express.Router();
 
@@ -122,6 +123,95 @@ categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
       success: true,
       plarformResult: results,
       message: `${type} deleted successfully`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+categoryRouter.put("/update", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { name, description, status, platforms } = req.body;
+
+    const [[raw]] = await mysqlpool.query(`SELECT * FROM category WHERE id = ?`, [
+      id,
+    ]);
+
+    if (!raw) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
+    const existingPlatformIds = Array.isArray(raw.platform_ids)
+      ? raw.platform_ids
+      : JSON.parse(raw.platform_ids || "[]");
+    const updatedPlatformIds =
+      platforms !== undefined ? platforms : existingPlatformIds;
+
+    const payload = {
+      name: name ?? raw.name,
+      description: description ?? raw.description,
+      status: status ?? raw.status,
+      slug: raw.slug,
+    };
+
+    const currentPlatforms = await getPlatformsByIds(existingPlatformIds);
+    const addedPlatformIds = updatedPlatformIds.filter(
+      (platformId) => !existingPlatformIds.includes(platformId),
+    );
+    const removedPlatformIds = existingPlatformIds.filter(
+      (platformId) => !updatedPlatformIds.includes(platformId),
+    );
+
+    const addedPlatforms = await getPlatformsByIds(addedPlatformIds);
+    const removedPlatforms = await getPlatformsByIds(removedPlatformIds);
+
+    const updateResults = await Promise.all(
+      currentPlatforms
+        .filter((platform) => updatedPlatformIds.includes(platform.id))
+        .map((platform) =>
+          updateCategoryOnPlatform(platform, payload, "categories", raw.slug),
+        ),
+    );
+
+    const addResults = await Promise.all(
+      addedPlatforms.map((platform) =>
+        postCategoryToPlatform(platform, payload, "categories"),
+      ),
+    );
+
+    const deleteResults = await Promise.all(
+      removedPlatforms.map((platform) =>
+        deleteCategory(platform, raw.slug, "categories"),
+      ),
+    );
+
+    await mysqlpool.query(
+      `UPDATE category SET name = ?, description = ?, status = ?, platform_ids = ? WHERE id = ?`,
+      [
+        payload.name,
+        payload.description,
+        payload.status,
+        JSON.stringify(updatedPlatformIds),
+        id,
+      ],
+    );
+
+    res.status(200).send({
+      success: true,
+      message: "Category updated successfully",
+      results: {
+        updated: updateResults,
+        added: addResults,
+        removed: deleteResults,
+      },
     });
   } catch (error) {
     console.error(error);
