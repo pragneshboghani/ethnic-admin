@@ -63,7 +63,6 @@ const Page = () => {
         type: ''
     });
 
-    console.log('showData', showData)
     const fetchCategories = async () => {
         const res = await CategoryAndTagAction.fetchCategory()
         const categoryData: Category[] = res.data.map((c: CategoryApiItem) => ({
@@ -105,6 +104,7 @@ const Page = () => {
         if (!category) return null
         if (!confirm(`Are you sure you want to delete ${type} "${category?.name}"?`)) return;
         try {
+            setShowdata({ data: null, type: '' });
             await CategoryAndTagAction.deleteCategory(category?.id, type)
             fetchCategories();
             toast.success(`${type} successfully deleted! 🗑️`)
@@ -167,10 +167,6 @@ const Page = () => {
                         >
                             {c.name}
                             <Eye className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity" onClick={() => setShowdata({ data: c, type: 'category' })} />
-                            {/* <Trash2
-                                className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
-                                onClick={() => handleDeleteCategory(c, 'category')}
-                            /> */}
                         </div>
                     ))}
                 </div>
@@ -185,10 +181,6 @@ const Page = () => {
                         >
                             {c.name}
                             <Eye className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity" onClick={() => setShowdata({ data: c, type: 'tags' })} />
-                            {/* <Trash2
-                                className="absolute top-1 right-1 w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
-                                onClick={() => handleDeleteCategory(c, 'tags')}
-                            /> */}
                         </div>
                     ))}
                 </div>

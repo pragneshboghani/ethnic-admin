@@ -5,6 +5,7 @@ const generateSlug = require("./generateSlug");
 const getAuthHeaders = require("./getAuthHeaders");
 const mysqlpool = require("../config/db");
 const postMediaToPlateform = require("./postMediaToPlateform");
+const syncTaxonomy = require("./syncTaxonomy");
 
 const fileToBase64 = (filePath, mimeType) => {
   const absolutePath = path.join(__dirname, "..", filePath);
@@ -63,109 +64,21 @@ const postToPlatform = async (platform, blogData, slug = null) => {
     }
 
     if (blogData.category) {
-      const categoryIds = blogData.category
-        .map((cat) => Number(cat))
-        .filter((id) => !isNaN(id));
-
-      wpCategoryIds = await Promise.all(
-        categoryIds.map(async (id) => {
-          const [[category]] = await mysqlpool.query(
-            `SELECT * FROM category WHERE id = ?`,
-            [id],
-          );
-
-          const res = await axios.get(
-            `${platform.api_endpoint}/${platform.extra_paths.category}?slug=${category.slug}`,
-            {
-              headers: getAuthHeaders(platform),
-            },
-          );
-
-          if (res.data.length > 0) {
-            return res.data[0].id;
-          } else {
-            const createRes = await axios.post(
-              `${platform.api_endpoint}/${platform.extra_paths.category}`,
-              {
-                name: category.name,
-                slug: category.slug,
-                description: category.description || "",
-              },
-              {
-                headers: getAuthHeaders(platform),
-              },
-            );
-
-            const existingPlatforms = category.platforms
-              ? category.platforms
-              : [];
-            const updatedPlatforms = [
-              ...new Set([...existingPlatforms, platform.id]),
-            ];
-
-            await mysqlpool.query(
-              `UPDATE category SET platform_ids = ? WHERE id = ?`,
-              [JSON.stringify(updatedPlatforms), category.id],
-            );
-            return createRes.data.id;
-          }
-        }),
-      );
-
-      wpCategoryIds = wpCategoryIds.filter(Boolean);
+      wpCategoryIds = await syncTaxonomy({
+        ids: blogData.category,
+        tableName: "category",
+        apiPath: platform.extra_paths.category,
+        platform,
+      });
     }
 
     if (blogData.tags) {
-      const tagIds = blogData.tags
-        .map((tag) => Number(tag))
-        .filter((id) => !isNaN(id));
-
-      wpTagIds = await Promise.all(
-        tagIds.map(async (id) => {
-          const [[tag]] = await mysqlpool.query(
-            `SELECT * FROM tags WHERE id = ?`,
-            [id],
-          );
-
-          const res = await axios.get(
-            `${platform.api_endpoint}/${platform.extra_paths.tag}?slug=${tag.slug}`,
-            {
-              headers: getAuthHeaders(platform),
-            },
-          );
-
-          if (res.data.length > 0) {
-            return res.data[0].id;
-          } else {
-            const createRes = await axios.post(
-              `${platform.api_endpoint}/${platform.extra_paths.tag}`,
-              {
-                name: tag.name,
-                slug: tag.slug,
-                description: tag.description || "",
-              },
-              {
-                headers: getAuthHeaders(platform),
-              },
-            );
-
-            const existingPlatforms = tag.platforms ? tag.platforms : [];
-
-            const updatedPlatforms = [
-              ...new Set([...existingPlatforms, platform.id]),
-            ];
-
-            const [result] = await mysqlpool.query(
-              `UPDATE tags SET platform_ids = ? WHERE id = ?`,
-              [JSON.stringify(updatedPlatforms), tag.id],
-            );
-
-            return createRes.data.id;
-          }
-        }),
-      );
-
-      wpTagIds = wpTagIds.filter(Boolean);
+      wpTagIds = await syncTaxonomy({
+        ids: blogData.tags,
+        tableName: "tags",
+        apiPath: platform.extra_paths.tag,
+        platform,
+      });
     }
 
     const headers = getAuthHeaders(platform);
