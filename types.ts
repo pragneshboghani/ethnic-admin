@@ -23,6 +23,7 @@ export interface Platform {
   blog_path: string;
   CTA_link: string;
   CTA_button_text: string;
+  extra_paths?: Record<string, string>;
 }
 
 export interface Media {

@@ -20,12 +20,16 @@ const AddEditPlatformModal = ({
     refreshPlatforms,
 }: Props) => {
 
+    const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
+    const [pathValues, setPathValues] = useState<Record<string, string>>({});
+
     const {
         register,
         handleSubmit,
         watch,
         reset,
-        control
+        control,
+        setValue
     } = useForm<Platform>({
         defaultValues: {
             platform_name: "",
@@ -40,18 +44,23 @@ const AddEditPlatformModal = ({
             data_source: "platform",
             blog_path: "",
             CTA_link: "",
-            CTA_button_text: ""
+            CTA_button_text: "",
+            extra_paths: {}
         },
     });
 
     const authType = watch("auth_type");
     const dataSource = watch("data_source");
+    const extra_paths = watch("extra_paths") || {};
 
     useEffect(() => {
         if (editingPlatform) {
             reset({
-                ...editingPlatform
+                ...editingPlatform,
             });
+            if (editingPlatform.extra_paths) {
+                setSelectedPaths(Object.keys(editingPlatform.extra_paths));
+            }
         } else {
             reset({
                 platform_name: "",
@@ -66,8 +75,10 @@ const AddEditPlatformModal = ({
                 data_source: "platform",
                 blog_path: "",
                 CTA_link: "",
-                CTA_button_text: ""
+                CTA_button_text: "",
+                extra_paths: {}
             });
+            setSelectedPaths([]);
         }
     }, [editingPlatform, reset]);
 
@@ -86,6 +97,29 @@ const AddEditPlatformModal = ({
         } catch (error) {
             toast.error("Failed to save platform 😢");
         }
+    };
+
+    const togglePath = (path: string) => {
+        setSelectedPaths((prev) => {
+            const isSelected = prev.includes(path);
+
+            if (isSelected) {
+                // remove from form
+                const updated = { ...extra_paths };
+                delete updated[path];
+                setValue("extra_paths", updated);
+
+                return prev.filter((p) => p !== path);
+            } else {
+                // add with default value
+                setValue("extra_paths", {
+                    ...extra_paths,
+                    [path]: ""
+                });
+
+                return [...prev, path];
+            }
+        });
     };
 
     if (!open) return null;
@@ -140,12 +174,49 @@ const AddEditPlatformModal = ({
                         </div>
 
                         <div className="space-y-2 w-full">
-                            <label className="text-sm font-semibold">Other Paths</label>
-                            <div>
-                                <button>media path</button>
-                                <button>tag path</button>
-                                <button>category path</button>
+                            <label className="text-sm font-semibold">Other Paths (optional)</label>
+
+                            <div className="flex gap-2 flex-wrap">
+                                {["media", "tag", "category"].map((path) => {
+                                    const isSelected = selectedPaths.includes(path);
+
+                                    return (
+                                        <button
+                                            key={path}
+                                            type="button"
+                                            onClick={() => togglePath(path)}
+                                            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all border
+                        ${isSelected
+                                                    ? "bg-blue-600 border-blue-600 text-white shadow"
+                                                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                                                }`}
+                                        >
+                                            {path} path
+                                        </button>
+                                    );
+                                })}
                             </div>
+
+                            {selectedPaths.map((path) => (
+                                <div key={path} className="space-y-1">
+                                    <label className="text-sm text-white capitalize">
+                                        {path} Path
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        placeholder={`Enter ${path} path`}
+                                        value={extra_paths[path] || ""}
+                                        onChange={(e) =>
+                                            setValue("extra_paths", {
+                                                ...extra_paths,
+                                                [path]: e.target.value,
+                                            })
+                                        }
+                                        className="w-full p-2 rounded bg-white border text-black"
+                                    />
+                                </div>
+                            ))}
                         </div>
                         <div className="flex gap-4">
 
