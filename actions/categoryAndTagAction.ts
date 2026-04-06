@@ -2,6 +2,9 @@ import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Unknown error";
+
 const CategoryAndTagAction = {
   fetchCategory: async () => {
     try {
@@ -17,8 +20,8 @@ const CategoryAndTagAction = {
       }
 
       return await res.json();
-    } catch (error: any) {
-      console.error("Error fetching Category:", error.message);
+    } catch (error: unknown) {
+      console.error("Error fetching Category:", getErrorMessage(error));
       throw error;
     }
   },
@@ -47,8 +50,41 @@ const CategoryAndTagAction = {
       }
 
       return await res.json();
-    } catch (error: any) {
-      console.error("Error adding Category:", error.message);
+    } catch (error: unknown) {
+      console.error("Error adding Category:", getErrorMessage(error));
+      throw error;
+    }
+  },
+
+  updateCategory: async (
+    id: number,
+    data: {
+      name?: string;
+      description?: string;
+      status?: string;
+      platforms?: number[];
+    },
+  ) => {
+    try {
+      const token = UserActions.getToken();
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/category/update?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update Category");
+      }
+
+      return await res.json();
+    } catch (error: unknown) {
+      console.error("Error updating Category:", getErrorMessage(error));
       throw error;
     }
   },
@@ -67,8 +103,8 @@ const CategoryAndTagAction = {
       }
 
       return await res.json();
-    } catch (error: any) {
-      console.error("Error fetching Tags:", error.message);
+    } catch (error: unknown) {
+      console.error("Error fetching Tags:", getErrorMessage(error));
       throw error;
     }
   },
@@ -97,8 +133,41 @@ const CategoryAndTagAction = {
       }
 
       return await res.json();
-    } catch (error: any) {
-      console.error("Error adding Tag:", error.message);
+    } catch (error: unknown) {
+      console.error("Error adding Tag:", getErrorMessage(error));
+      throw error;
+    }
+  },
+
+  updateTag: async (
+    id: number,
+    data: {
+      name?: string;
+      description?: string;
+      status?: string;
+      platforms?: number[];
+    },
+  ) => {
+    try {
+      const token = UserActions.getToken();
+
+      const res = await fetch(`${BACKEND_DOMAIN}/api/tags/update?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update Tag");
+      }
+
+      return await res.json();
+    } catch (error: unknown) {
+      console.error("Error updating Tag:", getErrorMessage(error));
       throw error;
     }
   },
@@ -120,8 +189,8 @@ const CategoryAndTagAction = {
       }
 
       return await res.json();
-    } catch (error: any) {
-      console.error("Error deleting blog:", error.message);
+    } catch (error: unknown) {
+      console.error("Error deleting blog:", getErrorMessage(error));
       throw error;
     }
   },

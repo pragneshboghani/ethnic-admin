@@ -299,9 +299,12 @@ const BlogForm = () => {
 
                 const isWordpress = platform.plateform_type === "wordpress";
 
+                const baseUrl = platform.website_url.replace(/\/$/, '');
+                const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
+
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.blog_path}/${slug}`;  
+                    : `${baseUrl}${blogPath}/${slug}`;  
 
                 const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;
@@ -535,6 +538,7 @@ const BlogForm = () => {
                                 <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]">
                                     <input
                                         type="checkbox"
+                                        id={`blog-${blog.id}`}
                                         checked={relatedBlogs.includes(blog.id)}
                                         onChange={() => handleBlogSelect(blog.id)}
                                         className="mt-1 h-4 w-4 accent-[#9ad8de]"

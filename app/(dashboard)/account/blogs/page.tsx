@@ -5,18 +5,8 @@ import DashBoardActions from "@/actions/DashboardAction";
 import SEOActions from "@/actions/SEOAction";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import { formatDateTime } from "@/utils/formatDateTime";
-import {
-  CheckCircle2,
-  Clock3,
-  Copy,
-  Eye,
-  FileText,
-  Globe2,
-  Pencil,
-  Search,
-  SlidersHorizontal,
-  Trash2,
-} from "lucide-react";
+import { FetchSummaryCards } from "@/utils/summaryCards";
+import { Copy, Eye, Pencil, Search, SlidersHorizontal, Trash2, } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -41,6 +31,7 @@ const Blogs = () => {
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
+  const [sort, setSort] = useState("");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -72,6 +63,7 @@ const Blogs = () => {
         author,
         category,
         tags,
+        sort,
       });
       setBlogs(res.data || []);
     } catch (err) {
@@ -82,12 +74,11 @@ const Blogs = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, [platform, status, search, tags, category, author]);
+  }, [platform, status, search, tags, category, author, sort]);
 
   const handleDelete = async (id: number) => {
     try {
       await BlogActions.deleteBlog(id);
-      await SEOActions.deleteSEO(id);
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs();
@@ -153,14 +144,6 @@ const Blogs = () => {
     fetchPlatformSettings(selectedBlog);
   }, [selectedBlog]);
 
-  const totalBlogs = blogs.length;
-  const publishedBlogs = blogs.filter((blog) => blog.status === "publish").length;
-  const draftBlogs = blogs.filter((blog) => blog.status === "draft").length;
-  const scheduledBlogs = blogs.filter((blog) => blog.status === "future").length;
-  const clampProgress = (value: number) => Math.max(22, Math.min(96, value));
-  const publishedProgress = totalBlogs > 0 ? (publishedBlogs / totalBlogs) * 100 : 26;
-  const scheduledProgress = totalBlogs > 0 ? (scheduledBlogs / totalBlogs) * 100 : 22;
-  const platformProgress = (platformData?.totalPlatforms ?? 0) * 24 + 18;
   const accentThemes = [
     "border-[#7a428f]/28 bg-[#7a428f]/16 text-[#e2c6ff]",
     "border-[#2f6670]/28 bg-[#2f6670]/16 text-[#b8edf1]",
@@ -168,93 +151,41 @@ const Blogs = () => {
     "border-[#354b73]/28 bg-[#354b73]/16 text-[#c8daf9]",
   ];
 
-  const summaryCards = [
-    {
-      label: "Total blogs",
-      value: totalBlogs,
-      description: "Content entries in the current view",
-      icon: FileText,
-      cardClassName: "bg-[#5d366f] text-white",
-      labelClassName: "text-white/72",
-      descriptionClassName: "text-white/72",
-      iconClassName: "bg-[#24152f] text-white",
-      progressTrackClassName: "bg-white/16",
-      progressFillClassName: "bg-white",
-      progress: clampProgress(totalBlogs * 12 + 18),
-    },
-    {
-      label: "Published",
-      value: publishedBlogs,
-      description: "Posts already live on platforms",
-      icon: CheckCircle2,
-      cardClassName: "bg-[#2f6670] text-white",
-      labelClassName: "text-white/72",
-      descriptionClassName: "text-white/72",
-      iconClassName: "bg-[#16333c] text-white",
-      progressTrackClassName: "bg-white/16",
-      progressFillClassName: "bg-white",
-      progress: clampProgress(publishedProgress),
-    },
-    {
-      label: "Scheduled",
-      value: scheduledBlogs,
-      description: "Posts waiting for publish time",
-      icon: Clock3,
-      cardClassName: "bg-[#b8664b] text-white",
-      labelClassName: "text-white/72",
-      descriptionClassName: "text-white/72",
-      iconClassName: "bg-[#4a2a20] text-white",
-      progressTrackClassName: "bg-white/16",
-      progressFillClassName: "bg-white",
-      progress: clampProgress(scheduledProgress),
-    },
-    {
-      label: "Platforms",
-      value: platformData?.totalPlatforms ?? 0,
-      description: "Connected publishing destinations",
-      icon: Globe2,
-      cardClassName: "bg-[#354b73] text-white",
-      labelClassName: "text-white/72",
-      descriptionClassName: "text-white/72",
-      iconClassName: "bg-[#1c2b45] text-white",
-      progressTrackClassName: "bg-white/16",
-      progressFillClassName: "bg-white",
-      progress: clampProgress(platformProgress),
-    },
-  ];
+  const draftBlogs = blogs.filter((blog) => blog.status === "draft").length;
+  const summaryCards = FetchSummaryCards(blogs, platformData);
 
   const getPlatformNames = (platformIds: number[] = []) =>
     Array.isArray(platformIds)
       ? platformIds
-          .map((platformId) => {
-            const selectedPlatform = platformData?.data?.find(
-              (item: any) => item.id === platformId,
-            );
-            return selectedPlatform?.platform_name || null;
-          })
-          .filter(Boolean)
+        .map((platformId) => {
+          const selectedPlatform = platformData?.data?.find(
+            (item: any) => item.id === platformId,
+          );
+          return selectedPlatform?.platform_name || null;
+        })
+        .filter(Boolean)
       : [];
 
   const getCategoryNames = (categoryIds: number[] = []) =>
     Array.isArray(categoryIds)
       ? categoryIds
-          .map((categoryId) => {
-            const selectedCategory = categoryData?.data?.find(
-              (item: any) => item.id === categoryId,
-            );
-            return selectedCategory?.name || null;
-          })
-          .filter(Boolean)
+        .map((categoryId) => {
+          const selectedCategory = categoryData?.data?.find(
+            (item: any) => item.id === categoryId,
+          );
+          return selectedCategory?.name || null;
+        })
+        .filter(Boolean)
       : [];
 
   const getTagNames = (tagIds: number[] = []) =>
     Array.isArray(tagIds)
       ? tagIds
-          .map((tagId) => {
-            const selectedTag = tagData?.data?.find((item: any) => item.id === tagId);
-            return selectedTag?.name || null;
-          })
-          .filter(Boolean)
+        .map((tagId) => {
+          const selectedTag = tagData?.data?.find((item: any) => item.id === tagId);
+          return selectedTag?.name || null;
+        })
+        .filter(Boolean)
       : [];
 
   const getStatusMeta = (blogStatus: string) => {
@@ -334,7 +265,7 @@ const Blogs = () => {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-6">
+        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-7">
           <div className="relative">
             <Search
               size={18}
@@ -407,6 +338,16 @@ const Blogs = () => {
             <option value="publish">Published</option>
             <option value="draft">Draft</option>
             <option value="future">Scheduled</option>
+          </select>
+
+          <select
+            className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="none">Sort By Create Date</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
         </div>
       </section>

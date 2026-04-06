@@ -1,19 +1,34 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const generateSlug = require("./generateSlug");
 const getAuthHeaders = require("./getAuthHeaders");
 const mysqlpool = require("../config/db");
+const postMediaToPlateform = require("./postMediaToPlateform");
+const syncTaxonomy = require("./syncTaxonomy");
+
+const fileToBase64 = (filePath, mimeType) => {
+  const absolutePath = path.join(__dirname, "..", filePath);
+
+  console.log("Checking path:", absolutePath);
+
+  if (!fs.existsSync(absolutePath)) {
+    console.log("File not found!");
+    return null;
+  }
+
+  const fileBuffer = fs.readFileSync(absolutePath);
+  return `data:${mimeType};base64,${fileBuffer.toString("base64")}`;
+};
 
 const postToPlatform = async (platform, blogData, slug = null) => {
   try {
-    let url = "";
-    if (platform.plateform_type == "wordpress") {
-      url = `${platform.api_endpoint}/wp-json/wp/v2/posts`;
-    } else {
-      url = `${platform.api_endpoint}/blog`;
-    }
+    let url = `${platform.api_endpoint}/${platform.blog_path}`;
 
     let method = "post";
     let featuredMediaId = null;
+    let wpCategoryIds = [];
+    let wpTagIds = [];
 
     if (blogData.featured_image) {
       const [[image]] = await mysqlpool.query(
@@ -21,9 +36,49 @@ const postToPlatform = async (platform, blogData, slug = null) => {
         [blogData.featured_image],
       );
 
-      if (image) {
-        featuredMediaId = image.wp_id;
+      if (image.platforms && image.platforms.length > 0) {
+        featuredMediaId = image.platforms[0].id;
+      } else {
+        const base64Image = fileToBase64(image.file_url, image.mime_type);
+        const data = {
+          file: base64Image,
+          alt: image.platforms[0]?.alt_text || "",
+        };
+
+        const UpdateImage = await postMediaToPlateform(platform, data);
+        featuredMediaId = UpdateImage.mediaId;
+
+        const updatedPlatforms = [
+          {
+            id: UpdateImage.mediaId,
+            url: UpdateImage.url,
+            platformId: UpdateImage.platformId,
+          },
+        ];
+
+        await mysqlpool.query(`UPDATE media SET platforms = ? WHERE id = ?`, [
+          JSON.stringify(updatedPlatforms),
+          image.id,
+        ]);
       }
+    }
+
+    if (blogData.category) {
+      wpCategoryIds = await syncTaxonomy({
+        ids: blogData.category,
+        tableName: "category",
+        apiPath: platform.extra_paths.category,
+        platform,
+      });
+    }
+
+    if (blogData.tags) {
+      wpTagIds = await syncTaxonomy({
+        ids: blogData.tags,
+        tableName: "tags",
+        apiPath: platform.extra_paths.tag,
+        platform,
+      });
     }
 
     const headers = getAuthHeaders(platform);
@@ -34,12 +89,7 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       });
       if (res.data.length) {
         const postId = res.data[0].id;
-
-        if (platform.plateform_type == "wordpress") {
-          url = `${platform.api_endpoint}/wp-json/wp/v2/posts/${postId}`;
-        } else {
-          url = `${platform.api_endpoint}/blog/${postId}`;
-        }
+        url = `${url}/${postId}`;
         method = "put";
       }
     }
@@ -51,8 +101,8 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       date_gmt: new Date(blogData.publish_date).toISOString(),
       slug: slug || (await generateSlug(blogData.blog_title)),
       status: blogData.status.toLowerCase(),
-      categories: (blogData.category || []).map(Number),
-      tags: blogData.tags,
+      categories: wpCategoryIds,
+      tags: wpTagIds,
       ...(featuredMediaId && { featured_media: featuredMediaId }),
     };
 

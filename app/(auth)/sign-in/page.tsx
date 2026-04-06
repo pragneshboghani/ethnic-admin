@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 const authFont = Poppins({
     subsets: ["latin"],
@@ -24,6 +24,7 @@ export default function SignIn() {
     });
 
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     const handleChange = (
@@ -57,6 +58,7 @@ export default function SignIn() {
         }
     };
 
+    const PasswordIcon = showPassword ? <EyeOff /> : <Eye />;
     return (
         <section
             className={`${authFont.className} relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(73,112,164,0.22),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(80,62,128,0.18),_transparent_24%),linear-gradient(180deg,#0b1018_0%,#0e1622_52%,#091019_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8`}
@@ -124,7 +126,7 @@ export default function SignIn() {
                             />
                         </div>
 
-                        <div className="space-y-2.5">
+                        <div className="space-y-2.5 relative">
                             <label
                                 htmlFor="password"
                                 className="block text-sm font-medium text-[#d8deea]"
@@ -133,7 +135,7 @@ export default function SignIn() {
                             </label>
                             <input
                                 id="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 name="password"
                                 placeholder="Enter your password"
                                 value={formData.password}
@@ -142,6 +144,12 @@ export default function SignIn() {
                                 required
                                 className="w-full rounded-2xl border border-[#243246] bg-[#0d1522] px-4 py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
                             />
+                            <span
+                                className="absolute text-white right-3 top-1/2 cursor-pointer"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {PasswordIcon}
+                            </span>
                         </div>
 
                         <button

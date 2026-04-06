@@ -40,8 +40,9 @@ const LinkModal = ({
         <h2 className="text-lg font-semibold">Add Link</h2>
 
         <div className="space-y-2">
-          <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">URL</label>
+          <label htmlFor="link-url" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">URL</label>
           <input
+            id="link-url"
             type="url"
             placeholder="https://example.com"
             value={url}
@@ -52,8 +53,9 @@ const LinkModal = ({
 
         {!hasSelection && (
           <div className="space-y-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Link Text</label>
+            <label htmlFor="link-text" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Link Text</label>
             <input
+              id="link-text"
               type="text"
               placeholder="Enter display text"
               value={text}
@@ -65,6 +67,7 @@ const LinkModal = ({
 
         <label className="flex items-center gap-2 text-sm text-[#dbe5f3]">
           <input
+            id="open-in-new-tab"
             type="checkbox"
             checked={openInNewTab}
             onChange={(e) => setOpenInNewTab(e.target.checked)}

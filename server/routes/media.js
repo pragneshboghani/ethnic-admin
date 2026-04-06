@@ -52,6 +52,7 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
       .map((r) => ({
         id: r.mediaId,
         url: r.url,
+        platformId: r.platformId,
       }));
 
     const [result] = await mysqlpool.query(
@@ -107,9 +108,9 @@ mediarouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
-mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
+mediarouter.put("/update-alt/:mediaId", authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { mediaId } = req.params;
     const { alt_text } = req.body;
 
     if (!alt_text) {
@@ -121,7 +122,7 @@ mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
 
     const [[media]] = await mysqlpool.query(
       "SELECT * FROM media WHERE id = ?",
-      [id],
+      [mediaId],
     );
 
     if (!media) {
@@ -133,13 +134,13 @@ mediarouter.put("/update-alt/:id", authMiddleware, async (req, res) => {
 
     await mysqlpool.query("UPDATE media SET alt_text = ? WHERE id = ?", [
       alt_text,
-      id,
+      mediaId,
     ]);
 
     res.status(200).send({
       success: true,
       message: "Alt text updated successfully",
-      mediaId: id,
+      mediaId: mediaId,
       newAltText: alt_text,
     });
   } catch (error) {

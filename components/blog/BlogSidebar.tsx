@@ -253,8 +253,9 @@ const BlogSidebar = ({
 
                     <div className="mt-6 space-y-5">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Global Status</label>
+                            <label htmlFor="global-status" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Global Status</label>
                             <select
+                                id="global-status"
                                 {...register('globalStatus')}
                                 className="w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] focus:border-[#31425e] focus:outline-none"
                             >
@@ -265,10 +266,11 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2" ref={pickerRef}>
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Publish Date</label>
+                            <label htmlFor="publish-date-trigger" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Publish Date</label>
                             <input type="hidden" {...hiddenPublishDateRegister} />
 
                             <button
+                                id="publish-date-trigger"
                                 type="button"
                                 disabled={disabledPicker}
                                 onClick={() => setIsPickerOpen((prev) => !prev)}
@@ -431,8 +433,9 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
+                            <label htmlFor="blog-author" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
                             <input
+                                id="blog-author"
                                 {...register('author')}
                                 placeholder="Enter Blog Author Name ...."
                                 className="w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
@@ -440,13 +443,14 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
                                 Category
-                            </label>
+                            </p>
 
                             <div className="max-h-52 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
                                 <div className="pb-2">
                                     <button
+                                        id="add-category-trigger"
                                         type="button"
                                         onClick={() => setIsCategoryModalOpen(true)}
                                         className="rounded-full border border-white/10 bg-[#151d2c] px-3 py-1.5 text-sm text-[#9ad8de] transition hover:border-[#2f6670] hover:text-[#c2edf0]"
@@ -458,6 +462,7 @@ const BlogSidebar = ({
                                 {categories.map((cat) => (
                                     <label key={cat.id} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]">
                                         <input
+                                            id={`sidebar-category-${cat.id}`}
                                             type="checkbox"
                                             checked={category.includes(cat.id)}
                                             onChange={() => {

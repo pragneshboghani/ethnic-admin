@@ -49,6 +49,7 @@ const BlogActions = {
     author?: string;
     category?: string;
     tags?: string;
+    sort?: string;
   }) => {
     try {
       const token = UserActions.getToken();
@@ -60,6 +61,7 @@ const BlogActions = {
         author = "",
         category = "",
         tags = "",
+        sort = "none"
       } = filters;
 
       const params = new URLSearchParams();
@@ -69,6 +71,7 @@ const BlogActions = {
       if (author) params.append("author", author);
       if (category) params.append("category", category);
       if (tags) params.append("tags", tags);
+      if (sort && sort !== "none") params.append("sort", sort);
 
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/blogs/filter?${params.toString()}`,

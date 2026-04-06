@@ -443,7 +443,7 @@ blogRouter.get("/recent", authMiddleware, async (req, res) => {
 
 blogRouter.get("/filter", authMiddleware, async (req, res) => {
   try {
-    const { status, platform, author, category, tags, search } = req.query;
+    const { status, platform, author, category, tags, search, sort } = req.query;
 
     let query = `SELECT * FROM blogs WHERE 1=1`;
     const params = [];
@@ -483,7 +483,14 @@ blogRouter.get("/filter", authMiddleware, async (req, res) => {
       params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    query += ` ORDER BY created_at DESC`;
+    let sortOrder = "DESC";
+    if (sort === "asc") {
+      sortOrder = "ASC";
+    } else {
+      sortOrder = "DESC";
+    }
+
+    query += ` ORDER BY created_at ${sortOrder}`;
 
     const [rows] = await mysqlpool.query(query, params);
 

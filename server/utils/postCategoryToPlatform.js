@@ -1,9 +1,10 @@
 const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 const postCategoryToPlatform = async (platform, category, path) => {
   try {
-    const url = `${platform.api_endpoint}/wp-json/wp/v2/${path}`;
+    const url = getTaxonomyUrl(platform, path);
 
     const payload = {
       name: category.name,

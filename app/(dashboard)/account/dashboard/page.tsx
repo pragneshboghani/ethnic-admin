@@ -2,6 +2,7 @@
 
 import DashBoardActions from "@/actions/DashboardAction";
 import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
+import { DashboardBlog } from "@/types";
 import { FetchDashBoardData } from "@/utils/dashboardStats";
 import {
   Bell,
@@ -20,14 +21,6 @@ import { useEffect, useRef, useState } from "react";
 type RecentBlog = {
   id: number;
   blog_title: string;
-};
-
-type DashboardBlog = {
-  id: number;
-  blog_title: string;
-  publish_date?: string | null;
-  status?: "draft" | "publish" | "future";
-  platforms?: number[];
 };
 
 type ActivePlatform = {
@@ -76,8 +69,23 @@ const getBlogStatusLabel = (status?: "draft" | "publish" | "future") => {
   return "Draft";
 };
 
+const getInitials = (value?: string | null) => {
+  if (!value) return "BL";
+
+  const parts = value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (parts.length === 0) return "BL";
+
+  return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
+};
+
 const Dashboard = () => {
   const router = useRouter();
+  const backendDomain = process.env.BACKEND_DOMAIN || "";
   const [days, setDays] = useState("7");
   const [recentBlogs, setRecentBlogs] = useState<RecentBlog[]>([]);
   const [calendarBlogs, setCalendarBlogs] = useState<DashboardBlog[]>([]);
@@ -185,6 +193,38 @@ const Dashboard = () => {
             : `${Math.min(99, safeValue * 21 + 15)}%`,
     };
   });
+
+  const sortedBlogs = [...calendarBlogs].sort((a, b) => {
+    const timeA = new Date(
+      a.updated_at || a.publish_date || a.created_at || 0,
+    ).getTime();
+    const timeB = new Date(
+      b.updated_at || b.publish_date || b.created_at || 0,
+    ).getTime();
+
+    return timeB - timeA;
+  });
+
+  const getFeaturedCardBlogs = (index: number) => {
+    if (index === 1) {
+      return sortedBlogs.filter((blog) => blog.status === "publish");
+    }
+
+    if (index === 2) {
+      return sortedBlogs.filter((blog) => Array.isArray(blog.platforms) && blog.platforms.length > 0);
+    }
+
+    return sortedBlogs;
+  };
+
+  const getBlogImageSrc = (imagePath?: string | null) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+
+    return `${backendDomain}/${imagePath}`;
+  };
 
   const taskItems =
     recentBlogs.length > 0
@@ -469,6 +509,9 @@ const Dashboard = () => {
           <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {featuredCards.map((item, index) => {
               const theme = cardColors[index];
+              const cardBlogs = getFeaturedCardBlogs(index);
+              const visibleBlogs = cardBlogs.slice(0, 2);
+              const remainingBlogCount = Math.max(cardBlogs.length - visibleBlogs.length, 0);
 
               return (
                 <div
@@ -477,11 +520,45 @@ const Dashboard = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex -space-x-2">
-                      <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${theme.chip}`}>
-                        +{index + 3}
+                      <span className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 text-sm font-semibold ${theme.chip}`}>
+                        +{remainingBlogCount}
                       </span>
-                      <span className="h-10 w-10 rounded-full border-2 border-white/80 bg-[#f8d2bb]" />
-                      <span className="h-10 w-10 rounded-full border-2 border-white/80 bg-[#dce5f3]" />
+
+                      {visibleBlogs.map((blog) => {
+                        const imageSrc = getBlogImageSrc(blog.featured_image);
+
+                        if (imageSrc) {
+                          return (
+                            <img
+                              key={blog.id}
+                              src={imageSrc}
+                              alt={blog.blog_title}
+                              className="h-10 w-10 rounded-full border-2 border-white/80 object-cover"
+                            />
+                          );
+                        }
+
+                        return (
+                          <span
+                            key={blog.id}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#dce5f3] text-xs font-semibold text-[#22324b]"
+                            title={blog.blog_title}
+                          >
+                            {getInitials(blog.author || blog.blog_title)}
+                          </span>
+                        );
+                      })}
+
+                      {visibleBlogs.length === 0 && (
+                        <>
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#f8d2bb] text-xs font-semibold text-[#4f2a17]">
+                            NA
+                          </span>
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#dce5f3] text-xs font-semibold text-[#22324b]">
+                            BL
+                          </span>
+                        </>
+                      )}
                     </div>
                     <MoreVertical size={18} className={theme.subtext} />
                   </div>

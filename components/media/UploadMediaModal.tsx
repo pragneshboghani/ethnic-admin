@@ -194,9 +194,9 @@ const UploadMediaModal: React.FC<UploadMediaModalProps> = ({
                     <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                         <div className="space-y-2">
                             <div className="flex items-center justify-between gap-3">
-                                <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
                                     Select Platforms
-                                </label>
+                                </p>
                                 <span className="text-xs text-[#8ea0b8]">
                                     {selectedPlatforms.length} selected
                                 </span>

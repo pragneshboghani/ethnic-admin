@@ -141,8 +141,9 @@ const PlatformSettingsSection = ({
 
                                 <div className="mt-6 grid gap-5 lg:grid-cols-2">
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>URL Slug</label>
+                                        <label htmlFor={`platform-slug-${platformId}`} className={labelClassName}>URL Slug</label>
                                         <input
+                                            id={`platform-slug-${platformId}`}
                                             type="text"
                                             placeholder="/your-blog-slug"
                                             value={platformSettings[platformId]?.slug || ""}
@@ -152,8 +153,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>Publish Status</label>
+                                        <label htmlFor={`platform-publish-status-${platformId}`} className={labelClassName}>Publish Status</label>
                                         <select
+                                            id={`platform-publish-status-${platformId}`}
                                             value={platformSettings[platformId]?.publishStatus || "draft"}
                                             onChange={(e) => handlePlatformChange(platformId, "publishStatus", e.target.value)}
                                             className={inputClassName}
@@ -165,8 +167,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2 lg:col-span-2">
-                                        <label className={labelClassName}>SEO Title</label>
+                                        <label htmlFor={`platform-seo-title-${platformId}`} className={labelClassName}>SEO Title</label>
                                         <input
+                                            id={`platform-seo-title-${platformId}`}
                                             type="text"
                                             placeholder="Enter SEO title..."
                                             value={platformSettings[platformId]?.seoTitle || ""}
@@ -176,8 +179,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2 lg:col-span-2">
-                                        <label className={labelClassName}>Meta Description</label>
+                                        <label htmlFor={`platform-meta-description-${platformId}`} className={labelClassName}>Meta Description</label>
                                         <textarea
+                                            id={`platform-meta-description-${platformId}`}
                                             placeholder="Enter meta description..."
                                             rows={4}
                                             value={platformSettings[platformId]?.metaDescription || ""}
@@ -187,8 +191,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2 lg:col-span-2">
-                                        <label className={labelClassName}>Canonical URL</label>
+                                        <label htmlFor={`platform-canonical-url-${platformId}`} className={labelClassName}>Canonical URL</label>
                                         <input
+                                            id={`platform-canonical-url-${platformId}`}
                                             type="text"
                                             placeholder="https://..."
                                             value={platformSettings[platformId]?.canonicalUrl || ""}
@@ -199,8 +204,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>CTA Button Text</label>
+                                        <label htmlFor={`platform-cta-text-${platformId}`} className={labelClassName}>CTA Button Text</label>
                                         <input
+                                            id={`platform-cta-text-${platformId}`}
                                             type="text"
                                             placeholder="Learn More"
                                             value={platformSettings[platformId]?.ctaButtonText || ""}
@@ -210,8 +216,9 @@ const PlatformSettingsSection = ({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>CTA Button Link</label>
+                                        <label htmlFor={`platform-cta-link-${platformId}`} className={labelClassName}>CTA Button Link</label>
                                         <input
+                                            id={`platform-cta-link-${platformId}`}
                                             type="text"
                                             placeholder="https://..."
                                             value={platformSettings[platformId]?.ctaButtonLink || ""}
