@@ -1,9 +1,10 @@
 const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 async function updateCategoryOnPlatform(platform, category, path, slug) {
   try {
-    const baseUrl = `${platform.api_endpoint}/wp-json/wp/v2/${path}`;
+    const baseUrl = getTaxonomyUrl(platform, path);
     const headers = {
       "Content-Type": "application/json",
       ...getAuthHeaders(platform),

@@ -1,8 +1,9 @@
 const axios = require("axios");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 const postMediaToPlateform = async (platform, data) => {
   try {
-    const url = `${platform.api_endpoint}/wp-json/wp/v2/media`;
+    const url = getTaxonomyUrl(platform, "media");
 
     const base64Data = data.file.split(";base64,").pop();
     const buffer = Buffer.from(base64Data, "base64");
@@ -29,7 +30,7 @@ const postMediaToPlateform = async (platform, data) => {
 
     if (data.alt) {
       await axios.post(
-        `${platform.api_endpoint}/wp-json/wp/v2/media/${wpMedia.id}`,
+        `${url}/${wpMedia.id}`,
         { alt_text: data.alt },
         {
           headers: {

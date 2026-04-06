@@ -1,14 +1,10 @@
 const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 async function deleteCategory(platform, slug, type) {
   try {
-    let url = "";
-    if (platform.plateform_type == "wordpress") {
-      url = `${platform.api_endpoint}/wp-json/wp/v2/${type}`;
-    } else {
-      url = `${platform.api_endpoint}/blog`;
-    }
+    const url = getTaxonomyUrl(platform, type);
     const headers = getAuthHeaders(platform);
     const resg = await axios.get(url, {
       params: { slug },

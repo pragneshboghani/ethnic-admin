@@ -42,7 +42,7 @@ categoryRouter.post("/add", authMiddleware, async (req, res) => {
             description,
             status,
           },
-          "categories",
+          "category",
         ),
       ),
     );
@@ -103,7 +103,7 @@ categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
         deleteCategory(
           platform,
           raw.slug,
-          type == "category" ? "categories" : "tags",
+          type,
         ),
       ),
     );
@@ -177,19 +177,19 @@ categoryRouter.put("/update", authMiddleware, async (req, res) => {
       currentPlatforms
         .filter((platform) => updatedPlatformIds.includes(platform.id))
         .map((platform) =>
-          updateCategoryOnPlatform(platform, payload, "categories", raw.slug),
+          updateCategoryOnPlatform(platform, payload, "category", raw.slug),
         ),
     );
 
     const addResults = await Promise.all(
       addedPlatforms.map((platform) =>
-        postCategoryToPlatform(platform, payload, "categories"),
+        postCategoryToPlatform(platform, payload, "category"),
       ),
     );
 
     const deleteResults = await Promise.all(
       removedPlatforms.map((platform) =>
-        deleteCategory(platform, raw.slug, "categories"),
+        deleteCategory(platform, raw.slug, "category"),
       ),
     );
 
