@@ -1,10 +1,11 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const platformRouter = Router();
 
-platformRouter.get("/all", authMiddleware, async (req, res) => {
+platformRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM platforms");
     res.status(200).send({
@@ -21,7 +22,7 @@ platformRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.get("/get", authMiddleware, async (req, res) => {
+platformRouter.get("/get", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -50,7 +51,7 @@ platformRouter.get("/get", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.get("/active", authMiddleware, async (req, res) => {
+platformRouter.get("/active", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
       `SELECT id,platform_name,website_url FROM platforms WHERE status = 'active'`,
@@ -70,7 +71,7 @@ platformRouter.get("/active", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.post("/add", authMiddleware, async (req, res) => {
+platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     let {
       platform_name,
@@ -169,7 +170,7 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.put("/update", authMiddleware, async (req, res) => {
+platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -314,7 +315,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.delete("/delete", authMiddleware, async (req, res) => {
+platformRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 

@@ -1,17 +1,14 @@
 import Cookies from "js-cookie";
 import UserActions from "./UserAction";
+import { getHeaders } from "@/utils/getHeaders";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const DashBoardActions = {
   getAllDashboardData: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/dashboard/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -29,13 +26,10 @@ const DashBoardActions = {
 
   getRecentlyBlog: async (days: string) => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/blogs/recent?days=${days}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getHeaders(),
         },
       );
 
@@ -54,12 +48,8 @@ const DashBoardActions = {
 
   getActivePlatform: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/active`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers:getHeaders(),
       });
 
       if (!res.ok) {
@@ -79,12 +69,8 @@ const DashBoardActions = {
 
   getAllData: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/dashboard/allData`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {

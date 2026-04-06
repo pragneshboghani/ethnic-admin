@@ -1,10 +1,11 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const seoRouter = Router();
 
-seoRouter.get("/all", authMiddleware, async (req, res) => {
+seoRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM seo_blog");
     res.status(200).send({
@@ -21,7 +22,7 @@ seoRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-seoRouter.post("/add", authMiddleware, async (req, res) => {
+seoRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { blog_id, seo } = req.body;
 
@@ -65,7 +66,7 @@ seoRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-seoRouter.get("/getbyblog", authMiddleware, async (req, res) => {
+seoRouter.get("/getbyblog", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { blog_id, platform_id } = req.query;
 
@@ -94,7 +95,7 @@ seoRouter.get("/getbyblog", authMiddleware, async (req, res) => {
   }
 });
 
-seoRouter.put("/update", authMiddleware, async (req, res) => {
+seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { blog_id, seo } = req.body;
 
@@ -163,7 +164,7 @@ seoRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-seoRouter.delete("/delete", authMiddleware, async (req, res) => {
+seoRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 

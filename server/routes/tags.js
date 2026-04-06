@@ -6,10 +6,11 @@ const postCategoryToPlatform = require("../utils/postCategoryToPlatform");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const deleteCategory = require("../utils/deleteCategory");
 const updateCategoryOnPlatform = require("../utils/updateCategoryOnPlatform");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const tagRouter = express.Router();
 
-tagRouter.get("/all", authMiddleware, async (req, res) => {
+tagRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM tags");
     res.status(200).send({
@@ -25,7 +26,7 @@ tagRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-tagRouter.post("/add", authMiddleware, async (req, res) => {
+tagRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
@@ -61,7 +62,7 @@ tagRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-tagRouter.put("/update", authMiddleware, async (req, res) => {
+tagRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
     const { name, description, status, platforms } = req.body;
