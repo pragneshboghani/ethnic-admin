@@ -1,10 +1,18 @@
 'use client';
 
-import { Category } from '@/app/(dashboard)/account/category/page';
 import { X } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 import { PlatformResponse } from '../common/CategoryModal';
 
+export type Category = {
+    id: number;
+    name: string;
+    description?: string;
+    slug?: string;
+    created_at?: string;
+    platform_ids?: number[];
+    status?: string;
+}
 type ViewDetailsModalProps = {
     showData: {
         data: Category | null;

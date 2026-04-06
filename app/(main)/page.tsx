@@ -1,7 +1,6 @@
 "use client";
 
 import '../globals.css'
-import Header from "@/components/Header";
 import SignIn from "../(auth)/sign-in/page";
 import { UserProvider } from '@/context/UserContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -27,8 +26,7 @@ export default function Home() {
   }, [IsLogin, router]);
   return (
     <div className="App">
-      <Header />
-      <main className="pt-[105px]">
+      <main>
         <UserProvider>
           <SignIn />
         </UserProvider>

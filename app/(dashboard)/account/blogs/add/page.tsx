@@ -99,6 +99,18 @@ const BlogForm = () => {
     const selectedCategories = watch("category") || [];
     const author = watch('author')
 
+    const headerTitle = blogId
+        ? "Edit Blog"
+        : duplicateBlogId
+            ? "Duplicate Blog"
+            : "Create New Blog";
+
+    const headerDescription = blogId
+        ? "Update your existing content, refresh metadata, and publish changes across connected platforms."
+        : duplicateBlogId
+            ? "Start from an existing post, adjust the content, and publish it as a new blog entry."
+            : "Draft a new blog and prepare its content, media, and platform settings from one workspace.";
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setBlogId(params.get("id"));
@@ -448,6 +460,8 @@ const BlogForm = () => {
             }}
         >
             <BlogHeader
+                title={headerTitle}
+                description={headerDescription}
                 onPreview={() => {
                     setPreviewMode("preview");
                     setShowPreview(true);
@@ -464,8 +478,8 @@ const BlogForm = () => {
                 selectedPlatforms={selectedPlatforms}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="space-y-6 lg:col-span-2">
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
                             register={register}
@@ -513,33 +527,38 @@ const BlogForm = () => {
                 />
             </div>
             {isPopupOpen && (
-                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-10">
-                    <div className="p-6 w-96 glass-card">
-                        <h3 className="text-xl font-semibold text-white mb-4">Select Related Blogs</h3>
-                        <div className="space-y-2">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <div className="w-full max-w-md rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+                        <h3 className="text-xl font-semibold text-white">Select Related Blogs</h3>
+                        <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                            Choose supporting posts that should appear alongside this blog.
+                        </p>
+                        <div className="mt-5 max-h-80 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#151d2c] p-4">
                             {allData.allBlogs.filter(blog => blog.id !== Number(blogId)).map(blog => (
-                                <div key={blog.id} className="flex items-center">
+                                <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]">
                                     <input
                                         type="checkbox"
                                         id={`blog-${blog.id}`}
                                         checked={relatedBlogs.includes(blog.id)}
                                         onChange={() => handleBlogSelect(blog.id)}
-                                        className="mr-3"
+                                        className="mt-1 h-4 w-4 accent-[#9ad8de]"
                                     />
-                                    <label htmlFor={`blog-${blog.id}`} className="text-sm text-white">{blog.blog_title}</label>
-                                </div>
+                                    <span className="text-sm leading-6 text-[#dbe5f3]">{blog.blog_title}</span>
+                                </label>
                             ))}
                         </div>
-                        <div className="mt-4 flex justify-end gap-4">
+                        <div className="mt-5 flex justify-end gap-3">
                             <button
+                                type="button"
                                 onClick={() => setIsPopupOpen(false)}
-                                className="btn"
+                                className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
                             >
                                 Cancel
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setIsPopupOpen(false)}
-                                className="btn"
+                                className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white"
                             >
                                 OK
                             </button>
