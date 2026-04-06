@@ -5,6 +5,8 @@ import {
   UseFieldArrayRemove,
   UseFormSetValue,
 } from "react-hook-form";
+import { TaxonomyItem } from "./app/(dashboard)/account/category/page";
+import { Category } from "./components/category/ViewDetailsModal";
 
 export interface Platform {
   id?: number;
@@ -181,4 +183,21 @@ export type DashboardBlog = {
   author?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+};
+
+export type TaxonomyCardProps = {
+  title: string;
+  description: string;
+  items: TaxonomyItem[];
+  type: "category" | "tag";
+  emptyText: string;
+  onDelete: (item: TaxonomyItem, type: string) => void;
+  setShowdata: (data: { data: Category | null; type: string }) => void;
+};
+
+export type StatCardProps = {
+  label: string;
+  value: number;
+  note: string;
+  tone: string;
 };
