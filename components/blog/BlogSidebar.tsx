@@ -253,7 +253,7 @@ const BlogSidebar = ({
 
                     <div className="mt-6 space-y-5">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Global Status</label>
+                            <label htmlFor="global-status" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Global Status</label>
                             <select
                                 id="global-status"
                                 {...register('globalStatus')}
@@ -266,7 +266,7 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2" ref={pickerRef}>
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Publish Date</label>
+                            <label htmlFor="publish-date-trigger" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Publish Date</label>
                             <input type="hidden" {...hiddenPublishDateRegister} />
 
                             <button
@@ -433,7 +433,7 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
+                            <label htmlFor="blog-author" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
                             <input
                                 id="blog-author"
                                 {...register('author')}
@@ -443,9 +443,9 @@ const BlogSidebar = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
                                 Category
-                            </label>
+                            </p>
 
                             <div className="max-h-52 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
                                 <div className="pb-2">

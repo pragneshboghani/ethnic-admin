@@ -164,9 +164,9 @@ const AddEditPlatformModal = ({
 
                             <div className="mt-5 grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Platform Name</label>
+                                    <label htmlFor="platform-name" className={labelClassName}>Platform Name</label>
                                     <input
-                                        id="platform-api-endpoint"
+                                        id="platform-name"
                                         type="text"
                                         {...register("platform_name", { required: true })}
                                         placeholder="Platform Name"
@@ -175,8 +175,9 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Website URL</label>
+                                    <label htmlFor="platform-website-url" className={labelClassName}>Website URL</label>
                                     <input
+                                        id="platform-website-url"
                                         type="text"
                                         {...register("website_url")}
                                         placeholder="Website URL"
@@ -185,8 +186,9 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2 md:col-span-2">
-                                    <label className={labelClassName}>Default Blog Path</label>
+                                    <label htmlFor="platform-blog-path" className={labelClassName}>Default Blog Path</label>
                                     <input
+                                        id="platform-blog-path"
                                         type="text"
                                         {...register("blog_path")}
                                         placeholder="Default Blog Path"
@@ -195,8 +197,9 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Default CTA Link</label>
+                                    <label htmlFor="platform-cta-link" className={labelClassName}>Default CTA Link</label>
                                     <input
+                                        id="platform-cta-link"
                                         type="text"
                                         {...register("CTA_link")}
                                         placeholder="Default CTA Link"
@@ -205,13 +208,59 @@ const AddEditPlatformModal = ({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Default CTA Button Text</label>
+                                    <label htmlFor="platform-cta-button-text" className={labelClassName}>Default CTA Button Text</label>
                                     <input
+                                        id="platform-cta-button-text"
                                         type="text"
                                         {...register("CTA_button_text")}
                                         placeholder="Default button text for CTA"
                                         className={inputClassName}
                                     />
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <p className={labelClassName}>Additional Paths</p>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {["media", "tag", "category"].map((path) => {
+                                            const isSelected = selectedPaths.includes(path);
+
+                                            return (
+                                                <button
+                                                    key={path}
+                                                    type="button"
+                                                    onClick={() => togglePath(path)}
+                                                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isSelected
+                                                        ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
+                                                        : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                                        }`}
+                                                >
+                                                    {path} path
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {selectedPaths.map((path) => (
+                                        <div key={path} className="space-y-1 mt-2">
+                                            <label htmlFor={`platform-extra-path-${path}`} className={labelClassName}>
+                                                {path} Path
+                                            </label>
+
+                                            <input
+                                                id={`platform-extra-path-${path}`}
+                                                type="text"
+                                                placeholder={`Enter ${path} path`}
+                                                value={extra_paths[path] || ""}
+                                                onChange={(e) =>
+                                                    setValue("extra_paths", {
+                                                        ...extra_paths,
+                                                        [path]: e.target.value,
+                                                    })
+                                                }
+                                                className={inputClassName}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -226,14 +275,13 @@ const AddEditPlatformModal = ({
 
                             <div className="mt-5 space-y-5">
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Data Source</label>
+                                    <p className={labelClassName}>Data Source</p>
                                     <div className="grid gap-3 sm:grid-cols-2">
                                         <label
-                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${
-                                                dataSource === "platform"
-                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
-                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
-                                            }`}
+                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${dataSource === "platform"
+                                                ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                : "border-white/8 bg-[#101826] hover:border-white/15"
+                                                }`}
                                         >
                                             <input
                                                 type="radio"
@@ -248,11 +296,10 @@ const AddEditPlatformModal = ({
                                         </label>
 
                                         <label
-                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${
-                                                dataSource === "admin"
-                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
-                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
-                                            }`}
+                                            className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${dataSource === "admin"
+                                                ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                : "border-white/8 bg-[#101826] hover:border-white/15"
+                                                }`}
                                         >
                                             <input
                                                 type="radio"
@@ -272,8 +319,9 @@ const AddEditPlatformModal = ({
                                     <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
                                         <div className="grid gap-4 md:grid-cols-2">
                                             <div className="space-y-2 md:col-span-2">
-                                                <label className={labelClassName}>API Endpoint</label>
+                                                <label htmlFor="platform-api-endpoint" className={labelClassName}>API Endpoint</label>
                                                 <input
+                                                    id="platform-api-endpoint"
                                                     type="text"
                                                     {...register("api_endpoint")}
                                                     placeholder="API Endpoint"
@@ -282,8 +330,9 @@ const AddEditPlatformModal = ({
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className={labelClassName}>Platform Type</label>
+                                                <label htmlFor="platform-type" className={labelClassName}>Platform Type</label>
                                                 <select
+                                                    id="platform-type"
                                                     {...register("plateform_type")}
                                                     className={selectClassName}
                                                 >
@@ -293,8 +342,9 @@ const AddEditPlatformModal = ({
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className={labelClassName}>Authentication Type</label>
+                                                <label htmlFor="platform-auth-type" className={labelClassName}>Authentication Type</label>
                                                 <select
+                                                    id="platform-auth-type"
                                                     {...register("auth_type")}
                                                     className={selectClassName}
                                                 >
@@ -306,8 +356,9 @@ const AddEditPlatformModal = ({
 
                                             {authType === "token" && (
                                                 <div className="space-y-2 md:col-span-2">
-                                                    <label className={labelClassName}>Auth Token</label>
+                                                    <label htmlFor="platform-auth-token" className={labelClassName}>Auth Token</label>
                                                     <input
+                                                        id="platform-auth-token"
                                                         type="text"
                                                         placeholder="Enter token"
                                                         {...register("auth_token")}
@@ -319,8 +370,9 @@ const AddEditPlatformModal = ({
                                             {authType === "basic" && (
                                                 <>
                                                     <div className="space-y-2">
-                                                        <label className={labelClassName}>Username</label>
+                                                        <label htmlFor="platform-username" className={labelClassName}>Username</label>
                                                         <input
+                                                            id="platform-username"
                                                             type="text"
                                                             placeholder="Username"
                                                             {...register("username")}
@@ -329,8 +381,9 @@ const AddEditPlatformModal = ({
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <label className={labelClassName}>Password</label>
+                                                        <label htmlFor="platform-password" className={labelClassName}>Password</label>
                                                         <input
+                                                            id="platform-password"
                                                             type="password"
                                                             placeholder="Password"
                                                             {...register("password")}
@@ -344,8 +397,9 @@ const AddEditPlatformModal = ({
                                 )}
 
                                 <div className="space-y-2">
-                                    <label className={labelClassName}>Status</label>
+                                    <label htmlFor="platform-status" className={labelClassName}>Status</label>
                                     <select
+                                        id="platform-status"
                                         {...register("status")}
                                         className={selectClassName}
                                     >

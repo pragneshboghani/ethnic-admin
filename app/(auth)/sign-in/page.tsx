@@ -126,7 +126,7 @@ export default function SignIn() {
                             />
                         </div>
 
-                        <div className="space-y-2.5">
+                        <div className="space-y-2.5 relative">
                             <label
                                 htmlFor="password"
                                 className="block text-sm font-medium text-[#d8deea]"
@@ -135,7 +135,7 @@ export default function SignIn() {
                             </label>
                             <input
                                 id="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 name="password"
                                 placeholder="Enter your password"
                                 value={formData.password}
@@ -144,6 +144,12 @@ export default function SignIn() {
                                 required
                                 className="w-full rounded-2xl border border-[#243246] bg-[#0d1522] px-4 py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
                             />
+                            <span
+                                className="absolute text-white right-3 top-1/2 cursor-pointer"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {PasswordIcon}
+                            </span>
                         </div>
 
                         <button

@@ -4,6 +4,7 @@ import CategoryAndTagAction from "@/actions/categoryAndTagAction";
 import PlateformActions from "@/actions/PlateFormActions";
 import { Platform } from "@/types";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 type Props = {
     isOpen: boolean;
@@ -62,11 +63,12 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                 status,
                 platforms: selectedPlatforms.length ? selectedPlatforms : [],
             };
-
             if (category?.id) {
                 await CategoryAndTagAction.updateCategory(category.id, payload);
+                toast.success("Category successfully updated!");
             } else {
                 await CategoryAndTagAction.createCategory(payload);
+                toast.success("Category successfully created!");
             }
 
             setCategoryName("");
@@ -115,7 +117,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                 />
 
                 <div className="space-y-2">
-                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Select Platforms</label>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Select Platforms</p>
 
                     <div className="max-h-40 space-y-2 overflow-y-auto rounded-[18px] border border-white/8 bg-[#151d2c] p-4">
                         {platformData?.data?.map((platform: any) => {
@@ -173,7 +175,7 @@ const CategoryModal = ({ isOpen, onClose, onSuccess, category }: Props) => {
                         disabled={loading}
                         className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {loading ? "Creating..." : "Create"}
+                        {loading ? category?.id ? "Updating..." : "Creating..." : category?.id ? "Update" : "Create"}
                     </button>
                 </div>
             </div>

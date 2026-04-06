@@ -73,6 +73,7 @@ const Blogs = () => {
         author,
         category,
         tags,
+        sort,
       });
       setBlogs(res.data || []);
     } catch (err) {
@@ -88,7 +89,6 @@ const Blogs = () => {
   const handleDelete = async (id: number) => {
     try {
       await BlogActions.deleteBlog(id);
-      await SEOActions.deleteSEO(id);
 
       toast.success("Blog successfully deleted! 🗑️");
       fetchBlogs();
@@ -335,7 +335,7 @@ const Blogs = () => {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-6">
+        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-7">
           <div className="relative">
             <Search
               size={18}
@@ -411,13 +411,13 @@ const Blogs = () => {
           </select>
 
           <select
-            className="border p-3 rounded-lg w-47 border-[#ffffff1a] focus:outline-none focus-visible:outline-none h-full"
+             className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
             value={sort}
             onChange={(e) => setSort(e.target.value)}
           >
-            <option value="none" className="text-black">Sort By Create Date</option>
-            <option value="asc" className="text-black">Ascending</option>
-            <option value="desc" className="text-black">Descending</option>
+            <option value="none">Sort By Create Date</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
         </div>
       </section>

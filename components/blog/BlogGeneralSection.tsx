@@ -32,6 +32,17 @@ const BlogGeneralSection = ({
         "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
     const largeInputClassName =
         "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3.5 text-lg font-medium text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
+    const selectedTagDetails = tagsList.filter((tag) => selectedTags.includes(tag.id));
+    const handleTagToggle = (tagId: number) => {
+        const updatedTags = selectedTags.includes(tagId)
+            ? selectedTags.filter((id) => id !== tagId)
+            : [...selectedTags, tagId];
+
+        setValue("tags", updatedTags, {
+            shouldDirty: true,
+            shouldTouch: true,
+        });
+    };
 
     return (
         <div className="space-y-6">
@@ -48,8 +59,9 @@ const BlogGeneralSection = ({
 
                 <div className="mt-6 space-y-6">
                     <div className="space-y-2.5">
-                        <label className={labelClassName}>Blog Title</label>
+                        <label htmlFor="blog-title" className={labelClassName}>Blog Title</label>
                         <input
+                            id="blog-title"
                             {...register("title")}
                             placeholder="Enter a catchy title..."
                             className={largeInputClassName}
@@ -57,8 +69,9 @@ const BlogGeneralSection = ({
                     </div>
 
                     <div className="space-y-2.5">
-                        <label className={labelClassName}>Short Excerpt</label>
+                        <label htmlFor="blog-excerpt" className={labelClassName}>Short Excerpt</label>
                         <textarea
+                            id="blog-excerpt"
                             {...register("excerpt")}
                             placeholder="Brief summary for cards and search results..."
                             rows={4}
@@ -68,7 +81,7 @@ const BlogGeneralSection = ({
 
                     <div className="space-y-2.5">
                         <div className="flex items-center justify-between gap-3">
-                            <label className={labelClassName}>Content</label>
+                            <p className={labelClassName}>Content</p>
                             <p className="text-xs text-[#6f8096]">Rich text editor with HTML mode support</p>
                         </div>
 
@@ -132,8 +145,9 @@ const BlogGeneralSection = ({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>Question</label>
+                                        <label htmlFor={`faq-question-${index}`} className={labelClassName}>Question</label>
                                         <input
+                                            id={`faq-question-${index}`}
                                             {...register(`faq.${index}.question`)}
                                             placeholder="Enter FAQ question..."
                                             className={inputClassName}
@@ -141,8 +155,9 @@ const BlogGeneralSection = ({
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className={labelClassName}>Answer</label>
+                                        <label htmlFor={`faq-answer-${index}`} className={labelClassName}>Answer</label>
                                         <textarea
+                                            id={`faq-answer-${index}`}
                                             {...register(`faq.${index}.answer`)}
                                             placeholder="Write the answer..."
                                             rows={4}
@@ -163,56 +178,78 @@ const BlogGeneralSection = ({
                 </div>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_240px]">
-                <div className={cardClassName}>
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#eef4ff]">Tags</h3>
-                            <p className="mt-1 text-sm text-[#8ea0b8]">
-                                Choose labels that help organize and surface the post.
-                            </p>
-                        </div>
-                        <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
-                            {selectedTags.length} selected
-                        </span>
+            <div className={cardClassName}>
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <h3 className="text-lg font-semibold text-[#eef4ff]">Tags</h3>
+                        <p className="mt-1 text-sm text-[#8ea0b8]">
+                            Choose one or more labels that help organize and surface the post.
+                        </p>
                     </div>
-
-                    <div className="mt-5 max-h-56 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
-                        <div className="pb-2">
-                            <button
-                                type="button"
-                                onClick={() => setIsTagModalOpen(true)}
-                                className="rounded-full border border-white/10 bg-[#151d2c] px-3 py-1.5 text-sm text-[#9ad8de] transition hover:border-[#2f6670] hover:text-[#c2edf0]"
-                            >
-                                + Add New Tag
-                            </button>
-                        </div>
-                        {tagsList.map((tag) => (
-                            <label
-                                key={tag.id}
-                                className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedTags.includes(tag.id)}
-                                    onChange={(e) => {
-                                        let updatedTags;
-
-                                        if (e.target.checked) {
-                                            updatedTags = [...selectedTags, tag.id];
-                                        } else {
-                                            updatedTags = selectedTags.filter((id) => id !== tag.id);
-                                        }
-
-                                        setValue("tags", updatedTags);
-                                    }}
-                                    className="h-4 w-4 accent-[#9ad8de]"
-                                />
-                                <span className="text-sm text-[#dbe5f3]">{tag.name}</span>
-                            </label>
-                        ))}
+                    <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                        {selectedTags.length} selected
+                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsTagModalOpen(true)}
+                            className="rounded-full border border-white/10 bg-[#151d2c] px-3 py-1.5 text-sm text-[#9ad8de] transition hover:border-[#2f6670] hover:text-[#c2edf0]"
+                        >
+                            + Add New Tag
+                        </button>
                     </div>
                 </div>
+
+                <div className="mt-5 rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                    {selectedTagDetails.length > 0 && (
+                        <div className="mt-4">
+                            <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                                Selected Tags
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {selectedTagDetails.map((tag) => (
+                                    <button
+                                        key={tag.id}
+                                        type="button"
+                                        onClick={() => handleTagToggle(tag.id)}
+                                        className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition hover:border-[#62aab3] hover:bg-[#1b4048]"
+                                    >
+                                        {tag.name} x
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-4">
+                        <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                            All Tags
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                            {tagsList.map((tag) => {
+                                const isSelected = selectedTags.includes(tag.id);
+
+                                return (
+                                    <button
+                                        key={tag.id}
+                                        type="button"
+                                        onClick={() => handleTagToggle(tag.id)}
+                                        aria-pressed={isSelected}
+                                        className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isSelected
+                                            ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
+                                            : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                            }`}
+                                    >
+                                        {tag.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_240px]">
 
                 {allBlogs.data.length > 0 && (
                     <div className={cardClassName}>

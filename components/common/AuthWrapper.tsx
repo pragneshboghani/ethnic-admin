@@ -107,32 +107,34 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
                             <main className={`min-w-0 flex-1 bg-[#111827] px-5 py-6 sm:px-7 lg:px-10 lg:py-8 ${isBlogEditorPage ? "overflow-visible" : ""}`}>
                                 <div className="text-[#e6edf7]">
-                                    {pathname !== "/account/dashboard" && currentHeader && (
-                                        <div className="mb-6 flex flex-col gap-3 lg:mb-7">
-                                            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8398b5]">
-                                                {currentHeader.eyebrow}
-                                            </p>
-                                            <div>
-                                                <h1 className="text-3xl font-semibold tracking-tight text-[#eef4ff]">
-                                                    {currentHeader.title}
-                                                </h1>
-                                                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd]">
-                                                    {currentHeader.description}
+                                    <div className="flex w-full justify-between items-center">
+                                        {pathname !== "/account/dashboard" && currentHeader && (
+                                            <div className="mb-6 flex flex-col gap-3 lg:mb-7">
+                                                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8398b5]">
+                                                    {currentHeader.eyebrow}
                                                 </p>
+                                                <div>
+                                                    <h1 className="text-3xl font-semibold tracking-tight text-[#eef4ff]">
+                                                        {currentHeader.title}
+                                                    </h1>
+                                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd]">
+                                                        {currentHeader.description}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {pathname !== "/account/dashboard" && currentHeader?.action && (
-                                        <div className="mb-6">
-                                            <Link
-                                                href={currentHeader.action.href}
-                                                className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
-                                            >
-                                                {currentHeader.action.label}
-                                            </Link>
-                                        </div>
-                                    )}
+                                        {pathname !== "/account/dashboard" && currentHeader?.action && (
+                                            <div className="mb-6">
+                                                <Link
+                                                    href={currentHeader.action.href}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
+                                                >
+                                                    {currentHeader.action.label}
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {children}
                                 </div>
