@@ -54,7 +54,6 @@ const AddEditPlatformModal = ({
 
     const authType = watch("auth_type");
     const dataSource = watch("data_source");
-    const extra_paths = watch("extra_paths") || {};
 
     useEffect(() => {
         if (editingPlatform) {

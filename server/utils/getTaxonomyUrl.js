@@ -1,8 +1,8 @@
 function getTaxonomyUrl(platform, type) {
   const pathMap = {
-    category: platform.extra_paths.category,
-    tags: platform.extra_paths.tag,
-    media: platform.extra_paths.media
+    category: 'wp-json/wp/v2/categories',
+    tags: 'wp-json/wp/v2/tags',
+    media: 'wp-json/wp/v2/media'
   };
 
   const path = pathMap[type];
