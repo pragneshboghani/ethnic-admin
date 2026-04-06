@@ -170,3 +170,15 @@ export type CategoryType = {
   id: number;
   name: string;
 };
+
+export type DashboardBlog = {
+  id: number;
+  blog_title: string;
+  publish_date?: string | null;
+  status?: "draft" | "publish" | "future";
+  platforms?: number[];
+  featured_image?: string | null;
+  author?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
