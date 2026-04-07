@@ -49,7 +49,7 @@ const TaxonomyCard = ({ title, description, items, type, emptyText, onDelete, se
                     {items.map((item, index) => (
                         <div
                             key={item.id}
-                            className={`group inline-flex items-center gap-3 rounded-[18px] border px-4 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:-translate-y-0.5 ${getChipClassName(index, type)}`}
+                            className={`group inline-flex items-center gap-2 md:gap-3 rounded-[10px] md:rounded-[18px] border p-2 md:p-3 lg:px-4 lg:py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:-translate-y-0.5 ${getChipClassName(index, type)}`}
                         >
                             <div className={`h-9 w-1.5 rounded-full ${type === 'category'
                                 ? 'bg-[linear-gradient(180deg,#8a5cd0_0%,#d9b8ff_100%)]'

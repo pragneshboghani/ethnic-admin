@@ -118,7 +118,7 @@ const Media = () => {
     return (
         <>
             <div className="space-y-8">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap-reverse gap-3">
                     <div className="flex gap-4">
                         {tabs.map((i) => (
                             <button
@@ -135,16 +135,13 @@ const Media = () => {
                         ))}
                     </div>
 
-                    <div>
-
-                        <button className="flex items-center gap-2 btn cursor-pointer" onClick={() => setUploadModalOpen(true)}>
-                            <Plus size={18} />
-                            <span>Upload Media</span>
-                        </button>
-                    </div>
+                    <button className="flex items-center gap-2 btn cursor-pointer" onClick={() => setUploadModalOpen(true)}>
+                        <Plus size={18} />
+                        <span>Upload Media</span>
+                    </button>
                 </div>
 
-                <div className="image_grid gap-5">
+                <div className="gap-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 
                     {media.length === 0 ? (
                         <div className="col-span-full py-20 text-center text-zinc-600 border-2 border-dashed border-white/5 rounded-2xl">
@@ -154,7 +151,7 @@ const Media = () => {
                         media.map((m) => (
                             <div
                                 key={m.id}
-                                className="relative cursor-pointer group"
+                                className="relative cursor-pointer group w-full h-full aspect-square"
                             >
                                 {m.file_type === "image" ? (
                                     <img

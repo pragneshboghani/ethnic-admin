@@ -145,7 +145,7 @@ const Page = () => {
     return (
         <>
             <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     <StatCard
                         label="Categories"
                         value={categories.length}
