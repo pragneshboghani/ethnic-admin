@@ -5,6 +5,7 @@ import {
   UseFieldArrayRemove,
   UseFormSetValue,
 } from "react-hook-form";
+import type { Dispatch, SetStateAction } from "react";
 import { TaxonomyItem } from "./app/(dashboard)/account/category/page";
 import { Category } from "./components/category/ViewDetailsModal";
 
@@ -184,6 +185,32 @@ export type DashboardBlog = {
   updated_at?: string | null;
 };
 
+export type NamedCollection<T> = {
+  data: T[];
+};
+
+export type PlatformCollection = NamedCollection<Platform> & {
+  totalPlatforms?: number;
+};
+
+export type BlogListItem = DashboardBlog & {
+  category?: number[];
+  tags?: number[];
+};
+
+export type BlogListTableType = {
+  blogs: BlogListItem[];
+  platformData: PlatformCollection | null;
+  categoryData: NamedCollection<CategoryType> | null;
+  tagData: NamedCollection<CategoryType> | null;
+  setSelectedBlog: Dispatch<SetStateAction<BlogListItem | null>>;
+  setShowPreview: Dispatch<SetStateAction<boolean>>;
+  setSelectUpdate: Dispatch<SetStateAction<number | null>>;
+  setDuplicateBlogId: Dispatch<SetStateAction<number | null>>;
+  setDeleteBlogId: Dispatch<SetStateAction<number | null>>;
+  loading: boolean
+};
+
 export type TaxonomyCardProps = {
   title: string;
   description: string;
@@ -199,4 +226,27 @@ export type StatCardProps = {
   value: number;
   note: string;
   tone: string;
+};
+
+export type BlogFiltersProps = {
+    loading: boolean;
+    blogs: any[];
+    draftBlogs: number;
+    search: string;
+    setSearch: (val: string) => void;
+    author: string;
+    setAuthor: (val: string) => void;
+    category: string;
+    setCategory: (val: string) => void;
+    categoryData: any;
+    tags: string;
+    setTags: (val: string) => void;
+    tagData: any;
+    platform: string;
+    setPlatform: (val: string) => void;
+    platformData: any;
+    status: string;
+    setStatus: (val: string) => void;
+    sort: string;
+    setSort: (val: string) => void;
 };
