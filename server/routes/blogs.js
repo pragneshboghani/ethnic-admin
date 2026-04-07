@@ -7,6 +7,7 @@ const deletePost = require("../utils/deletePost");
 const verifyApiKey = require("../middleware/verifyApiKey");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const generateUniqueBlogSlug = require("../utils/generateUniqueBlogSlug");
+const { logBlogHistory } = require("../utils/blogHistory");
 require("dotenv").config();
 
 const blogRouter = express.Router();
@@ -204,6 +205,31 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       ],
     );
 
+    await logBlogHistory({
+      blogId: result.insertId,
+      actionType: "create",
+      oldBlog: {},
+      newBlog: {
+        blog_title,
+        short_excerpt,
+        full_content,
+        faq,
+        featured_image,
+        category,
+        tags,
+        author,
+        publish_date: formattedPublishDate,
+        reading_time,
+        related,
+        status,
+        platforms,
+        slug,
+      },
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
+
     res.status(201).send({
       success: true,
       message: "Blog added successfully",
@@ -354,6 +380,21 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
       ],
     );
 
+    await logBlogHistory({
+      blogId: Number(id),
+      actionType: "update",
+      oldBlog: raw,
+      newBlog: {
+        ...raw,
+        ...UpdatedData,
+        id: Number(id),
+        slug,
+      },
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
+
     res.status(200).send({
       success: true,
       message: "Blog updated successfully",
@@ -400,6 +441,16 @@ blogRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
         message: "Blog not found",
       });
     }
+
+    await logBlogHistory({
+      blogId: Number(id),
+      actionType: "delete",
+      oldBlog: raw,
+      newBlog: {},
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
 
     res.status(200).send({
       success: true,

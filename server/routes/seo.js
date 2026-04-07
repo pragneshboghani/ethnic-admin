@@ -2,6 +2,7 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const verifyApiKey = require("../middleware/verifyApiKey");
+const { logSeoHistory } = require("../utils/blogHistory");
 
 const seoRouter = Router();
 
@@ -35,7 +36,7 @@ seoRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
 
     for (let i = 0; i < seo.length; i++) {
       const s = seo[i];
-      await mysqlpool.query(
+      const [result] = await mysqlpool.query(
         `INSERT INTO seo_blog 
           (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -51,6 +52,28 @@ seoRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
           s.cta_button_link || "",
         ],
       );
+
+      await logSeoHistory({
+        blogId: Number(blog_id),
+        seoId: result.insertId,
+        platformId: s.platform_id ? Number(s.platform_id) : null,
+        actionType: "create",
+        oldSeo: {},
+        newSeo: {
+          blog_id: Number(blog_id),
+          platform_id: s.platform_id,
+          slug: s.slug || "",
+          publish_status: s.publish_status || "draft",
+          seo_title: s.seo_title || "",
+          meta_description: s.meta_description || "",
+          canonical_url: s.canonical_url || "",
+          cta_button_text: s.cta_button_text || "",
+          cta_button_link: s.cta_button_link || "",
+        },
+        changedByUserId: req.user?.id ?? null,
+        changedByName: req.user?.username ?? req.user?.email ?? null,
+        triggerSource: "manual",
+      });
     }
 
     res.status(201).send({
@@ -110,11 +133,12 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
       const s = seo[i];
 
       const [existing] = await mysqlpool.query(
-        "SELECT id FROM seo_blog WHERE blog_id = ? AND platform_id = ?",
+        "SELECT * FROM seo_blog WHERE blog_id = ? AND platform_id = ?",
         [blog_id, s.platform_id],
       );
 
       if (existing.length > 0) {
+        const currentSeo = existing[0];
         await mysqlpool.query(
           `UPDATE seo_blog 
            SET slug = ?, publish_status = ?, seo_title = ?, meta_description = ?, canonical_url = ?, cta_button_text = ?, cta_button_link = ?
@@ -131,8 +155,29 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
             s.platform_id,
           ],
         );
+
+        await logSeoHistory({
+          blogId: Number(blog_id),
+          seoId: currentSeo.id,
+          platformId: s.platform_id ? Number(s.platform_id) : null,
+          actionType: "update",
+          oldSeo: currentSeo,
+          newSeo: {
+            ...currentSeo,
+            slug: s.slug || "",
+            publish_status: s.publish_status || "draft",
+            seo_title: s.seo_title || "",
+            meta_description: s.meta_description || "",
+            canonical_url: s.canonical_url || "",
+            cta_button_text: s.cta_button_text || "",
+            cta_button_link: s.cta_button_link || "",
+          },
+          changedByUserId: req.user?.id ?? null,
+          changedByName: req.user?.username ?? req.user?.email ?? null,
+          triggerSource: "manual",
+        });
       } else {
-        await mysqlpool.query(
+        const [result] = await mysqlpool.query(
           `INSERT INTO seo_blog 
             (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -148,6 +193,28 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
             s.cta_button_link || "",
           ],
         );
+
+        await logSeoHistory({
+          blogId: Number(blog_id),
+          seoId: result.insertId,
+          platformId: s.platform_id ? Number(s.platform_id) : null,
+          actionType: "create",
+          oldSeo: {},
+          newSeo: {
+            blog_id: Number(blog_id),
+            platform_id: s.platform_id,
+            slug: s.slug || "",
+            publish_status: s.publish_status || "draft",
+            seo_title: s.seo_title || "",
+            meta_description: s.meta_description || "",
+            canonical_url: s.canonical_url || "",
+            cta_button_text: s.cta_button_text || "",
+            cta_button_link: s.cta_button_link || "",
+          },
+          changedByUserId: req.user?.id ?? null,
+          changedByName: req.user?.username ?? req.user?.email ?? null,
+          triggerSource: "manual",
+        });
       }
     }
 
@@ -179,9 +246,7 @@ seoRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
       });
     }
 
-    const [result] = await mysqlpool.query("DELETE FROM seo_blog WHERE id = ?", [
-      raw.id,
-    ]);
+    const [result] = await mysqlpool.query("DELETE FROM seo_blog WHERE id = ?", [raw.id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).send({
@@ -189,6 +254,18 @@ seoRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
         message: "SEO not found",
       });
     }
+
+    await logSeoHistory({
+      blogId: Number(raw.blog_id),
+      seoId: raw.id,
+      platformId: raw.platform_id ? Number(raw.platform_id) : null,
+      actionType: "delete",
+      oldSeo: raw,
+      newSeo: {},
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
 
     res.status(200).send({
       success: true,
