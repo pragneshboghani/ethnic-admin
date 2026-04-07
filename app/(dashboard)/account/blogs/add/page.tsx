@@ -403,9 +403,11 @@ const BlogForm = () => {
     }, [blogId, duplicateBlogId, reset, setValue]);
 
     useEffect(() => {
+        if (blogId) return;
+
         const defaultDate = getDefaultPublishDate(globalStatus) || "";
         setValue("publishDate", defaultDate);
-    }, [globalStatus]);
+    }, [blogId, globalStatus, setValue]);
 
     useEffect(() => {
         if (!selectedPlatforms.length) return;
@@ -430,10 +432,11 @@ const BlogForm = () => {
                 const month = String(date.getMonth() + 1).padStart(2, "0");
                 const day = String(date.getDate()).padStart(2, "0");
 
+                const baseUrl = platform.website_url.replace(/\/$/, '');
+                const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
                 const newCanonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.blog_path}/${slug}`;
-
+                    : `${baseUrl}${blogPath}/${slug}`;
 
                 if (settings.canonicalUrl !== newCanonicalUrl) {
                     updated[platformId] = {
