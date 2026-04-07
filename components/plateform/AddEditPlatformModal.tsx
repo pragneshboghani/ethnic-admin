@@ -332,7 +332,7 @@ const AddEditPlatformModal = ({
                             </div>
                         </div>
 
-                        <div className="flex flex-col-reverse gap-3 border-t border-white/8 pt-1 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:items-center sm:justify-end">
                             <button
                                 type="button"
                                 onClick={onClose}
