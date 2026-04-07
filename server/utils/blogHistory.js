@@ -148,69 +148,6 @@ const resolveChangeField = (actionType, changedFields) => {
   return "no_change";
 };
 
-const ensureColumnExists = async ({ tableName, columnName, definition }) => {
-  const [rows] = await mysqlpool.query(
-    `
-      SELECT COLUMN_NAME
-      FROM information_schema.COLUMNS
-      WHERE TABLE_SCHEMA = DATABASE()
-        AND TABLE_NAME = ?
-        AND COLUMN_NAME = ?
-      LIMIT 1
-    `,
-    [tableName, columnName],
-  );
-
-  if (rows.length === 0) {
-    await mysqlpool.query(
-      `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`,
-    );
-  }
-};
-
-const ensureBlogHistoryTable = async () => {
-  await mysqlpool.query(`
-    CREATE TABLE IF NOT EXISTS blog_publish_history (
-      id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      blog_id INT NOT NULL,
-      entity_type VARCHAR(50) NOT NULL DEFAULT 'blog',
-      entity_id INT NULL,
-      platform_id INT NULL,
-      action_type VARCHAR(50) NOT NULL,
-      change_field VARCHAR(100) NOT NULL,
-      changed_fields JSON NOT NULL,
-      old_values JSON NULL,
-      new_values JSON NULL,
-      trigger_source VARCHAR(50) NOT NULL DEFAULT 'manual',
-      changed_by_user_id INT NULL,
-      changed_by_name VARCHAR(255) NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      INDEX idx_blog_publish_history_blog_id (blog_id),
-      INDEX idx_blog_publish_history_entity_type (entity_type),
-      INDEX idx_blog_publish_history_entity_id (entity_id),
-      INDEX idx_blog_publish_history_platform_id (platform_id),
-      INDEX idx_blog_publish_history_action_type (action_type),
-      INDEX idx_blog_publish_history_change_field (change_field)
-    )
-  `);
-
-  await ensureColumnExists({
-    tableName: "blog_publish_history",
-    columnName: "entity_type",
-    definition: "VARCHAR(50) NOT NULL DEFAULT 'blog' AFTER blog_id",
-  });
-  await ensureColumnExists({
-    tableName: "blog_publish_history",
-    columnName: "entity_id",
-    definition: "INT NULL AFTER entity_type",
-  });
-  await ensureColumnExists({
-    tableName: "blog_publish_history",
-    columnName: "platform_id",
-    definition: "INT NULL AFTER entity_id",
-  });
-};
-
 const logHistory = async ({
   blogId,
   entityType = "blog",
@@ -310,7 +247,6 @@ const logSeoHistory = async ({
 module.exports = {
   AUDITED_BLOG_FIELDS,
   AUDITED_SEO_FIELDS,
-  ensureBlogHistoryTable,
   getComparableBlogSnapshot: (blog = {}) =>
     getComparableSnapshot({ entityType: "blog", data: blog }),
   getComparableSeoSnapshot: (seo = {}) =>

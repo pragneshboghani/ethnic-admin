@@ -12,7 +12,6 @@ const platformRouter = require("./routes/platforms");
 const seoRouter = require("./routes/seo");
 const tagRouter = require("./routes/tags");
 const userRouter = require("./routes/user");
-const { ensureBlogHistoryTable } = require("./utils/blogHistory");
 
 const app = express();
 
@@ -41,7 +40,6 @@ app.get("/", (req, res) => {
 app.listen(BACKEND_PORT, async () => {
   try {
     const connection = await mysqlpool.getConnection();
-    await ensureBlogHistoryTable();
     console.log("Database Connected Successfully");
     connection.release();
 
