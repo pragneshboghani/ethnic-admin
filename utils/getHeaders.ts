@@ -3,7 +3,6 @@ import UserActions from "@/actions/UserAction";
 export const getHeaders = () => {
   const token = UserActions.getToken();
 
-  console.log('')
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,

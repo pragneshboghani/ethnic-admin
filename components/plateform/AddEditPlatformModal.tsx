@@ -14,12 +14,7 @@ interface Props {
     refreshPlatforms: () => void;
 }
 
-const AddEditPlatformModal = ({
-    open,
-    onClose,
-    editingPlatform,
-    refreshPlatforms,
-}: Props) => {
+const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms, }: Props) => {
     const inputClassName =
         "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
     const selectClassName =
@@ -27,14 +22,7 @@ const AddEditPlatformModal = ({
     const labelClassName =
         "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        reset,
-        control,
-        setValue
-    } = useForm<Platform>({
+    const { register, handleSubmit, watch, reset, control, setValue } = useForm<Platform>({
         defaultValues: {
             platform_name: "",
             website_url: "",

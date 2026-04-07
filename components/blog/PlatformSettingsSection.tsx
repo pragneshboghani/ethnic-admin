@@ -1,19 +1,7 @@
 import { PlatformSettingsProps } from "@/types";
 import { CheckCircle2 } from "lucide-react";
 
-const PlatformSettingsSection = ({
-    platformData,
-    selectedPlatforms,
-    setSelectedPlatforms,
-    platformSettings,
-    setPlatformSettings,
-    handlePlatformChange,
-    title,
-    excerpt,
-    fields,
-    remove,
-    append,
-}: PlatformSettingsProps) => {
+const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedPlatforms, platformSettings, setPlatformSettings, handlePlatformChange, title, excerpt, fields, remove, append, }: PlatformSettingsProps) => {
     const cardClassName =
         "rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]";
     const labelClassName =

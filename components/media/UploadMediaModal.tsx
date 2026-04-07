@@ -1,36 +1,11 @@
 "use client";
 
 import MediaActions from "@/actions/MediaAction";
+import { MediaFileItem, UploadMediaModalProps } from "@/types";
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
-type UploadPlatformData = {
-    data?: Array<{
-        id: number;
-        platform_name?: string;
-        status?: string;
-        api_endpoint?: string;
-    }>;
-} | null;
-
-type MediaFileItem = {
-    id: number;
-    file_url: string;
-    file_type: "image" | "video";
-    mime_type?: string | null;
-};
-
-interface UploadMediaModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onUploadComplete?: () => void;
-    onSelectImage?: (url: string) => void;
-    onSelectMedia?: (media: { url: string; fileType: "image" | "video"; mimeType?: string | null }) => void;
-    allowedMediaType?: "image" | "all";
-    platformData: UploadPlatformData
-}
 
 const UploadMediaModal: React.FC<UploadMediaModalProps> = ({
     isOpen, onClose, onUploadComplete, onSelectImage, onSelectMedia, allowedMediaType = "image", platformData }) => {

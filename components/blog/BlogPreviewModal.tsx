@@ -4,29 +4,7 @@ import { BlogPreviewModalProps } from "@/types";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { X } from "lucide-react";
 
-const BlogPreviewModal = ({
-    showPreview,
-    setShowPreview,
-    mode = "preview",
-    onConfirmPublish,
-    image,
-    category,
-    categories,
-    publishDate,
-    updateDate,
-    createDate,
-    readingTime,
-    title,
-    excerpt,
-    formContent,
-    tags,
-    relatedBlogs,
-    allBlogs,
-    selectedPlatforms,
-    platformData,
-    platformSettings,
-    faq,
-}: BlogPreviewModalProps) => {
+const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onConfirmPublish, image, category, categories, publishDate, updateDate, createDate, readingTime, title, excerpt, formContent, tags, relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, faq, }: BlogPreviewModalProps) => {
     if (!showPreview) return null;
 
     const categoryNames = category

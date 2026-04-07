@@ -4,11 +4,7 @@ type BlogTabSwitcherProps = {
   selectedPlatforms: number[];
 };
 
-const BlogTabSwitcher = ({
-  activeTab,
-  setActiveTab,
-  selectedPlatforms,
-}: BlogTabSwitcherProps) => (
+const BlogTabSwitcher = ({ activeTab, setActiveTab, selectedPlatforms, }: BlogTabSwitcherProps) => (
   <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
     <div className="flex flex-col gap-2 sm:flex-row">
       <button

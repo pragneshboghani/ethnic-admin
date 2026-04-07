@@ -3,19 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Eye, Save, Send } from 'lucide-react';
 
-const BlogHeader = ({
-    title,
-    description,
-    onPreview,
-    onSaveDraft,
-    onPublish,
-}: {
+type BlogHeaderProps = {
     title: string;
     description: string;
     onPreview: () => void;
     onSaveDraft: () => void;
     onPublish: () => void;
-}) => {
+}
+
+const BlogHeader = ({ title, description, onPreview, onSaveDraft, onPublish, }: BlogHeaderProps) => {
     const [isCondensed, setIsCondensed] = useState(false);
     const [isSticky, setIsSticky] = useState(false);
     const [placeholderHeight, setPlaceholderHeight] = useState(0);

@@ -250,3 +250,29 @@ export type BlogFiltersProps = {
     sort: string;
     setSort: (val: string) => void;
 };
+
+export type UploadPlatformData = {
+    data?: Array<{
+        id: number;
+        platform_name?: string;
+        status?: string;
+        api_endpoint?: string;
+    }>;
+} | null;
+
+export type MediaFileItem = {
+    id: number;
+    file_url: string;
+    file_type: "image" | "video";
+    mime_type?: string | null;
+};
+
+export interface UploadMediaModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onUploadComplete?: () => void;
+    onSelectImage?: (url: string) => void;
+    onSelectMedia?: (media: { url: string; fileType: "image" | "video"; mimeType?: string | null }) => void;
+    allowedMediaType?: "image" | "all";
+    platformData: UploadPlatformData
+}

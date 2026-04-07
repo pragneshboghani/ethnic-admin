@@ -10,8 +10,6 @@ const syncTaxonomy = require("./syncTaxonomy");
 const fileToBase64 = (filePath, mimeType) => {
   const absolutePath = path.join(__dirname, "..", filePath);
 
-  console.log("Checking path:", absolutePath);
-
   if (!fs.existsSync(absolutePath)) {
     console.log("File not found!");
     return null;
