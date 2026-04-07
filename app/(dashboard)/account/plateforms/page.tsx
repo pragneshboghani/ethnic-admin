@@ -44,7 +44,7 @@ const StatCard = ({
   tone: string;
 }) => (
   <div
-    className={`self-start rounded-[22px] border border-white/8 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
+    className={`self-start rounded-[22px] border border-white/8 h-full p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
   >
     <p className="text-sm font-medium text-white/78">{label}</p>
     <p className="mt-3 text-3xl font-semibold leading-none text-white">{value}</p>
@@ -101,7 +101,7 @@ const Plateforms = () => {
   return (
     <>
       <section>
-        <div className="mb-4 flex justify-end">
+        {/* <div className="mb-4 flex justify-end">
           <button
             type="button"
             onClick={() => {
@@ -113,9 +113,9 @@ const Plateforms = () => {
             <Plus size={16} />
             Add New Platform
           </button>
-        </div>
+        </div> */}
 
-        <div className="grid items-start gap-4 md:grid-cols-3">
+        <div className="grid items-start gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label="Platforms"
             value={platforms.length}
@@ -157,7 +157,7 @@ const Plateforms = () => {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
+      <div className="mt-6 grid gap-5 grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
         {platforms.map((platform) => {
           const hasApi = !!platform.api_endpoint && platform.api_endpoint.trim() !== "";
           const sourceTone =
@@ -223,7 +223,7 @@ const Plateforms = () => {
                 </span>
               </div>
 
-              <div className="mt-6 grid gap-4">
+              <div className="mt-6 gap-4 flex flex-col">
                 <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
                   <div className="flex items-center gap-3">
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#2f6670]/30 bg-[#17303a] text-[#9ad8de]">
@@ -240,14 +240,14 @@ const Plateforms = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
                     <div className="flex items-center gap-3">
                       <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#7a428f]/30 bg-[#24152f] text-[#d9b8ff]">
                         <Server size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
                           Endpoint
                         </p>
                         <p className="mt-1 truncate text-sm text-[#eef4ff]">
@@ -263,7 +263,7 @@ const Plateforms = () => {
                         <ShieldCheck size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
                           Authentication
                         </p>
                         <p className="mt-1 truncate text-sm text-[#eef4ff]">
