@@ -49,13 +49,7 @@ const parseChangedFields = (
     return fallback ? [formatFieldLabel(fallback)] : [];
 };
 
-const PublishStatusTracking = ({
-    globalStatus = "draft",
-    updateDate,
-    currentBlogStatus,
-    publishHistory = [],
-    publishHistoryLoading = false,
-}: PublishStatusTrackingProps) => {
+const PublishStatusTracking = ({ globalStatus = "draft", updateDate, currentBlogStatus, publishHistory = [], publishHistoryLoading = false, }: PublishStatusTrackingProps) => {
     const latestHistory = publishHistory[0];
 
     return (

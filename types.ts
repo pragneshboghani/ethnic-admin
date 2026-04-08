@@ -312,7 +312,4 @@ export type GeneralTabContentProps = {
     tags: string[];
     relatedBlogs: number[];
     allBlogs: { data: any[] };
-    selectedPlatforms: number[];
-    platformData: any;
-    platformSettings: any;
 };

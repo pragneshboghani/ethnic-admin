@@ -247,13 +247,7 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
     );
 };
 
-const RichTextToolbar = ({
-    platformData,
-    content,
-}: {
-    platformData: EditorPlatformData;
-    content: string;
-}) => {
+const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatformData; content: string; }) => {
     const editorState = useEditorState();
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);

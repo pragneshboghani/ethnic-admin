@@ -1,8 +1,7 @@
 import { formatDateTime } from "@/utils/formatDateTime";
-import { PreviewPlatform } from "./BlogPreviewModal";
 import { GeneralTabContentProps } from "@/types";
 
-const GeneralTabContent = ({ categoryNames, title, excerpt, readingTime, publishDate, updateDate, createDate, image, formContent, faq, tags, relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, }: GeneralTabContentProps) => {
+const GeneralTabContent = ({ categoryNames, title, excerpt, readingTime, publishDate, updateDate, createDate, image, formContent, faq, tags, relatedBlogs, allBlogs  }: GeneralTabContentProps) => {
     return (
         <div className="space-y-8 px-6 py-6 sm:px-8 sm:py-8">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">

@@ -88,7 +88,7 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                         >
                             Linked Platforms
                         </button>
-                        
+
                         {!id && (
                             <button
                                 type="button"
@@ -118,9 +118,6 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                             tags={tags}
                             relatedBlogs={relatedBlogs}
                             allBlogs={allBlogs}
-                            selectedPlatforms={selectedPlatforms}
-                            platformData={platformData}
-                            platformSettings={platformSettings}
                         />
                     )}
 

@@ -12,8 +12,7 @@ import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
 import { useRouter } from "next/navigation";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
-import CategoryModal from "@/components/common/CategoryModal";
-import TagModal from "@/components/common/TagModal";
+import TaxonomyModal from "@/components/common/TaxonomyModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
@@ -600,21 +599,23 @@ const BlogForm = () => {
                 />
             )}
             {isCategoryModalOpen && (
-                <CategoryModal
+                <TaxonomyModal
                     isOpen={isCategoryModalOpen}
                     onClose={() => setIsCategoryModalOpen(false)}
                     onSuccess={async () => {
                         await fetchAll();
                     }}
+                    type="category"
                 />
             )}
             {isTagModalOpen && (
-                <TagModal
+                <TaxonomyModal
                     isOpen={isTagModalOpen}
                     onClose={() => setIsTagModalOpen(false)}
                     onSuccess={async () => {
                         await fetchAll();
                     }}
+                    type="tag"
                 />
             )}
             {isUploadModalOpen && (

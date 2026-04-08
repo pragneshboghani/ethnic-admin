@@ -4,18 +4,20 @@ import CategoryAndTagAction from '@/actions/categoryAndTagAction';
 import PlateformActions from '@/actions/PlateFormActions';
 import TaxonomyCard from '@/components/category/TaxonomyCard';
 import ViewDetailsModal, { Category } from '@/components/category/ViewDetailsModal';
-import CategoryModal, { PlatformResponse } from '@/components/common/CategoryModal';
-import TagModal from '@/components/common/TagModal';
-import { StatCardProps } from '@/types';
+import TaxonomyModal, { PlatformResponse } from '@/components/common/TaxonomyModal';
 import { Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { set } from 'zod';
 import { StatCard } from '../plateforms/page';
 
 export type TaxonomyItem = {
     id: number;
     name: string;
+    description?: string;
+    platform_ids?: number[];
+    slug?: string;
+    created_at?: string;
+    status?: string;
 };
 
 const normalizePlatformIds = (platformIds: unknown): number[] => {
@@ -57,7 +59,15 @@ const Page = () => {
     const fetchCategories = async () => {
         try {
             const categoryResponse = await CategoryAndTagAction.fetchCategory();
-            const categoryData: TaxonomyItem[] = categoryResponse.data.map((category: any) => ({
+            const categoryData: TaxonomyItem[] = categoryResponse.data.map((category: {
+                id: number;
+                name: string;
+                description?: string;
+                platform_ids?: unknown;
+                slug?: string;
+                created_at?: string;
+                status?: string;
+            }) => ({
                 id: category.id,
                 name: category.name,
                 description: category.description,
@@ -69,7 +79,15 @@ const Page = () => {
             setCategories(categoryData);
 
             const tagResponse = await CategoryAndTagAction.fetchTags();
-            const tagData: TaxonomyItem[] = tagResponse.data.map((tag: any) => ({
+            const tagData: TaxonomyItem[] = tagResponse.data.map((tag: {
+                id: number;
+                name: string;
+                description?: string;
+                platform_ids?: unknown;
+                slug?: string;
+                created_at?: string;
+                status?: string;
+            }) => ({
                 id: tag.id,
                 name: tag.name,
                 description: tag.description,
@@ -86,12 +104,13 @@ const Page = () => {
     };
 
     useEffect(() => {
-        fetchCategories();
         const fetchPlatforms = async () => {
+            await fetchCategories();
             const res = await PlateformActions.getAllPlateform();
             setPlatformData(res);
         };
-        fetchPlatforms();
+
+        void fetchPlatforms();
     }, []);
 
     const handleDeleteCategory = async (item: TaxonomyItem, type: string) => {
@@ -245,26 +264,28 @@ const Page = () => {
             </div>
 
             {isOpen && (
-                <CategoryModal
+                <TaxonomyModal
                     isOpen={isOpen}
                     onClose={() => {
                         setIsOpen(false);
                         setSelectedCategory(null);
                     }}
                     onSuccess={fetchCategories}
-                    category={selectedCategory}
+                    type="category"
+                    entity={selectedCategory}
                 />
             )}
 
             {isOpenTags && (
-                <TagModal
+                <TaxonomyModal
                     isOpen={isOpenTags}
                     onClose={() => {
                         setIsOpenTags(false);
                         setSelectedTag(null);
                     }}
                     onSuccess={fetchCategories}
-                    tag={selectedTag}
+                    type="tag"
+                    entity={selectedTag}
                 />
             )}
 

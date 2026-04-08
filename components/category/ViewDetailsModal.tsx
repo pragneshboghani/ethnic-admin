@@ -2,8 +2,8 @@
 
 import { X } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
-import { PlatformResponse } from '../common/CategoryModal';
 import ClickOutside from '../common/ClickOutside';
+import { PlatformResponse } from '../common/TaxonomyModal';
 
 export type Category = {
     id: number;
