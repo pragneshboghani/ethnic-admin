@@ -1,6 +1,7 @@
 "use client";
 
 import PlateformActions from "@/actions/PlateFormActions";
+import ClickOutside from "@/components/common/ClickOutside";
 import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
 import { Platform } from "@/types";
 import {
@@ -32,17 +33,7 @@ const statusThemes = {
   Inactive: "border-[#b8664b]/28 bg-[#b8664b]/16 text-[#ffd7c4]",
 };
 
-const StatCard = ({
-  label,
-  value,
-  note,
-  tone,
-}: {
-  label: string;
-  value: number;
-  note: string;
-  tone: string;
-}) => (
+const StatCard = ({ label, value, note, tone, }: { label: string; value: number; note: string; tone: string; }) => (
   <div
     className={`self-start rounded-[22px] border border-white/8 h-full p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
   >
@@ -101,20 +92,6 @@ const Plateforms = () => {
   return (
     <>
       <section>
-        {/* <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              setEditingPlatform(null);
-              setOpenModal(true);
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-[15px] bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-          >
-            <Plus size={16} />
-            Add New Platform
-          </button>
-        </div> */}
-
         <div className="grid items-start gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label="Platforms"
@@ -328,37 +305,39 @@ const Plateforms = () => {
 
       {deletePlatformId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
-              Remove Platform
-            </p>
-            <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
-              Delete this connection?
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
-              This will remove the selected publishing destination from the dashboard. You can add it again later if needed.
-            </p>
+          <ClickOutside onClickOutside={() => setDeletePlatformId(null)}>
+            <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                Remove Platform
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+                Delete this connection?
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                This will remove the selected publishing destination from the dashboard. You can add it again later if needed.
+              </p>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setDeletePlatformId(null)}
-                className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (deletePlatformId) {
-                    handleDelete(deletePlatformId);
-                    setDeletePlatformId(null);
-                  }
-                }}
-                className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
-              >
-                Delete Platform
-              </button>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setDeletePlatformId(null)}
+                  className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (deletePlatformId) {
+                      handleDelete(deletePlatformId);
+                      setDeletePlatformId(null);
+                    }
+                  }}
+                  className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                >
+                  Delete Platform
+                </button>
+              </div>
             </div>
-          </div>
+          </ClickOutside>
         </div>
       )}
     </>

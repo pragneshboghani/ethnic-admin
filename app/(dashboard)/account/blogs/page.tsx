@@ -7,6 +7,7 @@ import BlogFilters from "@/components/blog/BlogFilters";
 import BlogListCard from "@/components/blog/BlogListCard";
 import BlogListtable from "@/components/blog/BlogListtable";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
+import ClickOutside from "@/components/common/ClickOutside";
 import { FetchSummaryCards } from "@/utils/summaryCards";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -207,33 +208,35 @@ const Blogs = () => {
 
       {deleteBlogId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#101826] p-6 text-center shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-            <h3 className="mb-3 text-lg font-semibold text-white">
-              Are you sure you want to delete this blog?
-            </h3>
-            <p className="text-sm leading-6 text-[#8ea0b8]">
-              This will permanently remove the selected blog and its SEO settings.
-            </p>
-            <div className="mt-6 flex justify-center gap-3">
-              <button
-                onClick={() => setDeleteBlogId(null)}
-                className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (deleteBlogId) {
-                    handleDelete(deleteBlogId);
-                    setDeleteBlogId(null);
-                  }
-                }}
-                className="rounded-xl border border-red-400/20 bg-red-500/12 px-4 py-2 text-red-200 transition hover:bg-red-500/18"
-              >
-                Delete
-              </button>
+          <ClickOutside onClickOutside={() => setDeleteBlogId(null)}>
+            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#101826] p-6 text-center shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+              <h3 className="mb-3 text-lg font-semibold text-white">
+                Are you sure you want to delete this blog?
+              </h3>
+              <p className="text-sm leading-6 text-[#8ea0b8]">
+                This will permanently remove the selected blog and its SEO settings.
+              </p>
+              <div className="mt-6 flex justify-center gap-3">
+                <button
+                  onClick={() => setDeleteBlogId(null)}
+                  className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (deleteBlogId) {
+                      handleDelete(deleteBlogId);
+                      setDeleteBlogId(null);
+                    }
+                  }}
+                  className="rounded-xl border border-red-400/20 bg-red-500/12 px-4 py-2 text-red-200 transition hover:bg-red-500/18"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
+          </ClickOutside>
         </div>
       )}
       {selectedBlog && (

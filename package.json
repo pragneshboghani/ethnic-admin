@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "browser-image-compression": "^2.0.2",
     "concurrently": "^9.2.1",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",

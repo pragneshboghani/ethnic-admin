@@ -23,6 +23,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import blogSchema from "@/hooks/blogSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
+import { fileToBase64, optimizeUploadFile } from "@/utils/imageUpload";
 
 type AllDataType = {
     allBlogs: any[];
@@ -143,12 +144,11 @@ const BlogForm = () => {
         let uploadedImageUrl = image || "";
 
         if (selectedFile) {
-            const reader = new FileReader();
-
             uploadedImageUrl = await new Promise<string>((resolve, reject) => {
-                reader.onload = async () => {
-                    const base64 = reader.result as string;
+                const uploadSelectedFile = async () => {
                     try {
+                        const optimizedFile = await optimizeUploadFile(selectedFile);
+                        const base64 = await fileToBase64(optimizedFile);
                         const res = await MediaActions.uploadMedia(base64, selectedFile.name, selectedPlatforms);
                         resolve(res.fileUrl);
                     } catch (error) {
@@ -156,7 +156,8 @@ const BlogForm = () => {
                         reject(error);
                     }
                 };
-                reader.readAsDataURL(selectedFile);
+
+                void uploadSelectedFile();
             });
         }
 
