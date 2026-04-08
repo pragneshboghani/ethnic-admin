@@ -7,17 +7,19 @@ import ClickOutside from "../common/ClickOutside";
 import PublishStatusTracking from "./PublishStatusTracking";
 import { useSearchParams } from "next/navigation";
 import GeneralTabContent from "./GeneralTabContent";
+import PlatformSpecificPreview from "./PlatformSpecificPreview";
 
 export type PreviewPlatform = {
     id: number;
     platform_name?: string;
+    website_url?: string;
 };
 
 const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onConfirmPublish, image, category, categories, publishDate, globalStatus = "draft", updateDate, createDate, readingTime, title, excerpt, formContent, tags, relatedBlogs, allBlogs, selectedPlatforms, platformData, platformSettings, faq, publishHistory = [], publishHistoryLoading = false, }: BlogPreviewModalProps) => {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
 
-    const [activeTab, setActiveTab] = useState<"general" | "status_tracking">("general");
+    const [activeTab, setActiveTab] = useState<"general" | "status_tracking" | "platforms">("general");
     const categoryNames = category
         .map((id) => categories.find((item) => item.id === id)?.name)
         .filter((name): name is string => Boolean(name));
@@ -64,19 +66,30 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                         </button>
                     </div>
 
-                    {!id && (
-                        <div className="flex gap-2 border-b border-white/8 px-6 py-5 sticky bg-[#101826] top-0 sm:px-8">
-                            <button
-                                type="button"
-                                onClick={() => setActiveTab("general")}
-                                className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "general"
-                                    ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-                                    : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
-                                    }`}
-                            >
-                                General Content
-                            </button>
+                    <div className="flex gap-2 border-b border-white/8 px-6 py-5 sticky bg-[#101826] top-0 sm:px-8">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab("general")}
+                            className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "general"
+                                ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
+                                : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+                                }`}
+                        >
+                            General Content
+                        </button>
 
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab("platforms")}
+                            className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "platforms"
+                                ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
+                                : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+                                }`}
+                        >
+                            Linked Platforms
+                        </button>
+                        
+                        {!id && (
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("status_tracking")}
@@ -87,8 +100,8 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                             >
                                 Status Tracking
                             </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {activeTab === "general" && (
                         <GeneralTabContent
@@ -118,6 +131,16 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                             currentBlogStatus={currentBlogStatus}
                             publishHistory={publishHistory}
                             publishHistoryLoading={publishHistoryLoading}
+                        />
+                    )}
+
+                    {activeTab === "platforms" && (
+                        <PlatformSpecificPreview
+                            title={title}
+                            excerpt={excerpt}
+                            selectedPlatforms={selectedPlatforms}
+                            platformData={platformData}
+                            platformSettings={platformSettings}
                         />
                     )}
 

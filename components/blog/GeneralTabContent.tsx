@@ -133,30 +133,6 @@ const GeneralTabContent = ({ categoryNames, title, excerpt, readingTime, publish
                     </div>
                 </div>
             )}
-
-            {selectedPlatforms.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-[#eef4ff]">Platform Publishing Settings</h3>
-                    {selectedPlatforms.map((platformId) => {
-                        const platform = platformData?.data.find((item: PreviewPlatform) => item.id === platformId);
-                        const settings = platformSettings[platformId];
-
-                        return (
-                            <div key={platformId} className="rounded-[22px] border border-white/8 bg-[#151d2c] p-5">
-                                <h4 className="text-lg font-semibold text-[#eef4ff]">{platform?.platform_name}</h4>
-                                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                                    <p className="text-sm text-[#dbe5f3]"><b>Slug:</b> {settings?.slug || "-"}</p>
-                                    <p className="text-sm text-[#dbe5f3]"><b>Status:</b> {settings?.publishStatus || "draft"}</p>
-                                    <p className="text-sm text-[#dbe5f3]"><b>SEO Title:</b> {settings?.seoTitle || "-"}</p>
-                                    <p className="text-sm text-[#dbe5f3]"><b>Meta Description:</b> {settings?.metaDescription || "-"}</p>
-                                    <p className="text-sm text-[#dbe5f3] md:col-span-2"><b>Canonical URL:</b> {settings?.canonicalUrl || "-"}</p>
-                                    <p className="text-sm text-[#dbe5f3] md:col-span-2"><b>CTA:</b> {settings?.ctaButtonText} → {settings?.ctaButtonLink}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
         </div>
     );
 };
