@@ -79,6 +79,7 @@ const UploadMediaModal: React.FC<UploadMediaModalProps> = ({
             setUploadAlt("");
             setSelectedFiles(null);
             onUploadComplete?.();
+            onClose()
         } catch (error: unknown) {
             toast.error(`Upload failed 😢: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {

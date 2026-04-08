@@ -151,7 +151,7 @@ const Blogs = () => {
 
   return (
     <>
-      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4">
         {summaryCards.map((card) => {
           const Icon = card.icon;
 
@@ -173,8 +173,8 @@ const Blogs = () => {
                   <Icon size={20} />
                 </span>
               </div>
-              <p className={`mt-4 text-sm leading-6 ${card.descriptionClassName}`}>{card.description}</p>
-              <div className={`mt-5 h-1.5 rounded-full ${card.progressTrackClassName}`}>
+              <p className={`mt-4 mb-5 text-sm leading-6 ${card.descriptionClassName}`}>{card.description}</p>
+              <div className={`mt-auto h-1.5 rounded-full ${card.progressTrackClassName}`}>
                 <div
                   className={`h-full rounded-full ${card.progressFillClassName}`}
                   style={{ width: `${card.progress}%` }}

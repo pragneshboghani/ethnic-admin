@@ -25,6 +25,7 @@ const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const Media = () => {
     const [activeTab, setActiveTab] = useState(1);
+    const [allMedia, setAllMedia] = useState<Media[]>([]);
     const [media, setMedia] = useState<Media[]>([]);
     const [altModalOpen, setAltModalOpen] = useState(false);
     const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -37,9 +38,9 @@ const Media = () => {
     const [platformData, setPlatformData] = useState<any>(null);
 
     const tabs = [
-        { id: 1, label: 'All Media', type: 'all' },
-        { id: 2, label: "Images", type: 'image' },
-        { id: 3, label: 'Videos', type: 'video' }
+        { id: 1, label: 'All Media', type: 'all', count: media.length },
+        { id: 2, label: "Images", type: 'image', count: media.filter((m) => m.file_type == 'image').length },
+        { id: 3, label: 'Videos', type: 'video', count: media.filter((m) => m.file_type == 'video').length }
     ];
 
     const openAltModal = (media: Media) => {
@@ -59,11 +60,9 @@ const Media = () => {
     };
     const fetchMedia = async (type = "all") => {
         try {
-            const res =
-                type === "all"
-                    ? await MediaActions.getAllMedia()
-                    : await MediaActions.filterMedia(type);
+            const res = await MediaActions.getAllMedia();
 
+            setAllMedia(res.data);
             setMedia(res.data);
         } catch (error) {
             toast.error(`Fetch media error 😢: ${(error as Error).message}`);
@@ -74,9 +73,15 @@ const Media = () => {
         const res = await PlateformActions.getAllPlateform();
         setPlatformData(res);
     };
-    const handleTabClick = (tab: any) => {
+    const handleTabClick = async (tab: any) => {
         setActiveTab(tab.id);
-        fetchMedia(tab.type);
+
+        if (tab.type === "all") {
+            setMedia(allMedia);
+        } else {
+            const res = await MediaActions.filterMedia(tab.type)
+            setMedia(res.data);
+        }
     };
 
     useEffect(() => {
@@ -131,7 +136,7 @@ const Media = () => {
                                         : 'text-gray-300 hover:bg-white/10 hover:text-white'
                                     }`}
                             >
-                                {i.label}
+                                {i.label}{` (${i.count})`}
                             </button>
                         ))}
                     </div>
@@ -260,7 +265,7 @@ const Media = () => {
             {viewModalOpen && viewMedia && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
                     <ClickOutside onClickOutside={() => setViewModalOpen(false)}>
-                          <div className="relative max-h-[88vh] w-full max-w-[700px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                        <div className="relative max-h-[88vh] w-full max-w-[700px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
                             <button
                                 className="absolute top-4 right-4 text-white hover:text-red-500"
                                 onClick={() => setViewModalOpen(false)}

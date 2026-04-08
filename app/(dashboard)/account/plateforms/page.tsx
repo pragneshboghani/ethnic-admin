@@ -33,7 +33,7 @@ const statusThemes = {
   Inactive: "border-[#b8664b]/28 bg-[#b8664b]/16 text-[#ffd7c4]",
 };
 
-const StatCard = ({ label, value, note, tone, }: { label: string; value: number; note: string; tone: string; }) => (
+export const StatCard = ({ label, value, note, tone, progress}: { label: string; value: number; note: string; tone: string; progress: number;}) => (
   <div
     className={`self-start rounded-[22px] border border-white/8 h-full p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
   >
@@ -41,7 +41,7 @@ const StatCard = ({ label, value, note, tone, }: { label: string; value: number;
     <p className="mt-3 text-3xl font-semibold leading-none text-white">{value}</p>
     <p className="mt-3 text-sm leading-6 text-white/72">{note}</p>
     <div className="mt-3 h-1.5 rounded-full bg-white/15">
-      <div className="h-full w-2/3 rounded-full bg-white" />
+      <div className="h-full rounded-full bg-white" style={{ width: `${progress}%` }} />
     </div>
   </div>
 );
@@ -98,18 +98,21 @@ const Plateforms = () => {
             value={platforms.length}
             note="Connected destinations available in this workspace"
             tone={statTones[0]}
+            progress={100}
           />
           <StatCard
             label="Active"
             value={activeCount}
             note="Publishing connections currently ready to use"
             tone={statTones[1]}
+            progress={(activeCount / platforms.length) * 100}
           />
           <StatCard
             label="API Ready"
             value={apiConnectedCount}
             note="Endpoints configured for direct publishing"
             tone={statTones[2]}
+            progress={(apiConnectedCount / platforms.length) * 100}
           />
         </div>
       </section>
