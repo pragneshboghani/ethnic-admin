@@ -38,9 +38,9 @@ const Media = () => {
     const [platformData, setPlatformData] = useState<any>(null);
 
     const tabs = [
-        { id: 1, label: 'All Media', type: 'all', count: media.length },
-        { id: 2, label: "Images", type: 'image', count: media.filter((m) => m.file_type == 'image').length },
-        { id: 3, label: 'Videos', type: 'video', count: media.filter((m) => m.file_type == 'video').length }
+        { id: 1, label: 'All Media', type: 'all', count: allMedia.length },
+        { id: 2, label: "Images", type: 'image', count: allMedia.filter((m) => m.file_type == 'image').length },
+        { id: 3, label: 'Videos', type: 'video', count: allMedia.filter((m) => m.file_type == 'video').length }
     ];
 
     const openAltModal = (media: Media) => {

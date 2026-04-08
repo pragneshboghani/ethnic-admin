@@ -35,6 +35,23 @@ export interface Media {
   type: string;
 }
 
+export type PublishHistoryItem = {
+  id: number;
+  blog_id: number;
+  entity_type: "blog" | "seo_blog";
+  entity_id: number | null;
+  platform_id: number | null;
+  action_type: "create" | "update" | "delete";
+  change_field: string;
+  changed_fields?: string | string[] | null;
+  old_values?: string | Record<string, unknown> | null;
+  new_values?: string | Record<string, unknown> | null;
+  trigger_source?: string | null;
+  changed_by_user_id?: number | null;
+  changed_by_name?: string | null;
+  created_at?: string | null;
+};
+
 export type BlogPreviewModalProps = {
   showPreview: boolean;
   setShowPreview: (val: boolean) => void;
@@ -44,6 +61,7 @@ export type BlogPreviewModalProps = {
   category: number[];
   categories: { id: number; name: string }[];
   publishDate: string;
+  globalStatus?: "draft" | "publish" | "future";
   updateDate?: string;
   createDate?: string;
   readingTime: number;
@@ -57,6 +75,9 @@ export type BlogPreviewModalProps = {
   platformData: any;
   platformSettings: any;
   faq: { question: string; answer: string }[];
+  blogId?: number;
+  publishHistory?: PublishHistoryItem[];
+  publishHistoryLoading?: boolean;
 };
 
 export type BlogGeneralSectionProps = {
@@ -276,3 +297,22 @@ export interface UploadMediaModalProps {
     allowedMediaType?: "image" | "all";
     platformData: UploadPlatformData
 }
+
+export type GeneralTabContentProps = {
+    categoryNames: string[];
+    title: string;
+    excerpt: string;
+    readingTime: number;
+    publishDate: string;
+    updateDate?: string;
+    createDate?: string;
+    image: string | null;
+    formContent: string;
+    faq: Array<{ question: string; answer: string }>;
+    tags: string[];
+    relatedBlogs: number[];
+    allBlogs: { data: any[] };
+    selectedPlatforms: number[];
+    platformData: any;
+    platformSettings: any;
+};

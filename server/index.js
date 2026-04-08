@@ -12,6 +12,7 @@ const platformRouter = require("./routes/platforms");
 const seoRouter = require("./routes/seo");
 const tagRouter = require("./routes/tags");
 const userRouter = require("./routes/user");
+const publishHistoryRouter = require("./routes/publishHistory");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/seo", seoRouter);
 app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter)
 app.use("/api/tags",tagRouter)
+app.use("/api/publish_history", publishHistoryRouter)
 
 app.get("/", (req, res) => {
   res.send("Welcome to Ethnic Blog");

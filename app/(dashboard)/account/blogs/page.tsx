@@ -2,12 +2,14 @@
 
 import BlogActions from "@/actions/BlogAction";
 import DashBoardActions from "@/actions/DashboardAction";
+import PublishHistoryActions from "@/actions/PublishHistoryActions";
 import SEOActions from "@/actions/SEOAction";
 import BlogFilters from "@/components/blog/BlogFilters";
 import BlogListCard from "@/components/blog/BlogListCard";
 import BlogListtable from "@/components/blog/BlogListtable";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
 import ClickOutside from "@/components/common/ClickOutside";
+import { PublishHistoryItem } from "@/types";
 import { FetchSummaryCards } from "@/utils/summaryCards";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,6 +28,8 @@ const Blogs = () => {
   const [selectUpdate, setSelectUpdate] = useState<number | null>(null);
   const [duplicateBlogId, setDuplicateBlogId] = useState<number | null>(null);
   const [platformSettings, setPlatformSettings] = useState<any>({});
+  const [publishHistory, setPublishHistory] = useState<PublishHistoryItem[]>([]);
+  const [publishHistoryLoading, setPublishHistoryLoading] = useState(false);
 
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("0");
@@ -146,6 +150,29 @@ const Blogs = () => {
     fetchPlatformSettings(selectedBlog);
   }, [selectedBlog]);
 
+  useEffect(() => {
+    const fetchPublishHistory = async () => {
+      if (!selectedBlog?.id || !showPreview) {
+        setPublishHistory([]);
+        return;
+      }
+
+      setPublishHistoryLoading(true);
+
+      try {
+        const res = await PublishHistoryActions.getHistory(selectedBlog.id);
+        setPublishHistory(res.data || []);
+      } catch (err) {
+        console.error("Error fetching publish history:", err);
+        toast.error("Failed to load publish history 😢");
+      } finally {
+        setPublishHistoryLoading(false);
+      }
+    };
+
+    void fetchPublishHistory();
+  }, [selectedBlog?.id, showPreview]);
+
   const draftBlogs = blogs.filter((blog) => blog.status === "draft").length;
   const summaryCards = FetchSummaryCards(blogs, platformData);
 
@@ -247,6 +274,7 @@ const Blogs = () => {
           category={selectedBlog?.category || []}
           categories={categoryData?.data || []}
           publishDate={selectedBlog?.publish_date}
+          globalStatus={selectedBlog?.status}
           updateDate={selectedBlog?.updated_at}
           createDate={selectedBlog?.created_at}
           readingTime={selectedBlog?.reading_time}
@@ -265,6 +293,9 @@ const Blogs = () => {
           selectedPlatforms={selectedBlog?.platforms || []}
           platformData={platformData}
           platformSettings={platformSettings}
+          blogId={selectedBlog?.id}
+          publishHistory={publishHistory}
+          publishHistoryLoading={publishHistoryLoading}
         />
       )}
     </>
