@@ -502,7 +502,7 @@ const Dashboard = () => {
               const theme = cardColors[index];
               const cardBlogs = getFeaturedCardBlogs(index);
               const visibleBlogs = cardBlogs.slice(0, 2);
-              const remainingBlogCount = Math.max(cardBlogs.length - visibleBlogs.length, 0);
+              const remainingBlogCount = item.type == "platforms" ? Math.max(allPlatforms.length - visibleBlogs.length, 0)  : Math.max(cardBlogs.length - visibleBlogs.length, 0);
 
               return (
                 <div
@@ -551,7 +551,7 @@ const Dashboard = () => {
                         </>
                       )}
                     </div>
-                    <MoreVertical size={18} className={theme.subtext} />
+                    {/* <MoreVertical size={18} className={theme.subtext} /> */}
                   </div>
 
                   <div className="mt-12">
