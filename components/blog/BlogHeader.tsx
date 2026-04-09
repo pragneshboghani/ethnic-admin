@@ -138,9 +138,7 @@ const BlogHeader = ({ title, description, onPreview, onSaveDraft, onPublish, }: 
             <div
                 ref={cardRef}
                 style={isSticky ? floatingStyle : undefined}
-                className={`rounded-[24px] border border-white/8 bg-[#151d2c]/95 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-all duration-300 ${
-                    isSticky ? 'fixed z-40' : 'relative'
-                } ${isCondensed ? 'p-4' : 'p-6'}`}
+                className={`rounded-[24px] border border-white/8 bg-[#151d2c]/95 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-all duration-300  ${isCondensed ? 'p-4' : 'p-6'}`}
             >
                 <div className={`flex flex-col gap-4 transition-all duration-300 xl:flex-row xl:items-center xl:justify-between ${isCondensed ? 'xl:gap-6' : 'xl:gap-8'}`}>
                     <div className="min-w-0">

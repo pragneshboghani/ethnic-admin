@@ -6,6 +6,7 @@ const getAuthHeaders = require("./getAuthHeaders");
 const mysqlpool = require("../config/db");
 const postMediaToPlateform = require("./postMediaToPlateform");
 const syncTaxonomy = require("./syncTaxonomy");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 const fileToBase64 = (filePath, mimeType) => {
   const absolutePath = path.join(__dirname, "..", filePath);
@@ -21,7 +22,7 @@ const fileToBase64 = (filePath, mimeType) => {
 
 const postToPlatform = async (platform, blogData, slug = null) => {
   try {
-    let url = `${platform.api_endpoint}/${platform.blog_path}`;
+    let url = getTaxonomyUrl(platform, "post");
 
     let method = "post";
     let featuredMediaId = null;

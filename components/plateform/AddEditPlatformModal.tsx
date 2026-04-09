@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Platform } from "@/types";
 import PlateformActions from "@/actions/PlateFormActions";
@@ -15,6 +15,25 @@ interface Props {
     refreshPlatforms: () => void;
 }
 
+const buildCtaLink = (websiteUrl: string, blogPath: string) => {
+    const normalizedWebsiteUrl = websiteUrl.trim().replace(/\/+$/, "");
+    const normalizedBlogPath = blogPath.trim().replace(/^\/+/, "");
+
+    if (!normalizedWebsiteUrl && !normalizedBlogPath) {
+        return "";
+    }
+
+    if (!normalizedWebsiteUrl) {
+        return normalizedBlogPath ? `/${normalizedBlogPath}` : "";
+    }
+
+    if (!normalizedBlogPath) {
+        return normalizedWebsiteUrl;
+    }
+
+    return `${normalizedWebsiteUrl}/${normalizedBlogPath}`;
+};
+
 const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms, }: Props) => {
     const inputClassName =
         "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
@@ -23,7 +42,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
     const labelClassName =
         "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
 
-    const { register, handleSubmit, watch, reset, control, setValue } = useForm<Platform>({
+    const { register, handleSubmit, watch, reset, setValue } = useForm<Platform>({
         defaultValues: {
             platform_name: "",
             website_url: "",
@@ -43,6 +62,8 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
 
     const authType = watch("auth_type");
     const dataSource = watch("data_source");
+    const websiteUrl = watch("website_url");
+    const blogPath = watch("blog_path");
 
     useEffect(() => {
         if (editingPlatform) {
@@ -67,6 +88,10 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
             });
         }
     }, [editingPlatform, reset]);
+
+    useEffect(() => {
+        setValue("CTA_link", buildCtaLink(websiteUrl || "", blogPath || ""));
+    }, [blogPath, setValue, websiteUrl]);
 
     const onSubmit = async (data: Platform) => {
         try {
@@ -158,6 +183,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                         <input
                                             id="platform-cta-link"
                                             type="text"
+                                            disabled
                                             {...register("CTA_link")}
                                             placeholder="Default CTA Link"
                                             className={inputClassName}

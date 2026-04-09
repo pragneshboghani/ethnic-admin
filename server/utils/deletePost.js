@@ -1,9 +1,10 @@
 const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
+const getTaxonomyUrl = require("./getTaxonomyUrl");
 
 async function deletePost(platform, slug) {
   try {
-    let url = `${platform.api_endpoint}/${platform.blog_path}`;
+    let url = getTaxonomyUrl(platform, "post");
     const headers = getAuthHeaders(platform);
     const resg = await axios.get(url, {
       params: { slug, status: "any" },
