@@ -7,6 +7,7 @@ const deletePost = require("../utils/deletePost");
 const verifyApiKey = require("../middleware/verifyApiKey");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const generateUniqueBlogSlug = require("../utils/generateUniqueBlogSlug");
+const { logBlogHistory } = require("../utils/blogHistory");
 require("dotenv").config();
 
 const blogRouter = express.Router();
@@ -95,7 +96,7 @@ const formatBlogRowForResponse = (row) => ({
 
 const BASE_URL = process.env.BACKEND_API;
 
-blogRouter.get("/all", authMiddleware, async (req, res) => {
+blogRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM blogs");
 
@@ -115,7 +116,7 @@ blogRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.get("/get", authMiddleware, async (req, res) => {
+blogRouter.get("/get", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -143,7 +144,7 @@ blogRouter.get("/get", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.post("/add", authMiddleware, async (req, res) => {
+blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const {
       blog_title,
@@ -204,6 +205,31 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
       ],
     );
 
+    await logBlogHistory({
+      blogId: result.insertId,
+      actionType: "create",
+      oldBlog: {},
+      newBlog: {
+        blog_title,
+        short_excerpt,
+        full_content,
+        faq,
+        featured_image,
+        category,
+        tags,
+        author,
+        publish_date: formattedPublishDate,
+        reading_time,
+        related,
+        status,
+        platforms,
+        slug,
+      },
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
+
     res.status(201).send({
       success: true,
       message: "Blog added successfully",
@@ -219,7 +245,7 @@ blogRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.put("/update", authMiddleware, async (req, res) => {
+blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -354,6 +380,21 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
       ],
     );
 
+    await logBlogHistory({
+      blogId: Number(id),
+      actionType: "update",
+      oldBlog: raw,
+      newBlog: {
+        ...raw,
+        ...UpdatedData,
+        id: Number(id),
+        slug,
+      },
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
+
     res.status(200).send({
       success: true,
       message: "Blog updated successfully",
@@ -369,7 +410,7 @@ blogRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.delete("/delete", authMiddleware, async (req, res) => {
+blogRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -401,6 +442,16 @@ blogRouter.delete("/delete", authMiddleware, async (req, res) => {
       });
     }
 
+    await logBlogHistory({
+      blogId: Number(id),
+      actionType: "delete",
+      oldBlog: raw,
+      newBlog: {},
+      changedByUserId: req.user?.id ?? null,
+      changedByName: req.user?.username ?? req.user?.email ?? null,
+      triggerSource: "manual",
+    });
+
     res.status(200).send({
       success: true,
       message: "Blog deleted successfully",
@@ -414,7 +465,7 @@ blogRouter.delete("/delete", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.get("/recent", authMiddleware, async (req, res) => {
+blogRouter.get("/recent", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { days } = req.query;
 
@@ -441,9 +492,10 @@ blogRouter.get("/recent", authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.get("/filter", authMiddleware, async (req, res) => {
+blogRouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
   try {
-    const { status, platform, author, category, tags, search, sort } = req.query;
+    const { status, platform, author, category, tags, search, sort } =
+      req.query;
 
     let query = `SELECT * FROM blogs WHERE 1=1`;
     const params = [];

@@ -1,10 +1,11 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const dashboardRouter = Router();
 
-dashboardRouter.get("/all", authMiddleware, async (req, res) => {
+dashboardRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [[statusCount]] = await mysqlpool.query(`
 SELECT 
@@ -37,7 +38,7 @@ FROM blogs
   }
 });
 
-dashboardRouter.get("/allData", authMiddleware, async (req, res) => {
+dashboardRouter.get("/allData", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [results] = await mysqlpool.query(`
       SELECT * FROM blogs;

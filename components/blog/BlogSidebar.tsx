@@ -97,20 +97,7 @@ const formatDisplayValue = (value: string) => {
     });
 };
 
-const BlogSidebar = ({
-    register,
-    publishDate,
-    categories,
-    category,
-    setValue,
-    image,
-    handleRemoveImage,
-    setIsCategoryModalOpen,
-    setIsUploadModalOpen,
-    setMediaFor,
-    globalStatus,
-    blogId,
-}: BlogSidebarProps) => {
+const BlogSidebar = ({ register, publishDate, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, blogId, }: BlogSidebarProps) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [currentLocalDateTime, setCurrentLocalDateTime] = useState(formatInputDateTime(getNow()));
     const pickerRef = useRef<HTMLDivElement>(null);
@@ -503,7 +490,7 @@ const BlogSidebar = ({
                                     src={
                                         image?.startsWith('blob:')
                                             ? image
-                                        : `${process.env.BACKEND_DOMAIN}/${image}`
+                                            : `${process.env.BACKEND_DOMAIN}/${image}`
                                     }
                                     alt="Selected"
                                     className="h-full w-full rounded-[18px] object-cover"

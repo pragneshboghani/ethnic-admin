@@ -247,13 +247,7 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
     );
 };
 
-const RichTextToolbar = ({
-    platformData,
-    content,
-}: {
-    platformData: EditorPlatformData;
-    content: string;
-}) => {
+const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatformData; content: string; }) => {
     const editorState = useEditorState();
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -621,7 +615,7 @@ const RichTextToolbar = ({
                     onAction={() => runEditorCommand(editorElement, "redo")}
                 />
 
-                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]" />
+                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium !text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438] hover:!text-[#000000]" />
 
                 <div className="ml-auto flex items-center gap-3 text-sm text-[#8ea0b8]">
                     <span>Words: {wordCount}</span>

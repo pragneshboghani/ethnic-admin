@@ -5,6 +5,7 @@ import {
   UseFieldArrayRemove,
   UseFormSetValue,
 } from "react-hook-form";
+import type { Dispatch, SetStateAction } from "react";
 import { TaxonomyItem } from "./app/(dashboard)/account/category/page";
 import { Category } from "./components/category/ViewDetailsModal";
 
@@ -25,7 +26,6 @@ export interface Platform {
   blog_path: string;
   CTA_link: string;
   CTA_button_text: string;
-  extra_paths?: Record<string, string>;
 }
 
 export interface Media {
@@ -34,6 +34,23 @@ export interface Media {
   alt: string;
   type: string;
 }
+
+export type PublishHistoryItem = {
+  id: number;
+  blog_id: number;
+  entity_type: "blog" | "seo_blog";
+  entity_id: number | null;
+  platform_id: number | null;
+  action_type: "create" | "update" | "delete";
+  change_field: string;
+  changed_fields?: string | string[] | null;
+  old_values?: string | Record<string, unknown> | null;
+  new_values?: string | Record<string, unknown> | null;
+  trigger_source?: string | null;
+  changed_by_user_id?: number | null;
+  changed_by_name?: string | null;
+  created_at?: string | null;
+};
 
 export type BlogPreviewModalProps = {
   showPreview: boolean;
@@ -44,6 +61,7 @@ export type BlogPreviewModalProps = {
   category: number[];
   categories: { id: number; name: string }[];
   publishDate: string;
+  globalStatus?: "draft" | "publish" | "future";
   updateDate?: string;
   createDate?: string;
   readingTime: number;
@@ -57,6 +75,9 @@ export type BlogPreviewModalProps = {
   platformData: any;
   platformSettings: any;
   faq: { question: string; answer: string }[];
+  blogId?: number;
+  publishHistory?: PublishHistoryItem[];
+  publishHistoryLoading?: boolean;
 };
 
 export type BlogGeneralSectionProps = {
@@ -185,6 +206,32 @@ export type DashboardBlog = {
   updated_at?: string | null;
 };
 
+export type NamedCollection<T> = {
+  data: T[];
+};
+
+export type PlatformCollection = NamedCollection<Platform> & {
+  totalPlatforms?: number;
+};
+
+export type BlogListItem = DashboardBlog & {
+  category?: number[];
+  tags?: number[];
+};
+
+export type BlogListTableType = {
+  blogs: BlogListItem[];
+  platformData: PlatformCollection | null;
+  categoryData: NamedCollection<CategoryType> | null;
+  tagData: NamedCollection<CategoryType> | null;
+  setSelectedBlog: Dispatch<SetStateAction<BlogListItem | null>>;
+  setShowPreview: Dispatch<SetStateAction<boolean>>;
+  setSelectUpdate: Dispatch<SetStateAction<number | null>>;
+  setDuplicateBlogId: Dispatch<SetStateAction<number | null>>;
+  setDeleteBlogId: Dispatch<SetStateAction<number | null>>;
+  loading: boolean
+};
+
 export type TaxonomyCardProps = {
   title: string;
   description: string;
@@ -200,4 +247,69 @@ export type StatCardProps = {
   value: number;
   note: string;
   tone: string;
+};
+
+export type BlogFiltersProps = {
+    loading: boolean;
+    blogs: any[];
+    draftBlogs: number;
+    search: string;
+    setSearch: (val: string) => void;
+    author: string;
+    setAuthor: (val: string) => void;
+    category: string;
+    setCategory: (val: string) => void;
+    categoryData: any;
+    tags: string;
+    setTags: (val: string) => void;
+    tagData: any;
+    platform: string;
+    setPlatform: (val: string) => void;
+    platformData: any;
+    status: string;
+    setStatus: (val: string) => void;
+    sort: string;
+    setSort: (val: string) => void;
+};
+
+export type UploadPlatformData = {
+    data?: Array<{
+        id: number;
+        platform_name?: string;
+        status?: string;
+        api_endpoint?: string;
+    }>;
+} | null;
+
+export type MediaFileItem = {
+    id: number;
+    file_url: string;
+    file_type: "image" | "video";
+    mime_type?: string | null;
+};
+
+export interface UploadMediaModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onUploadComplete?: () => void;
+    onSelectImage?: (url: string) => void;
+    onSelectMedia?: (media: { url: string; fileType: "image" | "video"; mimeType?: string | null }) => void;
+    allowedMediaType?: "image" | "all";
+    platformData: UploadPlatformData
+}
+
+export type GeneralTabContentProps = {
+    categoryNames: string[];
+    title: string;
+    excerpt: string;
+    readingTime: number;
+    publishDate: string;
+    updateDate?: string;
+    createDate?: string;
+    image: string | null;
+    formContent: string;
+    faq: Array<{ question: string; answer: string }>;
+    tags: string[];
+    relatedBlogs: number[];
+    allBlogs: { data: any[] };
 };

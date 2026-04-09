@@ -6,10 +6,11 @@ const generateSlug = require("../utils/generateSlug");
 const deleteCategory = require("../utils/deleteCategory");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const updateCategoryOnPlatform = require("../utils/updateCategoryOnPlatform");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const categoryRouter = express.Router();
 
-categoryRouter.get("/all", authMiddleware, async (req, res) => {
+categoryRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM category");
     res.status(200).send({
@@ -25,7 +26,7 @@ categoryRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-categoryRouter.post("/add", authMiddleware, async (req, res) => {
+categoryRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { name, description, status, platforms } = req.body;
 
@@ -65,7 +66,7 @@ categoryRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
+categoryRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id, type } = req.query;
 
@@ -133,7 +134,7 @@ categoryRouter.delete("/delete", authMiddleware, async (req, res) => {
   }
 });
 
-categoryRouter.put("/update", authMiddleware, async (req, res) => {
+categoryRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
     const { name, description, status, platforms } = req.body;

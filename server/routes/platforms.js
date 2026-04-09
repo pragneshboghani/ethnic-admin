@@ -1,10 +1,11 @@
 const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const platformRouter = Router();
 
-platformRouter.get("/all", authMiddleware, async (req, res) => {
+platformRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM platforms");
     res.status(200).send({
@@ -21,7 +22,7 @@ platformRouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.get("/get", authMiddleware, async (req, res) => {
+platformRouter.get("/get", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -50,7 +51,7 @@ platformRouter.get("/get", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.get("/active", authMiddleware, async (req, res) => {
+platformRouter.get("/active", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
       `SELECT id,platform_name,website_url FROM platforms WHERE status = 'active'`,
@@ -70,7 +71,7 @@ platformRouter.get("/active", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.post("/add", authMiddleware, async (req, res) => {
+platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     let {
       platform_name,
@@ -86,7 +87,6 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
       blog_path,
       CTA_link,
       CTA_button_text,
-      extra_paths
     } = req.body;
 
     if (data_source === "admin") {
@@ -137,8 +137,8 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO platforms 
-      (platform_name, website_url, blog_path, CTA_link, CTA_button_text, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status, extra_paths) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (platform_name, website_url, blog_path, CTA_link, CTA_button_text, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         platform_name,
         website_url,
@@ -153,7 +153,6 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
         finalUsername,
         finalPassword,
         status || "Active",
-        extra_paths ? JSON.stringify(extra_paths) : null
       ],
     );
 
@@ -171,7 +170,7 @@ platformRouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.put("/update", authMiddleware, async (req, res) => {
+platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -188,8 +187,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       auth_token,
       username,
       password,
-      status,
-      extra_paths
+      status
     } = req.body;
 
     if (data_source === "admin") {
@@ -262,7 +260,6 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         username: null,
         password: null,
         status: status ?? raw.status,
-        extra_paths: extra_paths ? JSON.stringify(extra_paths) : null ?? raw.extra_paths
       };
     } else {
       UpdatedData = {
@@ -279,7 +276,6 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         username: finalUsername,
         password: finalPassword,
         status: status ?? raw.status,
-        extra_paths: extra_paths ? JSON.stringify(extra_paths) : null ?? raw.extra_paths
       };
     }
 
@@ -287,8 +283,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
       `UPDATE platforms 
        SET platform_name = ?, website_url = ?, blog_path = ?, CTA_link = ?, CTA_button_text = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
            auth_type = ?, auth_token = ?, username = ?, password = ?, 
-           status = ?, extra_paths = ?
-       WHERE id = ?`,
+           status = ?  WHERE id = ?`,
       [
         UpdatedData.platform_name,
         UpdatedData.website_url,
@@ -303,7 +298,6 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
         UpdatedData.username,
         UpdatedData.password,
         UpdatedData.status,
-        UpdatedData.extra_paths,
         id,
       ],
     );
@@ -321,7 +315,7 @@ platformRouter.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-platformRouter.delete("/delete", authMiddleware, async (req, res) => {
+platformRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 

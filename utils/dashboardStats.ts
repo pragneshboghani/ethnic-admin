@@ -24,24 +24,28 @@ export const FetchDashBoardData = () => {
       value: data.TotalBlogs,
       icon: FileText,
       color: "text-blue-400",
+      type: 'total'
     },
     {
       title: "Published",
       value: data.PublishedBlogs,
       icon: CheckCircle,
       color: "text-green-400",
+      type: 'published'
     },
     {
       title: "Scheduled",
       value: data.ScheduledBlogs,
       icon: Clock,
       color: "text-yellow-400",
+      type: 'scheduled'
     },
     {
       title: "Platforms",
       value: data.TotalPlatforms,
       icon: Globe,
       color: "text-purple-400",
+      type: 'platforms'
     },
   ];
 

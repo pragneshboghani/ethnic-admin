@@ -4,16 +4,7 @@ import DashBoardActions from "@/actions/DashboardAction";
 import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
 import { DashboardBlog } from "@/types";
 import { FetchDashBoardData } from "@/utils/dashboardStats";
-import {
-  Bell,
-  CheckCircle2,
-  Circle,
-  ExternalLink,
-  MoreVertical,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import { Bell, CheckCircle2, Circle, ExternalLink, MoreVertical, Plus, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -23,7 +14,7 @@ type RecentBlog = {
   blog_title: string;
 };
 
-type ActivePlatform = {
+export type ActivePlatform = {
   id: number;
   platform_name: string;
   website_url: string;
@@ -435,7 +426,7 @@ const Dashboard = () => {
     <>
       <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,368px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,392px)]">
         <div className="space-y-10">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between flex-wrap">
             <div>
               <h1 className="text-[38px] font-semibold leading-none tracking-[-0.04em] text-[#eef4ff]">
                 Hello, Team
@@ -445,14 +436,14 @@ const Dashboard = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap lg:flex-nowrap">
               <div
                 className={`transition-all duration-300 ${
                   isSearchOpen ? "w-full sm:w-[320px]" : "w-12"
                 }`}
               >
                 {isSearchOpen ? (
-                  <div className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-[#151d2c] px-4 text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)]">
+                  <div className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-[#151d2c] px-4 text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)] xs:max-w-[58vw]">
                     <Search size={18} className="shrink-0 text-[#8ea0b8]" />
                     <input
                       ref={searchInputRef}
@@ -488,7 +479,7 @@ const Dashboard = () => {
 
               <Link
                 href="/account/blogs/add"
-                className="inline-flex items-center justify-center rounded-xl border border-white/8 bg-[#1c2636] px-7 py-3.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(0,0,0,0.28)] transition hover:bg-[#243247]"
+                className="inline-flex items-center justify-center rounded-xl border border-white/8 bg-[#1c2636] px-7 py-3.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(0,0,0,0.28)] transition hover:bg-[#243247] text-nowrap w-full sm:w-fit xs:max-w-[160px]"
               >
                 Add New Blog
               </Link>
@@ -511,7 +502,7 @@ const Dashboard = () => {
               const theme = cardColors[index];
               const cardBlogs = getFeaturedCardBlogs(index);
               const visibleBlogs = cardBlogs.slice(0, 2);
-              const remainingBlogCount = Math.max(cardBlogs.length - visibleBlogs.length, 0);
+              const remainingBlogCount = item.type == "platforms" ? Math.max(allPlatforms.length - visibleBlogs.length, 0)  : Math.max(cardBlogs.length - visibleBlogs.length, 0);
 
               return (
                 <div
@@ -560,7 +551,7 @@ const Dashboard = () => {
                         </>
                       )}
                     </div>
-                    <MoreVertical size={18} className={theme.subtext} />
+                    {/* <MoreVertical size={18} className={theme.subtext} /> */}
                   </div>
 
                   <div className="mt-12">
@@ -586,7 +577,7 @@ const Dashboard = () => {
             })}
           </section>
 
-          <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
+          <div className="grid grid-cols-1 gap-10 2xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
             <section>
               <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">
                 Tasks for today

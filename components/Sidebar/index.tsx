@@ -4,14 +4,16 @@ import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
 import { navItems } from "@/utils/navItems";
 import Image from "next/image";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const SideMenuLinks = ({ link }: {
         link: {
@@ -27,7 +29,8 @@ const Sidebar = () => {
         return (
             <Link
                 href={link?.href}
-                className={`group flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition-all duration-200 ${
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`group flex w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${
                     isActive
                         ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
                         : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
@@ -56,51 +59,88 @@ const Sidebar = () => {
     const handleLogout = () => {
         UserActions.logout();
         setUser(null);
+        setIsMobileMenuOpen(false);
         router.push("/");
     };
 
-    return (
-        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] lg:w-[248px] lg:shrink-0 lg:border-b-0 lg:border-r">
-            <div className="absolute bottom-0 left-0 h-40 w-36 rounded-tr-[44px] bg-[radial-gradient(circle_at_20%_70%,rgba(73,112,164,0.28),rgba(73,112,164,0.02)_58%),radial-gradient(circle_at_70%_90%,rgba(92,59,141,0.24),rgba(92,59,141,0.02)_54%)]" />
+    const sidebarContent = (
+        <>
+            <Link href="/account/dashboard" className="hidden md:inline-flex items-center self-start">
+                <Image
+                    src="/assets/Logo.svg"
+                    alt="Ethnic Infotech"
+                    width={188}
+                    height={62}
+                    priority
+                    className="h-auto w-[152px]"
+                />
+            </Link>
 
-            <div className="relative flex h-full flex-col px-5 py-6 sm:px-6 lg:min-h-[calc(100vh-48px)] lg:px-6 lg:py-7">
-                <Link href="/account/dashboard" className="inline-flex items-center self-start">
+            <div className="md:mt-9 flex flex-row md:flex-col justify-between items-center text-center">
+                <h3 className="text-[22px] font-semibold tracking-tight text-[#eef4ff]">
+                    Ethnic Admin
+                </h3>
+                <p className="mt-1 text-sm text-[#7f90a8]">
+                    hello@ethnicinfotech.in
+                </p>
+            </div>
+
+            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
+                {navItems?.map((link) => (
+                    <SideMenuLinks key={link.id} link={link} />
+                ))}
+            </div>
+
+            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5">
+                <button
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-transparent p-2 sm:p-3 md:px-4 md:py-3 text-sm transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
+                    onClick={handleLogout}
+                >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/8 bg-[#101826] text-[#6f8096] transition-all duration-200 group-hover:border-[#243247] group-hover:text-[#c4d3e6]">
+                        <LogOut size={18} />
+                    </span>
+                    <span className="font-medium text-[#8fa0b6]">Logout</span>
+                </button>
+            </div>
+        </>
+    );
+
+    return (
+        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] md:w-[248px] md:shrink-0 md:border-b-0 md:border-r">
+            {/* <div className="absolute bottom-0 left-0 h-40 w-36 rounded-tr-[44px] bg-[radial-gradient(circle_at_20%_70%,rgba(73,112,164,0.28),rgba(73,112,164,0.02)_58%),radial-gradient(circle_at_70%_90%,rgba(92,59,141,0.24),rgba(92,59,141,0.02)_54%)]" /> */}
+
+            <div className="relative flex items-center justify-between px-5 py-4 sm:px-6 md:hidden">
+                <Link href="/account/dashboard" className="inline-flex items-center">
                     <Image
                         src="/assets/Logo.svg"
                         alt="Ethnic Infotech"
                         width={188}
                         height={62}
                         priority
-                        className="h-auto w-[152px]"
+                        className="h-auto w-[140px]"
                     />
                 </Link>
 
-                <div className="mt-9 flex flex-col items-center text-center">
-                    <h3 className="text-[22px] font-semibold tracking-tight text-[#eef4ff]">
-                        Ethnic Admin
-                    </h3>
-                    <p className="mt-1 text-sm text-[#7f90a8]">
-                        hello@ethnicinfotech.in
-                    </p>
-                </div>
+                <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-[#151f31] text-[#eef4ff] transition hover:border-[#31425e] hover:bg-[#182438]"
+                    aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                >
+                    {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+            </div>
 
-                <div className="mt-9 flex-1 space-y-2">
-                    {navItems?.map((link) => (
-                        <SideMenuLinks key={link.id} link={link} />
-                    ))}
+            {isMobileMenuOpen && (
+                <div className="relative border-t border-white/8 px-5 pb-5 pt-4 sm:px-6 xl:hidden">
+                    <div className="flex min-h-0 flex-col">
+                        {sidebarContent}
+                    </div>
                 </div>
+            )}
 
-                <div className="mt-6 border-t border-white/8 pt-5">
-                    <button
-                        className="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
-                        onClick={handleLogout}
-                    >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/8 bg-[#101826] text-[#6f8096] transition-all duration-200 group-hover:border-[#243247] group-hover:text-[#c4d3e6]">
-                            <LogOut size={18} />
-                        </span>
-                        <span className="font-medium text-[#8fa0b6]">Logout</span>
-                    </button>
-                </div>
+            <div className="relative hidden h-full flex-col px-5 py-6 sm:px-6 md:flex md:min-h-[calc(100vh-48px)] md:px-6 md:py-7">
+                {sidebarContent}
             </div>
         </aside>
     );

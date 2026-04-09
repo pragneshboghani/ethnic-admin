@@ -1,6 +1,7 @@
 "use client";
 
 import PlateformActions from "@/actions/PlateFormActions";
+import ClickOutside from "@/components/common/ClickOutside";
 import AddEditPlatformModal from "@/components/plateform/AddEditPlatformModal";
 import { Platform } from "@/types";
 import {
@@ -32,25 +33,15 @@ const statusThemes = {
   Inactive: "border-[#b8664b]/28 bg-[#b8664b]/16 text-[#ffd7c4]",
 };
 
-const StatCard = ({
-  label,
-  value,
-  note,
-  tone,
-}: {
-  label: string;
-  value: number;
-  note: string;
-  tone: string;
-}) => (
+export const StatCard = ({ label, value, note, tone, progress}: { label: string; value: number; note: string; tone: string; progress: number;}) => (
   <div
-    className={`self-start rounded-[22px] border border-white/8 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
+    className={`self-start rounded-[22px] border border-white/8 h-full p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
   >
     <p className="text-sm font-medium text-white/78">{label}</p>
     <p className="mt-3 text-3xl font-semibold leading-none text-white">{value}</p>
     <p className="mt-3 text-sm leading-6 text-white/72">{note}</p>
     <div className="mt-3 h-1.5 rounded-full bg-white/15">
-      <div className="h-full w-2/3 rounded-full bg-white" />
+      <div className="h-full rounded-full bg-white" style={{ width: `${progress}%` }} />
     </div>
   </div>
 );
@@ -101,38 +92,27 @@ const Plateforms = () => {
   return (
     <>
       <section>
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              setEditingPlatform(null);
-              setOpenModal(true);
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-[15px] bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-          >
-            <Plus size={16} />
-            Add New Platform
-          </button>
-        </div>
-
-        <div className="grid items-start gap-4 md:grid-cols-3">
+        <div className="grid items-start gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label="Platforms"
             value={platforms.length}
             note="Connected destinations available in this workspace"
             tone={statTones[0]}
+            progress={100}
           />
           <StatCard
             label="Active"
             value={activeCount}
             note="Publishing connections currently ready to use"
             tone={statTones[1]}
+            progress={(activeCount / platforms.length) * 100}
           />
           <StatCard
             label="API Ready"
             value={apiConnectedCount}
             note="Endpoints configured for direct publishing"
             tone={statTones[2]}
+            progress={(apiConnectedCount / platforms.length) * 100}
           />
         </div>
       </section>
@@ -157,7 +137,7 @@ const Plateforms = () => {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
+      <div className="mt-6 grid gap-5 grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
         {platforms.map((platform) => {
           const hasApi = !!platform.api_endpoint && platform.api_endpoint.trim() !== "";
           const sourceTone =
@@ -223,7 +203,7 @@ const Plateforms = () => {
                 </span>
               </div>
 
-              <div className="mt-6 grid gap-4">
+              <div className="mt-6 gap-4 flex flex-col">
                 <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
                   <div className="flex items-center gap-3">
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#2f6670]/30 bg-[#17303a] text-[#9ad8de]">
@@ -240,14 +220,14 @@ const Plateforms = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
                     <div className="flex items-center gap-3">
                       <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#7a428f]/30 bg-[#24152f] text-[#d9b8ff]">
                         <Server size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
                           Endpoint
                         </p>
                         <p className="mt-1 truncate text-sm text-[#eef4ff]">
@@ -263,7 +243,7 @@ const Plateforms = () => {
                         <ShieldCheck size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
                           Authentication
                         </p>
                         <p className="mt-1 truncate text-sm text-[#eef4ff]">
@@ -328,37 +308,39 @@ const Plateforms = () => {
 
       {deletePlatformId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
-              Remove Platform
-            </p>
-            <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
-              Delete this connection?
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
-              This will remove the selected publishing destination from the dashboard. You can add it again later if needed.
-            </p>
+          <ClickOutside onClickOutside={() => setDeletePlatformId(null)}>
+            <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                Remove Platform
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+                Delete this connection?
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                This will remove the selected publishing destination from the dashboard. You can add it again later if needed.
+              </p>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setDeletePlatformId(null)}
-                className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (deletePlatformId) {
-                    handleDelete(deletePlatformId);
-                    setDeletePlatformId(null);
-                  }
-                }}
-                className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
-              >
-                Delete Platform
-              </button>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setDeletePlatformId(null)}
+                  className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (deletePlatformId) {
+                      handleDelete(deletePlatformId);
+                      setDeletePlatformId(null);
+                    }
+                  }}
+                  className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                >
+                  Delete Platform
+                </button>
+              </div>
             </div>
-          </div>
+          </ClickOutside>
         </div>
       )}
     </>

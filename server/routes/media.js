@@ -4,10 +4,11 @@ const saveBase64File = require("../utils/saveBase64File");
 const authMiddleware = require("../middleware/authMiddleware");
 const postMediaToPlateform = require("../utils/postMediaToPlateform");
 const { getPlatformsByIds } = require("../utils/platformHelper");
+const verifyApiKey = require("../middleware/verifyApiKey");
 
 const mediarouter = Router();
 
-mediarouter.get("/all", authMiddleware, async (req, res) => {
+mediarouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query("SELECT * FROM media");
     res.status(200).send({
@@ -24,7 +25,7 @@ mediarouter.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-mediarouter.post("/add", authMiddleware, async (req, res) => {
+mediarouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { file, alt, selectedPlatforms } = req.body;
 
@@ -78,7 +79,7 @@ mediarouter.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-mediarouter.get("/filter", authMiddleware, async (req, res) => {
+mediarouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { type } = req.query;
 
@@ -108,7 +109,7 @@ mediarouter.get("/filter", authMiddleware, async (req, res) => {
   }
 });
 
-mediarouter.put("/update-alt/:mediaId", authMiddleware, async (req, res) => {
+mediarouter.put("/update-alt/:mediaId", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { mediaId } = req.params;
     const { alt_text } = req.body;
@@ -152,7 +153,7 @@ mediarouter.put("/update-alt/:mediaId", authMiddleware, async (req, res) => {
   }
 });
 
-mediarouter.delete("/delete", authMiddleware, async (req, res) => {
+mediarouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 

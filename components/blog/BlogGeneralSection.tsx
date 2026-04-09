@@ -6,19 +6,7 @@ import { useFieldArray } from "react-hook-form";
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import RichTextToolbar from "./RichTextToolbar";
 
-const BlogGeneralSection = ({
-    register,
-    control,
-    setValue,
-    relatedBlogs,
-    content,
-    allBlogs,
-    platformData,
-    selectedTags,
-    setIsPopupOpen,
-    tagsList,
-    setIsTagModalOpen,
-}: BlogGeneralSectionProps) => {
+const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, }: BlogGeneralSectionProps) => {
     const { fields: faqFields, append: appendFaq, remove: removeFaq } = useFieldArray({
         control,
         name: "faq",

@@ -1,19 +1,15 @@
 import Cookies from "js-cookie";
 import UserActions from "./UserAction";
+import { getHeaders } from "@/utils/getHeaders";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const MediaActions = {
   uploadMedia: async (file: string, alt: string, selectedPlatforms:number[]) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/add`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify({ file, alt, selectedPlatforms }),
       });
 
@@ -31,12 +27,8 @@ const MediaActions = {
 
   getAllMedia: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -53,17 +45,13 @@ const MediaActions = {
 
   filterMedia: async (type?: string) => {
     try {
-      const token = UserActions.getToken();
-
       const queryParams = new URLSearchParams();
       if (type && type !== "all") queryParams.append("type", type);
 
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/media/filter?${queryParams.toString()}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getHeaders(),
         },
       );
 
@@ -81,13 +69,9 @@ const MediaActions = {
 
   updateALT: async (id: number, altText: string) => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/update-alt/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify({ alt_text: altText }),
       });
 
@@ -105,13 +89,9 @@ const MediaActions = {
 
   deleteMedia: async (id: number) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/media/delete?id=${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {

@@ -62,6 +62,10 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             title: "Platforms",
             description:
                 "Manage publishing destinations and keep your platform connections ready.",
+            action: {
+                href: '/account/plateforms/add',
+                label: "Add New Platform",
+            }
         },
         "/account/media": {
             eyebrow: "Library",
@@ -102,14 +106,14 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                     />
 
                     <div className={`${isBlogEditorPage ? "overflow-visible" : "overflow-hidden"} rounded-[28px] border border-white/8 bg-[#0f1724] shadow-[0_30px_90px_rgba(0,0,0,0.42)]`}>
-                        <div className="flex flex-col lg:flex-row">
+                        <div className="flex flex-col md:flex-row">
                             <Sidebar />
 
                             <main className={`min-w-0 flex-1 bg-[#111827] px-5 py-6 sm:px-7 lg:px-10 lg:py-8 ${isBlogEditorPage ? "overflow-visible" : ""}`}>
                                 <div className="text-[#e6edf7]">
-                                    <div className="flex w-full justify-between items-center">
+                                    <div className="flex w-full justify-between items-center flex-wrap">
                                         {pathname !== "/account/dashboard" && currentHeader && (
-                                            <div className="mb-6 flex flex-col gap-3 lg:mb-7">
+                                            <div className="flex flex-col gap-3 md:mb-6 lg:mb-7">
                                                 <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8398b5]">
                                                     {currentHeader.eyebrow}
                                                 </p>
@@ -117,7 +121,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                                     <h1 className="text-3xl font-semibold tracking-tight text-[#eef4ff]">
                                                         {currentHeader.title}
                                                     </h1>
-                                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd]">
+                                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd] hidden md:block">
                                                         {currentHeader.description}
                                                     </p>
                                                 </div>
@@ -125,7 +129,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                         )}
 
                                         {pathname !== "/account/dashboard" && currentHeader?.action && (
-                                            <div className="mb-6">
+                                            <div className="md:mb-6">
                                                 <Link
                                                     href={currentHeader.action.href}
                                                     className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
@@ -134,6 +138,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                                 </Link>
                                             </div>
                                         )}
+
+                                        {pathname !== "/account/dashboard" &&
+                                            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd] mb-6 md:mb-0 inline-flex w-full md:hidden">
+                                                {currentHeader?.description}
+                                            </p>
+                                        }
                                     </div>
 
                                     {children}

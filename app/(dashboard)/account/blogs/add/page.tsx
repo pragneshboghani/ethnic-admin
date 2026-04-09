@@ -12,8 +12,7 @@ import BlogGeneralSection from "@/components/blog/BlogGeneralSection";
 import { useRouter } from "next/navigation";
 import SEOActions from "@/actions/SEOAction";
 import { normalizeDateForInput } from "@/utils/normalizeDateForInput";
-import CategoryModal from "@/components/common/CategoryModal";
-import TagModal from "@/components/common/TagModal";
+import TaxonomyModal from "@/components/common/TaxonomyModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
@@ -23,6 +22,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import blogSchema from "@/hooks/blogSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
+import { fileToBase64, optimizeUploadFile } from "@/utils/imageUpload";
 
 type AllDataType = {
     allBlogs: any[];
@@ -143,12 +143,11 @@ const BlogForm = () => {
         let uploadedImageUrl = image || "";
 
         if (selectedFile) {
-            const reader = new FileReader();
-
             uploadedImageUrl = await new Promise<string>((resolve, reject) => {
-                reader.onload = async () => {
-                    const base64 = reader.result as string;
+                const uploadSelectedFile = async () => {
                     try {
+                        const optimizedFile = await optimizeUploadFile(selectedFile);
+                        const base64 = await fileToBase64(optimizedFile);
                         const res = await MediaActions.uploadMedia(base64, selectedFile.name, selectedPlatforms);
                         resolve(res.fileUrl);
                     } catch (error) {
@@ -156,7 +155,8 @@ const BlogForm = () => {
                         reject(error);
                     }
                 };
-                reader.readAsDataURL(selectedFile);
+
+                void uploadSelectedFile();
             });
         }
 
@@ -403,9 +403,11 @@ const BlogForm = () => {
     }, [blogId, duplicateBlogId, reset, setValue]);
 
     useEffect(() => {
+        if (blogId) return;
+
         const defaultDate = getDefaultPublishDate(globalStatus) || "";
         setValue("publishDate", defaultDate);
-    }, [globalStatus]);
+    }, [blogId, globalStatus, setValue]);
 
     useEffect(() => {
         if (!selectedPlatforms.length) return;
@@ -430,10 +432,11 @@ const BlogForm = () => {
                 const month = String(date.getMonth() + 1).padStart(2, "0");
                 const day = String(date.getDate()).padStart(2, "0");
 
+                const baseUrl = platform.website_url.replace(/\/$/, '');
+                const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
                 const newCanonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${platform.blog_path}/${slug}`;
-
+                    : `${baseUrl}${blogPath}/${slug}`;
 
                 if (settings.canonicalUrl !== newCanonicalUrl) {
                     updated[platformId] = {
@@ -478,8 +481,8 @@ const BlogForm = () => {
                 selectedPlatforms={selectedPlatforms}
             />
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="space-y-6 lg:col-span-2">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <div className="space-y-6 xl:col-span-2">
                     {activeTab === 'general' ? (
                         <BlogGeneralSection
                             register={register}
@@ -596,21 +599,23 @@ const BlogForm = () => {
                 />
             )}
             {isCategoryModalOpen && (
-                <CategoryModal
+                <TaxonomyModal
                     isOpen={isCategoryModalOpen}
                     onClose={() => setIsCategoryModalOpen(false)}
                     onSuccess={async () => {
                         await fetchAll();
                     }}
+                    type="category"
                 />
             )}
             {isTagModalOpen && (
-                <TagModal
+                <TaxonomyModal
                     isOpen={isTagModalOpen}
                     onClose={() => setIsTagModalOpen(false)}
                     onSuccess={async () => {
                         await fetchAll();
                     }}
+                    type="tag"
                 />
             )}
             {isUploadModalOpen && (

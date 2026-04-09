@@ -2,6 +2,7 @@
 
 import MediaActions from '@/actions/MediaAction';
 import PlateformActions from '@/actions/PlateFormActions';
+import ClickOutside from '@/components/common/ClickOutside';
 import UploadMediaModal from '@/components/media/UploadMediaModal';
 import { formatDateTime } from '@/utils/formatDateTime';
 import { formatFileSize } from '@/utils/formatFileSize';
@@ -24,6 +25,7 @@ const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const Media = () => {
     const [activeTab, setActiveTab] = useState(1);
+    const [allMedia, setAllMedia] = useState<Media[]>([]);
     const [media, setMedia] = useState<Media[]>([]);
     const [altModalOpen, setAltModalOpen] = useState(false);
     const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -36,9 +38,9 @@ const Media = () => {
     const [platformData, setPlatformData] = useState<any>(null);
 
     const tabs = [
-        { id: 1, label: 'All Media', type: 'all' },
-        { id: 2, label: "Images", type: 'image' },
-        { id: 3, label: 'Videos', type: 'video' }
+        { id: 1, label: 'All Media', type: 'all', count: allMedia.length },
+        { id: 2, label: "Images", type: 'image', count: allMedia.filter((m) => m.file_type == 'image').length },
+        { id: 3, label: 'Videos', type: 'video', count: allMedia.filter((m) => m.file_type == 'video').length }
     ];
 
     const openAltModal = (media: Media) => {
@@ -58,11 +60,9 @@ const Media = () => {
     };
     const fetchMedia = async (type = "all") => {
         try {
-            const res =
-                type === "all"
-                    ? await MediaActions.getAllMedia()
-                    : await MediaActions.filterMedia(type);
+            const res = await MediaActions.getAllMedia();
 
+            setAllMedia(res.data);
             setMedia(res.data);
         } catch (error) {
             toast.error(`Fetch media error 😢: ${(error as Error).message}`);
@@ -73,9 +73,15 @@ const Media = () => {
         const res = await PlateformActions.getAllPlateform();
         setPlatformData(res);
     };
-    const handleTabClick = (tab: any) => {
+    const handleTabClick = async (tab: any) => {
         setActiveTab(tab.id);
-        fetchMedia(tab.type);
+
+        if (tab.type === "all") {
+            setMedia(allMedia);
+        } else {
+            const res = await MediaActions.filterMedia(tab.type)
+            setMedia(res.data);
+        }
     };
 
     useEffect(() => {
@@ -118,7 +124,7 @@ const Media = () => {
     return (
         <>
             <div className="space-y-8">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap-reverse gap-3">
                     <div className="flex gap-4">
                         {tabs.map((i) => (
                             <button
@@ -130,21 +136,18 @@ const Media = () => {
                                         : 'text-gray-300 hover:bg-white/10 hover:text-white'
                                     }`}
                             >
-                                {i.label}
+                                {i.label}{` (${i.count})`}
                             </button>
                         ))}
                     </div>
 
-                    <div>
-
-                        <button className="flex items-center gap-2 btn cursor-pointer" onClick={() => setUploadModalOpen(true)}>
-                            <Plus size={18} />
-                            <span>Upload Media</span>
-                        </button>
-                    </div>
+                    <button className="flex items-center gap-2 btn cursor-pointer" onClick={() => setUploadModalOpen(true)}>
+                        <Plus size={18} />
+                        <span>Upload Media</span>
+                    </button>
                 </div>
 
-                <div className="image_grid gap-5">
+                <div className="gap-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 
                     {media.length === 0 ? (
                         <div className="col-span-full py-20 text-center text-zinc-600 border-2 border-dashed border-white/5 rounded-2xl">
@@ -154,7 +157,7 @@ const Media = () => {
                         media.map((m) => (
                             <div
                                 key={m.id}
-                                className="relative cursor-pointer group"
+                                className="relative cursor-pointer group w-full h-full aspect-square"
                             >
                                 {m.file_type === "image" ? (
                                     <img
@@ -200,98 +203,99 @@ const Media = () => {
             </div>
             {altModalOpen && selectedMedia && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                    <div className="p-6 w-80 text-white glass-card">
-                        <h3 className="text-lg font-semibold mb-4">Update ALT Text</h3>
+                    <ClickOutside onClickOutside={() => setAltModalOpen(false)}>
+                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                            <h3 className="text-lg font-semibold mb-4">Update ALT Text</h3>
 
-                        <input
-                            type="text"
-                            className="w-full p-2 rounded-md text-black bg-white"
-                            value={newAltText}
-                            onChange={(e) => setNewAltText(e.target.value)}
-                            placeholder="Enter ALT text"
-                        />
+                            <input
+                                type="text"
+                                className="w-full p-2 rounded-md text-black bg-white"
+                                value={newAltText}
+                                onChange={(e) => setNewAltText(e.target.value)}
+                                placeholder="Enter ALT text"
+                            />
 
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button
-                                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-                                onClick={() => setAltModalOpen(false)}
-                            >
-                                Cancel
-                            </button>
+                            <div className="mt-4 flex justify-end gap-2">
+                                <button
+                                    className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+                                    onClick={() => setAltModalOpen(false)}
+                                >
+                                    Cancel
+                                </button>
 
-                            <button
-                                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
-                                onClick={() => handleUpdateAlt(selectedMedia.id, newAltText)}
-                            >
-                                Update
-                            </button>
+                                <button
+                                    className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
+                                    onClick={() => handleUpdateAlt(selectedMedia.id, newAltText)}
+                                >
+                                    Update
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </ClickOutside>
                 </div>
             )}
             {deleteModalOpen && mediaToDelete && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="p-6 w-80 text-center glass-card">
-                        <h3 className="text-lg font-semibold mb-4 text-white">
-                            Delete Media
-                        </h3>
-                        <p className="mb-6 text-white">
-                            Are you sure you want to delete <strong>{mediaToDelete.file_name}</strong>?
-                        </p>
-                        <div className="flex justify-center gap-4">
-                            <button
-                                className="px-4 py-2 bg-black rounded hover:bg-gray-400"
-                                onClick={handleCancelDelete}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                                onClick={handleConfirmDelete}
-                            >
-                                Delete
-                            </button>
+                    <ClickOutside onClickOutside={handleCancelDelete}>
+                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 sm:p-7">
+                            <h3 className="text-lg font-semibold mb-4 text-white">
+                                Delete Media
+                            </h3>
+                            <p className="mb-6 text-white">
+                                Are you sure you want to delete <strong>{mediaToDelete.file_name}</strong>?
+                            </p>
+                            <div className="flex justify-center gap-4">
+                                <button
+                                    className="px-4 py-2 bg-black rounded hover:bg-gray-400"
+                                    onClick={handleCancelDelete}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                    onClick={handleConfirmDelete}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </ClickOutside>
                 </div>
             )}
             {viewModalOpen && viewMedia && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-
-                    <div className="relative rounded-xl p-4 w-[700px] glass-card">
-
-                        {/* Close button */}
-                        <button
-                            className="absolute top-4 right-4 text-white hover:text-red-500"
-                            onClick={() => setViewModalOpen(false)}
-                        >
-                            <X size={18} className="text-white" />
-                        </button>
-
-                        {viewMedia.file_type === "image" ? (
-                            <img
-                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
-                                alt={viewMedia.alt_text || ""}
-                                className="w-full max-h-[70vh] object-cover rounded-lg float-right max-w-[250px] h-[250px] mr-7"
-                            />
-                        ) : (
-                            <video
-                                src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
-                                controls
-                                className="w-full max-h-[70vh] rounded-lg"
-                            />
-                        )}
-
-                        <div className="mt-4 text-white w-full">
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Name:</strong> {viewMedia.file_name}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>ALT:</strong> {viewMedia.alt_text || "-"}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>File Type:</strong> {viewMedia.file_type}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>mime_type:</strong> {viewMedia.mime_type}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Create Date:</strong> {formatDateTime(viewMedia.created_at)}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>url:</strong> {`${process.env.BACKEND_DOMAIN}/${viewMedia.file_url}`}</p>
-                            <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate'><strong>size:</strong> {formatFileSize(viewMedia.file_size)}</p>
+                    <ClickOutside onClickOutside={() => setViewModalOpen(false)}>
+                        <div className="relative max-h-[88vh] w-full max-w-[700px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                            <button
+                                className="absolute top-4 right-4 text-white hover:text-red-500"
+                                onClick={() => setViewModalOpen(false)}
+                            >
+                                <X size={18} className="text-white" />
+                            </button>
+                            {viewMedia.file_type === "image" ? (
+                                <img
+                                    src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                    alt={viewMedia.alt_text || ""}
+                                    className="w-full max-h-[70vh] object-cover rounded-lg float-right max-w-[250px] h-[250px] mr-7"
+                                />
+                            ) : (
+                                <video
+                                    src={`${BACKEND_DOMAIN}/${viewMedia.file_url}`}
+                                    controls
+                                    className="w-full max-h-[70vh] rounded-lg"
+                                />
+                            )}
+                            <div className="mt-4 text-white w-full">
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Name:</strong> {viewMedia.file_name}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>ALT:</strong> {viewMedia.alt_text || "-"}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>File Type:</strong> {viewMedia.file_type}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>mime_type:</strong> {viewMedia.mime_type}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Create Date:</strong> {formatDateTime(viewMedia.created_at)}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>url:</strong> {`${process.env.BACKEND_DOMAIN}/${viewMedia.file_url}`}</p>
+                                <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate'><strong>size:</strong> {formatFileSize(viewMedia.file_size)}</p>
+                            </div>
                         </div>
-                    </div>
+                    </ClickOutside>
                 </div>
             )}
             {uploadModalOpen && (

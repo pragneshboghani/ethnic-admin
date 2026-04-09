@@ -1,3 +1,4 @@
+import { getHeaders } from "@/utils/getHeaders";
 import UserActions from "./UserAction";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
@@ -8,10 +9,8 @@ const getErrorMessage = (error: unknown) =>
 const CategoryAndTagAction = {
   fetchCategory: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/category/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -33,14 +32,9 @@ const CategoryAndTagAction = {
     platforms: number[];
   }) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/category/add`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -66,14 +60,9 @@ const CategoryAndTagAction = {
     },
   ) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/category/update?id=${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -91,10 +80,8 @@ const CategoryAndTagAction = {
 
   fetchTags: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/tags/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -116,14 +103,9 @@ const CategoryAndTagAction = {
     platforms: number[];
   }) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/tags/add`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -149,14 +131,9 @@ const CategoryAndTagAction = {
     },
   ) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/tags/update?id=${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -174,12 +151,11 @@ const CategoryAndTagAction = {
 
   deleteCategory: async (id: number, type: string) => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/category/delete?id=${id}&type=${type}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getHeaders(),
         },
       );
 

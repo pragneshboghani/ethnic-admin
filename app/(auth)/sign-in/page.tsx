@@ -82,16 +82,16 @@ export default function SignIn() {
             </Link>
 
             <div className="relative w-full max-w-md">
-                <div className="rounded-[30px] border border-white/10 bg-[#101826]/92 p-7 shadow-[0_30px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-8">
-                    <div className="mb-8">
+                <div className="rounded-[20px] sm:rounded-[25px] md:rounded-[30px] border border-white/10 bg-[#101826]/92 p-5 md:p-7 shadow-[0_30px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-8 overflow-y-auto max-h-[85vh]">
+                    <div className="mb-4 sm:mb-6 md:mb-8">
                         <span className="inline-flex items-center rounded-full border border-[#223046] bg-[#121c2c] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#8fa3be]">
                             Sign In
                         </span>
 
-                        <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white">
+                        <h2 className="mt-2 sm:mt-4 md:mt-5 text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-white">
                             Access dashboard
                         </h2>
-                        <p className="mt-3 text-sm leading-7 text-[#92a2b8]">
+                        <p className="mt-1 sm:mt-2 md:mt-3 text-sm leading-5 md:leading-7 text-[#92a2b8]">
                             Use your admin username and password to continue.
                         </p>
                     </div>
@@ -105,8 +105,8 @@ export default function SignIn() {
                         </div>
                     )}
 
-                    <form className="space-y-5" onSubmit={handleSubmit}>
-                        <div className="space-y-2.5">
+                    <form className="space-y-3 md:space-y-5" onSubmit={handleSubmit}>
+                        <div className="space-y-1 md:space-y-2.5">
                             <label
                                 htmlFor="username"
                                 className="block text-sm font-medium text-[#d8deea]"
@@ -122,11 +122,11 @@ export default function SignIn() {
                                 onChange={handleChange}
                                 autoComplete="username"
                                 required
-                                className="w-full rounded-2xl border border-[#243246] bg-[#0d1522] px-4 py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
+                                className="w-full rounded-xl md:rounded-2xl border border-[#243246] bg-[#0d1522] p-2 sm:p-3 md:px-4 md:py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
                             />
                         </div>
 
-                        <div className="space-y-2.5 relative">
+                        <div className="space-y-1 md:space-y-2.5 relative">
                             <label
                                 htmlFor="password"
                                 className="block text-sm font-medium text-[#d8deea]"
@@ -142,10 +142,10 @@ export default function SignIn() {
                                 onChange={handleChange}
                                 autoComplete="current-password"
                                 required
-                                className="w-full rounded-2xl border border-[#243246] bg-[#0d1522] px-4 py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
+                                className="w-full rounded-xl md:rounded-2xl border border-[#243246] bg-[#0d1522] p-2 sm:p-3 md:px-4 md:py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
                             />
                             <span
-                                className="absolute text-white right-3 top-1/2 cursor-pointer"
+                                className="absolute text-black right-3 top-[47%] md:top-1/2 cursor-pointer"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {PasswordIcon}
@@ -155,7 +155,7 @@ export default function SignIn() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex w-full items-center justify-center rounded-2xl bg-[#8ea2bf] px-4 py-3.5 text-sm font-semibold text-[#0d1522] shadow-[0_14px_28px_rgba(90,116,154,0.18)] transition hover:bg-[#a0b1ca] focus:outline-none focus:ring-4 focus:ring-[#8ea2bf]/25 disabled:cursor-not-allowed disabled:bg-[#5d6d82] disabled:text-[#c9d1dc]"
+                            className="flex w-full items-center justify-center rounded-xl md:rounded-2xl bg-[#8ea2bf] p-2 sm:p-3 md:px-4 md:py-3.5 text-sm font-semibold text-[#0d1522] shadow-[0_14px_28px_rgba(90,116,154,0.18)] transition hover:bg-[#a0b1ca] focus:outline-none focus:ring-4 focus:ring-[#8ea2bf]/25 disabled:cursor-not-allowed disabled:bg-[#5d6d82] disabled:text-[#c9d1dc]"
                         >
                             {loading ? "Signing In..." : "Sign In"}
                         </button>

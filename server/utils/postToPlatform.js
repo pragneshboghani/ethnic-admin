@@ -10,8 +10,6 @@ const syncTaxonomy = require("./syncTaxonomy");
 const fileToBase64 = (filePath, mimeType) => {
   const absolutePath = path.join(__dirname, "..", filePath);
 
-  console.log("Checking path:", absolutePath);
-
   if (!fs.existsSync(absolutePath)) {
     console.log("File not found!");
     return null;
@@ -63,20 +61,22 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       }
     }
 
+    let category_api_path = platform.plateform_type == 'wordpress' ? 'wp-json/wp/v2/categories' : 'category'
     if (blogData.category) {
       wpCategoryIds = await syncTaxonomy({
         ids: blogData.category,
         tableName: "category",
-        apiPath: platform.extra_paths.category,
+        apiPath: category_api_path,
         platform,
       });
     }
 
+    let tag_api_path = platform.plateform_type == 'wordpress' ? 'wp-json/wp/v2/tags' : 'tags'
     if (blogData.tags) {
       wpTagIds = await syncTaxonomy({
         ids: blogData.tags,
         tableName: "tags",
-        apiPath: platform.extra_paths.tag,
+        apiPath: tag_api_path,
         platform,
       });
     }

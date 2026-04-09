@@ -14,12 +14,7 @@ type LinkModalProps = {
   hasSelection: boolean;
 };
 
-const LinkModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  hasSelection,
-}: LinkModalProps) => {
+const LinkModal = ({ isOpen, onClose, onSubmit, hasSelection, }: LinkModalProps) => {
   const [url, setUrl] = useState("");
   const [text, setText] = useState("");
   const [openInNewTab, setOpenInNewTab] = useState(true);

@@ -1,16 +1,15 @@
 import { Platform } from "@/types";
 import Cookies from "js-cookie";
 import UserActions from "./UserAction";
+import { getHeaders } from "@/utils/getHeaders";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const PlateformActions = {
   getAllPlateform: async () => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -27,14 +26,9 @@ const PlateformActions = {
 
   addPlateformData: async (data: Platform) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/platforms/add`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -52,13 +46,11 @@ const PlateformActions = {
 
   deletePlateForm: async (id: number) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/platforms/delete?id=${id}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getHeaders(),
         },
       );
 
@@ -76,15 +68,11 @@ const PlateformActions = {
 
   updatePlateForm: async (id: number, data: Platform) => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/platforms/update?id=${id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getHeaders(),
           body: JSON.stringify(data),
         },
       );

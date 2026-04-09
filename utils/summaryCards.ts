@@ -1,13 +1,14 @@
-import { CheckCircle2, Clock3, FileText, Globe2 } from "lucide-react";
+import { CheckCircle2, Clock3, FileText, Globe, Globe2 } from "lucide-react";
 
 export const FetchSummaryCards = (blogs: any[], platformData: any) => {
   const totalBlogs = blogs.length;
   const publishedBlogs = blogs.filter((blog) => blog.status === "publish").length;
   const scheduledBlogs = blogs.filter((blog) => blog.status === "future").length;
   const clampProgress = (value: number) => Math.max(22, Math.min(96, value));
-  const publishedProgress = totalBlogs > 0 ? (publishedBlogs / totalBlogs) * 100 : 26;
+  const publishedProgress = totalBlogs > 0 ? (publishedBlogs / totalBlogs) * 100 : 0;
   const scheduledProgress = totalBlogs > 0 ? (scheduledBlogs / totalBlogs) * 100 : 22;
-  const platformProgress = (platformData?.totalPlatforms ?? 0) * 24 + 18;
+  const activePlatforms = platformData?.data?.filter((p: any) => p.status == "Active")?.length || 0;    
+  const platformProgress = (activePlatforms / platformData?.totalPlatforms) * 100;
 
   const summaryCards = [
     {
@@ -21,7 +22,7 @@ export const FetchSummaryCards = (blogs: any[], platformData: any) => {
       iconClassName: "bg-[#24152f] text-white",
       progressTrackClassName: "bg-white/16",
       progressFillClassName: "bg-white",
-      progress: clampProgress(totalBlogs * 12 + 18),
+      progress: 100,
     },
     {
       label: "Published",
@@ -34,7 +35,7 @@ export const FetchSummaryCards = (blogs: any[], platformData: any) => {
       iconClassName: "bg-[#16333c] text-white",
       progressTrackClassName: "bg-white/16",
       progressFillClassName: "bg-white",
-      progress: clampProgress(publishedProgress),
+      progress: publishedProgress,
     },
     {
       label: "Scheduled",
@@ -47,11 +48,11 @@ export const FetchSummaryCards = (blogs: any[], platformData: any) => {
       iconClassName: "bg-[#4a2a20] text-white",
       progressTrackClassName: "bg-white/16",
       progressFillClassName: "bg-white",
-      progress: clampProgress(scheduledProgress),
+      progress: scheduledProgress,
     },
     {
-      label: "Platforms",
-      value: platformData?.totalPlatforms ?? 0,
+      label: "Active Platforms",
+      value: activePlatforms,
       description: "Connected publishing destinations",
       icon: Globe2,
       cardClassName: "bg-[#354b73] text-white",
@@ -60,7 +61,7 @@ export const FetchSummaryCards = (blogs: any[], platformData: any) => {
       iconClassName: "bg-[#1c2b45] text-white",
       progressTrackClassName: "bg-white/16",
       progressFillClassName: "bg-white",
-      progress: clampProgress(platformProgress),
+      progress: platformProgress,
     },
   ];
 

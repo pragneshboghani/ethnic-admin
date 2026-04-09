@@ -1,14 +1,14 @@
 import Cookies from "js-cookie";
 import UserActions from "./UserAction";
+import { getHeaders } from "@/utils/getHeaders";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const BlogActions = {
   getAllBlogs: async () => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -25,10 +25,8 @@ const BlogActions = {
 
   getById: async (id: number) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/get?id=${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -52,8 +50,6 @@ const BlogActions = {
     sort?: string;
   }) => {
     try {
-      const token = UserActions.getToken();
-
       const {
         platform = "0",
         status = "all",
@@ -61,7 +57,7 @@ const BlogActions = {
         author = "",
         category = "",
         tags = "",
-        sort = "none"
+        sort = "none",
       } = filters;
 
       const params = new URLSearchParams();
@@ -76,7 +72,7 @@ const BlogActions = {
       const res = await fetch(
         `${BACKEND_DOMAIN}/api/blogs/filter?${params.toString()}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getHeaders(),
         },
       );
 
@@ -94,14 +90,9 @@ const BlogActions = {
 
   addBlog: async (data: any) => {
     try {
-      const token = UserActions.getToken();
-
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/add`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -119,10 +110,9 @@ const BlogActions = {
 
   deleteBlog: async (id: number) => {
     try {
-      const token = UserActions.getToken();
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/delete?id=${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getHeaders(),
       });
 
       if (!res.ok) {
@@ -143,10 +133,7 @@ const BlogActions = {
 
       const res = await fetch(`${BACKEND_DOMAIN}/api/blogs/update?id=${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(),
         body: JSON.stringify(data),
       });
 
