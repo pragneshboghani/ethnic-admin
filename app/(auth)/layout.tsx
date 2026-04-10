@@ -31,15 +31,13 @@ export default function RootLayout({
                     <div className="max-w-full w-full h-full p-0 flex items-start justify-start">
                         <main className="max-w-full w-full h-full min-h-screen sticky top-0">
                             <div className="page-wrapper max-w-full w-full h-full relative">
-                                <div className="App">
-                                    <main>
-                                        <UserProvider>
-                                            <div className="w-full flex justify-center items-center min-h-screen">
-                                                {children}
-                                            </div>
-                                        </UserProvider>
-                                    </main>
-                                </div>
+                                <main>
+                                    <UserProvider>
+                                        <div className="w-full flex justify-center items-center min-h-screen">
+                                            {children}
+                                        </div>
+                                    </UserProvider>
+                                </main>
                             </div>
                         </main>
                     </div>

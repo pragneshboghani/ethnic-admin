@@ -1,4 +1,3 @@
-import "../globals.css";
 import SignIn from "../(auth)/sign-in/page";
 import { UserProvider } from "@/context/UserContext";
 import { cookies } from "next/headers";
@@ -12,12 +11,10 @@ export default async function Home() {
   }
 
   return (
-    <div className="App">
-      <main>
-        <UserProvider>
-          <SignIn />
-        </UserProvider>
-      </main>
-    </div>
+    <main>
+      <UserProvider>
+        <SignIn />
+      </UserProvider>
+    </main>
   );
 }
