@@ -1,36 +1,20 @@
-"use client";
-
-import '../globals.css'
 import SignIn from "../(auth)/sign-in/page";
-import { UserProvider } from '@/context/UserContext';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import UserActions from '@/actions/UserAction';
+import { UserProvider } from "@/context/UserContext";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
+export default async function Home() {
+  const token = (await cookies()).get("token")?.value;
 
-export default function Home() {
-  const router = useRouter();
-  const pathname = usePathname();
+  if (token) {
+    redirect("/account/dashboard");
+  }
 
-  const [IsLogin, setIsLogin] = useState(false)
-
-  useEffect(() => {
-    const Login = UserActions.isLogin(router);
-    setIsLogin(Login)
-  }, [pathname]);
-
-  useEffect(() => {
-    if (IsLogin) {
-      router.push("/account/dashboard");
-    }
-  }, [IsLogin, router]);
   return (
-    <div className="App">
-      <main>
-        <UserProvider>
-          <SignIn />
-        </UserProvider>
-      </main>
-    </div>
+    <main>
+      <UserProvider>
+        <SignIn />
+      </UserProvider>
+    </main>
   );
 }

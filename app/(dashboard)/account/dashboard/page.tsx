@@ -162,9 +162,9 @@ const Dashboard = () => {
         ? Math.max(32, Math.min(96, safeValue * 10 + 24))
         : index === 1
           ? Math.max(
-              24,
-              Math.min(96, totalBlogs > 0 ? (safeValue / totalBlogs) * 100 : 30),
-            )
+            24,
+            Math.min(96, totalBlogs > 0 ? (safeValue / totalBlogs) * 100 : 30),
+          )
           : Math.max(26, Math.min(96, safeValue * 18 + 18));
 
     return {
@@ -220,44 +220,44 @@ const Dashboard = () => {
   const taskItems =
     recentBlogs.length > 0
       ? recentBlogs.slice(0, 3).map((blog, index) => ({
-          id: blog.id,
-          title: blog.blog_title,
-          note: taskNotes[index] || "Review task",
-          color: taskColors[index % taskColors.length],
-          done: index === 2,
-        }))
+        id: blog.id,
+        title: blog.blog_title,
+        note: taskNotes[index] || "Review task",
+        color: taskColors[index % taskColors.length],
+        done: index === 2,
+      }))
       : [
-          {
-            id: 1,
-            title: "Mobile App",
-            note: "Prepare Figma file",
-            color: taskColors[0],
-            done: false,
-          },
-          {
-            id: 2,
-            title: "UX wireframes",
-            note: "Design UX wireframes",
-            color: taskColors[1],
-            done: false,
-          },
-          {
-            id: 3,
-            title: "Mobile App",
-            note: "Research",
-            color: taskColors[2],
-            done: true,
-          },
-        ];
+        {
+          id: 1,
+          title: "Mobile App",
+          note: "Prepare Figma file",
+          color: taskColors[0],
+          done: false,
+        },
+        {
+          id: 2,
+          title: "UX wireframes",
+          note: "Design UX wireframes",
+          color: taskColors[1],
+          done: false,
+        },
+        {
+          id: 3,
+          title: "Mobile App",
+          note: "Research",
+          color: taskColors[2],
+          done: true,
+        },
+      ];
 
   const getPlatformNames = (platformIds: number[] = []): string[] =>
     Array.isArray(platformIds)
       ? platformIds
-          .map((platformId) => {
-            const matchedPlatform = allPlatforms.find((platform) => platform.id === platformId);
-            return matchedPlatform?.platform_name || null;
-          })
-          .filter((platformName): platformName is string => Boolean(platformName))
+        .map((platformId) => {
+          const matchedPlatform = allPlatforms.find((platform) => platform.id === platformId);
+          return matchedPlatform?.platform_name || null;
+        })
+        .filter((platformName): platformName is string => Boolean(platformName))
       : [];
 
   const getBlogPlatformNames = (blogId: number) => {
@@ -343,14 +343,14 @@ const Dashboard = () => {
       };
     })
     .filter(Boolean) as Array<{
-    id: number;
-    blog_title: string;
-    platformNames: string[];
-    statusLabel: string;
-    timeLabel: string;
-    timestamp: number;
-    dateLabel: string;
-  }>;
+      id: number;
+      blog_title: string;
+      platformNames: string[];
+      statusLabel: string;
+      timeLabel: string;
+      timestamp: number;
+      dateLabel: string;
+    }>;
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -438,9 +438,8 @@ const Dashboard = () => {
 
             <div className="flex items-center gap-4 flex-wrap lg:flex-nowrap">
               <div
-                className={`transition-all duration-300 ${
-                  isSearchOpen ? "w-full sm:w-[320px]" : "w-12"
-                }`}
+                className={`transition-all duration-300 ${isSearchOpen ? "w-full sm:w-[320px]" : "w-12"
+                  }`}
               >
                 {isSearchOpen ? (
                   <div className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-[#151d2c] px-4 text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)] xs:max-w-[58vw]">
@@ -502,7 +501,7 @@ const Dashboard = () => {
               const theme = cardColors[index];
               const cardBlogs = getFeaturedCardBlogs(index);
               const visibleBlogs = cardBlogs.slice(0, 2);
-              const remainingBlogCount = item.type == "platforms" ? Math.max(allPlatforms.length - visibleBlogs.length, 0)  : Math.max(cardBlogs.length - visibleBlogs.length, 0);
+              const remainingBlogCount = item.type == "platforms" ? Math.max(allPlatforms.length - visibleBlogs.length, 0) : Math.max(cardBlogs.length - visibleBlogs.length, 0);
 
               return (
                 <div
@@ -578,41 +577,59 @@ const Dashboard = () => {
           </section>
 
           <div className="grid grid-cols-1 gap-10 2xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
-            <section>
-              <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">
-                Tasks for today
-              </h3>
 
-              {filteredTaskItems.length > 0 ? (
-                <div className="mt-6 space-y-5">
-                  {filteredTaskItems.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center gap-4 rounded-[24px] border border-white/8 bg-[#151d2c] px-5 py-5 shadow-[0_14px_34px_rgba(0,0,0,0.24)]"
-                    >
-                      <span className={`h-20 w-1 rounded-full ${task.color}`} />
+            <div className="rounded-[24px] px-5 py-5 xl:px-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">Platforms</p>
+                  <p className="mt-1 text-sm text-[#8ea0b8]">Connected destinations</p>
+                </div>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[17px] font-semibold text-[#eef4ff]">
-                          {task.title}
-                        </p>
-                        <p className="mt-3 text-sm text-[#8ea0b8]">{task.note}</p>
+                <button
+                  onClick={() => {
+                    setEditingPlatform(null);
+                    setOpenModal(true);
+                  }}
+                  className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
+                >
+                  <Plus size={16} /> Add Platform
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {filteredPlatforms.length === 0 ? (
+                  <p className="text-sm text-[#8ea0b8]">
+                    {normalizedSearchQuery
+                      ? "No platforms match your current dashboard search."
+                      : "No active platforms yet."}
+                  </p>
+                ) : (
+                  filteredPlatforms.slice(0, 3).map((platform, index) => (
+                    <div key={platform.id} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className={`h-10 w-1 rounded-full ${taskColors[index % taskColors.length]}`} />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm text-[#8ea0b8]">{platform.platform_name}</p>
+                          <p className="mt-1 text-[15px] font-medium text-[#eef4ff]">
+                            Live connection
+                          </p>
+                        </div>
                       </div>
 
-                      {task.done ? (
-                        <CheckCircle2 className="text-[#9ad8de]" size={20} />
-                      ) : (
-                        <Circle className="text-[#40506a]" size={20} />
-                      )}
+                      <a
+                        href={platform.website_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-[#9ad8de] transition hover:text-[#c2edf0]"
+                      >
+                        Visit
+                        <ExternalLink size={14} />
+                      </a>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-6 rounded-[24px] border border-white/8 bg-[#151d2c] px-5 py-6 text-sm text-[#8ea0b8] shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
-                  No task matches your current dashboard search.
-                </div>
-              )}
-            </section>
+                  ))
+                )}
+              </div>
+            </div>
 
             <div>
               <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">
@@ -623,11 +640,10 @@ const Dashboard = () => {
                 {statBoxes.map((box) => (
                   <div
                     key={box.label}
-                    className={`rounded-[20px] px-5 py-6 ${
-                      box.dashed
-                        ? "border border-dashed border-white/14 bg-transparent"
-                        : "border border-white/8 bg-[#151d2c]"
-                    }`}
+                    className={`rounded-[20px] px-5 py-6 ${box.dashed
+                      ? "border border-dashed border-white/14 bg-transparent"
+                      : "border border-white/8 bg-[#151d2c]"
+                      }`}
                   >
                     <p className="text-[20px] font-semibold text-[#eef4ff]">
                       {box.value}
@@ -758,59 +774,6 @@ const Dashboard = () => {
                   : "No blogs with a publish date are available yet."}
               </div>
             )}
-
-            <div className="rounded-[24px] border border-white/8 bg-[#151d2c] px-5 py-5 shadow-[0_12px_26px_rgba(0,0,0,0.24)] xl:px-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[18px] font-semibold text-[#eef4ff]">Platforms</p>
-                  <p className="mt-1 text-sm text-[#8ea0b8]">Connected destinations</p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setEditingPlatform(null);
-                    setOpenModal(true);
-                  }}
-                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/8 bg-[#1c2636] text-white"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {filteredPlatforms.length === 0 ? (
-                  <p className="text-sm text-[#8ea0b8]">
-                    {normalizedSearchQuery
-                      ? "No platforms match your current dashboard search."
-                      : "No active platforms yet."}
-                  </p>
-                ) : (
-                  filteredPlatforms.slice(0, 3).map((platform, index) => (
-                    <div key={platform.id} className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className={`h-10 w-1 rounded-full ${taskColors[index % taskColors.length]}`} />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm text-[#8ea0b8]">{platform.platform_name}</p>
-                          <p className="mt-1 text-[15px] font-medium text-[#eef4ff]">
-                            Live connection
-                          </p>
-                        </div>
-                      </div>
-
-                      <a
-                        href={platform.website_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-[#9ad8de] transition hover:text-[#c2edf0]"
-                      >
-                        Visit
-                        <ExternalLink size={14} />
-                      </a>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
           </div>
         </aside>
       </div>
