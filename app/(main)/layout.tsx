@@ -3,11 +3,9 @@ import "../globals.css";
 import LayoutContainer from "@/components/common/LayoutContainer";
 import { BaseMetadata } from "@/components/common/baseMetadata";
 
-
 export const metadata: Metadata = {
   ...BaseMetadata
 };
-
 
 export default function RootLayout({
   children,
