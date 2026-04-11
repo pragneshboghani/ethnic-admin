@@ -579,7 +579,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 gap-10 2xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
 
             <div className="rounded-[24px] px-5 py-5 xl:px-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="mb-4 flex sm:items-center flex-col sm:flex-row justify-between gap-3">
                 <div>
                   <p className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">Platforms</p>
                   <p className="mt-1 text-sm text-[#8ea0b8]">Connected destinations</p>
