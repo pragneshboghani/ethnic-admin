@@ -53,8 +53,6 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
     const ctaButtonText = activePlatformPreview?.settings?.ctaButtonText || "Read more";
     const ctaButtonLink = activePlatformPreview?.settings?.ctaButtonLink || canonicalUrl || "#";
 
-    console.log('activePlatformPreview', activePlatformPreview)
-
     return (
         <div className="space-y-8 px-6 py-6 sm:px-8 sm:py-8">
             <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">

@@ -13,7 +13,7 @@ const syncTaxonomy = async ({ ids, tableName, apiPath, platform }) => {
       );
       if (!item) return null;
 
-      const res = await axios.get(s
+      const res = await axios.get(
         `${platform.api_endpoint}/${apiPath}?slug=${item.slug}`,
         { headers: getAuthHeaders(platform) },
       );

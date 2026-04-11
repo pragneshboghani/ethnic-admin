@@ -160,6 +160,7 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       related,
       status,
       platforms,
+      seo,
     } = req.body;
     const formattedPublishDate = formatDateForDb(publish_date);
     if (!publish_date || publish_date.trim() === "") {
@@ -172,7 +173,10 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
     const platformData = await getPlatformsByIds(platforms);
 
     const results = await Promise.all(
-      platformData.map((platform) => postToPlatform(platform, req.body, null)),
+      platformData.map((platform) => {
+        const platformSeoData = seo?.find(s => s.platform_id === platform.id);
+        return postToPlatform(platform, req.body, null, platformSeoData);
+      }),
     );
 
     let slug = null;
@@ -315,10 +319,34 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
 
     const platformData = await getPlatformsByIds(updatedPlatformIds);
 
+    // Fetch SEO data for each platform from database
+    const seoDataMap = new Map();
+    
+    for (const platformId of updatedPlatformIds) {
+      try {
+        const [[seoRecord]] = await mysqlpool.query(
+          `SELECT * FROM seo_blog WHERE blog_id = ? AND platform_id = ? LIMIT 1`,
+          [id, platformId]
+        );
+        if (seoRecord) {
+          seoDataMap.set(platformId, {
+            seo_title: seoRecord.seo_title,
+            meta_description: seoRecord.meta_description,
+            canonical_url: seoRecord.canonical_url,
+            cta_button_text: seoRecord.cta_button_text,
+            cta_button_link: seoRecord.cta_button_link,
+          });
+        }
+      } catch (err) {
+        console.error(`Error fetching SEO data for platform ${platformId}:`, err);
+      }
+    }
+
     const results = await Promise.all(
-      platformData.map((platform) =>
-        postToPlatform(platform, platformPayload, raw.slug),
-      ),
+      platformData.map((platform) => {
+        const platformSeoData = seoDataMap.get(platform.id);
+       return postToPlatform(platform, platformPayload, raw.slug, platformSeoData);
+      }),
     );
 
     const removedPlatformIds = parsedRawPlatforms.filter(

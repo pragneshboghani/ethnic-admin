@@ -197,6 +197,17 @@ const BlogForm = () => {
 
         const Selected_PlateForms = formData.platforms.map(p => p.platformId);
         try {
+            const seoFormDataArray = formData.platforms.map(p => ({
+                platform_id: p.platformId,
+                slug: p.settings.slug || "",
+                publish_status: isDraft ? "draft" : (p.settings.publishStatus || "draft"),
+                seo_title: p.settings.seoTitle || "",
+                meta_description: p.settings.metaDescription || "",
+                canonical_url: p.settings.canonicalUrl || "",
+                cta_button_text: p.settings.ctaButtonText || "",
+                cta_button_link: p.settings.ctaButtonLink || "",
+            }));
+
             const BlogFormData = {
                 blog_title: formData.BlogTitle,
                 short_excerpt: formData.BlogExcerpt,
@@ -210,19 +221,9 @@ const BlogForm = () => {
                 reading_time: formData.BlogReadingTime,
                 related: formData.BlogRalated,
                 status: isDraft ? "draft" : formData.BlogGlobalStatus,
-                platforms: Selected_PlateForms
+                platforms: Selected_PlateForms,
+                seo: seoFormDataArray
             };
-
-            const seoFormDataArray = formData.platforms.map(p => ({
-                platform_id: p.platformId,
-                slug: p.settings.slug || "",
-                publish_status: isDraft ? "draft" : (p.settings.publishStatus || "draft"),
-                seo_title: p.settings.seoTitle || "",
-                meta_description: p.settings.metaDescription || "",
-                canonical_url: p.settings.canonicalUrl || "",
-                cta_button_text: p.settings.ctaButtonText || "",
-                cta_button_link: p.settings.ctaButtonLink || "",
-            }));
 
             let newBlogId = null
             if (blogId == null) {
