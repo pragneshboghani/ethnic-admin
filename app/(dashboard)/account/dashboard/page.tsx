@@ -578,7 +578,7 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 gap-10 2xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
 
-            <div className="rounded-[24px] px-5 py-5 xl:px-6">
+            <div className="rounded-[24px] px-5 pb-5 xl:px-6">
               <div className="mb-4 flex sm:items-center flex-col sm:flex-row justify-between gap-3">
                 <div>
                   <p className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">Platforms</p>
@@ -596,7 +596,7 @@ const Dashboard = () => {
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 border border-white/8 bg-[#151d2c] p-5 rounded-[12px] md:rounded-[15px] lg:rounded-[18px]">
                 {filteredPlatforms.length === 0 ? (
                   <p className="text-sm text-[#8ea0b8]">
                     {normalizedSearchQuery
