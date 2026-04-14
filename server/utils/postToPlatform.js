@@ -20,7 +20,7 @@ const fileToBase64 = (filePath, mimeType) => {
   return `data:${mimeType};base64,${fileBuffer.toString("base64")}`;
 };
 
-const postToPlatform = async (platform, blogData, slug = null) => {
+const postToPlatform = async (platform, blogData, slug = null, seoData = null,) => {
   try {
     let url = getTaxonomyUrl(platform, "post");
 
@@ -106,6 +106,15 @@ const postToPlatform = async (platform, blogData, slug = null) => {
       tags: wpTagIds,
       ...(featuredMediaId && { featured_media: featuredMediaId }),
     };
+
+    if (seoData) {
+      payload.meta = {
+        _yoast_wpseo_title: seoData.seo_title,
+        _yoast_wpseo_metadesc: seoData.meta_description,
+        _yoast_wpseo_canonical: seoData.canonical_url,
+      };
+    }
+    console.log("payload", payload);
 
     const response = await axios({
       method,
