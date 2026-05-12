@@ -47,7 +47,6 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
         const el = document.querySelector('.modal-scroll');
         const handleScroll = () => {
             if (el) {
-                console.log('el.scrollTop', el.scrollTop);
                 setIsSticky(el.scrollTop > 114);
             }
         };

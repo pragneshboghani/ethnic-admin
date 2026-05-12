@@ -41,7 +41,7 @@ FROM blogs
 dashboardRouter.get("/allData", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [results] = await mysqlpool.query(`
-      SELECT * FROM blogs;
+      SELECT * FROM blogs ORDER BY updated_at DESC;
       SELECT * FROM platforms;
       SELECT * FROM category;
       SELECT * FROM tags;

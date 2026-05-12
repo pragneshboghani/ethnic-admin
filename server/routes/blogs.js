@@ -570,7 +570,7 @@ blogRouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
       sortOrder = "DESC";
     }
 
-    query += ` ORDER BY created_at ${sortOrder}`;
+    query += ` ORDER BY updated_at ${sortOrder}`;
 
     const [rows] = await mysqlpool.query(query, params);
 
