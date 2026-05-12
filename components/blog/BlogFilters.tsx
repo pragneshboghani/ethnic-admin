@@ -105,7 +105,7 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
                 >
-                    <option value="none">Sort By Create Date</option>
+                    <option value="none">Sort By Updated Date</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>

@@ -8,6 +8,7 @@ import {
 import type { Dispatch, SetStateAction } from "react";
 import { TaxonomyItem } from "./app/(dashboard)/account/category/page";
 import { Category } from "./components/category/ViewDetailsModal";
+import { PreviewPlatform } from "./components/blog/BlogPreviewModal";
 
 export interface Platform {
   id?: number;
@@ -312,4 +313,21 @@ export type GeneralTabContentProps = {
     tags: string[];
     relatedBlogs: number[];
     allBlogs: { data: any[] };
+};
+
+export type PlatformSpecificPreviewProps = {
+    title: string;
+    excerpt: string;
+    selectedPlatforms: number[];
+    platformData: {
+        data?: PreviewPlatform[];
+    } | null;
+    platformSettings: PlatformSettings;
+};
+
+export type PlatformPreviewItem = {
+    id: number;
+    platformName: string;
+    websiteUrl: string;
+    settings?: PlatformSetting;
 };

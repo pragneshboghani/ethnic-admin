@@ -1,30 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from "react";
-import { PlatformSetting, PlatformSettings } from "@/types";
-import { PreviewPlatform } from "./BlogPreviewModal";
 import { getStatusMeta } from "@/utils/blogHelpers";
 import { Maximize2, Minimize2 } from "lucide-react";
-
-type PlatformSpecificPreviewProps = {
-    title: string;
-    excerpt: string;
-    selectedPlatforms: number[];
-    platformData: {
-        data?: PreviewPlatform[];
-    } | null;
-    platformSettings: PlatformSettings;
-};
-
-type PlatformPreviewItem = {
-    id: number;
-    platformName: string;
-    websiteUrl: string;
-    settings?: PlatformSetting;
-};
+import { PlatformPreviewItem, PlatformSpecificPreviewProps } from "@/types";
+import { usePathname } from "next/navigation";
 
 const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformData, platformSettings, }: PlatformSpecificPreviewProps) => {
 
+    const pathname = usePathname();
     const [viewMode, setViewMode] = useState<"preview" | "iframe">("preview");
     const [isIframeFullScreen, setIsIframeFullScreen] = useState(false);
     const previewPlatforms = useMemo((): PlatformPreviewItem[] => {
@@ -101,27 +85,29 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-2 pb-4 my-4 sm:flex-row border-b border-white/8">
-                    <button
-                        onClick={() => setViewMode("preview")}
-                        className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'preview'
-                            ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
-                            : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
-                            }`}
-                    >
-                        Snippet View
-                    </button>
+                {pathname !== '/account/blogs/add' && (
+                    <div className="flex flex-col gap-2 pb-4 my-4 sm:flex-row border-b border-white/8">
+                        <button
+                            onClick={() => setViewMode("preview")}
+                            className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'preview'
+                                ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
+                                : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
+                                }`}
+                        >
+                            Snippet View
+                        </button>
 
-                    <button
-                        onClick={() => setViewMode("iframe")}
-                        className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'iframe'
-                            ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
-                            : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
-                            }`}
-                    >
-                        Live Page
-                    </button>
-                </div>
+                        <button
+                            onClick={() => setViewMode("iframe")}
+                            className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'iframe'
+                                ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
+                                : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
+                                }`}
+                        >
+                            Live Page
+                        </button>
+                    </div>
+                )}
                 {activePlatformPreview ? (
                     viewMode === "preview" ? (
                         <div className="mt-5 grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
