@@ -789,8 +789,16 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
 
 blogRouter.get("/author", verifyApiKey, async (req, res) => {
   try {
-    const { author, authorName, page = 1, limit = 12 } = req.query;
-    const authorQuery = (authorName || author || "").trim();
+    const {
+      author,
+      authorName,
+      platform,
+      platformName,
+      page = 1,
+      limit = 12,
+    } = req.query;
+    const authorQuery = (authorName || author || "").replaceAll(" ","");
+    const platformQuery = (platformName || platform || "").replaceAll(" ","").toLowerCase();
 
     if (!authorQuery) {
       return res.status(400).json({
@@ -802,15 +810,29 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const offset = (pageNumber - 1) * limitNumber;
+    const hasPlatformFilter = Boolean(platformQuery);
 
-    const [[{ total }]] = await mysqlpool.query(
-      `
-      SELECT COUNT(*) as total
-      FROM blogs
-      WHERE LOWER(TRIM(author)) = ? AND status = "publish"
-      `,
-      [authorQuery.toLowerCase()],
-    );
+    const countQuery = hasPlatformFilter
+      ? `
+        SELECT COUNT(*) as total
+        FROM blogs b
+        JOIN platforms p2
+          ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+        JOIN seo_blog sb
+          ON b.id = sb.blog_id AND p2.id = sb.platform_id
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ?
+          AND LOWER(REPLACE(p2.platform_name, ' ', '')) = ?
+          AND sb.publish_status = "publish"
+        `
+      : `
+        SELECT COUNT(*) as total
+        FROM blogs b
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ? AND b.status = "publish"
+        `;
+    const countParams = hasPlatformFilter
+      ? [authorQuery.toLowerCase(), platformQuery]
+      : [authorQuery.toLowerCase()];
+    const [[{ total }]] = await mysqlpool.query(countQuery, countParams);
 
     const totalPages = Math.ceil(total / limitNumber);
 
@@ -825,9 +847,38 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [blogs] = await mysqlpool.query(
-      `
-      SELECT
+    const blogsQuery = hasPlatformFilter
+      ? `
+        SELECT
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+          FROM category c
+          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+        ) AS category_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+          FROM tags t
+          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+        ) AS tag_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+          FROM blogs rb
+          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        ) AS related_data
+        FROM blogs b
+        JOIN platforms p2
+          ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+        JOIN seo_blog sb
+          ON b.id = sb.blog_id AND p2.id = sb.platform_id
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ?
+          AND LOWER(REPLACE(p2.platform_name, ' ', '')) = ?
+          AND sb.publish_status = "publish"
+        ORDER BY b.created_at DESC
+        LIMIT ? OFFSET ?
+        `
+      : `
+        SELECT
         b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,b.slug,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
@@ -844,13 +895,15 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
         ) AS related_data
-      FROM blogs b
-      WHERE LOWER(TRIM(b.author)) = ? AND b.status = "publish"
-      ORDER BY b.created_at DESC
-      LIMIT ? OFFSET ?
-      `,
-      [authorQuery.toLowerCase(), limitNumber, offset],
-    );
+        FROM blogs b
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ? AND b.status = "publish"
+        ORDER BY b.created_at DESC
+        LIMIT ? OFFSET ?
+        `;
+    const blogsParams = hasPlatformFilter
+      ? [authorQuery.toLowerCase(), platformQuery, limitNumber, offset]
+      : [authorQuery.toLowerCase(), limitNumber, offset];
+    const [blogs] = await mysqlpool.query(blogsQuery, blogsParams);
 
     const updatedBlogs = blogs.map((blog) => {
       const updated = {
