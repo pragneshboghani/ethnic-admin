@@ -25,6 +25,13 @@ app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 app.use("/media", express.static("media"));
 
+app.get('/', async (req, res) => {
+  return res.json({
+    success: true,
+    message: "Welcome to Blog Service",
+  });
+});
+
 app.use("/api/blogs", blogRouter);
 app.use("/api/platforms", platformRouter);
 app.use("/api/dashboard", dashboardRouter);
@@ -32,11 +39,14 @@ app.use("/api/media", mediarouter);
 app.use("/api/seo", seoRouter);
 app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter)
-app.use("/api/tags",tagRouter)
+app.use("/api/tags", tagRouter)
 app.use("/api/publish_history", publishHistoryRouter)
 
-app.get("/", (req, res) => {
-  res.send("Welcome to Ethnic Blog");
+app.use((req, res) => {
+  return res.status(404).json({
+    success: false,
+    message: "Route not found"
+  });
 });
 
 app.listen(BACKEND_PORT, async () => {
