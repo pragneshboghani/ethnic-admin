@@ -321,7 +321,7 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
 
     // Fetch SEO data for each platform from database
     const seoDataMap = new Map();
-    
+
     for (const platformId of updatedPlatformIds) {
       try {
         const [[seoRecord]] = await mysqlpool.query(
@@ -345,7 +345,7 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => {
         const platformSeoData = seoDataMap.get(platform.id);
-       return postToPlatform(platform, platformPayload, raw.slug, platformSeoData);
+        return postToPlatform(platform, platformPayload, raw.slug, platformSeoData);
       }),
     );
 
@@ -780,6 +780,159 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching blog by slug:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+blogRouter.get("/author", verifyApiKey, async (req, res) => {
+  try {
+    const {
+      author,
+      authorName,
+      platform,
+      platformName,
+      page = 1,
+      limit = 12,
+    } = req.query;
+    const authorQuery = (authorName || author || "").replaceAll(" ","");
+    const platformQuery = (platformName || platform || "").replaceAll(" ","").toLowerCase();
+
+    if (!authorQuery) {
+      return res.status(400).json({
+        success: false,
+        message: "Author name required",
+      });
+    }
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+    const hasPlatformFilter = Boolean(platformQuery);
+
+    const countQuery = hasPlatformFilter
+      ? `
+        SELECT COUNT(*) as total
+        FROM blogs b
+        JOIN platforms p2
+          ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+        JOIN seo_blog sb
+          ON b.id = sb.blog_id AND p2.id = sb.platform_id
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ?
+          AND LOWER(REPLACE(p2.platform_name, ' ', '')) = ?
+          AND sb.publish_status = "publish"
+        `
+      : `
+        SELECT COUNT(*) as total
+        FROM blogs b
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ? AND b.status = "publish"
+        `;
+    const countParams = hasPlatformFilter
+      ? [authorQuery.toLowerCase(), platformQuery]
+      : [authorQuery.toLowerCase()];
+    const [[{ total }]] = await mysqlpool.query(countQuery, countParams);
+
+    const totalPages = Math.ceil(total / limitNumber);
+
+    if (pageNumber > totalPages && totalPages !== 0) {
+      return res.status(200).json({
+        success: true,
+        totalBlogs: total,
+        currentPage: pageNumber,
+        totalPages,
+        data: [],
+        message: "No data - page exceeds total pages",
+      });
+    }
+
+    const blogsQuery = hasPlatformFilter
+      ? `
+        SELECT
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+          FROM category c
+          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+        ) AS category_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+          FROM tags t
+          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+        ) AS tag_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+          FROM blogs rb
+          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        ) AS related_data
+        FROM blogs b
+        JOIN platforms p2
+          ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+        JOIN seo_blog sb
+          ON b.id = sb.blog_id AND p2.id = sb.platform_id
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ?
+          AND LOWER(REPLACE(p2.platform_name, ' ', '')) = ?
+          AND sb.publish_status = "publish"
+        ORDER BY b.created_at DESC
+        LIMIT ? OFFSET ?
+        `
+      : `
+        SELECT
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,b.slug,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
+          FROM category c
+          WHERE JSON_CONTAINS(b.category, CAST(c.id AS JSON))
+        ) AS category_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name))
+          FROM tags t
+          WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
+        ) AS tag_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+          FROM blogs rb
+          WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        ) AS related_data
+        FROM blogs b
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = ? AND b.status = "publish"
+        ORDER BY b.created_at DESC
+        LIMIT ? OFFSET ?
+        `;
+    const blogsParams = hasPlatformFilter
+      ? [authorQuery.toLowerCase(), platformQuery, limitNumber, offset]
+      : [authorQuery.toLowerCase(), limitNumber, offset];
+    const [blogs] = await mysqlpool.query(blogsQuery, blogsParams);
+
+    const updatedBlogs = blogs.map((blog) => {
+      const updated = {
+        ...blog,
+        faq: safeParse(blog.faq),
+        featured_image: blog.featured_image
+          ? BASE_URL + blog.featured_image
+          : null,
+        category: safeParse(blog.category_data),
+        tags: safeParse(blog.tag_data),
+        related: safeParse(blog.related_data),
+      };
+
+      delete updated.category_data;
+      delete updated.tag_data;
+      delete updated.related_data;
+
+      return updated;
+    });
+
+    res.status(200).json({
+      success: true,
+      totalBlogs: total,
+      currentPage: pageNumber,
+      totalPages,
+      data: updatedBlogs,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs by author name", error);
     res.status(500).json({
       success: false,
       message: error.message,
