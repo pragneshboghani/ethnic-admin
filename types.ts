@@ -296,7 +296,7 @@ export interface UploadMediaModalProps {
     onSelectImage?: (url: string) => void;
     onSelectMedia?: (media: { url: string; fileType: "image" | "video"; mimeType?: string | null }) => void;
     allowedMediaType?: "image" | "all";
-    platformData: UploadPlatformData
+    platformData?: UploadPlatformData
 }
 
 export type GeneralTabContentProps = {

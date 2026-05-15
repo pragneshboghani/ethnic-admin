@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../../app/globals.css";
 
 const dashboardFont = Poppins({
     subsets: ["latin"],
@@ -78,6 +79,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             title: "Categories & Tags",
             description:
                 "Organize your taxonomy so content is easier to manage and publish.",
+        },
+        "/account/authors": {
+            eyebrow: "Authors",
+            title: "Authors",
+            description:
+                "Manage your authors, their roles, and access permissions."
         },
     };
 

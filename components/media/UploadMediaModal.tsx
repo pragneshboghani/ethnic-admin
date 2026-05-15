@@ -164,50 +164,52 @@ const UploadMediaModal: React.FC<UploadMediaModalProps> = ({
                         )}
 
                         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between gap-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
-                                        Select Platforms
-                                    </p>
-                                    <span className="text-xs text-[#8ea0b8]">
-                                        {selectedPlatforms.length} selected
-                                    </span>
+                            {platformData && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                                            Select Platforms
+                                        </p>
+                                        <span className="text-xs text-[#8ea0b8]">
+                                            {selectedPlatforms.length} selected
+                                        </span>
+                                    </div>
+
+                                    <div className="max-h-40 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                                        {platformData?.data?.map((platform) => {
+                                            const showPlatform =
+                                                platform.status === 'Active' &&
+                                                platform.api_endpoint &&
+                                                platform.api_endpoint.trim() !== "";
+
+                                            if (!showPlatform) return null;
+
+                                            return (
+                                                <label
+                                                    key={platform.id}
+                                                    className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedPlatforms.includes(platform.id)}
+                                                        onChange={() => {
+                                                            setSelectedPlatforms((prev) =>
+                                                                prev.includes(platform.id)
+                                                                    ? prev.filter((id) => id !== platform.id)
+                                                                    : [...prev, platform.id]
+                                                            );
+                                                        }}
+                                                        className="h-4 w-4 accent-[#9ad8de]"
+                                                    />
+                                                    <span className="text-sm text-[#dbe5f3]">
+                                                        {platform.platform_name}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-
-                                <div className="max-h-40 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
-                                    {platformData?.data?.map((platform) => {
-                                        const showPlatform =
-                                            platform.status === 'Active' &&
-                                            platform.api_endpoint &&
-                                            platform.api_endpoint.trim() !== "";
-
-                                        if (!showPlatform) return null;
-
-                                        return (
-                                            <label
-                                                key={platform.id}
-                                                className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedPlatforms.includes(platform.id)}
-                                                    onChange={() => {
-                                                        setSelectedPlatforms((prev) =>
-                                                            prev.includes(platform.id)
-                                                                ? prev.filter((id) => id !== platform.id)
-                                                                : [...prev, platform.id]
-                                                        );
-                                                    }}
-                                                    className="h-4 w-4 accent-[#9ad8de]"
-                                                />
-                                                <span className="text-sm text-[#dbe5f3]">
-                                                    {platform.platform_name}
-                                                </span>
-                                            </label>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                            )}
 
                             <button
                                 type="button"

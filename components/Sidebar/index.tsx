@@ -7,13 +7,35 @@ import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AuthorActions, { CustomJwtPayload } from "@/actions/AuthorActions";
 
 const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [userState, setUserState] = useState<CustomJwtPayload>({
+        role: "",
+        id: 0,
+        email: "",
+        name: "",
+    });
+
+    useEffect(() => {
+        const getCurrentUser = async () => {
+            const user = await AuthorActions.getCurrentUser();
+            if (user) {
+                setUserState({
+                    role: user.role,
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                });
+            }
+        }
+        getCurrentUser();
+    },[])
 
     const SideMenuLinks = ({ link }: {
         link: {
@@ -78,10 +100,10 @@ const Sidebar = () => {
 
             <div className="md:mt-9 flex flex-row md:flex-col justify-between items-center text-center">
                 <h3 className="text-[22px] font-semibold tracking-tight text-[#eef4ff]">
-                    Ethnic Admin
+                    {userState?.name || "Ethnic Admin"}
                 </h3>
                 <p className="mt-1 text-sm text-[#7f90a8]">
-                    hello@ethnicinfotech.in
+                    {userState?.email || 'hello@ethnicinfotech.in'}
                 </p>
             </div>
 
