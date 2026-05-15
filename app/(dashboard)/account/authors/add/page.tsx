@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { Save } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import AuthorActions from "@/actions/AuthorActions";
 import { toast } from "react-toastify";
+import { Role } from "../page";
 
 type AuthorFormData = {
     name: string;
@@ -19,11 +19,9 @@ type AuthorFormData = {
 
 const BACKEND_DOMAIN = 'https://api-admin.ethnicinfotech.in';
 const AuthorCreatePage = () => {
-    const searchParams = useSearchParams();
-    const role = searchParams.get("role");
-
     const [previewImage, setPreviewImage] = useState<string>("");
     const [openMediaModal, setOpenMediaModal] = useState(false);
+    const [userRole, setUserRole] = useState<Role | null>(null);
 
     const inputClassName =
         "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
@@ -39,20 +37,52 @@ const AuthorCreatePage = () => {
         handleSubmit,
         setValue,
         watch,
+        reset,
         formState: { errors },
     } = useForm<AuthorFormData>({
         defaultValues: {
             name: "",
             email: "",
             password: "",
-            role: role === "admin" ? "admin" : "sub_admin",
+            role: userRole === "super_admin" ? "admin" : "sub_admin",
             profile_image: "",
         },
     });
 
     // const selectedRole = watch("role");
 
+    useEffect(() => {
+        const getUserRole = async () => {
+            const role = await AuthorActions.getCurrentUserRole();
+            if (role) {
+                const currentRole = role.role as Role;
+                setUserRole(currentRole);
+
+                reset({
+                    name: "",
+                    email: "",
+                    password: "",
+                    role: "sub_admin",
+                    profile_image: "",
+                });
+            }
+        };
+
+        getUserRole();
+    }, [reset]);
+
+    const allowedRoles: Record<Role, string[]> = {
+        super_admin: ["admin", "sub_admin"],
+        admin: ["sub_admin"],
+        sub_admin: [],
+    };
+
     const onSubmit = async (data: AuthorFormData) => {
+        if (!allowedRoles[userRole || "sub_admin"]?.includes(data.role)) {
+            toast.error("You are not allowed to create this role");
+            return;
+        }
+
         const responce = await AuthorActions.createNewAuthor(data);
         if (responce.success) {
             toast.success(responce.message);
@@ -73,7 +103,7 @@ const AuthorCreatePage = () => {
                             </span>
 
                             <h1 className={`font-semibold tracking-[-0.04em] text-[#eef4ff] transition-all duration-300 mt-4 text-[36px] leading-none capitalize`}>
-                                {`Create New ${role === "admin" ? "Admin" : "Sub Admin"} Author`}
+                                Create New Author
                             </h1>
 
                             <p className={`max-w-2xl text-sm leading-7 text-[#8ea0b8] transition-all duration-300 mt-3 opacity-100`}>
@@ -163,7 +193,7 @@ const AuthorCreatePage = () => {
                                     Role
                                 </label>
 
-                                <select id="author-role" disabled className={`${selectClassName} cursor-not-allowed`}
+                                <select id="author-role" className={selectClassName}
                                     {...register("role")}
                                 >
                                     <option value="admin">Admin</option>

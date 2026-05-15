@@ -3,10 +3,9 @@
 import AuthorActions from "@/actions/AuthorActions";
 import { Plus } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type Role = "super_admin" | "admin" | "sub_admin";
+export type Role = "super_admin" | "admin" | "sub_admin";
 type Authors = {
     id: number;
     name: string;
@@ -15,52 +14,18 @@ type Authors = {
     img_url: string;
 };
 
-type Permission =
-    | "create_admin"
-    | "create_sub_admin"
-    | "edit_user"
-    | "delete_user";
-
-const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-    super_admin: [
-        "create_admin",
-        "create_sub_admin",
-        "edit_user",
-        "delete_user",
-    ],
-    admin: [
-        "create_sub_admin",
-        "edit_user",
-    ],
-    sub_admin: [],
-};
-
 const BACKEND_DOMAIN = 'https://api-admin.ethnicinfotech.in';
 
 const Authers = () => {
-    const [userRole, setUserRole] = useState<Role | null>(null);
     const [authors, setAuthors] = useState<Authors[]>([]);
-
-    const getUserRole = async () => {
-        const role = await AuthorActions.getCurrentUserRole();
-        if (role) {
-            setUserRole(role.role as Role);
-        }
-    };
 
     const getAllAuthors = async () => {
         const authors = await AuthorActions.getAllAuthors();
         setAuthors(authors.data);
     }
     useEffect(() => {
-        getUserRole();
         getAllAuthors();
     }, []);
-
-    const hasPermission = (permission: Permission) => {
-        if (!userRole) return false;
-        return ROLE_PERMISSIONS[userRole]?.includes(permission);
-    };
 
     return (
         <>
@@ -74,27 +39,6 @@ const Authers = () => {
                         Add new authors, update profiles, and streamline
                         content ownership across all publishing destinations.
                     </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    {hasPermission("create_admin") && (
-                        <Link
-                            href={`/account/authors/add?role=admin`}
-                            className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#eef4ff] px-4 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-                        >
-                            <Plus size={16} />
-                            Add Admin
-                        </Link>
-                    )}
-                    {hasPermission("create_sub_admin") && (
-                        <Link
-                            href={`/account/authors/add?role=sub_admin`}
-                            className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#eef4ff] px-4 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-                        >
-                            <Plus size={16} />
-                            Add Sub Admin
-                        </Link>
-                    )}
                 </div>
             </aside>
             <div className="mt-6 grid gap-5 grid-cols-1">
