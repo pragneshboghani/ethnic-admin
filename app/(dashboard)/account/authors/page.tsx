@@ -26,11 +26,7 @@ const Authers = () => {
             return true;
         }
 
-        if (currentUser?.role === "super_admin") {
-            return true;
-        }
-
-        return currentUser?.role === "admin" && author.role !== "super_admin";
+        return canManageAllUsers;
     };
 
     const getAllAuthors = async () => {

@@ -12,19 +12,14 @@ const adminUserPassword = process.env.ADMIN_USER_PASSWORD;
 const canManageAllUsers = (user) =>
   user?.role === "super_admin" || user?.role === "admin";
 
-const canAccessUser = (user, targetUserId) =>
-  canManageAllUsers(user) || Number(user?.id) === Number(targetUserId);
+const canViewUser = (user) => Boolean(user?.id);
 
 const canUpdateUser = (user, targetUser) => {
   if (Number(user?.id) === Number(targetUser?.id)) {
     return true;
   }
 
-  if (user?.role === "super_admin") {
-    return true;
-  }
-
-  return user?.role === "admin" && targetUser?.role !== "super_admin";
+  return canManageAllUsers(user);
 };
 
 const allowedRolesByUserRole = {
@@ -122,7 +117,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
   try {
     const { authorId } = req.params;
 
-    if (!canAccessUser(req.user, authorId)) {
+    if (!canViewUser(req.user)) {
       return res.status(403).send({
         success: false,
         message: "You are not allowed to view this user",
@@ -178,9 +173,9 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
   }
 });
 
-userRouter.put("/update/:id", authMiddleware, async (req, res) => {
+userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { name, email, password, role, profile_image, description } =
       req.body;
 
@@ -193,7 +188,7 @@ userRouter.put("/update/:id", authMiddleware, async (req, res) => {
 
     const [[currentUser]] = await mysqlpool.query(
       "SELECT id, role FROM users WHERE id=?",
-      [id],
+      [userId],
     );
 
     if (!canUpdateUser(req.user, currentUser)) {
@@ -222,7 +217,7 @@ userRouter.put("/update/:id", authMiddleware, async (req, res) => {
 
     const [[existingUser]] = await mysqlpool.query(
       "SELECT id FROM users WHERE email=? AND id<>?",
-      [email, id],
+      [email, userId],
     );
 
     if (existingUser) {
@@ -253,7 +248,7 @@ userRouter.put("/update/:id", authMiddleware, async (req, res) => {
       values.push(hashedPassword);
     }
 
-    values.push(id);
+    values.push(userId);
 
     const [result] = await mysqlpool.query(
       `UPDATE users SET ${fields.join(", ")} WHERE id=?`,

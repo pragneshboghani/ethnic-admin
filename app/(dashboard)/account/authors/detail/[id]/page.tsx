@@ -68,8 +68,7 @@ const AuthorDetailPage = () => {
   const canEditAuthor = Boolean(
     author &&
     (currentUser?.id === author.id ||
-      currentUser?.role === "super_admin" ||
-      (canManageAllUsers && author.role !== "super_admin")),
+      canManageAllUsers),
   );
 
   if (loading) {
@@ -175,11 +174,11 @@ const AuthorDetailPage = () => {
 
               <div className="space-y-2">
                 <p className={labelClassName}>
-                  Author ID
+                  Email
                 </p>
 
                 <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff]">
-                  #{author?.id}
+                  {author?.email || "N/A"}
                 </div>
               </div>
             </div>
@@ -197,140 +196,87 @@ const AuthorDetailPage = () => {
               />
             </div>
 
-            <div className="mt-5 space-y-2">
-              <p className={labelClassName}>
-                Groups
-              </p>
+            {author?.user_groups && author?.user_groups.length > 0 && (
+              <div className="mt-5 space-y-2">
+                <p className={labelClassName}>
+                  Groups
+                </p>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] flex flex-col gap-5">
-                {author?.user_groups?.map((group, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {group.image ?
-                        <Image
-                          src={`${BACKEND_DOMAIN}/${group.image}`}
-                          alt={group?.name}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 min-h-12 min-w-12 rounded-xl object-cover border border-white/10 bg-[#101826]"
-                        /> :
-                        <UsersRound size={22} className="h-12 w-12 p-3 rounded-xl border border-white/10 bg-[#101826]" />
-                      }
+                <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] flex flex-col gap-5">
+                  {author?.user_groups?.map((group, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {group.image ?
+                          <Image
+                            src={`${BACKEND_DOMAIN}/${group.image}`}
+                            alt={group?.name}
+                            width={48}
+                            height={48}
+                            className="h-12 w-12 min-h-12 min-w-12 rounded-xl object-cover border border-white/10 bg-[#101826]"
+                          /> :
+                          <UsersRound size={22} className="h-12 w-12 p-3 rounded-xl border border-white/10 bg-[#101826]" />
+                        }
 
+                        <div>
+                          <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
+                            {group.name}
+                          </h3>
+
+                          <p className="mt-1 text-xs tracking-[0.2em] text-[#7f90a8]">
+                            {group.description || "N/A"}
+                          </p>
+                        </div>
+                      </div>
                       <div>
-                        <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
-                          {group.name}
-                        </h3>
-
-                        <p className="mt-1 text-xs tracking-[0.2em] text-[#7f90a8]">
-                          {group.description || "N/A"}
-                        </p>
+                        <Link href={`/account/groups/update/${group?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
+                          <UserPen size={18} className="text-[#8ea0b8]" />
+                          <span className="text-sm font-medium text-[#eef4ff]">
+                            Edit Detail
+                          </span>
+                        </Link>
                       </div>
                     </div>
-                    <div>
-                      <Link href={`/account/groups/update/${group?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
-                        <UserPen size={18} className="text-[#8ea0b8]" />
-                        <span className="text-sm font-medium text-[#eef4ff]">
-                          Edit Detail
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="space-y-6">
-          <div className={detailCardClass}>
-            <div className="border-b border-white/8 pb-4">
-              <h2 className="text-lg font-semibold text-[#eef4ff]">
-                Account Overview
-              </h2>
-
-              <p className="mt-1 text-sm text-[#8ea0b8]">
-                Quick summary of author account information.
-              </p>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              <div className="flex items-center gap-4 rounded-[18px] border border-white/8 bg-[#101826] p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/8 bg-[#151d2c]">
-                  <Mail
-                    size={20}
-                    className="text-[#8ea0b8]"
-                  />
-                </div>
-
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#7f90a8]">
-                    Email
-                  </p>
-
-                  <p className="truncate text-sm font-medium text-[#eef4ff]">
-                    {author?.email || "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 rounded-[18px] border border-white/8 bg-[#101826] p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/8 bg-[#151d2c]">
-                  <ShieldCheck
-                    size={20}
-                    className="text-[#8ea0b8]"
-                  />
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#7f90a8]">
-                    Access Level
-                  </p>
-
-                  <p className="text-sm font-medium capitalize text-[#eef4ff]">
-                    {author?.role.replace("_", " ")}
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className={`${detailCardClass} h-fit`}>
+          <div className="border-b border-white/8 pb-4">
+            <h2 className="text-lg font-semibold text-[#eef4ff]">
+              Profile Preview
+            </h2>
           </div>
 
-          {/* Profile Preview */}
-          <div className={detailCardClass}>
-            <div className="border-b border-white/8 pb-4">
-              <h2 className="text-lg font-semibold text-[#eef4ff]">
-                Profile Preview
-              </h2>
-            </div>
-
-            <div className="mt-6 flex flex-col items-center">
-              <div className="relative h-32 w-32 overflow-hidden rounded-full border border-white/10 bg-[#101826]">
-                {author?.profile_image ? (
-                  <Image
-                    src={`${BACKEND_DOMAIN}/${author.profile_image}`}
-                    alt={author?.name}
-                    fill
-                    className="object-cover"
+          <div className="mt-6 flex flex-col items-center">
+            <div className="relative h-32 w-32 overflow-hidden rounded-full border border-white/10 bg-[#101826]">
+              {author?.profile_image ? (
+                <Image
+                  src={`${BACKEND_DOMAIN}/${author.profile_image}`}
+                  alt={author?.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <User2
+                    size={42}
+                    className="text-[#8ea0b8]"
                   />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <User2
-                      size={42}
-                      className="text-[#8ea0b8]"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold text-[#eef4ff]">
-                {author?.name}
-              </h3>
-
-              <p className="mt-1 text-sm text-[#8ea0b8]">
-                {author?.email}
-              </p>
+                </div>
+              )}
             </div>
+
+            <h3 className="mt-5 text-lg font-semibold text-[#eef4ff]">
+              {author?.name}
+            </h3>
+
+            <p className="mt-1 text-sm text-[#8ea0b8]">
+              {author?.email}
+            </p>
           </div>
         </div>
       </div>
