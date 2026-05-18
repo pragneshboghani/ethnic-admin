@@ -2,7 +2,7 @@
 
 import AuthorActions from "@/actions/AuthorActions";
 import Image from "next/image";
-import { Mail, ShieldCheck, User2, UserPen } from "lucide-react";
+import { Mail, ShieldCheck, User2, UserPen, UsersRound } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -15,6 +15,12 @@ type AuthorDetailType = {
   profile_image?: string;
   created_at?: string;
   description?: string;
+  user_groups?: {
+    name: string;
+    description: string;
+    image: string;
+    id: number;
+  }[];
 };
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
@@ -176,8 +182,8 @@ const AuthorDetailPage = () => {
                   #{author?.id}
                 </div>
               </div>
-
             </div>
+
             <div className="mt-5 space-y-2">
               <p className={labelClassName}>
                 Author Discription
@@ -189,6 +195,49 @@ const AuthorDetailPage = () => {
                   __html: author?.description || "N/A",
                 }}
               />
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <p className={labelClassName}>
+                Groups
+              </p>
+
+              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] flex flex-col gap-5">
+                {author?.user_groups?.map((group, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {group.image ?
+                        <Image
+                          src={`${BACKEND_DOMAIN}/${group.image}`}
+                          alt={group?.name}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 min-h-12 min-w-12 rounded-xl object-cover border border-white/10 bg-[#101826]"
+                        /> :
+                        <UsersRound size={22} className="h-12 w-12 p-3 rounded-xl border border-white/10 bg-[#101826]" />
+                      }
+
+                      <div>
+                        <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
+                          {group.name}
+                        </h3>
+
+                        <p className="mt-1 text-xs tracking-[0.2em] text-[#7f90a8]">
+                          {group.description || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <Link href={`/account/groups/update/${group?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
+                        <UserPen size={18} className="text-[#8ea0b8]" />
+                        <span className="text-sm font-medium text-[#eef4ff]">
+                          Edit Detail
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

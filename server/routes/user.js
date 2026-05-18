@@ -54,7 +54,8 @@ userRouter.get("/all-author", authMiddleware, async (req, res) => {
 
 userRouter.post("/create", authMiddleware, async (req, res) => {
   try {
-    const { name, email, password, role, profile_image, description } = req.body;
+    const { name, email, password, role, profile_image, description } =
+      req.body;
 
     if (!canManageAllUsers(req.user)) {
       return res.status(403).send({
@@ -129,8 +130,33 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      "SELECT id,name,email,role,img_url as profile_image,description FROM users WHERE id=?",
-      [authorId],
+      `SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.img_url AS profile_image,
+        u.description,
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'name', ag.name,
+              'image', ag.image,
+              'description', ag.description,
+              'id', ag.id
+            )
+          )
+          FROM author_groups ag
+          WHERE JSON_CONTAINS(
+            ag.members,
+            CAST(u.id AS JSON),
+            '$'
+          ) OR ag.created_by = ?
+        ) AS user_groups
+      FROM users u
+      WHERE u.id = ?
+      `,
+      [authorId, authorId],
     );
 
     if (!user) {
@@ -155,7 +181,8 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 userRouter.put("/update/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, profile_image, description } = req.body;
+    const { name, email, password, role, profile_image, description } =
+      req.body;
 
     if (!name || !email || !role) {
       return res.status(400).send({
@@ -163,12 +190,12 @@ userRouter.put("/update/:id", authMiddleware, async (req, res) => {
         message: "Name, Email and role are required",
       });
     }
-    
+
     const [[currentUser]] = await mysqlpool.query(
       "SELECT id, role FROM users WHERE id=?",
       [id],
     );
-    
+
     if (!canUpdateUser(req.user, currentUser)) {
       return res.status(403).send({
         success: false,
@@ -205,8 +232,20 @@ userRouter.put("/update/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    const fields = ["name=?", "email=?", "role=?", "img_url=?", "description=?"];
-    const values = [name, email, role, profile_image || null, description || ""];
+    const fields = [
+      "name=?",
+      "email=?",
+      "role=?",
+      "img_url=?",
+      "description=?",
+    ];
+    const values = [
+      name,
+      email,
+      role,
+      profile_image || null,
+      description || "",
+    ];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -301,7 +340,7 @@ userRouter.post("/login", async (req, res) => {
       email: username,
       role: user.role,
       id: user.id,
-      name: user.name
+      name: user.name,
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN },
