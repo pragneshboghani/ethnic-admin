@@ -16,7 +16,7 @@ import TaxonomyModal from "@/components/common/TaxonomyModal";
 import { generateSlug } from "@/utils/generateSlug";
 import UploadMediaModal from "@/components/media/UploadMediaModal";
 import BlogPreviewModal from "@/components/blog/BlogPreviewModal";
-import { BlogFormType, CategoryType, PlatformSettings } from "@/types";
+import { authorData, BlogFormType, CategoryType, PlatformSettings } from "@/types";
 import DashBoardActions from "@/actions/DashboardAction";
 import { useFieldArray, useForm } from "react-hook-form";
 import blogSchema from "@/hooks/blogSchema";
@@ -33,6 +33,7 @@ type AllDataType = {
         data: any[];
         totalPlatforms: number;
     } | null;
+    authorData: authorData[];
 };
 
 const BlogForm = () => {
@@ -59,6 +60,7 @@ const BlogForm = () => {
         tagsList: [],
         mediaFiles: [],
         platformData: null,
+        authorData: []
     });
 
     const form = useForm({
@@ -129,6 +131,7 @@ const BlogForm = () => {
                     data: res.plateformData || [],
                     totalPlatforms: res.plateformData?.length || 0,
                 },
+                authorData: res.authorData || []
             });
         } catch (err) {
             console.error("Error fetching all data:", err);
@@ -521,6 +524,7 @@ const BlogForm = () => {
                     setValue={setValue}
                     publishDate={publishDate}
                     categories={allData.categories}
+                    authors={allData.authorData}
                     setIsCategoryModalOpen={setIsCategoryModalOpen}
                     image={image}
                     handleRemoveImage={handleRemoveImage}

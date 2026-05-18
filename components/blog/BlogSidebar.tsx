@@ -97,7 +97,7 @@ const formatDisplayValue = (value: string) => {
     });
 };
 
-const BlogSidebar = ({ register, publishDate, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, blogId, }: BlogSidebarProps) => {
+const BlogSidebar = ({ register, publishDate, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, blogId, authors }: BlogSidebarProps) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [currentLocalDateTime, setCurrentLocalDateTime] = useState(formatInputDateTime(getNow()));
     const pickerRef = useRef<HTMLDivElement>(null);
@@ -421,12 +421,23 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
 
                         <div className="space-y-2">
                             <label htmlFor="blog-author" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
-                            <input
+                            <select
                                 id="blog-author"
                                 {...register('author')}
-                                placeholder="Enter Blog Author Name ...."
                                 className="w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
-                            />
+                            >
+                                <option value="">Select Author</option>
+                                {authors.map((author) => (
+                                    <option key={author.id} value={author.name}>
+                                        {author.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {authors.length === 0 && (
+                                <p className="text-xs text-[#8ea0b8]">
+                                    No authors available.
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">

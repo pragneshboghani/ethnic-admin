@@ -47,6 +47,7 @@ dashboardRouter.get("/allData", verifyApiKey, authMiddleware, async (req, res) =
       SELECT * FROM tags;
       SELECT * FROM media;
       SELECT * FROM seo_blog;
+      SELECT id, name, description, email, img_url, role FROM users;
     `);
 
     const data = {
@@ -56,6 +57,7 @@ dashboardRouter.get("/allData", verifyApiKey, authMiddleware, async (req, res) =
       tagsData: results[3],
       mediaData: results[4],
       seoData: results[5],
+      authorData: results[6],
     };
 
     res.status(200).send({

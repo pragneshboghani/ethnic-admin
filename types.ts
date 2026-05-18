@@ -151,6 +151,7 @@ export type BlogFormUIType = {
   faq: { question: string; answer: string }[];
   publishDate: string;
   globalStatus: "draft" | "publish" | "future";
+  author: string;
   category: number[];
   reading_time: number;
   tags: number[];
@@ -188,6 +189,7 @@ export type BlogSidebarProps = {
   setMediaFor: React.Dispatch<React.SetStateAction<"feature" | "editor">>;
   globalStatus: "draft" | "publish" | "future";
   blogId: string | null;
+  authors: authorData[];
 };
 
 export type CategoryType = {
@@ -331,3 +333,12 @@ export type PlatformPreviewItem = {
     websiteUrl: string;
     settings?: PlatformSetting;
 };
+
+export type authorData = {
+    id: number;
+    description: string | null;
+    email: string;
+    name: string;
+    img_url: string;
+    role: string;
+}
