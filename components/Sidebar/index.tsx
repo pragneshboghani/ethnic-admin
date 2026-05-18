@@ -7,13 +7,35 @@ import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AuthorActions, { CustomJwtPayload } from "@/actions/AuthorActions";
 
 const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [userState, setUserState] = useState<CustomJwtPayload>({
+        role: "",
+        id: 0,
+        email: "",
+        name: "",
+    });
+
+    useEffect(() => {
+        const getCurrentUser = async () => {
+            const user = await AuthorActions.getCurrentUser();
+            if (user) {
+                setUserState({
+                    role: user.role,
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                });
+            }
+        }
+        getCurrentUser();
+    },[])
 
     const SideMenuLinks = ({ link }: {
         link: {
@@ -78,20 +100,20 @@ const Sidebar = () => {
 
             <div className="md:mt-9 flex flex-row md:flex-col justify-between items-center text-center">
                 <h3 className="text-[22px] font-semibold tracking-tight text-[#eef4ff]">
-                    Ethnic Admin
+                    {userState?.name || "Ethnic Admin"}
                 </h3>
                 <p className="mt-1 text-sm text-[#7f90a8]">
-                    hello@ethnicinfotech.in
+                    {userState?.email || 'hello@ethnicinfotech.in'}
                 </p>
             </div>
 
-            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
+            <div className="md:mt-9 flex-1 space-y-1 md:space-y-2 max-h-[60vh] overflow-y-scroll">
                 {navItems?.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
             </div>
 
-            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5">
+            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5 md:fixed md:bottom-10 left-[13px] sm:left-[40px] lg:left-[45px] bg-[#0f1724] md:w-[200px]">
                 <button
                     className="group flex w-full items-center gap-3 rounded-2xl border border-transparent p-2 sm:p-3 md:px-4 md:py-3 text-sm transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
                     onClick={handleLogout}
@@ -139,7 +161,7 @@ const Sidebar = () => {
                 </div>
             )}
 
-            <div className="relative hidden h-full flex-col px-5 py-6 sm:px-6 md:flex md:min-h-[calc(100vh-48px)] md:px-6 md:py-7">
+            <div className="relative hidden h-screen flex-col px-5 py-6 sm:px-6 md:flex md:px-6 md:py-7 max-h-[100vh] overflow-y-hidden">
                 {sidebarContent}
             </div>
         </aside>

@@ -3,7 +3,9 @@ import {
   FileText,
   Globe,
   Image as ImageIcon,
-  StretchHorizontal
+  StretchHorizontal,
+  Users,
+  Group
 } from "lucide-react";
 
 export const navItems = [
@@ -16,5 +18,7 @@ export const navItems = [
   { id: 2, name: "Blogs", href: "/account/blogs", icon: FileText },
   { id: 3, name: "Platforms", href: "/account/plateforms", icon: Globe },
   { id: 4, name: "Media Library", href: "/account/media", icon: ImageIcon },
-  { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal}
+  { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal},
+  { id: 6, name: "Authors", href: "/account/authors", icon: Users },
+  { id: 7, name: "Groups", href: "/account/groups", icon: Group },
 ];

@@ -9,142 +9,275 @@ const userRouter = Router();
 const adminUserName = process.env.ADMIN_USER_NAME;
 const adminUserPassword = process.env.ADMIN_USER_PASSWORD;
 
-// userRouter.get("/all", authMiddleware, async (req, res) => {
-//   try {
-//     const [rows] = await mysqlpool.query("SELECT * FROM users");
+const canManageAllUsers = (user) =>
+  user?.role === "super_admin" || user?.role === "admin";
 
-//     res.status(200).send({
-//       success: true,
-//       totalUsers: rows.length,
-//       data: rows,
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+const canAccessUser = (user, targetUserId) =>
+  canManageAllUsers(user) || Number(user?.id) === Number(targetUserId);
 
-// userRouter.get("/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const { id } = req.params;
+const canUpdateUser = (user, targetUser) => {
+  if (Number(user?.id) === Number(targetUser?.id)) {
+    return true;
+  }
 
-//     const [[user]] = await mysqlpool.query(
-//       "SELECT id,name,email,role,created_at FROM users WHERE id=?",
-//       [id],
-//     );
+  if (user?.role === "super_admin") {
+    return true;
+  }
 
-//     if (!user) {
-//       return res.status(404).send({
-//         success: false,
-//         message: "User not found",
-//       });
-//     }
+  return user?.role === "admin" && targetUser?.role !== "super_admin";
+};
 
-//     res.status(200).send({
-//       success: true,
-//       data: user,
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+const allowedRolesByUserRole = {
+  super_admin: ["admin", "sub_admin"],
+  admin: ["sub_admin"],
+  sub_admin: [],
+};
 
-// userRouter.post("/create", async (req, res) => {
-//   try {
-//     const { name, email, password, role } = req.body;
+userRouter.get("/all-author", authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await mysqlpool.query(
+      "SELECT id, name, email, role, img_url, description FROM users",
+    );
 
-//     if (!email || !password || !role) {
-//       return res.status(400).send({
-//         success: false,
-//         message: "Email, password and role are required",
-//       });
-//     }
+    res.status(200).send({
+      success: true,
+      totalUsers: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
-//     const [[existingUser]] = await mysqlpool.query(
-//       "SELECT id FROM users WHERE email=?",
-//       [email],
-//     );
+userRouter.post("/create", authMiddleware, async (req, res) => {
+  try {
+    const { name, email, password, role, profile_image, description } =
+      req.body;
 
-//     if (existingUser) {
-//       return res.status(400).send({
-//         success: false,
-//         message: "User already exists with this email",
-//       });
-//     }
+    if (!canManageAllUsers(req.user)) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to create users",
+      });
+    }
 
-//     const hashedPassword = await bcrypt.hash(password, 10);
+    if (!name || !email || !password || !role) {
+      return res.status(400).send({
+        success: false,
+        message: "Name, Email, password and role are required",
+      });
+    }
 
-//     const [result] = await mysqlpool.query(
-//       "INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)",
-//       [name, email, hashedPassword, role],
-//     );
+    if (!allowedRolesByUserRole[req.user.role]?.includes(role)) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to create this role",
+      });
+    }
 
-//     const userId = result.insertId;
+    const [[existingUser]] = await mysqlpool.query(
+      "SELECT id FROM users WHERE email=?",
+      [email],
+    );
 
-//     const token = jwt.sign(
-//       {
-//         id: userId,
-//         email: email,
-//         role: role,
-//       },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "1d" },
-//     );
+    if (existingUser) {
+      return res.status(400).send({
+        success: false,
+        message: "User already exists with this email",
+      });
+    }
 
-//     res.status(201).send({
-//       success: true,
-//       message: "User created successfully",
-//       token,
-//       user: {
-//         id: userId,
-//         name,
-//         email,
-//         role,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-// userRouter.put("/update/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { name, email, role } = req.body;
+    const [result] = await mysqlpool.query(
+      "INSERT INTO users (name,email,password,role,img_url,description) VALUES (?,?,?,?,?,?)",
+      [name, email, hashedPassword, role, profile_image, description || ""],
+    );
 
-//     const [result] = await mysqlpool.query(
-//       `UPDATE users 
-//        SET name=?, email=?, role=? 
-//        WHERE id=?`,
-//       [name, email, role, id],
-//     );
+    const userId = result.insertId;
 
-//     if (result.affectedRows === 0) {
-//       return res.status(404).send({
-//         success: false,
-//         message: "User not found",
-//       });
-//     }
+    res.status(201).send({
+      success: true,
+      message: "Author created successfully",
+      user: {
+        id: userId,
+        name,
+        email,
+        role,
+        description: description || "",
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
-//     res.status(200).send({
-//       success: true,
-//       message: "User updated successfully",
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
+  try {
+    const { authorId } = req.params;
+
+    if (!canAccessUser(req.user, authorId)) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to view this user",
+      });
+    }
+
+    const [[user]] = await mysqlpool.query(
+      `SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.img_url AS profile_image,
+        u.description,
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'name', ag.name,
+              'image', ag.image,
+              'description', ag.description,
+              'id', ag.id
+            )
+          )
+          FROM author_groups ag
+          WHERE JSON_CONTAINS(
+            ag.members,
+            CAST(u.id AS JSON),
+            '$'
+          ) OR ag.created_by = ?
+        ) AS user_groups
+      FROM users u
+      WHERE u.id = ?
+      `,
+      [authorId, authorId],
+    );
+
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+userRouter.put("/update/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, role, profile_image, description } =
+      req.body;
+
+    if (!name || !email || !role) {
+      return res.status(400).send({
+        success: false,
+        message: "Name, Email and role are required",
+      });
+    }
+
+    const [[currentUser]] = await mysqlpool.query(
+      "SELECT id, role FROM users WHERE id=?",
+      [id],
+    );
+
+    if (!canUpdateUser(req.user, currentUser)) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to update this user",
+      });
+    }
+
+    if (!currentUser) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const canKeepCurrentRole = role === currentUser.role;
+    const canAssignRole = allowedRolesByUserRole[req.user.role]?.includes(role);
+
+    if (!canKeepCurrentRole && !canAssignRole) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to assign this role",
+      });
+    }
+
+    const [[existingUser]] = await mysqlpool.query(
+      "SELECT id FROM users WHERE email=? AND id<>?",
+      [email, id],
+    );
+
+    if (existingUser) {
+      return res.status(400).send({
+        success: false,
+        message: "User already exists with this email",
+      });
+    }
+
+    const fields = [
+      "name=?",
+      "email=?",
+      "role=?",
+      "img_url=?",
+      "description=?",
+    ];
+    const values = [
+      name,
+      email,
+      role,
+      profile_image || null,
+      description || "",
+    ];
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      fields.push("password=?");
+      values.push(hashedPassword);
+    }
+
+    values.push(id);
+
+    const [result] = await mysqlpool.query(
+      `UPDATE users SET ${fields.join(", ")} WHERE id=?`,
+      values,
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Author updated successfully",
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 // userRouter.delete("/delete/:id", authMiddleware, async (req, res) => {
 //   try {
@@ -173,70 +306,6 @@ const adminUserPassword = process.env.ADMIN_USER_PASSWORD;
 //   }
 // });
 
-// userRouter.post("/login", async (req, res) => {
-//   try {
-//     const { username, password } = req.body;
-
-//     if (!username || !password) {
-//       return res.status(400).send({
-//         success: false,
-//         message: "Username and password are required",
-//       });
-//     }
-
-//     const [[user]] = await mysqlpool.query(
-//       "SELECT * FROM users WHERE username=?",
-//       [username],
-//     );
-
-//     if (!user) {
-//       return res.status(404).send({
-//         success: false,
-//         message: "username or password is incorrect",
-//       });
-//     }
-
-//     const match = await bcrypt.compare(password, user.password);
-
-//     if (!match) {
-//       return res.status(401).send({
-//         success: false,
-//         message: "username or password is incorrect",
-//       });
-//     }
-
-//     // JWT TOKEN
-//     const token = jwt.sign(
-//       {
-//         id: user.id,
-//         username: user.username,
-//         email: user.email,
-//         role: user.role,
-//       },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "1d" },
-//     );
-
-//     res.status(200).send({
-//       success: true,
-//       message: "Login successful",
-//       token,
-//       user: {
-//         id: user.id,
-//         name: user.name,
-//         username: user.username,
-//         email: user.email,
-//         role: user.role,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
-
 userRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -247,17 +316,31 @@ userRouter.post("/login", async (req, res) => {
     });
   }
 
-  const isMatch = username === adminUserName && password === adminUserPassword;
-  if (!isMatch) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Invalid username and password" });
+  const [[user]] = await mysqlpool.query("SELECT * FROM users WHERE email=?", [
+    username,
+  ]);
+
+  if (!user) {
+    return res.status(404).send({
+      success: false,
+      message: "username or password is incorrect",
+    });
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    return res.status(401).send({
+      success: false,
+      message: "username or password is incorrect password",
+    });
   }
 
   const token = jwt.sign(
     {
-      username:username,
-      password:password
+      email: username,
+      role: user.role,
+      id: user.id,
+      name: user.name,
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN },

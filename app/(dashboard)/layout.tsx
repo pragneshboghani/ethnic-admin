@@ -1,4 +1,3 @@
-import "../globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import type { Metadata } from "next";
 import { BaseMetadata } from "@/components/common/baseMetadata";
