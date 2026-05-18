@@ -850,7 +850,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
     const blogsQuery = hasPlatformFilter
       ? `
         SELECT
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -865,7 +865,12 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data
+        ) AS related_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('name', u.name, 'email', u.email, 'image', u.img_url, 'description', u.description))
+          FROM users u
+          WHERE LOWER(REPLACE(b.author, ' ', '')) = LOWER(REPLACE(u.name, ' ', ''))
+        ) AS author
         FROM blogs b
         JOIN platforms p2
           ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
@@ -879,7 +884,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
         `
       : `
         SELECT
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,b.slug,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.publish_date,b.reading_time,b.status,b.created_at,b.slug,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
@@ -894,7 +899,12 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
-        ) AS related_data
+        ) AS related_data,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('name', u.name, 'email', u.email, 'image', u.img_url, 'description', u.description))
+          FROM users u
+          WHERE LOWER(REPLACE(b.author, ' ', '')) = LOWER(REPLACE(u.name, ' ', ''))
+        ) AS author
         FROM blogs b
         WHERE LOWER(REPLACE(b.author, ' ', '')) = ? AND b.status = "publish"
         ORDER BY b.created_at DESC
@@ -906,12 +916,18 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(blogsQuery, blogsParams);
 
     const updatedBlogs = blogs.map((blog) => {
+      const parsedAuthor = safeParse(blog.author)?.map((author) => ({
+        ...author,
+        image: author.image ? BASE_URL + author.image : null,
+      }));
+
       const updated = {
         ...blog,
         faq: safeParse(blog.faq),
         featured_image: blog.featured_image
           ? BASE_URL + blog.featured_image
           : null,
+        author: parsedAuthor,  
         category: safeParse(blog.category_data),
         tags: safeParse(blog.tag_data),
         related: safeParse(blog.related_data),
