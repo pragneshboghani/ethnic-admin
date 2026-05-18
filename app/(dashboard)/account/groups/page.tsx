@@ -1,0 +1,232 @@
+"use client";
+
+import GroupActions from "@/actions/GroupActions";
+import {
+  Plus,
+  Users,
+  ShieldCheck,
+  UserCog,
+  Pencil,
+  UsersRound,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+
+const BACKEND_DOMAIN = "https://api-admin.ethnicinfotech.in";
+
+const GroupPage = () => {
+  const [activeTab, setActiveTab] = useState<"superAdmin" | "admin">(
+    "superAdmin"
+  );
+
+  const [groups, setGroups] = useState<any>({
+    super_admin_groups: [],
+    admin_groups: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getAllGroups = async () => {
+      try {
+        const response = await GroupActions.getAllGroups();
+
+        if (response?.success) {
+          setGroups(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getAllGroups();
+  }, []);
+
+  const currentGroups = useMemo(() => {
+    return activeTab === "superAdmin"
+      ? groups.super_admin_groups || []
+      : groups.admin_groups || [];
+  }, [activeTab, groups]);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <aside className="flex flex-wrap items-center justify-between gap-5 rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+            Workspace
+          </p>
+
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#eef4ff]">
+            Team Groups
+          </h2>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#8ea0b8]">
+            Create and manage groups for admins and super admins with better
+            collaboration and permissions control.
+          </p>
+        </div>
+
+        <div>
+          <Link
+            href="/account/groups/add"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+          >
+            <Plus size={18} />
+            Create Group
+          </Link>
+        </div>
+      </aside>
+
+      {/* Tabs */}
+      <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => setActiveTab("superAdmin")}
+            className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "superAdmin"
+              ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
+              : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+              }`}
+          >
+            <ShieldCheck size={18} />
+            Super Admin Groups
+            {groups.super_admin_groups.length > 0 && <span>({groups.super_admin_groups.length})</span>}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("admin")}
+            className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "admin"
+              ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
+              : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+              }`}
+          >
+            <UserCog size={18} />
+            Admin Groups
+            {groups.admin_groups.length > 0 && <span>({groups.admin_groups.length})</span>}
+          </button>
+        </div>
+      </div>
+
+      {/* Groups */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="animate-pulse rounded-[24px] border border-white/8 bg-[#151d2c] p-6"
+            >
+              <div className="h-5 w-40 rounded bg-white/10" />
+              <div className="mt-4 h-4 w-full rounded bg-white/5" />
+              <div className="mt-2 h-4 w-3/4 rounded bg-white/5" />
+
+              <div className="mt-6 flex gap-2">
+                <div className="h-8 w-20 rounded-full bg-white/10" />
+                <div className="h-8 w-20 rounded-full bg-white/10" />
+              </div>
+            </div>
+          ))
+        ) : currentGroups.length > 0 ? (
+          currentGroups.map((group: any) => (
+            <div
+              key={group.id}
+              className="group rounded-[24px] border border-white/8 bg-[#151d2c] p-6 transition-all hover:border-[#31425e]"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#101826] text-[#c2edf0]">
+                      <UsersRound size={22} />
+                    </div>
+
+                    <div>
+                      <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
+                        {group.group_name}
+                      </h3>
+
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#7f90a8]">
+                        {group.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/account/groups/update/${group.id}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#101826] text-[#8ea0b8] transition hover:border-[#31425e] hover:text-white"
+                >
+                  <Pencil size={16} />
+                </Link>
+              </div>
+
+              <p className="mt-1 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
+                Created By : {group.name}
+              </p>
+              <p className="mt-5 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
+                {group.group_description ||
+                  "No description available for this group."}
+              </p>
+
+              {/* Members */}
+              <div className="mt-6 border-t border-white/8 pt-5">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                    Members
+                  </p>
+
+                  <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                    {group.members?.length || 0} Members
+                  </span>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {group.members?.length > 0 ? (
+                    group.members.map((member: any, index: number) => (
+                      <span
+                        key={index}
+                        className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0]"
+                      >
+                        {member}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#8ea0b8]">
+                      No members added
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full rounded-[24px] border border-dashed border-white/10 bg-[#151d2c] p-12 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#101826] text-[#8ea0b8]">
+              <Users size={28} />
+            </div>
+
+            <h3 className="mt-5 text-xl font-semibold text-[#eef4ff]">
+              No Groups Found
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#8ea0b8]">
+              There are currently no groups available in this section.
+            </p>
+
+            <Link
+              href="/account/groups/add"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+            >
+              <Plus size={18} />
+              Create New Group
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GroupPage;

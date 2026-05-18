@@ -13,6 +13,7 @@ const seoRouter = require("./routes/seo");
 const tagRouter = require("./routes/tags");
 const userRouter = require("./routes/user");
 const publishHistoryRouter = require("./routes/publishHistory");
+const groupRouter = require("./routes/group");
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter)
 app.use("/api/tags", tagRouter)
 app.use("/api/publish_history", publishHistoryRouter)
+app.use("/api/groups", groupRouter)
 
 app.use((req, res) => {
   return res.status(404).json({

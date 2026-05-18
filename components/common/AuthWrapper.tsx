@@ -90,6 +90,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                 label: "Add New Author",
             }    
         },
+        "/account/groups": {
+            eyebrow: "Collaboration",
+            title: "Groups",
+            description:
+                "Manage groups, roles, and team collaboration in one place.",
+        }
     };
 
     const currentHeader = pageHeaders[pathname];

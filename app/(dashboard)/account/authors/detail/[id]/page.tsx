@@ -14,6 +14,7 @@ type AuthorDetailType = {
   role: string;
   profile_image?: string;
   created_at?: string;
+  description?: string;
 };
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
@@ -60,9 +61,9 @@ const AuthorDetailPage = () => {
   const canManageAllUsers = currentUser?.role === "super_admin" || currentUser?.role === "admin";
   const canEditAuthor = Boolean(
     author &&
-      (currentUser?.id === author.id ||
-        currentUser?.role === "super_admin" ||
-        (canManageAllUsers && author.role !== "super_admin")),
+    (currentUser?.id === author.id ||
+      currentUser?.role === "super_admin" ||
+      (canManageAllUsers && author.role !== "super_admin")),
   );
 
   if (loading) {
@@ -175,6 +176,19 @@ const AuthorDetailPage = () => {
                   #{author?.id}
                 </div>
               </div>
+
+            </div>
+            <div className="mt-5 space-y-2">
+              <p className={labelClassName}>
+                Author Discription
+              </p>
+
+              <div
+                className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] prose prose-invert max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html: author?.description || "N/A",
+                }}
+              />
             </div>
           </div>
         </div>

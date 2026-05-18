@@ -7,7 +7,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import { toast } from "react-toastify";
+import RichTextToolbar from "../blog/RichTextToolbar";
 
 export type Role = "super_admin" | "admin" | "sub_admin";
 
@@ -17,6 +19,7 @@ export type AuthorFormData = {
   password?: string;
   role: string;
   profile_image: string;
+  description: string;
 };
 
 export type AuthorInitialData = {
@@ -25,6 +28,7 @@ export type AuthorInitialData = {
   email: string;
   role: string;
   profile_image?: string;
+  description?: string;
 };
 
 type AuthorFormProps = {
@@ -83,10 +87,12 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       password: "",
       role: initialData?.role || "sub_admin",
       profile_image: initialData?.profile_image || "",
+      description: initialData?.description || "",
     },
   });
 
   const previewImage = useWatch({ control, name: "profile_image" });
+  const description = useWatch({ control, name: "description" });
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -109,6 +115,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       password: "",
       role: defaultRole,
       profile_image: initialData?.profile_image || "",
+      description: initialData?.description || "",
     });
   }, [initialData, reset, userRole]);
 
@@ -287,6 +294,33 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className={labelClassName}>Description</p>
+                  <p className="text-xs text-[#6f8096]">Rich text editor with HTML mode support</p>
+                </div>
+
+                <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                  <EditorProvider>
+                    <RichTextToolbar platformData={null} content={description || ""} />
+                    <Editor
+                      value={description || ""}
+                      onChange={(e) =>
+                        setValue("description", e.target.value, {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
+                      }
+                      containerProps={{
+                        className: "min-h-[260px] border-0 bg-[#0f1724] shadow-none",
+                      }}
+                      className="min-h-[260px] bg-[#0f1724] px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
+                      placeholder="Write author description here or switch to HTML mode..."
+                    />
+                  </EditorProvider>
+                </div>
               </div>
             </div>
           </div>

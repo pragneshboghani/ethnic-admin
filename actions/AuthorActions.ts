@@ -16,6 +16,7 @@ type AuthorPayload = {
   password?: string;
   role: string;
   profile_image: string;
+  description: string;
 };
 
 const AuthorActions = {
