@@ -10,6 +10,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import { toast } from "react-toastify";
 import RichTextToolbar from "../blog/RichTextToolbar";
+import PasswordInput from "../common/PasswordInput";
 
 export type Role = "super_admin" | "admin" | "sub_admin";
 
@@ -17,6 +18,7 @@ export type AuthorFormData = {
   name: string;
   email: string;
   password?: string;
+  confirmPassword?: string;
   role: string;
   profile_image: string;
   description: string;
@@ -79,6 +81,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
     handleSubmit,
     setValue,
     reset,
+    watch,
     control,
     formState: { errors },
   } = useForm<AuthorFormData>({
@@ -258,9 +261,9 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 )}
               </div>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 space-y-2">
+              <div className="py-3 space-y-4">
                 {isUpdate && (
-                  <label className="flex items-center gap-3">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={changePassword}
@@ -269,30 +272,40 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     />
 
                     <span className="text-sm text-[#dbe5f3]">
-                      Change Password
+                      Want to change password?
                     </span>
                   </label>
                 )}
 
                 {(!isUpdate || changePassword) && (
-                  <div className="space-y-2">
-                    <label htmlFor="author-password" className={labelClassName}>
-                      Password
-                    </label>
-
-                    <input
-                      id="author-password"
-                      type="password"
-                      className={inputClassName}
-                      placeholder={isUpdate ? "Leave blank to keep current password" : "Enter password"}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <PasswordInput label="Password" id="author-password" className={inputClassName} labelClassName={labelClassName} error={errors.password?.message}
+                      placeholder={isUpdate ? "Enter new password" : "Enter password"}
                       {...register("password", {
-                        required: isUpdate ? false : "Password is required",
+                        required: !isUpdate
+                          ? "Password is required"
+                          : false,
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
                       })}
                     />
 
-                    {errors.password && (
-                      <p className="text-xs text-red-400">{errors.password.message}</p>
-                    )}
+                    <PasswordInput label="Confirm Password" id="author-confirm-password" className={inputClassName} labelClassName={labelClassName} error={errors.confirmPassword?.message}
+                      placeholder={isUpdate ? "Confirm new password" : "Confirm password"}
+                      {...register("confirmPassword", {
+                        required: !isUpdate
+                          ? "Confirm password is required"
+                          : false,
+                        validate: (value) => {
+                          if ((!isUpdate || changePassword) && value !== watch("password")) {
+                            return "Passwords do not match";
+                          }
+                          return true;
+                        },
+                      })}
+                    />
                   </div>
                 )}
               </div>

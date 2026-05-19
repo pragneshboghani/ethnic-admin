@@ -120,13 +120,13 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
                     <div className={`${isBlogEditorPage ? "overflow-visible" : ""} rounded-[28px] border border-white/8 bg-[#0f1724] shadow-[0_30px_90px_rgba(0,0,0,0.42)]`}>
                         <div className="flex flex-col md:flex-row">
-                            <div className="flex border-white/8 md:border-r">
+                            <div className="flex border-white/8 md:border-r rounded-tl-[44px]">
                                 <aside className="sticky top-[15px] h-fit rounded-[44px]">
                                     <Sidebar />
                                 </aside>
                             </div>
 
-                            <main className={`min-w-0 flex-1 bg-[#111827] px-5 py-6 sm:px-7 lg:px-10 lg:py-8 ${isBlogEditorPage ? "overflow-visible" : ""}`}>
+                            <main className={`min-w-0 flex-1 bg-[#111827] px-5 py-6 sm:px-7 rounded-tr-[44px] rounded-br-[44px] lg:px-10 lg:py-8 ${isBlogEditorPage ? "overflow-visible" : ""}`}>
                                 <div className="text-[#e6edf7]">
                                     <div className="flex w-full justify-between items-center flex-wrap">
                                         {pathname !== "/account/dashboard" && currentHeader && (
