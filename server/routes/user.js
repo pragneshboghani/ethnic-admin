@@ -22,6 +22,10 @@ const canUpdateUser = (user, targetUser) => {
   return canManageAllUsers(user);
 };
 
+const canDeleteUser = (user, targetUser) =>
+  user?.role === "super_admin" &&
+  ["admin", "sub_admin"].includes(targetUser?.role);
+
 const allowedRolesByUserRole = {
   super_admin: ["admin", "sub_admin"],
   admin: ["sub_admin"],
@@ -274,32 +278,51 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   }
 });
 
-// userRouter.delete("/delete/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const { id } = req.params;
+userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
 
-//     const [result] = await mysqlpool.query("DELETE FROM users WHERE id=?", [
-//       id,
-//     ]);
+    const [[targetUser]] = await mysqlpool.query(
+      "SELECT id, role FROM users WHERE id=?",
+      [userId],
+    );
 
-//     if (result.affectedRows === 0) {
-//       return res.status(404).send({
-//         success: false,
-//         message: "User not found",
-//       });
-//     }
+    if (!targetUser) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-//     res.status(200).send({
-//       success: true,
-//       message: "User deleted successfully",
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+    if (!canDeleteUser(req.user, targetUser)) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to delete this user",
+      });
+    }
+
+    const [result] = await mysqlpool.query("DELETE FROM users WHERE id=?", [
+      userId,
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 userRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
