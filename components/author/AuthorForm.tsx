@@ -14,12 +14,19 @@ import PasswordInput from "../common/PasswordInput";
 
 export type Role = "super_admin" | "admin" | "sub_admin";
 
+export type Author = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role;
+}
 export type AuthorFormData = {
   name: string;
   email: string;
   password?: string;
   confirmPassword?: string;
   role: string;
+  admin_id?: number;
   profile_image: string;
   description: string;
 };
@@ -30,6 +37,7 @@ export type AuthorInitialData = {
   email: string;
   role: string;
   profile_image?: string;
+  admin_id?: number;
   description?: string;
 };
 
@@ -70,26 +78,21 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
   const router = useRouter();
   const [openMediaModal, setOpenMediaModal] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id?: number; role?: string; name?: string; email?: string } | null>(null);
   const [roleLoaded, setRoleLoaded] = useState(false);
-  const [changePassword, setChangePassword] = useState<boolean>(false)
+  const [changePassword, setChangePassword] = useState<boolean>(false);
+  const [authorList, setAuthorList] = useState<Author[]>([]);
 
   const formId = mode === "create" ? "author-create-form" : "author-update-form";
   const isUpdate = mode === "update";
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    control,
-    formState: { errors },
-  } = useForm<AuthorFormData>({
+  const { register, handleSubmit, setValue, reset, watch, control, formState: { errors }, } = useForm<AuthorFormData>({
     defaultValues: {
       name: initialData?.name || "",
       email: initialData?.email || "",
       password: "",
       role: initialData?.role || "sub_admin",
+      admin_id: initialData?.admin_id || undefined,
       profile_image: initialData?.profile_image || "",
       description: initialData?.description || "",
     },
@@ -97,18 +100,44 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
   const previewImage = useWatch({ control, name: "profile_image" });
   const description = useWatch({ control, name: "description" });
+  const selectedRole = useWatch({ control, name: "role" }) || (initialData?.role || "sub_admin");
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const currentUser = AuthorActions.getCurrentUserRole();
-      if (currentUser?.role) {
+    const loadData = async () => {
+      const currentUser = AuthorActions.getCurrentUser();
+      if (currentUser) {
         setUserRole(currentUser.role as Role);
+        setCurrentUser(currentUser);
+      }
+      try {
+        const adminList = await AuthorActions.getAdminList();
+        if (adminList.success) {
+          setAuthorList(adminList.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin list", error);
       }
       setRoleLoaded(true);
-    }, 0);
+    };
 
-    return () => window.clearTimeout(timeout);
+    loadData();
   }, []);
+
+  useEffect(() => {
+    if (selectedRole === "sub_admin") {
+      if (userRole === "admin" && currentUser?.id) {
+        setValue("admin_id", currentUser.id, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    } else {
+      setValue("admin_id", undefined, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [selectedRole, userRole, currentUser, setValue]);
 
   useEffect(() => {
     const defaultRole = initialData?.role || getDefaultRole(userRole);
@@ -118,6 +147,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       email: initialData?.email || "",
       password: "",
       role: defaultRole,
+      admin_id: initialData?.admin_id || undefined,
       profile_image: initialData?.profile_image || "",
       description: initialData?.description || "",
     });
@@ -128,6 +158,34 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
     isUpdate && initialData?.role && !roles.includes(initialData.role)
       ? [initialData.role, ...roles]
       : roles;
+
+  const canChangePassword = (() => {
+    if (!isUpdate || !initialData) {
+      return true;
+    }
+
+    const targetRole = initialData.role as Role;
+    if (currentUser?.role === "super_admin") {
+      return true;
+    }
+
+    if (targetRole === "super_admin") {
+      return false;
+    }
+
+    if (targetRole === "admin") {
+      return currentUser?.id === initialData.id;
+    }
+
+    if (targetRole === "sub_admin") {
+      return (
+        currentUser?.id === initialData.id ||
+        currentUser?.role === "admin"
+      );
+    }
+
+    return false;
+  })();
 
   if (mode === "create" && roleLoaded && allowedRoleOptions.length === 0) {
     return (
@@ -151,6 +209,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
     const payload = {
       ...data,
       password: data.password?.trim() || undefined,
+      admin_id: data.admin_id && !Number.isNaN(Number(data.admin_id)) ? Number(data.admin_id) : undefined,
     };
 
     const response =
@@ -249,6 +308,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 <input
                   id="author-email"
                   type="email"
+                  readOnly
                   className={inputClassName}
                   placeholder="Enter email address"
                   {...register("email", {
@@ -261,54 +321,56 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 )}
               </div>
 
-              <div className="py-3 space-y-4">
-                {isUpdate && (
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={changePassword}
-                      onChange={(e) => setChangePassword(e.target.checked)}
-                      className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
-                    />
+              {canChangePassword && (
+                <div className="py-3 space-y-4">
+                  {isUpdate && canChangePassword && (
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={changePassword}
+                        onChange={(e) => setChangePassword(e.target.checked)}
+                        className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
+                      />
 
-                    <span className="text-sm text-[#dbe5f3]">
-                      Want to change password?
-                    </span>
-                  </label>
-                )}
+                      <span className="text-sm text-[#dbe5f3]">
+                        Want to change password?
+                      </span>
+                    </label>
+                  )}
 
-                {(!isUpdate || changePassword) && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <PasswordInput label="Password" id="author-password" className={inputClassName} labelClassName={labelClassName} error={errors.password?.message}
-                      placeholder={isUpdate ? "Enter new password" : "Enter password"}
-                      {...register("password", {
-                        required: !isUpdate
-                          ? "Password is required"
-                          : false,
-                        minLength: {
-                          value: 6,
-                          message: "Password must be at least 6 characters",
-                        },
-                      })}
-                    />
+                  {(!isUpdate || (isUpdate && canChangePassword && changePassword)) && (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <PasswordInput label="Password" id="author-password" className={inputClassName} labelClassName={labelClassName} error={errors.password?.message}
+                        placeholder={isUpdate ? "Enter new password" : "Enter password"}
+                        {...register("password", {
+                          required: !isUpdate
+                            ? "Password is required"
+                            : false,
+                          minLength: {
+                            value: 6,
+                            message: "Password must be at least 6 characters",
+                          },
+                        })}
+                      />
 
-                    <PasswordInput label="Confirm Password" id="author-confirm-password" className={inputClassName} labelClassName={labelClassName} error={errors.confirmPassword?.message}
-                      placeholder={isUpdate ? "Confirm new password" : "Confirm password"}
-                      {...register("confirmPassword", {
-                        required: !isUpdate
-                          ? "Confirm password is required"
-                          : false,
-                        validate: (value) => {
-                          if ((!isUpdate || changePassword) && value !== watch("password")) {
-                            return "Passwords do not match";
-                          }
-                          return true;
-                        },
-                      })}
-                    />
-                  </div>
-                )}
-              </div>
+                      <PasswordInput label="Confirm Password" id="author-confirm-password" className={inputClassName} labelClassName={labelClassName} error={errors.confirmPassword?.message}
+                        placeholder={isUpdate ? "Confirm new password" : "Confirm password"}
+                        {...register("confirmPassword", {
+                          required: !isUpdate
+                            ? "Confirm password is required"
+                            : false,
+                          validate: (value) => {
+                            if ((!isUpdate || changePassword) && value !== watch("password")) {
+                              return "Passwords do not match";
+                            }
+                            return true;
+                          },
+                        })}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label htmlFor="author-role" className={labelClassName}>
@@ -328,6 +390,47 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                   ))}
                 </select>
               </div>
+
+              {selectedRole === "sub_admin" && (
+                <div className="space-y-2">
+                  <label htmlFor="author-admin" className={labelClassName}>
+                    Assign Admin
+                  </label>
+
+                  {userRole === "admin" ? (
+                    <>
+                      <input
+                        id="author-admin"
+                        type="text"
+                        className={inputClassName}
+                        value={currentUser?.name ? `${currentUser.name} (${currentUser.email || ""})` : "Current admin"}
+                        disabled
+                      />
+                      <input
+                        type="hidden"
+                        {...register("admin_id")}
+                      />
+                    </>
+                  ) : (
+                    <select
+                      id="author-admin"
+                      className={selectClassName}
+                      {...register("admin_id", { valueAsNumber: true })}
+                    >
+                      <option value="">Select Admin</option>
+                      {authorList.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name} ({a.email})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {userRole !== "admin" && authorList.length === 0 && (
+                    <p className="text-xs text-[#8ea0b8]">No admins available to assign.</p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">

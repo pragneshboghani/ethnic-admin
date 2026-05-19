@@ -97,7 +97,19 @@ const AuthorActions = {
     });
     const result = await res.json();
     return result;
-  }
+  },
+  getAdminList: async () => {
+    const token = UserActions.getToken();
+    const res = await fetch(`${BACKEND_DOMAIN}/api/user/admin-list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
+  },
 };
 
 export default AuthorActions;

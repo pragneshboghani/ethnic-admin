@@ -53,7 +53,7 @@ userRouter.get("/all-author", authMiddleware, async (req, res) => {
 
 userRouter.post("/create", authMiddleware, async (req, res) => {
   try {
-    const { name, email, password, role, profile_image, description } =
+    const { name, email, password, role, profile_image, description, admin_id } =
       req.body;
 
     if (!canManageAllUsers(req.user)) {
@@ -98,6 +98,25 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
 
     const userId = result.insertId;
 
+    if (role === 'admin') {
+      const row = await mysqlpool.query(`INSERT INTO author_groups (name, description, image, members, created_by) VALUES (?, ?, ?, ?, ?)`, [
+        name,
+        description || null,
+        profile_image || null,
+        JSON.stringify([]),
+        userId
+      ])
+    }
+
+    if (role === 'sub_admin') {
+      const [[row]] = await mysqlpool.query(`SELECT * FROM author_groups WHERE created_by = ?`, [admin_id])
+
+      const members = row.members
+      members.push(userId)
+
+      const update = await mysqlpool.query(`UPDATE author_groups SET members = ? WHERE id = ?`, [JSON.stringify(members), row.id])
+    }
+
     res.status(201).send({
       success: true,
       message: "Author created successfully",
@@ -108,6 +127,25 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
         role,
         description: description || "",
       },
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+userRouter.get('/admin-list', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await mysqlpool.query(
+      `SELECT id, name, email, role FROM users WHERE role = 'admin'`
+    );
+
+    res.status(200).send({
+      success: true,
+      totalUsers: rows.length,
+      data: rows,
     });
   } catch (error) {
     res.status(500).send({

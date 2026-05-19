@@ -3,16 +3,8 @@
 import AuthorActions from "@/actions/AuthorActions";
 import GroupActions from "@/actions/GroupActions";
 import ClickOutside from "@/components/common/ClickOutside";
-import {
-  Plus,
-  Users,
-  ShieldCheck,
-  UserCog,
-  Pencil,
-  UsersRound,
-  Trash2,
-  Eye,
-} from "lucide-react";
+import { Plus, Users, Pencil, UsersRound, Trash2, Eye } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -24,22 +16,15 @@ type Group = {
   role: string;
   name?: string;
   members?: string[];
+  member_ids?: number[];
+  created_by: number;
+  image: string;
 };
 
-type GroupsState = {
-  super_admin_groups: Group[];
-  admin_groups: Group[];
-};
+const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 
 const GroupPage = () => {
-  const [activeTab, setActiveTab] = useState<"superAdmin" | "admin">(
-    "superAdmin"
-  );
-
-  const [groups, setGroups] = useState<GroupsState>({
-    super_admin_groups: [],
-    admin_groups: [],
-  });
+  const [groups, setGroups] = useState<Group[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
@@ -71,12 +56,6 @@ const GroupPage = () => {
     return () => window.clearTimeout(timeout);
   }, []);
 
-  const currentGroups = useMemo(() => {
-    return activeTab === "superAdmin"
-      ? groups.super_admin_groups || []
-      : groups.admin_groups || [];
-  }, [activeTab, groups]);
-
   const handleDeleteGroup = async () => {
     if (!deleteGroup) return;
 
@@ -84,14 +63,9 @@ const GroupPage = () => {
       const response = await GroupActions.deleteGroup(deleteGroup.id);
 
       if (response?.success) {
-        setGroups((prev) => ({
-          super_admin_groups: (prev.super_admin_groups || []).filter(
-            (group) => group.id !== deleteGroup.id,
-          ),
-          admin_groups: (prev.admin_groups || []).filter(
-            (group) => group.id !== deleteGroup.id,
-          ),
-        }));
+        setGroups((prev) =>
+          prev.filter((group) => group.id !== deleteGroup.id)
+        );
         toast.success(response.message || "Group deleted successfully");
         setDeleteGroup(null);
         return;
@@ -105,68 +79,6 @@ const GroupPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <aside className="flex flex-wrap items-center justify-between gap-5 rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
-            Workspace
-          </p>
-
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#eef4ff]">
-            Team Groups
-          </h2>
-
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#8ea0b8]">
-            Create and manage groups for admins and super admins with better
-            collaboration and permissions control.
-          </p>
-        </div>
-
-        {canManageGroups && (
-          <div>
-            <Link
-              href="/account/groups/add"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-            >
-              <Plus size={18} />
-              Create Group
-            </Link>
-          </div>
-        )}
-      </aside>
-
-      {/* Tabs */}
-      <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => setActiveTab("superAdmin")}
-            className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "superAdmin"
-              ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-              : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
-              }`}
-          >
-            <ShieldCheck size={18} />
-            Super Admin Groups
-            {groups.super_admin_groups.length > 0 && <span>({groups.super_admin_groups.length})</span>}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("admin")}
-            className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "admin"
-              ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-              : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
-              }`}
-          >
-            <UserCog size={18} />
-            Admin Groups
-            {groups.admin_groups.length > 0 && <span>({groups.admin_groups.length})</span>}
-          </button>
-        </div>
-      </div>
-
-      {/* Groups */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {loading ? (
           Array.from({ length: 4 }).map((_, index) => (
@@ -184,8 +96,8 @@ const GroupPage = () => {
               </div>
             </div>
           ))
-        ) : currentGroups.length > 0 ? (
-          currentGroups.map((group) => (
+        ) : groups.length > 0 ? (
+          groups.map((group) => (
             <div
               key={group.id}
               className="group rounded-[24px] border border-white/8 bg-[#151d2c] p-6 transition-all hover:border-[#31425e]"
@@ -193,32 +105,38 @@ const GroupPage = () => {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#101826] text-[#c2edf0]">
-                      <UsersRound size={22} />
+                    <div className="flex items-center justify-center rounded-2xl bg-[#101826] text-[#c2edf0]">
+                      {group.image && group.image != "" ? (
+                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-white/10">
+                          <Image
+                            fill
+                            alt="Preview"
+                            className="object-cover"
+                            src={`${BACKEND_DOMAIN}/${group.image}`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center">
+                          <Users size={22} />
+                        </div>
+                      )}
                     </div>
-
-                    <div>
-                      <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
-                        {group.group_name}
-                      </h3>
-
-                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#7f90a8]">
-                        {group.role}
-                      </p>
-                    </div>
+                    <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
+                      {group.name}
+                    </h3>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <Link
-                    href={`/account/groups/update/${group.id}`}
+                    href={`/account/authors/add/${group.created_by}`}
                     className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#101826] text-[#8ea0b8] transition hover:border-[#31425e] hover:text-white"
                     title={canManageGroups ? "Edit Group" : "View Group"}
                   >
                     {canManageGroups ? <Pencil size={16} /> : <Eye size={16} />}
                   </Link>
 
-                  {canManageGroups && (
+                  {/* {canManageGroups && (
                     <button
                       type="button"
                       onClick={() => setDeleteGroup(group)}
@@ -227,19 +145,13 @@ const GroupPage = () => {
                     >
                       <Trash2 size={16} />
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>
-
-              <p className="mt-1 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
-                Created By : {group.name}
-              </p>
-              <p className="mt-5 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
+              {/* <p className="mt-5 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
                 {group.group_description ||
                   "No description available for this group."}
-              </p>
-
-              {/* Members */}
+              </p> */}
               <div className="mt-6 border-t border-white/8 pt-5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
@@ -247,13 +159,13 @@ const GroupPage = () => {
                   </p>
 
                   <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
-                    {group.members?.length || 0} Members
+                    {group.member_ids?.length || 0} Members
                   </span>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {(group.members && group.members?.length > 0) ? (
-                    group.members.map((member, index) => (
+                  {(group.member_ids && group.member_ids?.length > 0) ? (
+                    group.members?.map((member, index) => (
                       <span
                         key={index}
                         className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0]"
