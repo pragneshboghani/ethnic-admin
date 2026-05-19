@@ -107,13 +107,13 @@ const Sidebar = () => {
                 </p>
             </div>
 
-            <div className="md:mt-9 flex-1 space-y-1 md:space-y-2 max-h-[60vh] overflow-y-scroll">
+            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
                 {navItems?.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
             </div>
 
-            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5 md:fixed md:bottom-10 left-[13px] sm:left-[40px] lg:left-[45px] bg-[#0f1724] md:w-[200px]">
+            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5">
                 <button
                     className="group flex w-full items-center gap-3 rounded-2xl border border-transparent p-2 sm:p-3 md:px-4 md:py-3 text-sm transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
                     onClick={handleLogout}
@@ -161,7 +161,7 @@ const Sidebar = () => {
                 </div>
             )}
 
-            <div className="relative hidden h-screen flex-col px-5 py-6 sm:px-6 md:flex md:px-6 md:py-7 max-h-[100vh] overflow-y-hidden">
+            <div className="relative hidden h-full flex-col px-5 py-6 sm:px-6 md:flex md:min-h-[calc(100vh-48px)] md:px-6 md:py-7">
                 {sidebarContent}
             </div>
         </aside>
