@@ -85,10 +85,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             title: "Authors",
             description:
                 "Manage your authors, their roles, and access permissions.",
-            action: {
-                href: '/account/authors/add',
-                label: "Add New Author",
-            }
         },
         "/account/groups": {
             eyebrow: "Collaboration",

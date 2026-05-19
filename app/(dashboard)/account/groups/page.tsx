@@ -1,6 +1,8 @@
 "use client";
 
+import AuthorActions from "@/actions/AuthorActions";
 import GroupActions from "@/actions/GroupActions";
+import ClickOutside from "@/components/common/ClickOutside";
 import {
   Plus,
   Users,
@@ -8,23 +10,42 @@ import {
   UserCog,
   Pencil,
   UsersRound,
+  Trash2,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 
-const BACKEND_DOMAIN = "https://api-admin.ethnicinfotech.in";
+type Group = {
+  id: number;
+  group_name: string;
+  group_description?: string;
+  role: string;
+  name?: string;
+  members?: string[];
+};
+
+type GroupsState = {
+  super_admin_groups: Group[];
+  admin_groups: Group[];
+};
 
 const GroupPage = () => {
   const [activeTab, setActiveTab] = useState<"superAdmin" | "admin">(
     "superAdmin"
   );
 
-  const [groups, setGroups] = useState<any>({
+  const [groups, setGroups] = useState<GroupsState>({
     super_admin_groups: [],
     admin_groups: [],
   });
 
   const [loading, setLoading] = useState(true);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [deleteGroup, setDeleteGroup] = useState<Group | null>(null);
+  const canManageGroups =
+    currentUserRole === "super_admin" || currentUserRole === "admin";
 
   useEffect(() => {
     const getAllGroups = async () => {
@@ -42,6 +63,12 @@ const GroupPage = () => {
     };
 
     getAllGroups();
+    const timeout = window.setTimeout(() => {
+      const currentUser = AuthorActions.getCurrentUserRole();
+      setCurrentUserRole(currentUser?.role || null);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, []);
 
   const currentGroups = useMemo(() => {
@@ -49,6 +76,32 @@ const GroupPage = () => {
       ? groups.super_admin_groups || []
       : groups.admin_groups || [];
   }, [activeTab, groups]);
+
+  const handleDeleteGroup = async () => {
+    if (!deleteGroup) return;
+
+    try {
+      const response = await GroupActions.deleteGroup(deleteGroup.id);
+
+      if (response?.success) {
+        setGroups((prev) => ({
+          super_admin_groups: (prev.super_admin_groups || []).filter(
+            (group) => group.id !== deleteGroup.id,
+          ),
+          admin_groups: (prev.admin_groups || []).filter(
+            (group) => group.id !== deleteGroup.id,
+          ),
+        }));
+        toast.success(response.message || "Group deleted successfully");
+        setDeleteGroup(null);
+        return;
+      }
+
+      toast.error(response?.message || "Failed to delete group");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete group");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -69,15 +122,17 @@ const GroupPage = () => {
           </p>
         </div>
 
-        <div>
-          <Link
-            href="/account/groups/add"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-          >
-            <Plus size={18} />
-            Create Group
-          </Link>
-        </div>
+        {canManageGroups && (
+          <div>
+            <Link
+              href="/account/groups/add"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+            >
+              <Plus size={18} />
+              Create Group
+            </Link>
+          </div>
+        )}
       </aside>
 
       {/* Tabs */}
@@ -130,7 +185,7 @@ const GroupPage = () => {
             </div>
           ))
         ) : currentGroups.length > 0 ? (
-          currentGroups.map((group: any) => (
+          currentGroups.map((group) => (
             <div
               key={group.id}
               className="group rounded-[24px] border border-white/8 bg-[#151d2c] p-6 transition-all hover:border-[#31425e]"
@@ -154,12 +209,26 @@ const GroupPage = () => {
                   </div>
                 </div>
 
-                <Link
-                  href={`/account/groups/update/${group.id}`}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#101826] text-[#8ea0b8] transition hover:border-[#31425e] hover:text-white"
-                >
-                  <Pencil size={16} />
-                </Link>
+                <div className="flex gap-2">
+                  <Link
+                    href={`/account/groups/update/${group.id}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#101826] text-[#8ea0b8] transition hover:border-[#31425e] hover:text-white"
+                    title={canManageGroups ? "Edit Group" : "View Group"}
+                  >
+                    {canManageGroups ? <Pencil size={16} /> : <Eye size={16} />}
+                  </Link>
+
+                  {canManageGroups && (
+                    <button
+                      type="button"
+                      onClick={() => setDeleteGroup(group)}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#b8664b]/40 bg-[#372423] text-[#ffd7c4] transition hover:bg-[#462a28]"
+                      title="Delete Group"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <p className="mt-1 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
@@ -183,8 +252,8 @@ const GroupPage = () => {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {group.members?.length > 0 ? (
-                    group.members.map((member: any, index: number) => (
+                  {(group.members && group.members?.length > 0) ? (
+                    group.members.map((member, index) => (
                       <span
                         key={index}
                         className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0]"
@@ -215,16 +284,53 @@ const GroupPage = () => {
               There are currently no groups available in this section.
             </p>
 
-            <Link
-              href="/account/groups/add"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-            >
-              <Plus size={18} />
-              Create New Group
-            </Link>
+            {canManageGroups && (
+              <Link
+                href="/account/groups/add"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+              >
+                <Plus size={18} />
+                Create New Group
+              </Link>
+            )}
           </div>
         )}
       </div>
+
+      {deleteGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <ClickOutside onClickOutside={() => setDeleteGroup(null)}>
+            <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                Remove Group
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+                Delete {deleteGroup.group_name}?
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                This will permanently remove this group from the workspace.
+              </p>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteGroup(null)}
+                  className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteGroup}
+                  className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                >
+                  Delete Group
+                </button>
+              </div>
+            </div>
+          </ClickOutside>
+        </div>
+      )}
     </div>
   );
 };

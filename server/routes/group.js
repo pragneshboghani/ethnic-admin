@@ -5,11 +5,16 @@ const verifyApiKey = require("../middleware/verifyApiKey");
 
 const groupRouter = Router();
 
+const canManageGroups = (user) =>
+  user?.role === "super_admin" || user?.role === "admin";
+
 groupRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(`
       SELECT 
         ag.id,
+        ag.created_by,
+        ag.members AS member_ids,
         ag.name AS group_name,
         ag.description AS group_description,
         ag.image,
@@ -88,6 +93,14 @@ groupRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { name, description, image, members } = req.body;
     const userId = req.user.id;
+
+    if (!canManageGroups(req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to create groups",
+      });
+    }
+
     const memberIds = (members || [])
       .map((memberId) => Number(memberId))
       .filter((memberId) => memberId && memberId !== Number(userId));
@@ -125,6 +138,13 @@ groupRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     const { id } = req.query;
     const { name, description, image, members } = req.body;
 
+    if (!canManageGroups(req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update groups",
+      });
+    }
+
     const [[raw]] = await mysqlpool.query(
       `SELECT * FROM author_groups WHERE id = ?`,
       [id],
@@ -146,8 +166,7 @@ groupRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
               (members || [])
                 .map((memberId) => Number(memberId))
                 .filter(
-                  (memberId) =>
-                    memberId && memberId !== Number(raw.created_by),
+                  (memberId) => memberId && memberId !== Number(raw.created_by),
                 ),
             )
           : raw.members,
@@ -172,5 +191,52 @@ groupRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+groupRouter.delete(
+  "/delete",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { id } = req.query;
+
+      if (!canManageGroups(req.user)) {
+        return res.status(403).json({
+          success: false,
+          message: "You are not allowed to delete groups",
+        });
+      }
+
+      const [[raw]] = await mysqlpool.query(
+        `SELECT * FROM author_groups WHERE id = ?`,
+        [id],
+      );
+
+      if (!raw) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Group not found" });
+      }
+
+      const [result] = await mysqlpool.query(
+        "DELETE FROM author_groups WHERE id = ?",
+        [id],
+      );
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Group not found" });
+      }
+
+      res
+        .status(200)
+        .json({ success: true, message: "Group deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting Group:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+);
 
 module.exports = groupRouter;
