@@ -20,7 +20,6 @@ const GroupActions = {
       throw error;
     }
   },
-
   getGroupById: async (id: number) => {
     try {
       const res = await fetch(`${BACKEND_DOMAIN}/api/groups/get?id=${id}`, {
@@ -38,10 +37,8 @@ const GroupActions = {
       throw error;
     }
   },
-
   addGroup: async (data: any) => {
     try {
-        console.log('data', data)
       const res = await fetch(`${BACKEND_DOMAIN}/api/groups/add`, {
         method: "POST",
         headers: getHeaders(),
@@ -59,7 +56,6 @@ const GroupActions = {
       throw error;
     }
   },
-
   updateGroup: async (id: number, data: any) => {
     try {
       const res = await fetch(`${BACKEND_DOMAIN}/api/groups/update?id=${id}`, {
@@ -76,6 +72,24 @@ const GroupActions = {
       return await res.json();
     } catch (error: any) {
       console.error("Error Updating Group:", error.message);
+      throw error;
+    }
+  },
+  deleteGroup: async (id: number) => {
+    try {
+      const res = await fetch(`${BACKEND_DOMAIN}/api/groups/delete?id=${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete group");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error Deleting Group:", error.message);
       throw error;
     }
   },

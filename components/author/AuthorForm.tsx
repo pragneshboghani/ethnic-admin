@@ -69,6 +69,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
   const [openMediaModal, setOpenMediaModal] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [roleLoaded, setRoleLoaded] = useState(false);
+  const [changePassword, setChangePassword] = useState<boolean>(false)
 
   const formId = mode === "create" ? "author-create-form" : "author-update-form";
   const isUpdate = mode === "update";
@@ -257,23 +258,42 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="author-password" className={labelClassName}>
-                  Password
-                </label>
+              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 space-y-2">
+                {isUpdate && (
+                  <label className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={changePassword}
+                      onChange={(e) => setChangePassword(e.target.checked)}
+                      className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
+                    />
 
-                <input
-                  id="author-password"
-                  type="password"
-                  className={inputClassName}
-                  placeholder={isUpdate ? "Leave blank to keep current password" : "Enter password"}
-                  {...register("password", {
-                    required: isUpdate ? false : "Password is required",
-                  })}
-                />
+                    <span className="text-sm text-[#dbe5f3]">
+                      Change Password
+                    </span>
+                  </label>
+                )}
 
-                {errors.password && (
-                  <p className="text-xs text-red-400">{errors.password.message}</p>
+                {(!isUpdate || changePassword) && (
+                  <div className="space-y-2">
+                    <label htmlFor="author-password" className={labelClassName}>
+                      Password
+                    </label>
+
+                    <input
+                      id="author-password"
+                      type="password"
+                      className={inputClassName}
+                      placeholder={isUpdate ? "Leave blank to keep current password" : "Enter password"}
+                      {...register("password", {
+                        required: isUpdate ? false : "Password is required",
+                      })}
+                    />
+
+                    {errors.password && (
+                      <p className="text-xs text-red-400">{errors.password.message}</p>
+                    )}
+                  </div>
                 )}
               </div>
 

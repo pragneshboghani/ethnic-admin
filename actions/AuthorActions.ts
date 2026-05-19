@@ -86,6 +86,18 @@ const AuthorActions = {
     const result = await res.json();
     return result;
   },
+  deleteAuthor: async (id: number) => {
+    const token = UserActions.getToken();
+    const res = await fetch(`${BACKEND_DOMAIN}/api/user/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
+  }
 };
 
 export default AuthorActions;

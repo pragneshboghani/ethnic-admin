@@ -52,9 +52,14 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
     const [openMediaModal, setOpenMediaModal] = useState(false);
     const [authors, setAuthors] = useState<GroupAuthor[]>([]);
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+    const [roleLoaded, setRoleLoaded] = useState(false);
 
     const formId = mode === "create" ? "group-create-form" : "group-update-form";
     const isUpdate = mode === "update";
+    const canManageGroups =
+        currentUserRole === "super_admin" || currentUserRole === "admin";
+    const isReadOnly = isUpdate && roleLoaded && !canManageGroups;
 
     const {
         register,
@@ -116,6 +121,8 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
         const timeout = window.setTimeout(() => {
             const currentUser = AuthorActions.getCurrentUserRole();
             setCurrentUserId(currentUser?.id ? Number(currentUser.id) : null);
+            setCurrentUserRole(currentUser?.role || null);
+            setRoleLoaded(true);
         }, 0);
 
         return () => window.clearTimeout(timeout);
@@ -133,6 +140,11 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
     }, [creatorId, initialData, reset]);
 
     const onSubmit = async (data: GroupFormData) => {
+        if (!canManageGroups) {
+            toast.error("You are not allowed to manage groups");
+            return;
+        }
+
         const payload = {
             ...data,
             members: (data.members || [])
@@ -157,6 +169,16 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
         }
     };
 
+    if (mode === "create" && roleLoaded && !canManageGroups) {
+        return (
+            <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-white/8 bg-[#151d2c] p-6">
+                <p className="text-sm text-[#8ea0b8]">
+                    You are not allowed to create groups.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="space-y-6">
@@ -168,23 +190,27 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                             </span>
 
                             <h1 className="mt-4 text-[36px] font-semibold capitalize leading-none tracking-[-0.04em] text-[#eef4ff] transition-all duration-300">
-                                {isUpdate ? "Update Group" : "Create New Group"}
+                                {isReadOnly ? "View Group" : isUpdate ? "Update Group" : "Create New Group"}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-7 text-[#8ea0b8] transition-all duration-300 opacity-100">
-                                {isUpdate
+                                {isReadOnly
+                                    ? "View group details and membership."
+                                    : isUpdate
                                     ? "Update group details and membership."
                                     : "Create a new team/group and add members to it."}
                             </p>
                         </div>
 
-                        <button
-                            type="submit"
-                            form={formId}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-                        >
-                            <Save size={18} /> {isUpdate ? "Update" : "Submit"}
-                        </button>
+                        {canManageGroups && (
+                            <button
+                                type="submit"
+                                form={formId}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                            >
+                                <Save size={18} /> {isUpdate ? "Update" : "Submit"}
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -213,6 +239,7 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                                     type="text"
                                     className={inputClassName}
                                     placeholder="Enter group name"
+                                    disabled={isReadOnly}
                                     {...register("name", { required: "Name is required" })}
                                 />
 
@@ -248,10 +275,13 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                                                     <button
                                                         key={member.id}
                                                         type="button"
-                                                        onClick={() => handleMemberToggle(member.id)}
-                                                        className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition hover:border-[#62aab3] hover:bg-[#1b4048]"
+                                                        onClick={() => {
+                                                            if (!isReadOnly) handleMemberToggle(member.id);
+                                                        }}
+                                                        className={`rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition ${isReadOnly ? "cursor-default" : "hover:border-[#62aab3] hover:bg-[#1b4048]"}`}
                                                     >
-                                                        {member.name || member.email} ×
+                                                        {member.name || member.email}
+                                                        {!isReadOnly && " ×"}
                                                     </button>
                                                 ))}
                                             </div>
@@ -271,8 +301,11 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                                                     <button
                                                         key={member.id}
                                                         type="button"
-                                                        onClick={() => handleMemberToggle(member.id)}
+                                                        onClick={() => {
+                                                            if (!isReadOnly) handleMemberToggle(member.id);
+                                                        }}
                                                         aria-pressed={isSelected}
+                                                        disabled={isReadOnly}
                                                         className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isSelected
                                                             ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
                                                             : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
@@ -290,28 +323,39 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between gap-3">
                                     <p className={labelClassName}>Description</p>
-                                    <p className="text-xs text-[#6f8096]">Rich text editor</p>
+                                    <p className="text-xs text-[#6f8096]">
+                                        {isReadOnly ? "Read only" : "Rich text editor"}
+                                    </p>
                                 </div>
 
-                                <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
-                                    <EditorProvider>
-                                        <RichTextToolbar platformData={null} content={description || ""} />
-                                        <Editor
-                                            value={description || ""}
-                                            onChange={(e) =>
-                                                setValue("description", e.target.value, {
-                                                    shouldDirty: true,
-                                                    shouldTouch: true,
-                                                })
-                                            }
-                                            containerProps={{
-                                                className: "min-h-[200px] border-0 bg-[#0f1724] shadow-none",
-                                            }}
-                                            className="min-h-[200px] bg-[#0f1724] px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
-                                            placeholder="Write group description here..."
-                                        />
-                                    </EditorProvider>
-                                </div>
+                                {isReadOnly ? (
+                                    <div
+                                        className="min-h-[200px] rounded-[22px] border border-white/8 bg-[#101826] px-4 py-4 text-sm leading-7 text-[#dbe5f3]"
+                                        dangerouslySetInnerHTML={{
+                                            __html: description || "No description available.",
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                                        <EditorProvider>
+                                            <RichTextToolbar platformData={null} content={description || ""} />
+                                            <Editor
+                                                value={description || ""}
+                                                onChange={(e) =>
+                                                    setValue("description", e.target.value, {
+                                                        shouldDirty: true,
+                                                        shouldTouch: true,
+                                                    })
+                                                }
+                                                containerProps={{
+                                                    className: "min-h-[200px] border-0 bg-[#0f1724] shadow-none",
+                                                }}
+                                                className="min-h-[200px] bg-[#0f1724] px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
+                                                placeholder="Write group description here..."
+                                            />
+                                        </EditorProvider>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -326,8 +370,10 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                         <div className="mt-6">
                             <button
                                 type="button"
-                                onClick={() => setOpenMediaModal(true)}
-                                className="group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 transition hover:border-[#31425e]"
+                                onClick={() => {
+                                    if (!isReadOnly) setOpenMediaModal(true);
+                                }}
+                                className={`group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 transition ${isReadOnly ? "cursor-default" : "hover:border-[#31425e]"}`}
                             >
                                 {previewImage ? (
                                     <div className="flex flex-col items-center">
@@ -340,7 +386,9 @@ const GroupForm = ({ mode, initialData }: GroupFormProps) => {
                                             />
                                         </div>
 
-                                        <p className="mt-4 text-sm text-[#8ea0b8]">Click to change image</p>
+                                        <p className="mt-4 text-sm text-[#8ea0b8]">
+                                            {isReadOnly ? "Group image" : "Click to change image"}
+                                        </p>
                                     </div>
                                 ) : (
                                     <>

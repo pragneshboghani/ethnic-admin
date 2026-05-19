@@ -107,13 +107,13 @@ const Sidebar = () => {
                 </p>
             </div>
 
-            <div className="md:mt-9 flex-1 space-y-1 md:space-y-2 max-h-[60vh] overflow-y-scroll">
+            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2 h-fit">
                 {navItems?.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
             </div>
 
-            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5 md:fixed md:bottom-10 left-[13px] sm:left-[40px] lg:left-[45px] bg-[#0f1724] md:w-[200px]">
+            <div className="mt-3 md:mt-6 border-t border-white/8 pt-3 md:pt-5">
                 <button
                     className="group flex w-full items-center gap-3 rounded-2xl border border-transparent p-2 sm:p-3 md:px-4 md:py-3 text-sm transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
                     onClick={handleLogout}
@@ -128,7 +128,7 @@ const Sidebar = () => {
     );
 
     return (
-        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] md:w-[248px] md:shrink-0 md:border-b-0 md:border-r">
+        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] md:w-[248px] md:shrink-0 md:border-b-0 rounded-tl-[44px]">
             {/* <div className="absolute bottom-0 left-0 h-40 w-36 rounded-tr-[44px] bg-[radial-gradient(circle_at_20%_70%,rgba(73,112,164,0.28),rgba(73,112,164,0.02)_58%),radial-gradient(circle_at_70%_90%,rgba(92,59,141,0.24),rgba(92,59,141,0.02)_54%)]" /> */}
 
             <div className="relative flex items-center justify-between px-5 py-4 sm:px-6 md:hidden">
@@ -161,7 +161,7 @@ const Sidebar = () => {
                 </div>
             )}
 
-            <div className="relative hidden h-screen flex-col px-5 py-6 sm:px-6 md:flex md:px-6 md:py-7 max-h-[100vh] overflow-y-hidden">
+            <div className="hidden flex-col px-5 py-6 sm:px-6 md:flex md:min-h-fit md:px-6 md:py-7">
                 {sidebarContent}
             </div>
         </aside>
