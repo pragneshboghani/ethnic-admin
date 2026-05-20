@@ -915,19 +915,19 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       : [authorQuery.toLowerCase(), limitNumber, offset];
     const [blogs] = await mysqlpool.query(blogsQuery, blogsParams);
 
-    const updatedBlogs = blogs.map((blog) => {
-      const parsedAuthor = safeParse(blog.author)?.map((author) => ({
+    const authorData = blogs.length > 0 ? safeParse(blogs[0].author)?.map((author) => ({
         ...author,
-        image: author.image ? BASE_URL + author.image : null,
-      }));
+        image: author.image ? BASE_URL + author.image : BASE_URL + 'media/uploads/1778838787732-71l6q3owugj.jpeg',
+      }))
+    : [];
 
+    const updatedBlogs = blogs.map((blog) => {
       const updated = {
         ...blog,
         faq: safeParse(blog.faq),
         featured_image: blog.featured_image
           ? BASE_URL + blog.featured_image
           : null,
-        author: parsedAuthor,  
         category: safeParse(blog.category_data),
         tags: safeParse(blog.tag_data),
         related: safeParse(blog.related_data),
@@ -936,6 +936,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       delete updated.category_data;
       delete updated.tag_data;
       delete updated.related_data;
+      delete updated.author;
 
       return updated;
     });
@@ -946,6 +947,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       currentPage: pageNumber,
       totalPages,
       data: updatedBlogs,
+      author: authorData,
     });
   } catch (error) {
     console.error("Error fetching blogs by author name", error);

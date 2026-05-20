@@ -55,7 +55,7 @@ groupRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
     res.status(200).send({
       success: true,
       totalGroups: parsedRows.length,
-      data: groups,
+      data: parsedRows,
     });
   } catch (error) {
     console.error("Error fetching Groups:", error);

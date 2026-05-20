@@ -7,35 +7,13 @@ import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import AuthorActions, { CustomJwtPayload } from "@/actions/AuthorActions";
+import { useState } from "react";
 
 const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [userState, setUserState] = useState<CustomJwtPayload>({
-        role: "",
-        id: 0,
-        email: "",
-        name: "",
-    });
-
-    useEffect(() => {
-        const getCurrentUser = async () => {
-            const user = await AuthorActions.getCurrentUser();
-            if (user) {
-                setUserState({
-                    role: user.role,
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                });
-            }
-        }
-        getCurrentUser();
-    },[])
 
     const SideMenuLinks = ({ link }: {
         link: {
@@ -52,25 +30,22 @@ const Sidebar = () => {
             <Link
                 href={link?.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`group flex w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${
-                    isActive
-                        ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
-                        : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
-                }`}
+                className={`group flex w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${isActive
+                    ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
+                    : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
+                    }`}
             >
                 <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-200 ${
-                        isActive
-                            ? "border-[#31425e] bg-[#111a28] text-[#9ad8de]"
-                            : "border-white/8 bg-[#101826] text-[#6f8096] group-hover:border-[#243247] group-hover:text-[#c4d3e6]"
-                    }`}
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-200 ${isActive
+                        ? "border-[#31425e] bg-[#111a28] text-[#9ad8de]"
+                        : "border-white/8 bg-[#101826] text-[#6f8096] group-hover:border-[#243247] group-hover:text-[#c4d3e6]"
+                        }`}
                 >
                     <Icon size={18} />
                 </span>
                 <span
-                    className={`text-sm font-medium ${
-                        isActive ? "text-[#eef4ff]" : "text-[#8fa0b6]"
-                    }`}
+                    className={`text-sm font-medium ${isActive ? "text-[#eef4ff]" : "text-[#8fa0b6]"
+                        }`}
                 >
                     {link?.name}
                 </span>
@@ -100,14 +75,14 @@ const Sidebar = () => {
 
             <div className="md:mt-9 flex flex-row md:flex-col justify-between items-center text-center">
                 <h3 className="text-[22px] font-semibold tracking-tight text-[#eef4ff]">
-                    {userState?.name || "Ethnic Admin"}
+                    Ethnic Admin
                 </h3>
                 <p className="mt-1 text-sm text-[#7f90a8]">
-                    {userState?.email || 'hello@ethnicinfotech.in'}
+                    hello@ethnicinfotech.in
                 </p>
             </div>
 
-            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2 h-fit">
+            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
                 {navItems?.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
@@ -161,7 +136,7 @@ const Sidebar = () => {
                 </div>
             )}
 
-            <div className="hidden flex-col px-5 py-6 sm:px-6 md:flex md:min-h-fit md:px-6 md:py-7">
+            <div className="relative hidden h-full flex-col px-5 py-6 sm:px-6 md:flex md:min-h-[calc(100vh-48px)] md:px-6 md:py-7">
                 {sidebarContent}
             </div>
         </aside>

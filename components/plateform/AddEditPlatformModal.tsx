@@ -7,6 +7,7 @@ import PlateformActions from "@/actions/PlateFormActions";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
 import ClickOutside from "../common/ClickOutside";
+import PasswordInput from "../common/PasswordInput";
 
 interface Props {
     open: boolean;
@@ -317,17 +318,14 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                                 className={inputClassName}
                                                             />
                                                         </div>
-
-                                                        <div className="space-y-2">
-                                                            <label htmlFor="platform-password" className={labelClassName}>Password</label>
-                                                            <input
-                                                                id="platform-password"
-                                                                type="password"
-                                                                placeholder="Password"
-                                                                {...register("password")}
-                                                                className={inputClassName}
-                                                            />
-                                                        </div>
+                                                        <PasswordInput
+                                                            id="platform-password"
+                                                            label="Password"
+                                                            placeholder="Password"
+                                                            className={inputClassName}
+                                                            labelClassName={labelClassName}
+                                                            {...register("password")}
+                                                        />
                                                     </>
                                                 )}
                                             </div>

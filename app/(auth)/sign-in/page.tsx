@@ -145,7 +145,7 @@ export default function SignIn() {
                                 className="w-full rounded-xl md:rounded-2xl border border-[#243246] bg-[#0d1522] p-2 sm:p-3 md:px-4 md:py-3.5 text-white placeholder:text-[#67788f] transition focus:border-[#58749a] focus:outline-none focus:ring-4 focus:ring-[#58749a]/20"
                             />
                             <span
-                                className="absolute text-black right-3 top-[47%] md:top-1/2 cursor-pointer"
+                                className="absolute text-[#FFFFFF] right-3 top-[47%] md:top-1/2 cursor-pointer"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {PasswordIcon}

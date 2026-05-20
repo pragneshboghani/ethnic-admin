@@ -10,17 +10,38 @@ import { useForm, useWatch } from "react-hook-form";
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import { toast } from "react-toastify";
 import RichTextToolbar from "../blog/RichTextToolbar";
+import PasswordInput from "../common/PasswordInput";
 
 export type Role = "super_admin" | "admin" | "sub_admin";
 
+export type Author = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role;
+}
 export type AuthorFormData = {
   name: string;
   email: string;
   password?: string;
+  confirmPassword?: string;
   role: string;
+  admin_id?: number;
   profile_image: string;
   description: string;
+  members?: number[];
 };
+
+export type GroupMember = {
+  name: string;
+  description: string;
+  image: string;
+  id: number;
+  members?: {
+    id: number;
+    name: string;
+  }[];
+}
 
 export type AuthorInitialData = {
   id?: number;
@@ -28,7 +49,9 @@ export type AuthorInitialData = {
   email: string;
   role: string;
   profile_image?: string;
+  admin_id?: number;
   description?: string;
+  user_groups?: GroupMember[];
 };
 
 type AuthorFormProps = {
@@ -68,44 +91,111 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
   const router = useRouter();
   const [openMediaModal, setOpenMediaModal] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id?: number; role?: string; name?: string; email?: string } | null>(null);
   const [roleLoaded, setRoleLoaded] = useState(false);
-  const [changePassword, setChangePassword] = useState<boolean>(false)
+  const [changePassword, setChangePassword] = useState<boolean>(false);
+  const [authorList, setAuthorList] = useState<Author[]>([]);
+  const [userList, setUserList] = useState<Author[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
 
   const formId = mode === "create" ? "author-create-form" : "author-update-form";
   const isUpdate = mode === "update";
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<AuthorFormData>({
+  const { register, handleSubmit, setValue, reset, watch, control, formState: { errors }, } = useForm<AuthorFormData>({
     defaultValues: {
       name: initialData?.name || "",
       email: initialData?.email || "",
       password: "",
       role: initialData?.role || "sub_admin",
+      admin_id: initialData?.admin_id || undefined,
       profile_image: initialData?.profile_image || "",
       description: initialData?.description || "",
+      members: initialData?.user_groups?.flatMap((group) =>
+        group.members?.map((member) => Number(member.id)) || [],
+      ) || [],
     },
   });
 
   const previewImage = useWatch({ control, name: "profile_image" });
   const description = useWatch({ control, name: "description" });
+  const selectedRole = useWatch({ control, name: "role" }) || (initialData?.role || "sub_admin");
+  const selectedUsers = userList.filter((member) => selectedUserIds.includes(member.id));
+
+  const toggleUserSelection = (memberId: number) => {
+    const updatedIds = selectedUserIds.includes(memberId)
+      ? selectedUserIds.filter((id) => id !== memberId)
+      : [...selectedUserIds, memberId];
+
+    setSelectedUserIds(updatedIds);
+    setValue("members", updatedIds, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const currentUser = AuthorActions.getCurrentUserRole();
-      if (currentUser?.role) {
+    const loadData = async () => {
+      const currentUser = AuthorActions.getCurrentUser();
+      if (currentUser) {
         setUserRole(currentUser.role as Role);
+        setCurrentUser(currentUser);
+      }
+      try {
+        const adminList = await AuthorActions.getAdminList();
+        if (adminList.success) {
+          setAuthorList(adminList.data || []);
+        }
+        const userList = await AuthorActions.getSubAdminList();
+        if (userList.success) {
+          setUserList(userList.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin list", error);
       }
       setRoleLoaded(true);
-    }, 0);
+    };
 
-    return () => window.clearTimeout(timeout);
+    loadData();
   }, []);
+
+  useEffect(() => {
+    if (!initialData?.user_groups || !userList.length) {
+      return;
+    }
+
+    const selectedIds = initialData.user_groups.flatMap((group) =>
+      group.members?.map((member) => Number(member.id)) || [],
+    );
+
+    if (!selectedIds.length) {
+      return;
+    }
+
+    setSelectedUserIds((current) => {
+      if (current.length) return current;
+      return Array.from(new Set(selectedIds));
+    });
+    setValue("members", Array.from(new Set(selectedIds)), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }, [initialData, userList, setValue]);
+
+  useEffect(() => {
+    if (selectedRole === "sub_admin") {
+      if (userRole === "admin" && currentUser?.id) {
+        setValue("admin_id", currentUser.id, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    } else {
+      setValue("admin_id", undefined, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [selectedRole, userRole, currentUser, setValue]);
 
   useEffect(() => {
     const defaultRole = initialData?.role || getDefaultRole(userRole);
@@ -115,8 +205,12 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       email: initialData?.email || "",
       password: "",
       role: defaultRole,
+      admin_id: initialData?.admin_id || undefined,
       profile_image: initialData?.profile_image || "",
       description: initialData?.description || "",
+      members: initialData?.user_groups?.flatMap((group) =>
+        group.members?.map((member) => Number(member.id)) || [],
+      ) || [],
     });
   }, [initialData, reset, userRole]);
 
@@ -125,6 +219,34 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
     isUpdate && initialData?.role && !roles.includes(initialData.role)
       ? [initialData.role, ...roles]
       : roles;
+
+  const canChangePassword = (() => {
+    if (!isUpdate || !initialData) {
+      return true;
+    }
+
+    const targetRole = initialData.role as Role;
+    if (currentUser?.role === "super_admin") {
+      return true;
+    }
+
+    if (targetRole === "super_admin") {
+      return false;
+    }
+
+    if (targetRole === "admin") {
+      return currentUser?.id === initialData.id;
+    }
+
+    if (targetRole === "sub_admin") {
+      return (
+        currentUser?.id === initialData.id ||
+        currentUser?.role === "admin"
+      );
+    }
+
+    return false;
+  })();
 
   if (mode === "create" && roleLoaded && allowedRoleOptions.length === 0) {
     return (
@@ -135,6 +257,9 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       </div>
     );
   }
+
+  const canManageAuthors = userRole === "admin" || userRole === "super_admin";
+  const isReadOnly = !canManageAuthors;
 
   const onSubmit = async (data: AuthorFormData) => {
     const canKeepExistingRole =
@@ -148,6 +273,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
     const payload = {
       ...data,
       password: data.password?.trim() || undefined,
+      admin_id: data.admin_id && !Number.isNaN(Number(data.admin_id)) ? Number(data.admin_id) : undefined,
     };
 
     const response =
@@ -183,19 +309,23 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[#8ea0b8] transition-all duration-300 opacity-100">
-                {isUpdate
-                  ? "Update author profile information and access level."
-                  : "Add a new author to your editorial workspace and assign the appropriate access level."}
+                {isReadOnly
+                  ? "You have view-only access. Only admins and super admins can make changes."
+                  : isUpdate
+                    ? "Update author profile information and access level."
+                    : "Add a new author to your editorial workspace and assign the appropriate access level."}
               </p>
             </div>
 
-            <button
-              type="submit"
-              form={formId}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
-            >
-              <Save size={18} /> {isUpdate ? "Update" : "Submit"}
-            </button>
+            {!isReadOnly && (
+              <button
+                type="submit"
+                form={formId}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+              >
+                <Save size={18} /> {isUpdate ? "Update" : "Submit"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -211,9 +341,11 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
               </h3>
 
               <p className="mt-1 text-sm text-[#8ea0b8]">
-                {isUpdate
-                  ? "Change the information for this author account."
-                  : "Fill in the required information to create a new author account."}
+                {isReadOnly
+                  ? "View author information (read-only mode)."
+                  : isUpdate
+                    ? "Change the information for this author account."
+                    : "Fill in the required information to create a new author account."}
               </p>
             </div>
 
@@ -226,6 +358,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 <input
                   id="author-name"
                   type="text"
+                  disabled={isReadOnly}
                   className={inputClassName}
                   placeholder="Enter full name"
                   {...register("name", {
@@ -246,6 +379,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 <input
                   id="author-email"
                   type="email"
+                  disabled={isReadOnly || isUpdate}
                   className={inputClassName}
                   placeholder="Enter email address"
                   {...register("email", {
@@ -258,44 +392,57 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 )}
               </div>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 space-y-2">
-                {isUpdate && (
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={changePassword}
-                      onChange={(e) => setChangePassword(e.target.checked)}
-                      className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
-                    />
+              {canChangePassword && (
+                <div className="py-3 space-y-4">
+                  {isUpdate && canChangePassword && (
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        disabled={isReadOnly}
+                        checked={changePassword}
+                        onChange={(e) => setChangePassword(e.target.checked)}
+                        className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
+                      />
 
-                    <span className="text-sm text-[#dbe5f3]">
-                      Change Password
-                    </span>
-                  </label>
-                )}
-
-                {(!isUpdate || changePassword) && (
-                  <div className="space-y-2">
-                    <label htmlFor="author-password" className={labelClassName}>
-                      Password
+                      <span className="text-sm text-[#dbe5f3]">
+                        Want to change password?
+                      </span>
                     </label>
+                  )}
 
-                    <input
-                      id="author-password"
-                      type="password"
-                      className={inputClassName}
-                      placeholder={isUpdate ? "Leave blank to keep current password" : "Enter password"}
-                      {...register("password", {
-                        required: isUpdate ? false : "Password is required",
-                      })}
-                    />
+                  {(!isUpdate || (isUpdate && canChangePassword && changePassword)) && (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <PasswordInput disabled={isReadOnly} label="Password" id="author-password" className={inputClassName} labelClassName={labelClassName} error={errors.password?.message}
+                        placeholder={isUpdate ? "Enter new password" : "Enter password"}
+                        {...register("password", {
+                          required: !isUpdate
+                            ? "Password is required"
+                            : false,
+                          minLength: {
+                            value: 6,
+                            message: "Password must be at least 6 characters",
+                          },
+                        })}
+                      />
 
-                    {errors.password && (
-                      <p className="text-xs text-red-400">{errors.password.message}</p>
-                    )}
-                  </div>
-                )}
-              </div>
+                      <PasswordInput disabled={isReadOnly} label="Confirm Password" id="author-confirm-password" className={inputClassName} labelClassName={labelClassName} error={errors.confirmPassword?.message}
+                        placeholder={isUpdate ? "Confirm new password" : "Confirm password"}
+                        {...register("confirmPassword", {
+                          required: !isUpdate
+                            ? "Confirm password is required"
+                            : false,
+                          validate: (value) => {
+                            if ((!isUpdate || changePassword) && value !== watch("password")) {
+                              return "Passwords do not match";
+                            }
+                            return true;
+                          },
+                        })}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label htmlFor="author-role" className={labelClassName}>
@@ -304,9 +451,9 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
                 <select
                   id="author-role"
+                  disabled={isReadOnly || allowedRoleOptions.length === 0}
                   className={selectClassName}
                   {...register("role")}
-                  disabled={allowedRoleOptions.length === 0}
                 >
                   {allowedRoleOptions.map((role) => (
                     <option key={role} value={role}>
@@ -314,6 +461,132 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {selectedRole === "sub_admin" && (
+                <div className="space-y-2">
+                  <label htmlFor="author-admin" className={labelClassName}>
+                    Assign Admin
+                  </label>
+
+                  {userRole === "admin" ? (
+                    <>
+                      <input
+                        id="author-admin"
+                        type="text"
+                        className={inputClassName}
+                        value={currentUser?.name ? `${currentUser.name} (${currentUser.email || ""})` : "Current admin"}
+                        disabled
+                      />
+                      <input
+                        type="hidden"
+                        {...register("admin_id")}
+                      />
+                    </>
+                  ) : (
+                    <select
+                      id="author-admin"
+                      disabled={isReadOnly}
+                      className={selectClassName}
+                      {...register("admin_id", { valueAsNumber: true })}
+                    >
+                      <option value="">Select Admin</option>
+                      {authorList.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name} ({a.email})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {userRole !== "admin" && authorList.length === 0 && (
+                    <p className="text-xs text-[#8ea0b8]">No admins available to assign.</p>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <label className={labelClassName}>Groups</label>
+
+                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                      Select or deselect available users.
+                    </p>
+                  </div>
+
+                  <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                    {selectedUserIds.length} selected
+                  </span>
+                </div>
+
+                <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                  {selectedUsers.length > 0 ? (
+                    <div>
+                      <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                        Selected Members
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {selectedUsers.map((member) => (
+                          <button
+                            key={member.id}
+                            type="button"
+                            disabled={isReadOnly}
+                            onClick={() => toggleUserSelection(member.id)}
+                            className={`rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition ${isReadOnly
+                                ? "cursor-not-allowed opacity-50"
+                                : "hover:border-[#62aab3] hover:bg-[#1b4048] cursor-pointer"
+                              }`}
+                          >
+                            {member.name || member.email} {!isReadOnly && "×"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#8ea0b8]">
+                      No users selected yet.
+                    </p>
+                  )}
+
+                  <div className="mt-4">
+                    <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                      All Members
+                    </p>
+
+                    <div className="flex flex-wrap gap-3">
+                      {userList.length > 0 ? (
+                        userList.map((member) => {
+                          const isSelected = selectedUserIds.includes(member.id);
+
+                          return (
+                            <button
+                              key={member.id}
+                              type="button"
+                              disabled={isReadOnly}
+                              onClick={() => toggleUserSelection(member.id)}
+                              aria-pressed={isSelected}
+                              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isReadOnly
+                                  ? "cursor-not-allowed"
+                                  : "cursor-pointer"
+                                } ${isSelected
+                                  ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
+                                  : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                }`}
+                            >
+                              {member.name || member.email}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="text-sm text-[#8ea0b8]">
+                          No sub admins available for selection.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -324,10 +597,11 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
                 <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
                   <EditorProvider>
-                    <RichTextToolbar platformData={null} content={description || ""} />
+                    {!isReadOnly && <RichTextToolbar platformData={null} content={description || ""} />}
                     <Editor
                       value={description || ""}
                       onChange={(e) =>
+                        !isReadOnly &&
                         setValue("description", e.target.value, {
                           shouldDirty: true,
                           shouldTouch: true,
@@ -359,8 +633,12 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
             <div className="mt-6">
               <button
                 type="button"
+                disabled={isReadOnly}
                 onClick={() => setOpenMediaModal(true)}
-                className="group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 transition hover:border-[#31425e]"
+                className={`group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 transition ${isReadOnly
+                    ? "cursor-not-allowed opacity-50"
+                    : "hover:border-[#31425e]"
+                  }`}
               >
                 {previewImage ? (
                   <div className="flex flex-col items-center">
@@ -374,7 +652,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     </div>
 
                     <p className="mt-4 text-sm text-[#8ea0b8]">
-                      Click to change image
+                      {isReadOnly ? "Image" : "Click to change image"}
                     </p>
                   </div>
                 ) : (
