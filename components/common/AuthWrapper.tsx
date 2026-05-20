@@ -121,7 +121,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                     <div className={`${isBlogEditorPage ? "overflow-visible" : ""} rounded-[28px] border border-white/8 bg-[#0f1724] shadow-[0_30px_90px_rgba(0,0,0,0.42)]`}>
                         <div className="flex flex-col md:flex-row">
                             <div className="flex border-white/8 md:border-r rounded-tl-[44px]">
-                                <aside className="sticky top-[15px] h-fit rounded-[44px]">
+                                <aside className="sticky top-0 h-screen self-start overflow-y-auto">
                                     <Sidebar />
                                 </aside>
                             </div>

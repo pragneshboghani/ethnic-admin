@@ -82,7 +82,7 @@ const Sidebar = () => {
                 </p>
             </div>
 
-            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2 h-fit">
+            <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
                 {navItems?.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
@@ -103,7 +103,7 @@ const Sidebar = () => {
     );
 
     return (
-        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] md:w-[248px] md:shrink-0 md:border-b-0 rounded-tl-[44px] rounded-bl-[44px]">
+        <aside className="relative w-full border-b border-white/8 bg-[#0f1724] md:w-[248px] md:shrink-0 md:border-b-0 rounded-tl-[44px]">
             {/* <div className="absolute bottom-0 left-0 h-40 w-36 rounded-tr-[44px] bg-[radial-gradient(circle_at_20%_70%,rgba(73,112,164,0.28),rgba(73,112,164,0.02)_58%),radial-gradient(circle_at_70%_90%,rgba(92,59,141,0.24),rgba(92,59,141,0.02)_54%)]" /> */}
 
             <div className="relative flex items-center justify-between px-5 py-4 sm:px-6 md:hidden">
@@ -136,7 +136,7 @@ const Sidebar = () => {
                 </div>
             )}
 
-            <div className="hidden flex-col px-5 py-6 sm:px-6 md:flex md:min-h-fit md:px-6 md:py-7 rounded-tl-[44px] rounded-bl-[44px]">
+            <div className="relative hidden h-full flex-col px-5 py-6 sm:px-6 md:flex md:min-h-[calc(100vh-48px)] md:px-6 md:py-7">
                 {sidebarContent}
             </div>
         </aside>
