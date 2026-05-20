@@ -748,7 +748,27 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
         'canonical_url', sb.canonical_url,
         'cta_button_text', sb.cta_button_text,
         'cta_button_link', sb.cta_button_link
-      )
+      ),
+
+      'author_data', IFNULL((
+        SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'name', u.name,
+            'email', u.email,
+            'image',
+              CASE
+                WHEN u.img_url IS NULL OR u.img_url = ''
+                THEN CONCAT('${BASE_URL}', 'media/uploads/1778838787732-71l6q3owugj.jpeg')
+                WHEN u.img_url LIKE 'http%'
+                THEN u.img_url
+                ELSE CONCAT('${BASE_URL}', u.img_url)
+              END,
+            'description', u.description
+          )
+        )
+        FROM users u
+        WHERE LOWER(REPLACE(b.author, ' ', '')) = LOWER(REPLACE(u.name, ' ', ''))
+      ), JSON_ARRAY())
 
     ) AS blog_data
    FROM seo_blog sb
@@ -797,8 +817,8 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       page = 1,
       limit = 12,
     } = req.query;
-    const authorQuery = (authorName || author || "").replaceAll(" ","");
-    const platformQuery = (platformName || platform || "").replaceAll(" ","").toLowerCase();
+    const authorQuery = (authorName || author || "").replaceAll(" ", "");
+    const platformQuery = (platformName || platform || "").replaceAll(" ", "").toLowerCase();
 
     if (!authorQuery) {
       return res.status(400).json({
@@ -916,10 +936,10 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
     const [blogs] = await mysqlpool.query(blogsQuery, blogsParams);
 
     const authorData = blogs.length > 0 ? safeParse(blogs[0].author)?.map((author) => ({
-        ...author,
-        image: author.image ? BASE_URL + author.image : BASE_URL + 'media/uploads/1778838787732-71l6q3owugj.jpeg',
-      }))
-    : [];
+      ...author,
+      image: author.image ? BASE_URL + author.image : BASE_URL + 'media/uploads/1778838787732-71l6q3owugj.jpeg',
+    }))
+      : [];
 
     const updatedBlogs = blogs.map((blog) => {
       const updated = {
