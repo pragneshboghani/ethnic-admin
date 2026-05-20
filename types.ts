@@ -342,3 +342,87 @@ export type authorData = {
     img_url: string;
     role: string;
 }
+
+export type Role = "super_admin" | "admin" | "sub_admin";
+
+export type Author = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role;
+}
+export type AuthorFormData = {
+  name: string;
+  email: string;
+  password?: string;
+  confirmPassword?: string;
+  role: string;
+  admin_id?: number;
+  profile_image: string;
+  description: string;
+  members?: number[];
+};
+
+export type GroupMember = {
+  name: string;
+  description: string;
+  image: string;
+  id: number;
+  members?: {
+    id: number;
+    name: string;
+  }[];
+}
+
+export type AuthorInitialData = {
+  id?: number;
+  name: string;
+  email: string;
+  role: string;
+  profile_image?: string;
+  admin_id?: number;
+  description?: string;
+  user_groups?: GroupMember[];
+};
+
+export type AuthorFormProps = {
+  mode: "create" | "update";
+  initialData?: AuthorInitialData | null;
+};
+
+export type Authors = {
+    id: number;
+    name: string;
+    email: string;
+    role: Role;
+    img_url: string;
+};
+
+export type AuthorDetailType = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  profile_image?: string;
+  created_at?: string;
+  description?: string;
+  user_groups?: {
+    id: number;
+    members?: {
+      id: number;
+      name: string;
+    }[];
+  }[];
+};
+
+export type Group = {
+  id: number;
+  group_name: string;
+  group_description?: string;
+  role: string;
+  name?: string;
+  members?: string[];
+  member_ids?: number[];
+  created_by: number;
+  image: string;
+};

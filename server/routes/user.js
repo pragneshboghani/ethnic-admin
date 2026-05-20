@@ -107,14 +107,8 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
 
     if (role === "admin") {
       const row = await mysqlpool.query(
-        `INSERT INTO author_groups (name, description, image, members, created_by) VALUES (?, ?, ?, ?, ?)`,
-        [
-          name,
-          description || null,
-          profile_image || null,
-          JSON.stringify([]),
-          userId,
-        ],
+        `INSERT INTO author_groups (name, members, created_by) VALUES (?, ?, ?)`,
+        [name, JSON.stringify([]), userId],
       );
     }
 
@@ -202,36 +196,26 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      `SELECT 
-    u.id,
-    u.name,
-    u.email,
-    u.role,
-    u.img_url AS profile_image,
-    u.description,
-    JSON_ARRAYAGG(
-      JSON_OBJECT(
-        'description', ag.description,
-        'image', ag.image,
-        'id', ag.id,
-        'name', ag.name,
-         'members',
-            (
-              SELECT JSON_ARRAYAGG(
-                JSON_OBJECT(
-                  'id', m.id,
-                  'name', m.name
-                )
-              )
-              FROM users m
-              WHERE JSON_CONTAINS(ag.members, CAST(m.id AS JSON), '$')
+      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image, u.description,
+          JSON_ARRAYAGG( 
+            JSON_OBJECT(
+              'id', ag.id,
+              'members',
+                (
+                  SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'id', m.id,
+                      'name', m.name
+                    )
+                  ) FROM users m
+                WHERE JSON_CONTAINS(ag.members, CAST(m.id AS JSON), '$')
+               )
             )
-      )
-    ) AS user_groups
-  FROM users u
-  LEFT JOIN author_groups ag ON u.id = ag.created_by
-  WHERE u.id = ?
-  GROUP BY u.id`,
+          ) AS user_groups
+      FROM users u
+      LEFT JOIN author_groups ag ON u.id = ag.created_by
+      WHERE u.id = ?
+      GROUP BY u.id`,
       [authorId],
     );
 
@@ -390,6 +374,34 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
         success: false,
         message: "You are not allowed to delete this user",
       });
+    }
+
+    if (targetUser.role === "admin") {
+      const [[group]] = await mysqlpool.query(
+        `SELECT id FROM author_groups WHERE created_by = ?`,
+        [userId],
+      );
+
+      await mysqlpool.query(`DELETE FROM author_groups WHERE id = ?`, [
+        group.id,
+      ]);
+    }
+
+    if (targetUser.role === "sub_admin") {
+      const [groups] = await mysqlpool.query(
+        `SELECT id, members FROM author_groups WHERE JSON_CONTAINS(members, CAST(? AS JSON), '$')`,
+        [targetUser.id],
+      );
+
+      for (const group of groups) {
+        const members = group.members;
+        const updatedMembers = members.filter((member) => member != Number(userId));
+
+        await mysqlpool.query(
+          `UPDATE author_groups SET members = ? WHERE id = ?`,
+          [JSON.stringify(updatedMembers), group.id],
+        );
+      }
     }
 
     const [result] = await mysqlpool.query("DELETE FROM users WHERE id=?", [

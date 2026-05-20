@@ -1,7 +1,8 @@
 "use client";
 
 import AuthorActions from "@/actions/AuthorActions";
-import AuthorForm, { AuthorInitialData } from "@/components/author/AuthorForm";
+import AuthorForm from "@/components/author/AuthorForm";
+import { AuthorInitialData } from "@/types";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
