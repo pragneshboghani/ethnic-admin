@@ -758,7 +758,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
             'image',
               CASE
                 WHEN u.img_url IS NULL OR u.img_url = ''
-                THEN CONCAT('${BASE_URL}', 'media/uploads/default-user.jpeg')
+                THEN CONCAT('${BASE_URL}', 'media/uploads/1778838787732-71l6q3owugj.jpeg')
                 WHEN u.img_url LIKE 'http%'
                 THEN u.img_url
                 ELSE CONCAT('${BASE_URL}', u.img_url)
