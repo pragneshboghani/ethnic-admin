@@ -7,12 +7,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AuthorDetailType } from "@/types";
-
-const roleLabels: Record<string, string> = {
-  admin: "Admin",
-  sub_admin: "Users",
-  super_admin: "Super Admin",
-};
+import { roleLabels } from "@/enum/roleLabels";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 const AuthorDetailPage = () => {
