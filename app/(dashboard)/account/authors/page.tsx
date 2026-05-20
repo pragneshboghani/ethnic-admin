@@ -2,6 +2,7 @@
 
 import AuthorActions from "@/actions/AuthorActions";
 import ClickOutside from "@/components/common/ClickOutside";
+import { roleLabels } from "@/enum/roleLabels";
 import { Authors } from "@/types";
 import { Plus, Trash2, UserPen } from "lucide-react";
 import Image from "next/image";
@@ -10,12 +11,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
-
-const roleLabels: Record<string, string> = {
-  admin: "Admin",
-  sub_admin: "Users",
-  super_admin: "Super Admin",
-};
 
 const Authers = () => {
     const [authors, setAuthors] = useState<Authors[]>([]);

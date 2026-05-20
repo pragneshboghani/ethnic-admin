@@ -12,19 +12,13 @@ import { toast } from "react-toastify";
 import RichTextToolbar from "../blog/RichTextToolbar";
 import PasswordInput from "../common/PasswordInput";
 import { Author, AuthorFormData, AuthorFormProps, Role } from "@/types";
+import { roleLabels } from "@/enum/roleLabels";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
-
 const allowedRoles: Record<Role, string[]> = {
   super_admin: ["admin", "sub_admin"],
   admin: ["sub_admin"],
   sub_admin: [],
-};
-
-const roleLabels: Record<string, string> = {
-  admin: "Admin",
-  sub_admin: "Users",
-  super_admin: "Super Admin",
 };
 
 const inputClassName =
@@ -461,89 +455,91 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     </div>
                   )}
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <label className={labelClassName}>Groups</label>
+                  {selectedRole === 'admin' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <label className={labelClassName}>Groups</label>
 
-                        <p className="mt-1 text-sm text-[#8ea0b8]">
-                          Select or deselect available users.
-                        </p>
+                          <p className="mt-1 text-sm text-[#8ea0b8]">
+                            Select or deselect available users.
+                          </p>
+                        </div>
+
+                        <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                          {selectedUserIds.length} selected
+                        </span>
                       </div>
 
-                      <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
-                        {selectedUserIds.length} selected
-                      </span>
-                    </div>
+                      <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                        {selectedUsers.length > 0 ? (
+                          <div>
+                            <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                              Selected Members
+                            </p>
 
-                    <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
-                      {selectedUsers.length > 0 ? (
-                        <div>
-                          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
-                            Selected Members
-                          </p>
-
-                          <div className="flex flex-wrap gap-2">
-                            {selectedUsers.map((member) => (
-                              <button
-                                key={member.id}
-                                type="button"
-                                disabled={isReadOnly}
-                                onClick={() => toggleUserSelection(member.id)}
-                                className={`rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition ${isReadOnly
-                                  ? "cursor-not-allowed opacity-50"
-                                  : "hover:border-[#62aab3] hover:bg-[#1b4048] cursor-pointer"
-                                  }`}
-                              >
-                                {member.name || member.email} {!isReadOnly && "×"}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-[#8ea0b8]">
-                          No users selected yet.
-                        </p>
-                      )}
-
-                      <div className="mt-4">
-                        <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
-                          All Members
-                        </p>
-
-                        <div className="flex flex-wrap gap-3">
-                          {userList.length > 0 ? (
-                            userList.map((member) => {
-                              const isSelected = selectedUserIds.includes(member.id);
-
-                              return (
+                            <div className="flex flex-wrap gap-2">
+                              {selectedUsers.map((member) => (
                                 <button
                                   key={member.id}
                                   type="button"
                                   disabled={isReadOnly}
                                   onClick={() => toggleUserSelection(member.id)}
-                                  aria-pressed={isSelected}
-                                  className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isReadOnly
-                                    ? "cursor-not-allowed"
-                                    : "cursor-pointer"
-                                    } ${isSelected
-                                      ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
-                                      : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                  className={`rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition ${isReadOnly
+                                    ? "cursor-not-allowed opacity-50"
+                                    : "hover:border-[#62aab3] hover:bg-[#1b4048] cursor-pointer"
                                     }`}
                                 >
-                                  {member.name || member.email}
+                                  {member.name || member.email} {!isReadOnly && "×"}
                                 </button>
-                              );
-                            })
-                          ) : (
-                            <p className="text-sm text-[#8ea0b8]">
-                              No sub admins available for selection.
-                            </p>
-                          )}
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-[#8ea0b8]">
+                            No users selected yet.
+                          </p>
+                        )}
+
+                        <div className="mt-4">
+                          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                            All Members
+                          </p>
+
+                          <div className="flex flex-wrap gap-3">
+                            {userList.length > 0 ? (
+                              userList.map((member) => {
+                                const isSelected = selectedUserIds.includes(member.id);
+
+                                return (
+                                  <button
+                                    key={member.id}
+                                    type="button"
+                                    disabled={isReadOnly}
+                                    onClick={() => toggleUserSelection(member.id)}
+                                    aria-pressed={isSelected}
+                                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isReadOnly
+                                      ? "cursor-not-allowed"
+                                      : "cursor-pointer"
+                                      } ${isSelected
+                                        ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
+                                        : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                      }`}
+                                  >
+                                    {member.name || member.email}
+                                  </button>
+                                );
+                              })
+                            ) : (
+                              <p className="text-sm text-[#8ea0b8]">
+                                No sub admins available for selection.
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
 
