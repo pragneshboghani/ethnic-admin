@@ -308,6 +308,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                 <input
                   id="author-email"
                   type="email"
+                  readOnly={isUpdate}
                   className={inputClassName}
                   placeholder="Enter email address"
                   {...register("email", {
