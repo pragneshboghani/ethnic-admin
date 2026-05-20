@@ -16,11 +16,14 @@ groupRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
         ag.created_by,
         ag.members AS member_ids,
         ag.name AS group_name,
-        ag.description AS group_description,
-        ag.image,
+        creator.img_url AS image,
         creator.role,
         creator.name,
-        JSON_ARRAYAGG(member.name) AS members
+        JSON_ARRAYAGG(
+          CASE 
+            WHEN member.id IS NOT NULL THEN member.name
+          END
+        ) AS members
       FROM author_groups ag
       LEFT JOIN users creator 
         ON creator.id = ag.created_by
@@ -38,19 +41,11 @@ groupRouter.get("/all", verifyApiKey, authMiddleware, async (req, res) => {
 
     const parsedRows = rows.map((group) => ({
       ...group,
-      members:
-        typeof group.members === "string"
-          ? JSON.parse(group.members)
-          : group.members,
+      members: (typeof group.members === "string"
+        ? JSON.parse(group.members)
+        : group.members
+      ).filter(Boolean),
     }));
-
-    const groups = {
-      super_admin_groups: parsedRows.filter(
-        (group) => group.role === "super_admin",
-      ),
-
-      admin_groups: parsedRows.filter((group) => group.role === "admin"),
-    };
 
     res.status(200).send({
       success: true,
@@ -112,14 +107,8 @@ groupRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
     }
 
     const [result] = await mysqlpool.query(
-      `INSERT INTO author_groups (name, description, image, members, created_by) VALUES (?, ?, ?, ?, ?)`,
-      [
-        name,
-        description || null,
-        image || null,
-        JSON.stringify(memberIds),
-        userId,
-      ],
+      `INSERT INTO author_groups (name, members, created_by) VALUES (?, ?, ?)`,
+      [name, JSON.stringify(memberIds), userId],
     );
 
     res.status(201).json({
@@ -173,14 +162,8 @@ groupRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     };
 
     await mysqlpool.query(
-      `UPDATE author_groups SET name = ?, description = ?, image = ?, members = ? WHERE id = ?`,
-      [
-        UpdatedData.name,
-        UpdatedData.description,
-        UpdatedData.image,
-        UpdatedData.members,
-        id,
-      ],
+      `UPDATE author_groups SET name = ?, members = ? WHERE id = ?`,
+      [UpdatedData.name, UpdatedData.members, id],
     );
 
     res

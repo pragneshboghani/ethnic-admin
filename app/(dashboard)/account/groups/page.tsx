@@ -3,23 +3,12 @@
 import AuthorActions from "@/actions/AuthorActions";
 import GroupActions from "@/actions/GroupActions";
 import ClickOutside from "@/components/common/ClickOutside";
-import { Plus, Users, Pencil, UsersRound, Trash2, Eye } from "lucide-react";
+import { Group } from "@/types";
+import { Plus, Users, Pencil, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
-type Group = {
-  id: number;
-  group_name: string;
-  group_description?: string;
-  role: string;
-  name?: string;
-  members?: string[];
-  member_ids?: number[];
-  created_by: number;
-  image: string;
-};
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
 

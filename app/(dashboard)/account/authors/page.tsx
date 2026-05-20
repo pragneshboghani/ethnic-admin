@@ -2,22 +2,20 @@
 
 import AuthorActions from "@/actions/AuthorActions";
 import ClickOutside from "@/components/common/ClickOutside";
+import { Authors } from "@/types";
 import { Plus, Trash2, UserPen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-export type Role = "super_admin" | "admin" | "sub_admin";
-type Authors = {
-    id: number;
-    name: string;
-    email: string;
-    role: Role;
-    img_url: string;
-};
-
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
+
+const roleLabels: Record<string, string> = {
+  admin: "Admin",
+  sub_admin: "Users",
+  super_admin: "Super Admin",
+};
 
 const Authers = () => {
     const [authors, setAuthors] = useState<Authors[]>([]);
@@ -119,7 +117,7 @@ const Authers = () => {
                                         </h3>
 
                                         <p className="mt-1 text-sm capitalize text-[#8ea0b8]">
-                                            {author.role.replace("_", " ")}
+                                            {roleLabels[author.role]}
                                         </p>
                                     </div>
                                 </Link>
