@@ -15,7 +15,6 @@ import { Author, AuthorFormData, AuthorFormProps, Role } from "@/types";
 import { roleLabels } from "@/enum/roleLabels";
 
 const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN;
-
 const allowedRoles: Record<Role, string[]> = {
   super_admin: ["admin", "sub_admin"],
   admin: ["sub_admin"],
