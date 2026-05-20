@@ -53,8 +53,15 @@ userRouter.get("/all-author", authMiddleware, async (req, res) => {
 
 userRouter.post("/create", authMiddleware, async (req, res) => {
   try {
-    const { name, email, password, role, profile_image, description, admin_id } =
-      req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      profile_image,
+      description,
+      admin_id,
+    } = req.body;
 
     if (!canManageAllUsers(req.user)) {
       return res.status(403).send({
@@ -98,23 +105,32 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
 
     const userId = result.insertId;
 
-    if (role === 'admin') {
-      const row = await mysqlpool.query(`INSERT INTO author_groups (name, description, image, members, created_by) VALUES (?, ?, ?, ?, ?)`, [
-        name,
-        description || null,
-        profile_image || null,
-        JSON.stringify([]),
-        userId
-      ])
+    if (role === "admin") {
+      const row = await mysqlpool.query(
+        `INSERT INTO author_groups (name, description, image, members, created_by) VALUES (?, ?, ?, ?, ?)`,
+        [
+          name,
+          description || null,
+          profile_image || null,
+          JSON.stringify([]),
+          userId,
+        ],
+      );
     }
 
-    if (role === 'sub_admin') {
-      const [[row]] = await mysqlpool.query(`SELECT * FROM author_groups WHERE created_by = ?`, [admin_id])
+    if (role === "sub_admin") {
+      const [[row]] = await mysqlpool.query(
+        `SELECT * FROM author_groups WHERE created_by = ?`,
+        [admin_id],
+      );
 
-      const members = row.members
-      members.push(userId)
+      const members = row.members;
+      members.push(userId);
 
-      const update = await mysqlpool.query(`UPDATE author_groups SET members = ? WHERE id = ?`, [JSON.stringify(members), row.id])
+      const update = await mysqlpool.query(
+        `UPDATE author_groups SET members = ? WHERE id = ?`,
+        [JSON.stringify(members), row.id],
+      );
     }
 
     res.status(201).send({
@@ -136,10 +152,29 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
   }
 });
 
-userRouter.get('/admin-list', authMiddleware, async (req, res) => {
+userRouter.get("/admin-list", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
-      `SELECT id, name, email, role FROM users WHERE role = 'admin'`
+      `SELECT id, name, email, role FROM users WHERE role = 'admin'`,
+    );
+
+    res.status(200).send({
+      success: true,
+      totalUsers: rows.length,
+      data: rows,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+userRouter.get("/sub-admin-list", authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await mysqlpool.query(
+      `SELECT id, name, email, role FROM users WHERE role = 'sub_admin'`,
     );
 
     res.status(200).send({
@@ -168,32 +203,36 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 
     const [[user]] = await mysqlpool.query(
       `SELECT 
-        u.id,
-        u.name,
-        u.email,
-        u.role,
-        u.img_url AS profile_image,
-        u.description,
-        (
-          SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'name', ag.name,
-              'image', ag.image,
-              'description', ag.description,
-              'id', ag.id
+    u.id,
+    u.name,
+    u.email,
+    u.role,
+    u.img_url AS profile_image,
+    u.description,
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'description', ag.description,
+        'image', ag.image,
+        'id', ag.id,
+        'name', ag.name,
+         'members',
+            (
+              SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                  'id', m.id,
+                  'name', m.name
+                )
+              )
+              FROM users m
+              WHERE JSON_CONTAINS(ag.members, CAST(m.id AS JSON), '$')
             )
-          )
-          FROM author_groups ag
-          WHERE JSON_CONTAINS(
-            ag.members,
-            CAST(u.id AS JSON),
-            '$'
-          ) OR ag.created_by = ?
-        ) AS user_groups
-      FROM users u
-      WHERE u.id = ?
-      `,
-      [authorId, authorId],
+      )
+    ) AS user_groups
+  FROM users u
+  LEFT JOIN author_groups ag ON u.id = ag.created_by
+  WHERE u.id = ?
+  GROUP BY u.id`,
+      [authorId],
     );
 
     if (!user) {
@@ -218,7 +257,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, email, password, role, profile_image, description } =
+    const { name, email, password, role, profile_image, description, members } =
       req.body;
 
     if (!name || !email || !role) {
@@ -302,6 +341,20 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
         success: false,
         message: "User not found",
       });
+    }
+
+    const [[group]] = await mysqlpool.query(
+      `SELECT id FROM author_groups WHERE created_by = ?`,
+      [userId],
+    );
+
+    if (group) {
+      const updatedMembers = Array.isArray(members) ? members.map(Number) : [];
+
+      await mysqlpool.query(
+        `UPDATE author_groups SET members = ? WHERE id = ?`,
+        [JSON.stringify(updatedMembers), group.id],
+      );
     }
 
     res.status(200).send({

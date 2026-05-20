@@ -110,6 +110,18 @@ const AuthorActions = {
     const result = await res.json();
     return result;
   },
+  getSubAdminList: async () => {
+    const token = UserActions.getToken();
+    const res = await fetch(`${BACKEND_DOMAIN}/api/user/sub-admin-list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
+  },
 };
 
 export default AuthorActions;

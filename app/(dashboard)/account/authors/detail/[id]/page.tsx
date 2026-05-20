@@ -224,7 +224,7 @@ const AuthorDetailPage = () => {
                       </div>
                     </div>
                     <div>
-                      <Link href={`/account/groups/update/${group?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
+                      <Link href={`/account/authors/add/${id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
                         <UserPen size={18} className="text-[#8ea0b8]" />
                         <span className="text-sm font-medium text-[#eef4ff]">
                           {canManageAllUsers ? "Edit Detail" : "View Detail"}
