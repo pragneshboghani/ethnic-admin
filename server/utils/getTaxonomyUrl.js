@@ -4,6 +4,7 @@ function getTaxonomyUrl(platform, type) {
     tags: 'wp-json/wp/v2/tags',
     media: 'wp-json/wp/v2/media',
     post: 'wp-json/wp/v2/posts',
+    user: 'wp-json/wp/v2/users',
   };
 
   const path = pathMap[type];

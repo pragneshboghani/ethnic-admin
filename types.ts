@@ -361,6 +361,7 @@ export type AuthorFormData = {
   profile_image: string;
   description: string;
   members?: number[];
+  social_links?: { [key: string]: string };
 };
 
 export type GroupMember = {
@@ -368,6 +369,7 @@ export type GroupMember = {
   description: string;
   image: string;
   id: number;
+  created_by?: number;
   members?: {
     id: number;
     name: string;
@@ -383,6 +385,7 @@ export type AuthorInitialData = {
   admin_id?: number;
   description?: string;
   user_groups?: GroupMember[];
+  social_links?: { [key: string]: string };
 };
 
 export type AuthorFormProps = {

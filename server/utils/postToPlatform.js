@@ -114,8 +114,19 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null,) 
         _yoast_wpseo_canonical: seoData.canonical_url,
       };
     }
-    console.log("payload", payload);
 
+    let userUrl = getTaxonomyUrl(platform, "user");
+
+    const userRes = await axios.get(userUrl, {
+      headers,
+      params: {
+        search: blogData.author,
+      },
+    });
+
+    const userId = userRes.data[0].id;
+
+    payload.author = userId;
     const response = await axios({
       method,
       url,
