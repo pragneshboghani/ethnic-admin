@@ -283,7 +283,7 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
     const { name, email, password, role, profile_image, description, members, selectedPlatforms, social_links } = req.body;
-console.log('req.body', req.body);
+
     if (!name || !email || !role) {
       return res.status(400).send({
         success: false,

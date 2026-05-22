@@ -30,7 +30,6 @@ const postUserToPlatforms = async (platform, userData) => {
       description: plainDescription || "",
     };
 
-    console.log("userDetail", userDetail);
     // update user if exists
     if (userRes.data.length) {
       const updateUrl = url + "/" + userRes.data[0].id;
