@@ -51,9 +51,6 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [platformData, setPlatformData] = useState<any[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
-  const [socialMediaLinks, setSocialMediaLinks] = useState<{ [key: string]: string }>({
-    linkedin: ""
-  });
 
   const formId = mode === "create" ? "author-create-form" : "author-update-form";
   const isUpdate = mode === "update";
@@ -131,6 +128,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
         shouldTouch: false,
       });
     }
+    setSelectedPlatforms(initialData.selected_platforms as any);
   }, [authorList, initialData, setValue]);
 
   useEffect(() => {

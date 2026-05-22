@@ -1,17 +1,20 @@
 const axios = require("axios");
 const getTaxonomyUrl = require("./getTaxonomyUrl");
 const getAuthHeaders = require("./getAuthHeaders");
+const mysqlpool = require("../config/db");
 
-const postUserToPlatforms = async (platform, userData) => {
+const postUserToPlatforms = async (platform, userData, userId = null) => {
   try {
     const url = getTaxonomyUrl(platform, "user");
+    const [[user]] = await mysqlpool.query(`SELECT * FROM users WHERE id = ?`, [userId]);
+
+    const usedPlarforms = user.platform_userId
+
+    const thisPlatform = usedPlarforms.find((p) => p.platform_id === platform.id);
 
     const headers = getAuthHeaders(platform);
-    const userRes = await axios.get(url, {
+    const userRes = await axios.get(`${url}/${thisPlatform.user_id}`, {
       headers,
-      params: {
-        search: userData.name,
-      },
     });
 
     const plainDescription = userData?.description
@@ -30,10 +33,9 @@ const postUserToPlatforms = async (platform, userData) => {
       description: plainDescription || "",
     };
 
-    console.log("userDetail", userDetail);
     // update user if exists
-    if (userRes.data.length) {
-      const updateUrl = url + "/" + userRes.data[0].id;
+    if (userRes.data) {
+      const updateUrl = url + "/" + userRes.data.id;
       await axios.put(updateUrl, userDetail, {
         headers,
       });
@@ -41,9 +43,16 @@ const postUserToPlatforms = async (platform, userData) => {
         success: true,
         platform_id: platform.id,
         platform_name: platform.platform_name,
-        data: userRes.data[0],
+        data: userRes.data,
       };
     }    
+
+    if (!userData?.password) {
+      return {
+        success: false,
+        message: "Password is required for WordPress user creation",
+      };
+    }
 
     // create user
     const res = await axios.post(url, userDetail, {

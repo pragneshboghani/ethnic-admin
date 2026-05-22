@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/authMiddleware");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const postUserToPlatforms = require("../utils/postUserToPlatforms");
+const deleteUserFromPlatform = require("../utils/deleteUserFromPlatform");
 
 const userRouter = Router();
 
@@ -217,7 +218,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image, MAX(ag.created_by) AS admin_id, u.description,
+      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image,u.social_links, u.selected_platforms, MAX(ag.created_by) AS admin_id, u.description,
 
       JSON_ARRAYAGG(
         JSON_OBJECT(
@@ -283,7 +284,7 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
     const { name, email, password, role, profile_image, description, members, selectedPlatforms, social_links } = req.body;
-console.log('req.body', req.body);
+
     if (!name || !email || !role) {
       return res.status(400).send({
         success: false,
@@ -361,9 +362,19 @@ console.log('req.body', req.body);
 
     const results = await Promise.all(
       platformData.map((platform) => {
-        return postUserToPlatforms(platform, req.body);
+        return postUserToPlatforms(platform, req.body, userId);
       }),
     );
+
+    const failedPlatforms = results.filter((item) => !item.success);
+
+    if (failedPlatforms.length > 0) {
+      return res.status(400).send({
+        success: false,
+        message: failedPlatforms.map((item) => item.message).join(", "),
+        errors: failedPlatforms,
+      });
+    }
 
     const platFormUserIds =[]
     for (const result of results) {
@@ -424,7 +435,7 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
     const { userId } = req.params;
 
     const [[targetUser]] = await mysqlpool.query(
-      "SELECT id, role FROM users WHERE id=?",
+      "SELECT id, role, selected_platforms, name FROM users WHERE id=?",
       [userId],
     );
 
@@ -441,6 +452,14 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
         message: "You are not allowed to delete this user",
       });
     }
+
+    const platformData = await getPlatformsByIds(targetUser.selected_platforms) ;
+
+    const results = await Promise.all(
+      platformData.map((platform) => {
+        return deleteUserFromPlatform(platform, targetUser);
+      }),
+    );
 
     if (targetUser.role === "admin") {
       const [[group]] = await mysqlpool.query(
