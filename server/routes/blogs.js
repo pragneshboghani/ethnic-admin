@@ -763,7 +763,8 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
                 THEN u.img_url
                 ELSE CONCAT('${BASE_URL}', u.img_url)
               END,
-            'description', u.description
+            'description', u.description,
+            'social_links', u.social_links
           )
         )
         FROM users u
@@ -921,7 +922,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
           WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
         ) AS related_data,
         (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('name', u.name, 'email', u.email, 'image', u.img_url, 'description', u.description))
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('name', u.name, 'email', u.email, 'image', u.img_url, 'description', u.description, 'social_links', u.social_links))
           FROM users u
           WHERE LOWER(REPLACE(b.author, ' ', '')) = LOWER(REPLACE(u.name, ' ', ''))
         ) AS author
