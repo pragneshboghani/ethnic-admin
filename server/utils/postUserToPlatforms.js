@@ -14,15 +14,6 @@ const postUserToPlatforms = async (platform, userData) => {
       },
     });
 
-    if (userRes.data.length) {
-      return {
-        success: true,
-        platform_id: platform.id,
-        platform_name: platform.platform_name,
-        data: userRes.data[0],
-      };
-    }
-
     const plainDescription = userData?.description
       ?.replace(/<[^>]*>/g, "")
       ?.replace(/&nbsp;/g, " ")
@@ -39,6 +30,22 @@ const postUserToPlatforms = async (platform, userData) => {
       description: plainDescription || "",
     };
 
+    console.log("userDetail", userDetail);
+    // update user if exists
+    if (userRes.data.length) {
+      const updateUrl = url + "/" + userRes.data[0].id;
+      await axios.put(updateUrl, userDetail, {
+        headers,
+      });
+      return {
+        success: true,
+        platform_id: platform.id,
+        platform_name: platform.platform_name,
+        data: userRes.data[0],
+      };
+    }    
+
+    // create user
     const res = await axios.post(url, userDetail, {
       headers,
     });
