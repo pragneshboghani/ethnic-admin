@@ -3,6 +3,8 @@ const mysqlpool = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/authMiddleware");
+const { getPlatformsByIds } = require("../utils/platformHelper");
+const postUserToPlatforms = require("../utils/postUserToPlatforms");
 
 const userRouter = Router();
 
@@ -61,6 +63,8 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
       profile_image,
       description,
       admin_id,
+      social_links,
+      selectedPlatforms
     } = req.body;
 
     if (!canManageAllUsers(req.user)) {
@@ -98,9 +102,26 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const platformData = await getPlatformsByIds(req.body.selectedPlatforms);
+
+    const results = await Promise.all(
+      platformData.map((platform) => {
+        return postUserToPlatforms(platform, req.body);
+      }),
+    );
+
+    const platFormUserIds =[]
+    for (const result of results) {
+      const res = {
+        platform_id: result.platform_id,
+        user_id: result.data.id
+      }
+      platFormUserIds.push(res)
+    }
+
     const [result] = await mysqlpool.query(
-      "INSERT INTO users (name,email,password,role,img_url,description) VALUES (?,?,?,?,?,?)",
-      [name, email, hashedPassword, role, profile_image, description || ""],
+      "INSERT INTO users (name,email,password,role,img_url,description,platform_userId, selected_platforms, social_links) VALUES (?,?,?,?,?,?,?,?,?)",
+      [name, email, hashedPassword, role, profile_image, description || "", JSON.stringify(platFormUserIds), JSON.stringify(selectedPlatforms), JSON.stringify(social_links)],
     );
 
     const userId = result.insertId;
@@ -196,26 +217,46 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image, u.description,
-          JSON_ARRAYAGG( 
-            JSON_OBJECT(
-              'id', ag.id,
-              'members',
-                (
-                  SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                      'id', m.id,
-                      'name', m.name
-                    )
-                  ) FROM users m
-                WHERE JSON_CONTAINS(ag.members, CAST(m.id AS JSON), '$')
-               )
+      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image, MAX(ag.created_by) AS admin_id, u.description,
+
+      JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'id', ag.id,
+          'name', ag.name,
+          'created_by', ag.created_by,
+          'members',
+          (
+            SELECT JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', m.id,
+                'name', m.name
+              )
             )
-          ) AS user_groups
-      FROM users u
-      LEFT JOIN author_groups ag ON u.id = ag.created_by
-      WHERE u.id = ?
-      GROUP BY u.id`,
+            FROM users m
+            WHERE JSON_CONTAINS(
+              ag.members,
+              CAST(m.id AS JSON),
+              '$'
+            )
+          )
+        )
+      ) AS user_groups
+
+  FROM users u
+
+  LEFT JOIN author_groups ag
+    ON (
+      ag.created_by = u.id
+      OR JSON_CONTAINS(
+          ag.members,
+          CAST(u.id AS JSON),
+          '$'
+      )
+    )
+
+  WHERE u.id = ?
+
+  GROUP BY u.id`,
       [authorId],
     );
 
@@ -241,9 +282,8 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, email, password, role, profile_image, description, members } =
-      req.body;
-
+    const { name, email, password, role, profile_image, description, members, selectedPlatforms, social_links } = req.body;
+console.log('req.body', req.body);
     if (!name || !email || !role) {
       return res.status(400).send({
         success: false,
@@ -298,6 +338,7 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
       "role=?",
       "img_url=?",
       "description=?",
+      "social_links=?",
     ];
     const values = [
       name,
@@ -305,12 +346,37 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
       role,
       profile_image || null,
       description || "",
+      JSON.stringify(social_links || {}),
     ];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       fields.push("password=?");
       values.push(hashedPassword);
+    }
+
+    fields.push("selected_platforms=?");
+    values.push(JSON.stringify(selectedPlatforms));
+    const platformData = await getPlatformsByIds(selectedPlatforms);
+
+    const results = await Promise.all(
+      platformData.map((platform) => {
+        return postUserToPlatforms(platform, req.body);
+      }),
+    );
+
+    const platFormUserIds =[]
+    for (const result of results) {
+      const res = {
+        platform_id: result.platform_id,
+        user_id: result.data.id
+      }
+      platFormUserIds.push(res)
+    }
+
+    if (platFormUserIds.length > 0) {
+      fields.push("platform_userId=?");
+      values.push(JSON.stringify(platFormUserIds));
     }
 
     values.push(userId);
@@ -395,7 +461,9 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
 
       for (const group of groups) {
         const members = group.members;
-        const updatedMembers = members.filter((member) => member != Number(userId));
+        const updatedMembers = members.filter(
+          (member) => member != Number(userId),
+        );
 
         await mysqlpool.query(
           `UPDATE author_groups SET members = ? WHERE id = ?`,
