@@ -362,7 +362,7 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
 
     const results = await Promise.all(
       platformData.map((platform) => {
-        return postUserToPlatforms(platform, req.body);
+        return postUserToPlatforms(platform, req.body, userId);
       }),
     );
 
