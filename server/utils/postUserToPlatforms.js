@@ -44,6 +44,13 @@ const postUserToPlatforms = async (platform, userData) => {
       };
     }    
 
+    if (!userData?.password) {
+      return {
+        success: false,
+        message: "Password is required for WordPress user creation",
+      };
+    }
+
     // create user
     const res = await axios.post(url, userDetail, {
       headers,
