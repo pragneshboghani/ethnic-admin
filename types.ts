@@ -386,6 +386,7 @@ export type AuthorInitialData = {
   description?: string;
   user_groups?: GroupMember[];
   social_links?: { [key: string]: string };
+  selected_platforms?: number[] | undefined
 };
 
 export type AuthorFormProps = {

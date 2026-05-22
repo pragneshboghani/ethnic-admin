@@ -218,7 +218,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image, MAX(ag.created_by) AS admin_id, u.description,
+      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image,u.social_links, u.selected_platforms, MAX(ag.created_by) AS admin_id, u.description,
 
       JSON_ARRAYAGG(
         JSON_OBJECT(
