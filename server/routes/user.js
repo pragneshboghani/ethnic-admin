@@ -111,6 +111,16 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
       }),
     );
 
+    const failedPlatforms = results.filter((item) => !item.success);
+
+    if (failedPlatforms.length > 0) {
+      return res.status(400).send({
+        success: false,
+        message: failedPlatforms.map((item) => item.message).join(", "),
+        errors: failedPlatforms,
+      });
+    }
+
     const platFormUserIds =[]
     for (const result of results) {
       const res = {
