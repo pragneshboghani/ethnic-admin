@@ -28,6 +28,21 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null,) 
     let featuredMediaId = null;
     let wpCategoryIds = [];
     let wpTagIds = [];
+    let authorID = null;
+
+    if (blogData?.author) {
+      const [[author]] = await mysqlpool.query(
+        `SELECT * FROM users WHERE LOWER(name) = LOWER(?)`,
+        [blogData?.author],
+      );
+
+      const usedPlarforms = author?.platform_userId || [];
+      const thisPlatform = usedPlarforms?.find(
+        (p) => p.platform_id === platform.id,
+      );
+
+      authorID = thisPlatform?.user_id;
+    }
 
     if (blogData.featured_image) {
       const [[image]] = await mysqlpool.query(
@@ -105,6 +120,7 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null,) 
       categories: wpCategoryIds,
       tags: wpTagIds,
       ...(featuredMediaId && { featured_media: featuredMediaId }),
+      ...(authorID && { author: authorID })
     };
 
     if (seoData) {
