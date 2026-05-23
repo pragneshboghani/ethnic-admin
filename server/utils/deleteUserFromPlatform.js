@@ -10,7 +10,8 @@ const deleteUserFromPlatform = async (platform, user) => {
     const userRes = await axios.get(url, {
       headers,
       params: {
-        search: user.name,
+        context: "edit",
+        search: user.email,
       },
     });
 
@@ -22,6 +23,14 @@ const deleteUserFromPlatform = async (platform, user) => {
     }
 
     const userId = userRes.data[0].id;
+
+    if (userRes.data?.[0]?.roles?.includes("administrator")) {
+      return {
+        success: true,
+        platform: platform.platform_name,
+        platform_id: platform.id,
+      };
+    }
 
     const res = await axios.delete(`${url}/${userId}?force=true&reassign=1`, {
       headers,

@@ -121,7 +121,7 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
       });
     }
 
-    const platFormUserIds =[]
+    const platFormUserIds = []
     for (const result of results) {
       const res = {
         platform_id: result.platform_id,
@@ -386,7 +386,7 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
       });
     }
 
-    const platFormUserIds =[]
+    const platFormUserIds = []
     for (const result of results) {
       const res = {
         platform_id: result.platform_id,
@@ -445,7 +445,7 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
     const { userId } = req.params;
 
     const [[targetUser]] = await mysqlpool.query(
-      "SELECT id, role, selected_platforms, name FROM users WHERE id=?",
+      "SELECT id, role, selected_platforms, name, email FROM users WHERE id=?",
       [userId],
     );
 
@@ -463,7 +463,7 @@ userRouter.delete("/delete/:userId", authMiddleware, async (req, res) => {
       });
     }
 
-    const platformData = await getPlatformsByIds(targetUser.selected_platforms) ;
+    const platformData = await getPlatformsByIds(targetUser.selected_platforms);
 
     const results = await Promise.all(
       platformData.map((platform) => {
