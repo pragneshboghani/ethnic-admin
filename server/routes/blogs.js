@@ -644,6 +644,12 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
           FROM tags t
           WHERE JSON_CONTAINS(b.tags, CAST(t.id AS JSON))
         ) AS tag_data,
+        ( SELECT JSON_OBJECT('name', a.name, 'image', 
+          CASE WHEN a.img_url IS NOT NULL THEN CONCAT(?, a.img_url) ELSE NULL END
+          ) FROM users a
+          WHERE TRIM(LOWER(a.name)) = TRIM(LOWER(b.author))
+          LIMIT 1
+        ) AS author_data,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
           FROM blogs rb
@@ -660,22 +666,32 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       ORDER BY b.created_at DESC
        LIMIT ? OFFSET ?
       `,
-      [platformName.trim().toLowerCase(), limitNumber, offset],
+      [ BASE_URL,platformName.trim().toLowerCase(), limitNumber, offset],
     );
 
+    const DEFAULT_AUTHOR_IMAGE = BASE_URL + "media/uploads/1778838787732-71l6q3owugj.jpeg";
+
     const updatedBlogs = blogs.map((blog) => {
+      const parsedAuthor = typeof blog.author_data === "string"
+      ? JSON.parse(blog.author_data)
+      : blog.author_data || {};
+
       const updated = {
         ...blog,
         faq: safeParse(blog.faq),
         featured_image: blog.featured_image
           ? BASE_URL + blog.featured_image
           : null,
+        author_data: {
+          name: parsedAuthor?.name || blog.author,
+          image: parsedAuthor?.image || DEFAULT_AUTHOR_IMAGE,
+        },
         category: safeParse(blog.category_data),
         tags: safeParse(blog.tag_data),
         related: safeParse(blog.related_data),
       };
 
-      delete updated.category_data;
+      delete updated.category_data; 
       delete updated.tag_data;
       delete updated.related_data;
 
