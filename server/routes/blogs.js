@@ -753,7 +753,7 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       ), JSON_ARRAY()),
 
       'related_data', IFNULL((
-        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title))
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title, 'slug', rb.slug, 'publish_date', rb.publish_date, 'author', rb.author))
         FROM blogs rb
         WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
       ), JSON_ARRAY()),
