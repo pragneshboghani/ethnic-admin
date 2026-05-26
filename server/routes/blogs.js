@@ -175,7 +175,8 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => {
         const platformSeoData = seo?.find(s => s.platform_id === platform.id);
-        return postToPlatform(platform, req.body, null, platformSeoData);
+        const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
+        return postToPlatform(platform, req.body, updatedseodata.slug, platformSeoData, "post");
       }),
     );
 
@@ -345,7 +346,9 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => {
         const platformSeoData = seoDataMap.get(platform.id);
-        return postToPlatform(platform, platformPayload, raw.slug, platformSeoData);
+        const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
+
+        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, "put");
       }),
     );
 
@@ -666,15 +669,15 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
       ORDER BY b.created_at DESC
        LIMIT ? OFFSET ?
       `,
-      [ BASE_URL,platformName.trim().toLowerCase(), limitNumber, offset],
+      [BASE_URL, platformName.trim().toLowerCase(), limitNumber, offset],
     );
 
     const DEFAULT_AUTHOR_IMAGE = BASE_URL + "media/uploads/1778838787732-71l6q3owugj.jpeg";
 
     const updatedBlogs = blogs.map((blog) => {
       const parsedAuthor = typeof blog.author_data === "string"
-      ? JSON.parse(blog.author_data)
-      : blog.author_data || {};
+        ? JSON.parse(blog.author_data)
+        : blog.author_data || {};
 
       const updated = {
         ...blog,
@@ -691,7 +694,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
         related: safeParse(blog.related_data),
       };
 
-      delete updated.category_data; 
+      delete updated.category_data;
       delete updated.tag_data;
       delete updated.related_data;
 
