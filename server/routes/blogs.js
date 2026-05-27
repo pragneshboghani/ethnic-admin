@@ -175,7 +175,8 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => {
         const platformSeoData = seo?.find(s => s.platform_id === platform.id);
-        return postToPlatform(platform, req.body, null, platformSeoData);
+        const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
+        return postToPlatform(platform, req.body, updatedseodata.slug, platformSeoData, "post");
       }),
     );
 
@@ -345,7 +346,9 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     const results = await Promise.all(
       platformData.map((platform) => {
         const platformSeoData = seoDataMap.get(platform.id);
-        return postToPlatform(platform, platformPayload, raw.slug, platformSeoData);
+        const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
+
+        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, "put");
       }),
     );
 

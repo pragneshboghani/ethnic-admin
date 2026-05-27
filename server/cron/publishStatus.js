@@ -16,6 +16,11 @@ cron.schedule("* * * * *", async () => {
       const now = currentTime.getTime();
 
       for (const blog of blogs) {
+        const [seos] = await mysqlpool.query(`
+          SELECT * FROM seo_blog 
+          WHERE blog_id = ?
+        `, blog.id);
+
         const publishDate = blog.publish_date;
         const publishTime = publishDate.getTime();
 
@@ -28,9 +33,10 @@ cron.schedule("* * * * *", async () => {
           };
 
           const results = await Promise.all(
-            platformData.map((platform) =>
-              postToPlatform(platform, payload, payload.slug),
-            ),
+            platformData.map((platform) => {
+              const updatedseodata = seos?.find(seo => seo.platform_id === platform.id);
+              return postToPlatform(platform, payload, updatedseodata.slug, null, "put");
+            }),
           );
 
           await mysqlpool.query(
