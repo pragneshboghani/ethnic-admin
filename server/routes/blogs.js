@@ -176,7 +176,7 @@ blogRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       platformData.map((platform) => {
         const platformSeoData = seo?.find(s => s.platform_id === platform.id);
         const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
-        return postToPlatform(platform, req.body, updatedseodata.slug, platformSeoData, "post");
+        return postToPlatform(platform, req.body, updatedseodata.slug, platformSeoData, null);
       }),
     );
 
@@ -269,7 +269,19 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
       status,
       platforms,
     } = req.body;
-    const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
+    const [[raw]] = await mysqlpool.query(`SELECT 
+        blogs.*,
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'platform_id', seo_blog.platform_id,
+                'platform_blog_id', seo_blog.platform_blog_id
+            )
+        ) AS seo
+    FROM blogs
+    LEFT JOIN seo_blog 
+        ON seo_blog.blog_id = blogs.id
+    WHERE blogs.id = ?
+    GROUP BY blogs.id`, [
       id,
     ]);
 
@@ -347,8 +359,9 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
       platformData.map((platform) => {
         const platformSeoData = seoDataMap.get(platform.id);
         const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
+        const platfrom_post = raw.seo?.find((seo) => seo.platform_id === platform.id);
 
-        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, "put");
+        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, platfrom_post.platform_blog_id);
       }),
     );
 
@@ -359,7 +372,11 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
     const removedPlatformData = await getPlatformsByIds(removedPlatformIds);
 
     const deleteResults = await Promise.all(
-      removedPlatformData.map((platform) => deletePost(platform, raw.slug)),
+      removedPlatformData.map((platform) => {
+        const platfrom_post = raw.seo?.find((seo) => seo.platform_id === platform.id)
+
+        deletePost(platform, platfrom_post?.platform_blog_id)
+      }),
     );
 
     const UpdatedData = {
@@ -445,7 +462,19 @@ blogRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
   try {
     const { id } = req.query;
 
-    const [[raw]] = await mysqlpool.query(`SELECT * FROM blogs WHERE id = ?`, [
+    const [[raw]] = await mysqlpool.query(`SELECT 
+        blogs.*,
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'platform_id', seo_blog.platform_id,
+                'platform_blog_id', seo_blog.platform_blog_id
+            )
+        ) AS seo
+    FROM blogs
+    LEFT JOIN seo_blog 
+        ON seo_blog.blog_id = blogs.id
+    WHERE blogs.id = ?
+    GROUP BY blogs.id`, [
       id,
     ]);
 
@@ -459,7 +488,11 @@ blogRouter.delete("/delete", verifyApiKey, authMiddleware, async (req, res) => {
     const platformData = await getPlatformsByIds(raw.platforms);
 
     const results = await Promise.all(
-      platformData.map((platform) => deletePost(platform, raw.slug)),
+      platformData.map((platform) => {
+        const platfrom_post = raw.seo?.find((seo) => seo.platform_id === platform.id)
+
+        deletePost(platform, platfrom_post?.platform_blog_id)
+      }),
     );
 
     const [result] = await mysqlpool.query("DELETE FROM blogs WHERE id = ?", [

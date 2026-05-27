@@ -35,7 +35,7 @@ cron.schedule("* * * * *", async () => {
           const results = await Promise.all(
             platformData.map((platform) => {
               const updatedseodata = seos?.find(seo => seo.platform_id === platform.id);
-              return postToPlatform(platform, payload, updatedseodata.slug, null, "put");
+              return postToPlatform(platform, payload, updatedseodata.slug, null, updatedseodata.platform_blog_id);
             }),
           );
 
