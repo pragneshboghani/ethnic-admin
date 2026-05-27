@@ -592,7 +592,7 @@ blogRouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
 
 blogRouter.get("/platform", verifyApiKey, async (req, res) => {
   try {
-    const { platformName, page = 1, limit = 12 } = req.query;
+    const { platformName, page = 1, limit = 12, search, category } = req.query;
 
     if (!platformName) {
       return res.status(400).json({
@@ -605,33 +605,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
     const limitNumber = parseInt(limit);
     const offset = (pageNumber - 1) * limitNumber;
 
-    const [[{ total }]] = await mysqlpool.query(
-      `
-      SELECT COUNT(*) as total
-      FROM blogs b
-      JOIN platforms p2
-        ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
-      WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ?
-      AND b.status = "publish"
-      `,
-      [platformName.trim().toLowerCase()],
-    );
-
-    const totalPages = Math.ceil(total / limitNumber);
-
-    if (pageNumber > totalPages && totalPages !== 0) {
-      return res.status(200).json({
-        success: true,
-        totalBlogs: total,
-        currentPage: pageNumber,
-        totalPages: totalPages,
-        data: [],
-        message: "No data - page exceeds total pages",
-      });
-    }
-
-    const [blogs] = await mysqlpool.query(
-      `
+    let query = `
       SELECT 
         b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
         (
@@ -663,11 +637,69 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
         ON b.id = sb.blog_id AND p2.id = sb.platform_id
 
       WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"
-      ORDER BY b.created_at DESC
-       LIMIT ? OFFSET ?
-      `,
-      [ BASE_URL,platformName.trim().toLowerCase(), limitNumber, offset],
-    );
+      `
+    const params = [ BASE_URL,platformName.trim().toLowerCase()];
+
+    let countQuery = 
+      `SELECT COUNT(*) as total FROM blogs b
+        JOIN platforms p2 ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
+        JOIN seo_blog sb ON b.id = sb.blog_id AND p2.id = sb.platform_id
+        WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"`;
+
+    const countParams = [platformName.trim().toLowerCase()];
+
+    if (search) {
+      query += ` AND ( b.blog_title LIKE ? OR b.short_excerpt LIKE ? OR b.full_content LIKE ? OR sb.slug LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+
+      countQuery += ` AND (b.blog_title LIKE ? OR b.short_excerpt LIKE ? OR b.full_content LIKE ? OR sb.slug LIKE ? )`;
+      countParams.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    if (category) {
+      const [categoryRows] = await mysqlpool.query(
+        `SELECT id FROM category WHERE slug = ? OR name = ? LIMIT 1`,
+        [category, category]
+      );
+
+      if (categoryRows.length > 0) {
+        const categoryId = categoryRows[0].id;
+
+        query += ` AND JSON_CONTAINS(b.category, CAST(? AS JSON))`;
+        params.push(categoryId);
+
+        countQuery += ` AND JSON_CONTAINS(b.category, CAST(? AS JSON))`;
+        countParams.push(categoryId);
+      } else {
+        console.warn(`No category found for slug or name: ${category}`);
+        return res.status(200).json({
+          success: true,
+          totalBlogs: 0,
+          currentPage: pageNumber,
+          totalPages: 0,
+          data: [],
+          message: "No data - category not found",
+        });
+      }
+    }
+    const [[{ total }]] = await mysqlpool.query(countQuery, countParams);
+
+    const totalPages = Math.ceil(total / limitNumber);
+
+    if (pageNumber > totalPages && totalPages !== 0) {
+      return res.status(200).json({
+        success: true,
+        totalBlogs: total,
+        currentPage: pageNumber,
+        totalPages: totalPages,
+        data: [],
+        message: "No data - page exceeds total pages",
+      });
+    }
+
+    query += ` ORDER BY b.created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limitNumber, offset);
+    const [blogs] = await mysqlpool.query(query, params);
 
     const DEFAULT_AUTHOR_IMAGE = BASE_URL + "media/uploads/1778838787732-71l6q3owugj.jpeg";
 
