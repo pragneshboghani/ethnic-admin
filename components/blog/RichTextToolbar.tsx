@@ -508,12 +508,12 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
                 <ToolbarButton
                     title="Bold"
                     icon={<Bold size={15} />}
-                    onAction={() => wrapSelectedTextWithTag("b", editorElement, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("strong", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Italic"
                     icon={<Italic size={15} />}
-                    onAction={() => wrapSelectedTextWithTag("i", editorElement, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("em", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Underline"
