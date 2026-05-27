@@ -788,8 +788,41 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
       ), JSON_ARRAY()),
 
       'related_data', IFNULL((
-        SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rb.id, 'name', rb.blog_title, 'slug', rb.slug, 'publish_date', rb.publish_date, 'author', rb.author))
+        SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'id', rb.id,
+            'name', rb.blog_title,
+            'slug', rsb.slug,
+            'publish_date', rb.publish_date,
+            'short_excerpt', rb.short_excerpt,
+            'image',
+              CASE
+                WHEN rb.featured_image IS NULL OR rb.featured_image = ''
+                THEN CONCAT('${BASE_URL}', 'media/uploads/1778838787732-71l6q3owugj.jpeg')
+                WHEN rb.featured_image LIKE 'http%'
+                THEN rb.featured_image
+                ELSE CONCAT('${BASE_URL}', rb.featured_image)
+              END,
+
+            'author', JSON_OBJECT(
+              'name', ru.name,
+              'image',
+                CASE
+                  WHEN ru.img_url IS NULL OR ru.img_url = ''
+                  THEN CONCAT('${BASE_URL}', 'media/uploads/1778838787732-71l6q3owugj.jpeg')
+                  WHEN ru.img_url LIKE 'http%'
+                  THEN ru.img_url
+                  ELSE CONCAT('${BASE_URL}', ru.img_url)
+                END
+            )
+
+          )
+        )
         FROM blogs rb
+        LEFT JOIN seo_blog rsb ON rsb.blog_id = rb.id
+        LEFT JOIN users ru 
+          ON LOWER(REPLACE(rb.author, ' ', '')) = LOWER(REPLACE(ru.name, ' ', ''))
+
         WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
       ), JSON_ARRAY()),
 

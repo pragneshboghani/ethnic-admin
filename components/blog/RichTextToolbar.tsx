@@ -290,6 +290,51 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
         runEditorCommand(editorElement, "formatBlock", tagName, savedRangeRef.current);
     };
 
+    const wrapSelectedTextWithTag = (tagName: string, editorElement?: HTMLElement, range?: Range | null) => {
+        if (!editorElement) { return; }
+
+        focusEditor(editorElement);
+        restoreRange(range || null);
+
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) { return; }
+
+        const currentRange = selection.getRangeAt(0);
+        if (currentRange.collapsed) { return; }
+
+        const parentElement = currentRange.commonAncestorContainer.nodeType === Node.ELEMENT_NODE ? (currentRange.commonAncestorContainer as Element) : currentRange.commonAncestorContainer.parentElement;
+
+        const existingTag = parentElement?.closest(tagName);
+
+        if (existingTag) {
+            const fragment = document.createDocumentFragment();
+
+            while (existingTag.firstChild) {
+                fragment.appendChild(existingTag.firstChild);
+            }
+
+            existingTag.parentNode?.replaceChild(fragment, existingTag);
+
+            triggerEditorInput(editorElement);
+            return;
+        }
+
+        const selectedContent = currentRange.extractContents();
+
+        const wrapper = document.createElement(tagName);
+        wrapper.appendChild(selectedContent);
+
+        currentRange.insertNode(wrapper);
+
+        selection.removeAllRanges();
+
+        const newRange = document.createRange();
+        newRange.selectNodeContents(wrapper);
+        selection.addRange(newRange);
+
+        triggerEditorInput(editorElement);
+    };
+
     const handleOpenLinkModal = () => {
         savedRangeRef.current = getCurrentRange();
         setHasLinkSelection(Boolean(savedRangeRef.current?.toString().trim()));
@@ -463,27 +508,27 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
                 <ToolbarButton
                     title="Bold"
                     icon={<Bold size={15} />}
-                    onAction={() => runEditorCommand(editorElement, "bold", undefined, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("b", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Italic"
                     icon={<Italic size={15} />}
-                    onAction={() => runEditorCommand(editorElement, "italic", undefined, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("i", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Underline"
                     icon={<Underline size={15} />}
-                    onAction={() => runEditorCommand(editorElement, "underline", undefined, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("u", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Subscript"
                     icon={<SubscriptIcon size={15} />}
-                    onAction={() => runEditorCommand(editorElement, "subscript", undefined, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("sub", editorElement, savedRangeRef.current)}
                 />
                 <ToolbarButton
                     title="Superscript"
                     icon={<SuperscriptIcon size={15} />}
-                    onAction={() => runEditorCommand(editorElement, "superscript", undefined, savedRangeRef.current)}
+                    onAction={() => wrapSelectedTextWithTag("sup", editorElement, savedRangeRef.current)}
                 />
 
                 <ToolbarButton
