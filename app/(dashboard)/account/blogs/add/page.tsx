@@ -232,13 +232,48 @@ const BlogForm = () => {
             if (blogId == null) {
                 const AddedBlogs = await BlogActions.addBlog(BlogFormData);
                 newBlogId = AddedBlogs.blogId;
+                const platforms = AddedBlogs.plarformResult || [];
 
-                await SEOActions.addSEO(newBlogId, seoFormDataArray);
+                const results = seoFormDataArray.map((seo) => {
+                    const matchedPlatform = platforms.find(
+                        (platform: any) => platform.platform_id === seo.platform_id
+                    );
+
+                    if (matchedPlatform) {
+                        return {
+                            ...seo,
+                            platform_blog_id: matchedPlatform?.data?.id,
+                        };
+                    }
+
+                    // keep original seo data if platform not found
+                    return seo;
+                });
+
+                await SEOActions.addSEO(newBlogId, results);
 
                 toast.success(isDraft ? "Draft Successfully Saved!" : "Blog Successfully Added!");
             } else {
-                await BlogActions.updateBlog(Number(blogId), BlogFormData);
-                await SEOActions.updateSEO(Number(blogId), seoFormDataArray);
+                const updatedBlogs = await BlogActions.updateBlog(Number(blogId), BlogFormData);
+                const platforms = updatedBlogs.results || [];
+
+                const results = seoFormDataArray.map((seo) => {
+                    const matchedPlatform = platforms.find(
+                        (platform: any) => platform.platform_id === seo.platform_id
+                    );
+
+                    if (matchedPlatform) {
+                        return {
+                            ...seo,
+                            platform_blog_id: matchedPlatform?.data?.id,
+                        };
+                    }
+
+                    // keep original seo data if platform not found
+                    return seo;
+                });
+
+                await SEOActions.updateSEO(Number(blogId), results);
                 toast.success(isDraft ? "Draft updated successfully!" : "Blog updated successfully!");
             }
 
@@ -308,7 +343,7 @@ const BlogForm = () => {
 
                 const canonicalUrl = isWordpress
                     ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${baseUrl}${blogPath}/${slug}`;  
+                    : `${baseUrl}${blogPath}/${slug}`;
 
                 const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;

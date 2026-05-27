@@ -2,22 +2,12 @@ const axios = require("axios");
 const getAuthHeaders = require("./getAuthHeaders");
 const getTaxonomyUrl = require("./getTaxonomyUrl");
 
-async function deletePost(platform, slug) {
+async function deletePost(platform, platform_blog_id) {
   try {
     let url = getTaxonomyUrl(platform, "post");
     const headers = getAuthHeaders(platform);
-    const resg = await axios.get(url, {
-      params: { slug, status: "any" },
-      headers,
-    });
 
-    if (!resg.data.length) {
-      throw new Error("Post not found on platform with this slug");
-    }
-
-    const postId = resg.data[0].id;
-
-    const res = await axios.delete(`${url}/${postId}?force=true`, { headers });
+    const res = await axios.delete(`${url}/${platform_blog_id}?force=true`, { headers });
 
     return {
       success: true,
