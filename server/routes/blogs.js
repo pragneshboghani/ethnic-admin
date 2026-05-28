@@ -610,7 +610,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
 
     let query = `
       SELECT 
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.author,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,sb.cta_button_text,sb.cta_button_link,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
