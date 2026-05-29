@@ -783,7 +783,7 @@ blogRouter.get("/platform", verifyApiKey, async (req, res) => {
 
 blogRouter.get("/slug", verifyApiKey, async (req, res) => {
   try {
-    const { slug } = req.query;
+    const { slug, platform } = req.query;
 
     if (!slug) {
       return res.status(400).json({
@@ -852,11 +852,12 @@ blogRouter.get("/slug", verifyApiKey, async (req, res) => {
           )
         )
         FROM blogs rb
-        LEFT JOIN seo_blog rsb ON rsb.blog_id = rb.id
+        LEFT JOIN seo_blog rsb ON rsb.blog_id = rb.id AND rsb.platform_id = sb.platform_id
         LEFT JOIN users ru 
           ON LOWER(REPLACE(rb.author, ' ', '')) = LOWER(REPLACE(ru.name, ' ', ''))
 
-        WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON))
+        WHERE JSON_CONTAINS(b.related, CAST(rb.id AS JSON)) 
+          AND rsb.publish_status = "publish"
       ), JSON_ARRAY()),
 
       'seo_data', JSON_OBJECT(
@@ -988,7 +989,7 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
     const blogsQuery = hasPlatformFilter
       ? `
         SELECT
-        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,
+        b.id,b.blog_title,b.short_excerpt,b.full_content,b.faq,b.featured_image,b.publish_date,b.reading_time,b.status,b.created_at,sb.slug,sb.cta_button_text,sb.cta_button_link,
         (
           SELECT JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'name', c.name))
           FROM category c
