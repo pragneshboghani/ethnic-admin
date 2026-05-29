@@ -337,7 +337,40 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
     const handleOpenLinkModal = () => {
         savedRangeRef.current = getCurrentRange();
-        setHasLinkSelection(Boolean(savedRangeRef.current?.toString().trim()));
+        const selectedText = savedRangeRef.current?.toString().trim();
+        setHasLinkSelection(Boolean(selectedText));
+
+        if (!selectedText) {
+            setIsLinkModalOpen(true);
+            return;
+        }
+
+        focusEditor(editorElement);
+        restoreRange(savedRangeRef.current);
+
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            setIsLinkModalOpen(true);
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const parentElement = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE 
+            ? (range.commonAncestorContainer as Element) 
+            : range.commonAncestorContainer.parentElement;
+
+        const existingLink = parentElement?.closest("a");
+
+        if (existingLink) {
+            const fragment = document.createDocumentFragment();
+            while (existingLink.firstChild) {
+                fragment.appendChild(existingLink.firstChild);
+            }
+            existingLink.parentNode?.replaceChild(fragment, existingLink);
+            triggerEditorInput(editorElement);
+            return;
+        }
+
         setIsLinkModalOpen(true);
     };
 
