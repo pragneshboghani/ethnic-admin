@@ -9,27 +9,7 @@ import {
     ListIndentIncrease, ListIndentDecrease,
     Table, Subscript as SubscriptIcon, Superscript as SuperscriptIcon, Trash2,
 } from "lucide-react";
-
-type ToolbarButtonProps = {
-    title: string;
-    icon: React.ReactNode;
-    onAction: () => void;
-};
-
-type LinkFormValues = {
-    url: string;
-    text: string;
-    openInNewTab: boolean;
-};
-
-type EditorPlatformData = {
-    data?: Array<{
-        id: number;
-        platform_name?: string;
-        status?: string;
-        api_endpoint?: string;
-    }>;
-} | null;
+import { EditorPlatformData, LinkFormValues, ToolbarButtonProps } from "@/types";
 
 const getPlainTextContent = (content: string) =>
     (content || "")
@@ -63,7 +43,6 @@ const ToolbarButton = ({ title, icon, onAction }: ToolbarButtonProps) => (
     </button>
 );
 
-
 const focusEditor = (editorElement?: HTMLElement) => {
     if (!editorElement) {
         return;
@@ -92,12 +71,7 @@ const restoreRange = (range: Range | null) => {
     selection.addRange(range);
 };
 
-const runEditorCommand = (
-    editorElement: HTMLElement | undefined,
-    command: string,
-    value?: string,
-    range?: Range | null,
-) => {
+const runEditorCommand = (editorElement: HTMLElement | undefined, command: string, value?: string, range?: Range | null) => {
     focusEditor(editorElement);
     restoreRange(range || null);
     document.execCommand("styleWithCSS", false, "true");
@@ -254,6 +228,10 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
     const [isTableModalOpen, setIsTableModalOpen] = useState(false);
     const [hasLinkSelection, setHasLinkSelection] = useState(false);
     const [isTableContextActive, setIsTableContextActive] = useState(false);
+    const [currentLinkElement, setCurrentLinkElement] = useState<HTMLAnchorElement | null>(null);
+    const [linkModalUrl, setLinkModalUrl] = useState("");
+    const [linkModalText, setLinkModalText] = useState("");
+    const [linkModalOpenInNewTab, setLinkModalOpenInNewTab] = useState(true);
     const savedRangeRef = useRef<Range | null>(null);
     const plainTextContent = getPlainTextContent(content);
     const wordCount = plainTextContent ? plainTextContent.split(" ").length : 0;
@@ -339,6 +317,10 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
         savedRangeRef.current = getCurrentRange();
         const selectedText = savedRangeRef.current?.toString().trim();
         setHasLinkSelection(Boolean(selectedText));
+        setCurrentLinkElement(null);
+        setLinkModalUrl("");
+        setLinkModalText("");
+        setLinkModalOpenInNewTab(true);
 
         if (!selectedText) {
             setIsLinkModalOpen(true);
@@ -355,20 +337,17 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
         }
 
         const range = selection.getRangeAt(0);
-        const parentElement = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE 
-            ? (range.commonAncestorContainer as Element) 
+        const parentElement = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+            ? (range.commonAncestorContainer as Element)
             : range.commonAncestorContainer.parentElement;
 
-        const existingLink = parentElement?.closest("a");
+        const existingLink = parentElement?.closest("a") as HTMLAnchorElement | null;
 
         if (existingLink) {
-            const fragment = document.createDocumentFragment();
-            while (existingLink.firstChild) {
-                fragment.appendChild(existingLink.firstChild);
-            }
-            existingLink.parentNode?.replaceChild(fragment, existingLink);
-            triggerEditorInput(editorElement);
-            return;
+            setCurrentLinkElement(existingLink);
+            setLinkModalUrl(existingLink.getAttribute("href") || "");
+            setLinkModalText(selectedText || existingLink.textContent?.trim() || "");
+            setLinkModalOpenInNewTab(existingLink.target === "_blank");
         }
 
         setIsLinkModalOpen(true);
@@ -390,6 +369,7 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
         if (!trimmedUrl) {
             setIsLinkModalOpen(false);
+            setCurrentLinkElement(null);
             return;
         }
 
@@ -398,6 +378,25 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
         const selection = window.getSelection();
         const selectedText = selection?.toString().trim() || "";
+
+        if (currentLinkElement) {
+            currentLinkElement.setAttribute("href", trimmedUrl);
+            if (openInNewTab) {
+                currentLinkElement.setAttribute("target", "_blank");
+                currentLinkElement.setAttribute("rel", "noopener noreferrer");
+            } else {
+                currentLinkElement.removeAttribute("target");
+                currentLinkElement.removeAttribute("rel");
+            }
+
+            if (trimmedText) {
+                currentLinkElement.textContent = trimmedText;
+            }
+            triggerEditorInput(editorElement);
+            setCurrentLinkElement(null);
+            setIsLinkModalOpen(false);
+            return;
+        }
 
         if (selectedText) {
             document.execCommand("createLink", false, trimmedUrl);
@@ -420,6 +419,23 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
             );
         }
 
+        setIsLinkModalOpen(false);
+        setCurrentLinkElement(null);
+    };
+
+    const handleRemoveLink = () => {
+        if (!currentLinkElement) {
+            setIsLinkModalOpen(false);
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        while (currentLinkElement.firstChild) {
+            fragment.appendChild(currentLinkElement.firstChild);
+        }
+        currentLinkElement.parentNode?.replaceChild(fragment, currentLinkElement);
+        triggerEditorInput(editorElement);
+        setCurrentLinkElement(null);
         setIsLinkModalOpen(false);
     };
 
@@ -706,9 +722,15 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
                 onClose={() => {
                     setIsLinkModalOpen(false);
                     setHasLinkSelection(false);
+                    setCurrentLinkElement(null);
                 }}
                 onSubmit={handleLinkSubmit}
+                onRemove={handleRemoveLink}
                 hasSelection={hasLinkSelection}
+                initialUrl={linkModalUrl}
+                initialText={linkModalText}
+                initialOpenInNewTab={linkModalOpenInNewTab}
+                isExistingLink={Boolean(currentLinkElement)}
             />
             <TableModal
                 isOpen={isTableModalOpen}

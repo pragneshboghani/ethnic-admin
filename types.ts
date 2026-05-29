@@ -430,3 +430,40 @@ export type Group = {
   created_by: number;
   image: string;
 };
+
+export type LinkModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (values: {
+    url: string;
+    text: string;
+    openInNewTab: boolean;
+  }) => void;
+  onRemove?: () => void;
+  hasSelection: boolean;
+  initialUrl?: string;
+  initialText?: string;
+  initialOpenInNewTab?: boolean;
+  isExistingLink?: boolean;
+};
+
+export type ToolbarButtonProps = {
+    title: string;
+    icon: React.ReactNode;
+    onAction: () => void;
+};
+
+export type LinkFormValues = {
+    url: string;
+    text: string;
+    openInNewTab: boolean;
+};
+
+export type EditorPlatformData = {
+    data?: Array<{
+        id: number;
+        platform_name?: string;
+        status?: string;
+        api_endpoint?: string;
+    }>;
+} | null;
