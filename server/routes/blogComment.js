@@ -2,16 +2,62 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const verifyApiKey = require("../middleware/verifyApiKey");
+const { getPlatformsByIds } = require("../utils/platformHelper");
+const getTaxonomyUrl = require("../utils/getTaxonomyUrl");
+const axios = require("axios");
+const getAuthHeaders = require("../utils/getAuthHeaders");
 
 const blogCommentRouter = Router();
 
 const allowedStatuses = ["hold", "approved", "rejected"];
+const BASE_URL = process.env.BACKEND_API;
 
 blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, res) => {
     try {
       const { blogId } = req.query;
 
-      const [results] = await mysqlpool.query(
+      const [[blogExists]] = await mysqlpool.query(`SELECT id, platforms FROM blogs WHERE id = ?`, [blogId]);
+
+      if (!blogExists) {
+        return res.status(404).json({
+          success: false,
+          message: "Blog not found",
+        });
+      }
+
+      const blogComments = [];
+      const platformData = await getPlatformsByIds(blogExists.platforms);
+
+      const results = await Promise.all(
+        platformData.map(async(platform) => {
+          const [[platformBlogId]] = await mysqlpool.query(
+            `SELECT id, platform_blog_id FROM seo_blog WHERE blog_id = ? AND platform_id = ?`,
+            [blogId, platform.id]
+          );
+
+          const url = getTaxonomyUrl(platform, "comment");
+          const headers = getAuthHeaders(platform);
+          
+          const commentRes = await axios.get(`${url}?post=${platformBlogId?.platform_blog_id}`, {
+            headers,
+          });
+
+          const commentData = commentRes.data.map(comment => ({
+            id: comment.id,
+            comment: comment.content?.rendered || "",
+            comment_status: comment.status || "approved",
+            commentor_email: comment.author_email || "",
+            commentor_name: comment.author_name || "Anonymous",
+            created_at: comment.date || null,
+            admin_reply: null,
+            platform_name: platform.platform_name,
+          }));
+
+          blogComments.push(...commentData);
+        }),
+      );
+
+      const [result] = await mysqlpool.query(
         `SELECT bc.*, p.platform_name
         FROM blog_comment bc
         LEFT JOIN platforms p 
@@ -21,9 +67,20 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
         [blogId]
       );
 
+      blogComments.push(...result.map(comment => ({
+        id: comment.id,
+        comment: comment.comment,
+        comment_status: comment.comment_status,
+        commentor_email: comment.commentor_email,
+        commentor_name: comment.commentor_name,
+        created_at: comment.created_at,
+        admin_reply: comment.admin_reply,
+        platform_name: comment.platform_name || "Unknown Platform",
+      })));
+
       res.status(200).send({
         success: true,
-        commentData: results,
+        commentData: blogComments,
       });
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -200,7 +257,7 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
     }
 
     const [result] = await mysqlpool.query(
-      `SELECT id, admin_reply, comment, comment_status, commentor_email, commentor_name, created_at FROM blog_comment WHERE platform_id = ? AND blog_id = ? AND comment_status = 'approved' ORDER BY created_at DESC`,
+      `SELECT id, admin_reply, comment, comment_status, commentor_email, commentor_name, replyer_admin, created_at FROM blog_comment WHERE platform_id = ? AND blog_id = ? AND comment_status = 'approved' ORDER BY created_at DESC`,
       [platformId.id, blogId],
     );
 
@@ -211,10 +268,32 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
       });
     }
 
+    const comments = await Promise.all(
+      result.map(async (comment) => {
+        if (comment.replyer_admin) {
+          const [[admin]] = await mysqlpool.query(
+            `SELECT name, img_url FROM users WHERE id = ?`,
+            [comment.replyer_admin]
+          );
+
+          const adminData = {
+            ...admin,
+            img_url: `${BASE_URL}${
+              admin?.img_url || "media/uploads/1778838787732-71l6q3owugj.jpeg"
+            }`,
+          };
+
+          return { ...comment, admin: adminData };
+        }
+
+        return comment;
+      })
+    );
+
     res.status(200).json({
       success: true,
       message: "Comments found successfully",
-      comments: result
+      comments: comments
     });
   } catch (error) {
     console.error("Error finding Comments:", error);

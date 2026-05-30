@@ -160,7 +160,7 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                     <div className="space-y-3">
                         {comments.map((comment) => (
                             <button key={comment.id} type="button" onClick={() => handleOpenComment(comment)} className="w-full rounded-[22px] border border-white/8 bg-[#101826] p-4 text-left transition hover:border-[#31425e] hover:bg-[#182438]" >
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
                                         <p className="text-sm font-semibold text-[#eef4ff]">
                                             {comment.commentor_name || "Anonymous"}
@@ -180,10 +180,11 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                                         {renderStatusBadge(comment.comment_status)}
                                     </div>
                                 </div>
-
-                                <div className="mt-3 line-clamp-3 text-sm leading-6 text-[#dbe5f3]">
-                                    {comment.comment || "No comment text available."}
-                                </div>
+                                
+                                <div className="mt-3 line-clamp-3 text-sm leading-6 text-[#dbe5f3]"
+                                    dangerouslySetInnerHTML={{
+                                        __html: comment.comment || "No comment text available."
+                                    }} />
                             </button>
                         ))}
                     </div>
