@@ -500,6 +500,7 @@ const BlogForm = () => {
                             content={content}
                             tagsList={allData.tagsList}
                             setIsTagModalOpen={setIsTagModalOpen}
+                            blogId={blogId}
                         />
                     ) : (
                         <PlatformSettingsSection

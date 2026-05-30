@@ -14,6 +14,7 @@ const tagRouter = require("./routes/tags");
 const userRouter = require("./routes/user");
 const publishHistoryRouter = require("./routes/publishHistory");
 const groupRouter = require("./routes/group");
+const blogCommentRouter = require("./routes/blogComment");
 
 const app = express();
 
@@ -39,10 +40,11 @@ app.use("/api/dashboard", dashboardRouter);
 app.use("/api/media", mediarouter);
 app.use("/api/seo", seoRouter);
 app.use("/api/user", userRouter);
-app.use("/api/category", categoryRouter)
-app.use("/api/tags", tagRouter)
-app.use("/api/publish_history", publishHistoryRouter)
-app.use("/api/groups", groupRouter)
+app.use("/api/category", categoryRouter);
+app.use("/api/tags", tagRouter);
+app.use("/api/publish_history", publishHistoryRouter);
+app.use("/api/groups", groupRouter);
+app.use("/api/blog-comments", blogCommentRouter);
 
 app.use((req, res) => {
   return res.status(404).json({
