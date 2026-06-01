@@ -62,6 +62,26 @@ const BlogCommentAction = {
       throw error;
     }
   },
+
+  async deleteComment(commentId: number) {
+    try {
+      const endpoint = `${BACKEND_DOMAIN || ""}/api/blog-comments/comment/delete/${commentId}`;
+      const res = await fetch(endpoint, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete comment");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error deleting comment:", error.message);
+      throw error;
+    }
+  }
 };
 
 export default BlogCommentAction;

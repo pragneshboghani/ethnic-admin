@@ -412,4 +412,45 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
   }
 });
 
+blogCommentRouter.delete("/comment/delete/:commentId", verifyApiKey, authMiddleware, async (req, res) => {
+  try {
+    const { commentId } = req.params;
+
+    const [[row]] = await mysqlpool.query(
+      `SELECT id FROM blog_comment WHERE id = ?`,
+      [commentId],
+    );
+
+    if (!row) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+    
+    const [result] = await mysqlpool.query(
+      `DELETE FROM blog_comment WHERE id = ?`,
+      [commentId],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Comment deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = blogCommentRouter;

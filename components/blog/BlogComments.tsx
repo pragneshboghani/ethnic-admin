@@ -120,6 +120,25 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
         );
     };
 
+    const handleDeleteComment = async (commentId: number) => {
+        setActionLoading(true);
+
+        try {
+            const res = await BlogCommentAction.deleteComment(commentId);
+
+            if (res.success) {
+                toast.success(res.message || "Comment deleted successfully");
+                await loadComments();
+                handleCloseModal();
+            } else {
+                toast.error(res.message || "Unable to delete comment");
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Unable to delete comment");
+        } finally {
+            setActionLoading(false);
+        }
+    }
     return (
         <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8">
             <div className="flex flex-col gap-4 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -180,7 +199,7 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                                         {renderStatusBadge(comment.comment_status)}
                                     </div>
                                 </div>
-                                
+
                                 <div className="mt-3 line-clamp-3 text-sm leading-6 text-[#dbe5f3]"
                                     dangerouslySetInnerHTML={{
                                         __html: comment.comment || "No comment text available."
@@ -304,6 +323,10 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
 
                                         <button type="button" onClick={() => void handleSaveReply()} disabled={actionLoading} className="btn !shadow-none">
                                             Save Reply
+                                        </button>
+
+                                        <button type="button" disabled={actionLoading} className="rounded-xl border border-white/10 bg-[#0f1724] px-4 py-2 text-sm text-[#dbe5f3] transition hover:bg-white/[0.06] disabled:opacity-50 cursor-pointer" onClick={() => void handleDeleteComment(selectedComment.id)}>
+                                            Delete Comment
                                         </button>
                                     </div>
                                 </div>
