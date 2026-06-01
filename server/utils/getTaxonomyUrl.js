@@ -5,6 +5,7 @@ function getTaxonomyUrl(platform, type) {
     media: 'wp-json/wp/v2/media',
     post: 'wp-json/wp/v2/posts',
     user: 'wp-json/wp/v2/users',
+    comment: '/wp-json/wp/v2/comments'
   };
 
   const path = pathMap[type];

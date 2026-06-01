@@ -93,6 +93,7 @@ export type BlogGeneralSectionProps = {
   tagsList: { id: number; name: string }[];
   setIsTagModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedTags: number[];
+  blogId: string | null;
 };
 
 export type PlatformSettingsProps = {

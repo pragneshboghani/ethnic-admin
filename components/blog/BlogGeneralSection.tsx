@@ -5,8 +5,9 @@ import { Trash2 } from "lucide-react";
 import { useFieldArray } from "react-hook-form";
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import RichTextToolbar from "./RichTextToolbar";
+import BlogComments from "./BlogComments";
 
-const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, }: BlogGeneralSectionProps) => {
+const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, blogId, }: BlogGeneralSectionProps) => {
     const { fields: faqFields, append: appendFaq, remove: removeFaq } = useFieldArray({
         control,
         name: "faq",
@@ -289,6 +290,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                     />
                 </div>
             </div>
+            <BlogComments blogId={blogId} />
         </div>
     );
 };
