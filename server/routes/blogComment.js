@@ -78,9 +78,38 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
         platform_name: comment.platform_name || "Unknown Platform",
       })));
 
+      const comments = await Promise.all(
+        blogComments.map(async (comment) => {
+          if (comment.admins_reply && comment.admins_reply.length > 0) {          
+            const adminsReply = await Promise.all(
+              comment.admins_reply.map(async (reply) => {
+                const [[admin]] = await mysqlpool.query(
+                  `SELECT name, img_url FROM users WHERE id = ?`,
+                  [reply.adminId]
+                );
+
+                delete reply.adminId;
+                return {...reply,
+                  adminData: {
+                    ...admin,
+                    img_url: `${BASE_URL}${
+                      admin?.img_url ||
+                      "media/uploads/1778838787732-71l6q3owugj.jpeg"
+                    }`,
+                  },
+                };
+              })
+            );
+
+            comment.admins_reply = adminsReply;
+          }
+
+          return comment;
+        })
+      );
       res.status(200).send({
         success: true,
-        commentData: blogComments,
+        commentData: comments,
       });
     } catch (error) {
       console.error("Error fetching comments:", error);

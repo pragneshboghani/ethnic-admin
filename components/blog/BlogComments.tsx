@@ -270,13 +270,20 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                                             {selectedComment.comment_status || "hold"}
                                         </p>
 
-                                        {selectedComment.admin_reply && (
-                                            <p>
-                                                <span className="font-medium text-[#eef4ff]">
-                                                    Existing reply:
-                                                </span>{" "}
-                                                {selectedComment.admin_reply}
-                                            </p>
+                                        {selectedComment.admins_reply && selectedComment.admins_reply.length > 0 && (
+                                            selectedComment.admins_reply.map((reply: any, index: number) => {
+                                                if (reply.type !== "reply") {
+                                                    return null;
+                                                }
+                                                return (
+                                                    <p key={index}>
+                                                        <span className="font-medium text-[#eef4ff]">
+                                                            {reply.adminData?.name || "Admin"}:
+                                                        </span>{" "}
+                                                        {reply.admin_reply}
+                                                    </p>
+                                                );
+                                            })
                                         )}
                                     </div>
                                 </div>
