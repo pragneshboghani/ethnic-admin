@@ -49,7 +49,7 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
             commentor_email: comment.author_email || "",
             commentor_name: comment.author_name || "Anonymous",
             created_at: comment.date || null,
-            admin_reply: null,
+            admins_reply: null,
             platform_name: platform.platform_name,
           }));
 
@@ -74,7 +74,7 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
         commentor_email: comment.commentor_email,
         commentor_name: comment.commentor_name,
         created_at: comment.created_at,
-        admin_reply: comment.admin_reply,
+        admins_reply: comment.admins_reply,
         platform_name: comment.platform_name || "Unknown Platform",
       })));
 
@@ -115,8 +115,8 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
     }
 
     const [result] = await mysqlpool.query(`
-      INSERT INTO blog_comment (blog_id, platform_id, commentor_name, commentor_email, comment_status, comment) VALUES (?, ?, ?, ?, ?, ?);
-    `, [blogId, platformId.id, authorName, authorEmail, 'hold', content]);
+      INSERT INTO blog_comment (blog_id, platform_id, commentor_name, commentor_email, comment_status,admins_reply, comment) VALUES (?, ?, ?, ?, ?, ?, ?);
+    `, [blogId, platformId.id, authorName, authorEmail, 'hold', JSON.stringify([]), content]);
 
     if (result.affectedRows === 0) {
       return res.status(500).json({
@@ -165,9 +165,43 @@ blogCommentRouter.put("/comment/status", verifyApiKey, authMiddleware, async (re
       });
     }
 
+    const [existingComments] = await mysqlpool.query(
+      `SELECT id, admins_reply FROM blog_comment WHERE id = ?`,
+      [commentId],
+    );
+
+    if (existingComments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+
+    const adminReply = existingComments[0].admins_reply;    
+    const alreadyStatusChange = adminReply.some(reply => reply.type === "status_change");
+    
+    const newAdminReply = [];
+
+    if (alreadyStatusChange) {
+      const excludeReply = adminReply.filter(reply => reply.type !== "status_change");
+      newAdminReply.push(...excludeReply);
+      const reply = adminReply.find(reply => reply.type === "status_change");
+      reply.adminId = adminId;
+      reply.replied_at = new Date();
+      newAdminReply.push(reply);
+    } else {
+      const replyerAdmin = {
+        adminId: adminId,
+        replied_at: new Date(),
+        type: "status_change",
+      }
+  
+      newAdminReply.push(replyerAdmin);
+    };
+
     const [result] = await mysqlpool.query(
-      `UPDATE blog_comment SET comment_status = ?, replyer_admin = ? WHERE id = ?`,
-      [status, adminId, commentId],
+      `UPDATE blog_comment SET comment_status = ?, admins_reply = ? WHERE id = ?`,
+      [status, JSON.stringify(newAdminReply), commentId],
     );
 
     if (result.affectedRows === 0) {
@@ -210,9 +244,46 @@ blogCommentRouter.put("/comment/reply", verifyApiKey, authMiddleware, async (req
       });
     }
 
+    const [existingComments] = await mysqlpool.query(
+      `SELECT id, admins_reply FROM blog_comment WHERE id = ?`,
+      [commentId],
+    );
+
+    if (existingComments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+
+    const adminReplys = existingComments[0].admins_reply;  
+
+    const alreadyReply = adminReplys.some(reply => reply.type === "reply" && reply.adminId === adminId);
+    
+    const newAdminReply = [];
+
+    const excludeReply = adminReplys.filter(reply => !(reply.type === "reply" && reply.adminId === adminId));
+    newAdminReply.push(...excludeReply);
+
+    if (alreadyReply) {
+      const reply = adminReplys.find(reply => reply.type === "reply" && reply.adminId === adminId);
+      reply.replied_at = new Date();
+      reply.admin_reply = adminReply;
+      newAdminReply.push(reply);
+    } else {
+      const replyerAdmin = {
+        adminId: adminId,
+        replied_at: new Date(),
+        type: "reply",
+        admin_reply: adminReply
+      }
+  
+      newAdminReply.push(replyerAdmin);
+    };
+
     const [result] = await mysqlpool.query(
-      `UPDATE blog_comment SET admin_reply = ?, replyer_admin = ? WHERE id = ?`,
-      [adminReply, adminId, commentId],
+      `UPDATE blog_comment SET admins_reply = ? WHERE id = ?`,
+      [JSON.stringify(newAdminReply), commentId],
     );
 
     if (result.affectedRows === 0) {
@@ -257,7 +328,7 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
     }
 
     const [result] = await mysqlpool.query(
-      `SELECT id, admin_reply, comment, comment_status, commentor_email, commentor_name, replyer_admin, created_at FROM blog_comment WHERE platform_id = ? AND blog_id = ? AND comment_status = 'approved' ORDER BY created_at DESC`,
+      `SELECT id, comment, comment_status, commentor_email, commentor_name, admins_reply, created_at FROM blog_comment WHERE platform_id = ? AND blog_id = ? AND comment_status = 'approved' ORDER BY created_at DESC`,
       [platformId.id, blogId],
     );
 
@@ -270,20 +341,28 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
 
     const comments = await Promise.all(
       result.map(async (comment) => {
-        if (comment.replyer_admin) {
-          const [[admin]] = await mysqlpool.query(
-            `SELECT name, img_url FROM users WHERE id = ?`,
-            [comment.replyer_admin]
+        if (comment.admins_reply && comment.admins_reply.length > 0) {          
+          const adminsReply = await Promise.all(
+            comment.admins_reply.map(async (reply) => {
+              const [[admin]] = await mysqlpool.query(
+                `SELECT name, img_url FROM users WHERE id = ?`,
+                [reply.adminId]
+              );
+
+              delete reply.adminId;
+              return {...reply,
+                adminData: {
+                  ...admin,
+                  img_url: `${BASE_URL}${
+                    admin?.img_url ||
+                    "media/uploads/1778838787732-71l6q3owugj.jpeg"
+                  }`,
+                },
+              };
+            })
           );
 
-          const adminData = {
-            ...admin,
-            img_url: `${BASE_URL}${
-              admin?.img_url || "media/uploads/1778838787732-71l6q3owugj.jpeg"
-            }`,
-          };
-
-          return { ...comment, admin: adminData };
+          comment.admins_reply = adminsReply;
         }
 
         return comment;
