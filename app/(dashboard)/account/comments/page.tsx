@@ -52,8 +52,8 @@ const BlogCommentpage = () => {
 
     return (
         <>
-            <div className="flex flex-col md:flex-row gap-6">
-                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5 md:min-h-[77vh]">
+            <div className="flex flex-col lg:flex-row gap-6">
+                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5 lg:min-h-[77vh] lg:min-w-[300px]">
                     <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
                         {comments.map((platform) => (
                             <button
