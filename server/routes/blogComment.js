@@ -38,7 +38,7 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
           const url = getTaxonomyUrl(platform, "comment");
           const headers = getAuthHeaders(platform);
           
-          const commentRes = await axios.get(`${url}?post=${platformBlogId?.platform_blog_id}`, {
+          const commentRes = await axios.get(`${url}?post=${platformBlogId?.platform_blog_id}&status=all`, {
             headers,
           });
 

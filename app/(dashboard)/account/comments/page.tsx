@@ -4,6 +4,7 @@ import BlogCommentAction from '@/actions/BlogCommentAction';
 import BlogCommentPopup from '@/components/blog/BlogCommentPopup';
 import renderStatusBadge from '@/components/blog/renderStatusBadge';
 import { groupedComments } from '@/types';
+import { LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react'
 
 const pillClass = "rounded-full border border-white/10 bg-[#101826] px-3 py-1";
@@ -50,6 +51,14 @@ const BlogCommentpage = () => {
         setIsModalOpen(false);
     };
 
+    if (loading) {
+        return (
+            <div className={`${emptyStateClass} flex items-center justify-center gap-2`}>
+                <LoaderCircle className="h-6 w-6 animate-spin" />
+                <span>Loading...</span>
+            </div>
+        );
+    }
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-6">
@@ -102,11 +111,7 @@ const BlogCommentpage = () => {
                     </div>
 
                     <div className="mt-6">
-                        {loading ? (
-                            <div className={emptyStateClass}>
-                                Loading comments...
-                            </div>
-                        ) : comments.length === 0 ? (
+                        {comments.length === 0 ? (
                             <div className={emptyStateClass}>
                                 No comments yet for this blog.
                             </div>
