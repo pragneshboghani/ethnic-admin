@@ -480,7 +480,7 @@ export type replyType = {
 }
 
 export type comments = {
-    id: number;
+    comment_id: number;
     created_at: string;
     commentor_name: string;
     commentor_email: string;
