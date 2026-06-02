@@ -12,24 +12,28 @@ const blogCommentRouter = Router();
 const allowedStatuses = ["hold", "approved", "rejected"];
 const BASE_URL = process.env.BACKEND_API;
 
-blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, res) => {
-  try {
-    const { blogId } = req.query;
+blogCommentRouter.get(
+  "/comment/get",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { blogId } = req.query;
 
-    const [[blogExists]] = await mysqlpool.query(
-      `SELECT id, platforms FROM blogs WHERE id = ?`,
-      [blogId]
-    );
+      const [[blogExists]] = await mysqlpool.query(
+        `SELECT id, platforms FROM blogs WHERE id = ?`,
+        [blogId],
+      );
 
-    if (!blogExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Blog not found",
-      });
-    }
+      if (!blogExists) {
+        return res.status(404).json({
+          success: false,
+          message: "Blog not found",
+        });
+      }
 
-    const [comments] = await mysqlpool.query(
-      `
+      const [comments] = await mysqlpool.query(
+        `
       SELECT
           bc.id as comment_id,
           bc.comment,
@@ -52,8 +56,7 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
                           CONCAT(
                             '${BASE_URL}',
                             COALESCE(
-                              NULLIF(ru.img_url, ''),
-                                'media/uploads/1778838787732-71l6q3owugj.jpeg'
+                              NULLIF(ru.img_url, ''),'media/uploads/1778838787732-71l6q3owugj.jpeg'
                             )
                           )
                       )
@@ -78,27 +81,32 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
           p.platform_name
       ORDER BY bc.created_at DESC
       `,
-      [blogId]
-    );
+        [blogId],
+      );
 
-    res.status(200).json({
-      success: true,
-      commentData: comments,
-    });
-  } catch (error) {
-    console.error("Error fetching comments:", error);
+      res.status(200).json({
+        success: true,
+        commentData: comments,
+      });
+    } catch (error) {
+      console.error("Error fetching comments:", error);
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+);
 
-blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (req, res) => {
-    try { 
+blogCommentRouter.get(
+  "/comment/get/all",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
       const [blogIdsResult] = await mysqlpool.query(`SELECT id FROM blogs`);
-      const blogIds = blogIdsResult.map(item => item.id);
+      const blogIds = blogIdsResult.map((item) => item.id);
 
       const [comment] = await mysqlpool.query(
         `SELECT
@@ -118,7 +126,6 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
                       'platform_id', bc.platform_id,
                       'updated_by', bc.updated_by,
                       'blog_title', b.blog_title,
-
                       'status_updated_by',
                       JSON_OBJECT(
                           'name', su.name,
@@ -139,7 +146,6 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
                                       'id', bcr.id,
                                       'admin_id', bcr.admin_id,
                                       'admin_reply', bcr.admin_reply,
-
                                       'adminData',
                                       JSON_OBJECT(
                                           'name', ru.name,
@@ -172,9 +178,10 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
               WHERE bc.blog_id IN (?)
           ) grouped_comments
           GROUP BY platform_name
-          ORDER BY platform_name;`, [blogIds]
+          ORDER BY platform_name;`,
+        [blogIds],
       );
-      
+
       // const platformCommentsMap = {};
 
       // await Promise.all(
@@ -232,7 +239,7 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
         message: error.message,
       });
     }
-  }
+  },
 );
 
 blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
@@ -240,14 +247,17 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
     const { blogId, authorName, authorEmail, content } = req.body;
     const { platform } = req.query;
 
-    if (!blogId || !authorName || !authorEmail ) {
+    if (!blogId || !authorName || !authorEmail) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields",
       });
     }
 
-    const [[platformId]] = await mysqlpool.query(`SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`, [platform.trim().toLowerCase()]);
+    const [[platformId]] = await mysqlpool.query(
+      `SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`,
+      [platform.trim().toLowerCase()],
+    );
 
     if (!platformId) {
       return res.status(400).json({
@@ -256,9 +266,12 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [result] = await mysqlpool.query(`
+    const [result] = await mysqlpool.query(
+      `
       INSERT INTO blog_comment (blog_id, platform_id, commentor_name, commentor_email, comment_status, comment) VALUES (?, ?, ?, ?, ?, ?);
-    `, [blogId, platformId.id, authorName, authorEmail, 'hold', content]);
+    `,
+      [blogId, platformId.id, authorName, authorEmail, "hold", content],
+    );
 
     if (result.affectedRows === 0) {
       return res.status(500).json({
@@ -269,7 +282,8 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
 
     res.status(200).send({
       success: true,
-      message: "Comment added successfully. Once we have the comment moderation system in place, the comment will be visible after approval.",
+      message:
+        "Comment added successfully. Once we have the comment moderation system in place, the comment will be visible after approval.",
       commentId: result.insertId,
     });
   } catch (error) {
@@ -281,144 +295,154 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
   }
 });
 
-blogCommentRouter.put("/comment/status", verifyApiKey, authMiddleware, async (req, res) => {
-  try {
-    const { commentId, status } = req.body;
-    const adminId = req.user?.id;
+blogCommentRouter.put(
+  "/comment/status",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { commentId, status } = req.body;
+      const adminId = req.user?.id;
 
-    if (!commentId || !status) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing comment ID or status",
-      });
-    }
+      if (!commentId || !status) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing comment ID or status",
+        });
+      }
 
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid comment status",
-      });
-    }
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid comment status",
+        });
+      }
 
-    if (!adminId) {
-      return res.status(401).json({
-        success: false,
-        message: "Admin user not found",
-      });
-    }
+      if (!adminId) {
+        return res.status(401).json({
+          success: false,
+          message: "Admin user not found",
+        });
+      }
 
-    const [existingComments] = await mysqlpool.query(
-      `SELECT id, updated_by FROM blog_comment WHERE id = ?`,
-      [commentId],
-    );
-
-    if (existingComments.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Comment not found",
-      });
-    }
-
-    const [result] = await mysqlpool.query(
-      `UPDATE blog_comment SET comment_status = ?, updated_by = ? WHERE id = ?`,
-      [status, adminId, commentId],
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Comment not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Comment status updated successfully",
-      replyerAdmin: adminId,
-    });
-  } catch (error) {
-    console.error("Error updating comment status:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-blogCommentRouter.put("/comment/reply", verifyApiKey, authMiddleware, async (req, res) => {
-  try {
-    const { commentId, adminReply } = req.body;
-    const adminId = req.user?.id;
-
-    if (!commentId || adminReply == null) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing comment ID or reply text",
-      });
-    }
-
-    if (!adminId) {
-      return res.status(401).json({
-        success: false,
-        message: "Admin user not found",
-      });
-    }
-
-    const [existingComments] = await mysqlpool.query(
-      `SELECT id, blog_id FROM blog_comment WHERE id = ?`,
-      [commentId],
-    );
-
-    if (existingComments.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Comment not found",
-      });
-    }
-
-    const [[existingReplies]] = await mysqlpool.query(
-      `SELECT admin_reply FROM blog_comment_replies WHERE comment_id = ? AND admin_id = ?`,
-      [commentId, adminId]
-    )
-
-    if (existingReplies && existingReplies?.admin_reply) {
-      await mysqlpool.query(
-        `UPDATE blog_comment_replies SET admin_reply = ? WHERE comment_id = ? AND admin_id = ?`,
-        [adminReply, commentId, adminId],
+      const [existingComments] = await mysqlpool.query(
+        `SELECT id, updated_by FROM blog_comment WHERE id = ?`,
+        [commentId],
       );
 
-      return res.status(200).json({
+      if (existingComments.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      const [result] = await mysqlpool.query(
+        `UPDATE blog_comment SET comment_status = ?, updated_by = ? WHERE id = ?`,
+        [status, adminId, commentId],
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      res.status(200).json({
         success: true,
-        message: "Reply updated successfully",
+        message: "Comment status updated successfully",
         replyerAdmin: adminId,
       });
-    }
-
-    const [result] = await mysqlpool.query(
-      `INSERT INTO blog_comment_replies (comment_id, admin_id, admin_reply, blog_id) VALUES (?, ?, ?, ?)`,
-      [commentId, adminId, adminReply, existingComments[0].blog_id],
-    );
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
+    } catch (error) {
+      console.error("Error updating comment status:", error);
+      res.status(500).json({
         success: false,
-        message: "Comment not found",
+        message: error.message,
       });
     }
+  },
+);
 
-    res.status(200).json({
-      success: true,
-      message: "Reply saved successfully",
-      replyerAdmin: adminId,
-    });
-  } catch (error) {
-    console.error("Error saving admin reply:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+blogCommentRouter.put(
+  "/comment/reply",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { commentId, adminReply } = req.body;
+      const adminId = req.user?.id;
+
+      if (!commentId || adminReply == null) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing comment ID or reply text",
+        });
+      }
+
+      if (!adminId) {
+        return res.status(401).json({
+          success: false,
+          message: "Admin user not found",
+        });
+      }
+
+      const [existingComments] = await mysqlpool.query(
+        `SELECT id, blog_id FROM blog_comment WHERE id = ?`,
+        [commentId],
+      );
+
+      if (existingComments.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      const [[existingReplies]] = await mysqlpool.query(
+        `SELECT admin_reply FROM blog_comment_replies WHERE comment_id = ? AND admin_id = ?`,
+        [commentId, adminId],
+      );
+
+      if (existingReplies && existingReplies?.admin_reply) {
+        await mysqlpool.query(
+          `UPDATE blog_comment_replies SET admin_reply = ? WHERE comment_id = ? AND admin_id = ?`,
+          [adminReply, commentId, adminId],
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: "Reply updated successfully",
+          replyerAdmin: adminId,
+        });
+      }
+
+      const [result] = await mysqlpool.query(
+        `INSERT INTO blog_comment_replies (comment_id, admin_id, admin_reply, blog_id) VALUES (?, ?, ?, ?)`,
+        [commentId, adminId, adminReply, existingComments[0].blog_id],
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Reply saved successfully",
+        replyerAdmin: adminId,
+      });
+    } catch (error) {
+      console.error("Error saving admin reply:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+);
 
 blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
   try {
@@ -431,7 +455,10 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [[platformId]] = await mysqlpool.query(`SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`, [platform.trim().toLowerCase()]);
+    const [[platformId]] = await mysqlpool.query(
+      `SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`,
+      [platform.trim().toLowerCase()],
+    );
 
     if (!platformId) {
       return res.status(400).json({
@@ -499,13 +526,13 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
           su.name,
           su.img_url
       ORDER BY bc.created_at DESC`,
-      [platformId.id, blogId]
+      [platformId.id, blogId],
     );
 
     res.status(200).json({
       success: true,
       message: "Comments found successfully",
-      comments: comments
+      comments: comments,
     });
   } catch (error) {
     console.error("Error finding Comments:", error);
@@ -516,45 +543,50 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
   }
 });
 
-blogCommentRouter.delete("/comment/delete/:commentId", verifyApiKey, authMiddleware, async (req, res) => {
-  try {
-    const { commentId } = req.params;
+blogCommentRouter.delete(
+  "/comment/delete/:commentId",
+  verifyApiKey,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { commentId } = req.params;
 
-    const [[row]] = await mysqlpool.query(
-      `SELECT id FROM blog_comment WHERE id = ?`,
-      [commentId],
-    );
+      const [[row]] = await mysqlpool.query(
+        `SELECT id FROM blog_comment WHERE id = ?`,
+        [commentId],
+      );
 
-    if (!row) {
-      return res.status(404).json({
+      if (!row) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      const [result] = await mysqlpool.query(
+        `DELETE FROM blog_comment WHERE id = ?`,
+        [commentId],
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Comment not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Comment deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({
         success: false,
-        message: "Comment not found",
+        message: error.message,
       });
     }
-    
-    const [result] = await mysqlpool.query(
-      `DELETE FROM blog_comment WHERE id = ?`,
-      [commentId],
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Comment not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Comment deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting comment:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  },
+);
 
 module.exports = blogCommentRouter;
