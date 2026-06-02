@@ -50,11 +50,11 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
                           'name', ru.name,
                           'img_url',
                           CONCAT(
-                              '${BASE_URL}',
-                              COALESCE(
-                                  ru.img_url,
-                                  'media/uploads/1778838787732-71l6q3owugj.jpeg'
-                              )
+                            '${BASE_URL}',
+                            COALESCE(
+                              NULLIF(ru.img_url, ''),
+                                'media/uploads/1778838787732-71l6q3owugj.jpeg'
+                            )
                           )
                       )
                   )
@@ -126,9 +126,9 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
                           CONCAT(
                               '${BASE_URL}',
                               COALESCE(
-                                  su.img_url,
-                                  'media/uploads/1778838787732-71l6q3owugj.jpeg'
-                              )
+                              NULLIF(su.img_url, ''),
+                                'media/uploads/1778838787732-71l6q3owugj.jpeg'
+                            )
                           )
                       ),
                       'replies',
@@ -147,7 +147,7 @@ blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (r
                                           CONCAT(
                                               '${BASE_URL}',
                                               COALESCE(
-                                                  ru.img_url,
+                                                NULLIF(ru.img_url, ''),
                                                   'media/uploads/1778838787732-71l6q3owugj.jpeg'
                                               )
                                           )
@@ -455,7 +455,7 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
               CONCAT(
                   '${BASE_URL}',
                   COALESCE(
-                      su.img_url,
+                    NULLIF(su.img_url, ''),
                       'media/uploads/1778838787732-71l6q3owugj.jpeg'
                   )
               )
@@ -473,7 +473,7 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
                           CONCAT(
                               '${BASE_URL}',
                               COALESCE(
-                                  ru.img_url,
+                                  NULLIF(ru.img_url, ''),
                                   'media/uploads/1778838787732-71l6q3owugj.jpeg'
                               )
                           )
