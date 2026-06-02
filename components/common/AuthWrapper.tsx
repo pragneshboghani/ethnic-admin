@@ -91,7 +91,13 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             title: "Groups",
             description:
                 "Manage groups, roles, and team collaboration in one place.",
-        }
+        },
+        "/account/comments": {
+            eyebrow: "Engagement",
+            title: "Comments",
+            description:
+                "Review and manage reader comments across all your platforms.",
+        },
     };
 
     const currentHeader = pageHeaders[pathname];

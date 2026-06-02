@@ -468,3 +468,36 @@ export type EditorPlatformData = {
         api_endpoint?: string;
     }>;
 } | null;
+
+export type replyType = {
+    type: "reply" | "status_change";
+    replied_at: string;
+    admin_reply?: string;
+    adminData: {
+        name: string;
+        img_url: string;
+    };
+}
+
+export type comments = {
+    id: number;
+    created_at: string;
+    commentor_name: string;
+    commentor_email: string;
+    comment_status: string;
+    comment: string;
+    admins_reply: replyType[] | [];
+    blog_title?: string;
+}
+
+export type groupedComments = {
+    platform_name: string;
+    comments: comments[];
+}
+
+export type BlogCommentPopupProps = {
+    onClose: () => void;
+    selectedComment: any | null;
+    setSelectedComment: React.Dispatch<React.SetStateAction<any | null>>;
+    loadComments: () => Promise<void>;
+};

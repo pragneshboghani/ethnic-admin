@@ -21,6 +21,25 @@ const BlogCommentAction = {
     }
   },
 
+  async fetchAllComments() {
+    try {
+      const endpoint = `${BACKEND_DOMAIN || ""}/api/blog-comments/comment/get/all`;
+      const res = await fetch(endpoint, {
+        headers: getHeaders(),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch comments");
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      console.error("Error fetching all comments:", error.message);
+      throw error;
+    }
+  },
+
   async updateCommentStatus(commentId: number, status: "approved" | "rejected" | "hold") {
     try {
       const endpoint = `${BACKEND_DOMAIN || ""}/api/blog-comments/comment/status`;

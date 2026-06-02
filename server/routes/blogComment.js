@@ -38,7 +38,7 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
           const url = getTaxonomyUrl(platform, "comment");
           const headers = getAuthHeaders(platform);
           
-          const commentRes = await axios.get(`${url}?post=${platformBlogId?.platform_blog_id}`, {
+          const commentRes = await axios.get(`${url}?post=${platformBlogId?.platform_blog_id}&status=all`, {
             headers,
           });
 
@@ -110,6 +110,136 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
       res.status(200).send({
         success: true,
         commentData: comments,
+      });
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+);
+
+blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (req, res) => {
+    try { 
+      const [blogIdsResult] = await mysqlpool.query(`SELECT id FROM blogs`);
+      const blogIds = blogIdsResult.map(item => item.id);
+
+      const [[comment], [platforms]] = await Promise.all([
+        mysqlpool.query(`SELECT
+            p.platform_name,
+            JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'id', bc.id,
+                    'comment', bc.comment,
+                    'commentor_name', bc.commentor_name,
+                    'commentor_email', bc.commentor_email,
+                    'comment_status', bc.comment_status,
+                    'blog_title', b.blog_title,
+                    'created_at', bc.created_at,
+                    'admins_reply',
+                      COALESCE(
+                          (
+                              SELECT JSON_ARRAYAGG(
+                                  JSON_OBJECT(
+                                      'type', jt.type,
+                                      'replied_at', jt.replied_at,
+                                      'admin_reply', jt.admin_reply,
+                                      'adminData',
+                                      JSON_OBJECT(
+                                          'name', u.name,
+                                          'img_url',
+                                          CONCAT(
+                                              '${BASE_URL}',
+                                              COALESCE(
+                                                  u.img_url,
+                                                  'media/uploads/1778838787732-71l6q3owugj.jpeg'
+                                              )
+                                          )
+                                      )
+                                  )
+                              )
+                              FROM JSON_TABLE(
+                                  bc.admins_reply,
+                                  '$[*]'
+                                  COLUMNS (
+                                      adminId INT PATH '$.adminId',
+                                      type VARCHAR(50) PATH '$.type',
+                                      replied_at VARCHAR(100) PATH '$.replied_at',
+                                      admin_reply TEXT PATH '$.admin_reply'
+                                  )
+                              ) jt
+                              LEFT JOIN users u
+                                  ON u.id = jt.adminId
+                              ORDER BY jt.replied_at DESC    
+                          ),
+                          JSON_ARRAY()
+                      )
+                )
+            ) AS comments
+        FROM blog_comment bc
+        JOIN blogs b
+          ON bc.blog_id = b.id
+        LEFT JOIN platforms p
+            ON p.id = bc.platform_id
+        WHERE bc.blog_id IN (?)
+        GROUP BY p.platform_name;`, [blogIds]),
+        mysqlpool.query(`SELECT b.id, b.blog_title, b.platforms, sb.platform_id, sb.platform_blog_id, p.* FROM blogs b 
+          JOIN seo_blog sb ON b.id = sb.blog_id
+          JOIN platforms p ON sb.platform_id = p.id
+          WHERE b.id IN (?) AND sb.platform_blog_id IS NOT NULL`, [blogIds])
+      ]);
+      
+      const platformCommentsMap = {};
+
+      await Promise.all(
+        platforms.map(async (platform) => {
+          try {
+            const url = getTaxonomyUrl(platform, "comment");
+            const headers = getAuthHeaders(platform);
+
+            const commentRes = await axios.get(
+              `${url}?post=${platform.platform_blog_id}&status=all`,
+              { headers }
+            );
+
+            if (!platformCommentsMap[platform.platform_name]) {
+              platformCommentsMap[platform.platform_name] = {
+                platform_name: platform.platform_name,
+                comments: [],
+              };
+            }
+
+            const commentData = commentRes.data;
+
+            if (Array.isArray(commentData)) {
+              const comments = commentData.map((item) => ({
+                id: Number(`${item.id}${item.post}`),
+                comment: item.content?.rendered || "",
+                blog_title: platform.blog_title,
+                created_at: item.date || null,
+                comment_status: item.status,
+                commentor_name: item.author_name || "Anonymous",
+                commentor_email: item.author_url || "",
+              }));
+
+              platformCommentsMap[platform.platform_name].comments.push(...comments);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        })
+      );
+
+      const externalComments = Object.values(platformCommentsMap);
+
+      comment.push(...externalComments);
+
+      res.status(200).send({
+        success: true,
+        data: comment,
       });
     } catch (error) {
       console.error("Error fetching comments:", error);
