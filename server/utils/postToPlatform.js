@@ -20,7 +20,7 @@ const fileToBase64 = (filePath, mimeType) => {
   return `data:${mimeType};base64,${fileBuffer.toString("base64")}`;
 };
 
-const postToPlatform = async (platform, blogData, slug = null, seoData = null, method) => {
+const postToPlatform = async (platform, blogData, slug = null, seoData = null, platform_blog_id = null) => {
   try {
     let url = getTaxonomyUrl(platform, "post");
 
@@ -98,16 +98,9 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null, m
     }
 
     const headers = getAuthHeaders(platform);
-    if (method === "put") {
-      const res = await axios.get(url, {
-        headers,
-        params: { slug, status: "any" },
-      });
-      if (res.data.length) {
-        const postId = res.data[0].id;
-        url = `${url}/${postId}`;
-        method = "put";
-      }
+    if (platform_blog_id) {
+      url = `${url}/${platform_blog_id}`;
+      method = "put";
     }
 
     const payload = {
@@ -153,11 +146,13 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null, m
     return {
       success: true,
       platform: platform.platform_name,
+      platform_id: platform.id,
       data: response.data,
     };
   } catch (error) {
     return {
       success: false,
+      platform_id: platform.id,
       platform: platform.platform_name,
       error: error.response?.data || error.message,
     };

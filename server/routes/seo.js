@@ -38,8 +38,8 @@ seoRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       const s = seo[i];
       const [result] = await mysqlpool.query(
         `INSERT INTO seo_blog 
-          (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link, platform_blog_id) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           blog_id,
           s.platform_id,
@@ -50,6 +50,7 @@ seoRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
           s.canonical_url || "",
           s.cta_button_text || "",
           s.cta_button_link || "",
+          s.platform_blog_id || null
         ],
       );
 
@@ -141,7 +142,7 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
         const currentSeo = existing[0];
         await mysqlpool.query(
           `UPDATE seo_blog 
-           SET slug = ?, publish_status = ?, seo_title = ?, meta_description = ?, canonical_url = ?, cta_button_text = ?, cta_button_link = ?
+           SET slug = ?, publish_status = ?, seo_title = ?, meta_description = ?, canonical_url = ?, cta_button_text = ?, cta_button_link = ?, platform_blog_id = ?
            WHERE blog_id = ? AND platform_id = ?`,
           [
             s.slug || "",
@@ -151,6 +152,7 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
             s.canonical_url || "",
             s.cta_button_text || "",
             s.cta_button_link || "",
+            s.platform_blog_id || null,
             blog_id,
             s.platform_id,
           ],
@@ -179,8 +181,8 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
       } else {
         const [result] = await mysqlpool.query(
           `INSERT INTO seo_blog 
-            (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (blog_id, platform_id, slug, publish_status, seo_title, meta_description, canonical_url, cta_button_text, cta_button_link, platform_blog_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             blog_id,
             s.platform_id,
@@ -191,6 +193,7 @@ seoRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
             s.canonical_url || "",
             s.cta_button_text || "",
             s.cta_button_link || "",
+            s.platform_blog_id || null
           ],
         );
 
