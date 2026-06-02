@@ -448,7 +448,6 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
           bc.commentor_email,
           bc.commentor_name,
           bc.created_at,
-
           JSON_OBJECT(
               'name', su.name,
               'img_url',
@@ -460,7 +459,6 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
                   )
               )
           ) AS status_updated_by,
-
           IF(
               COUNT(bcr.id) = 0,
               JSON_ARRAY(),
@@ -481,22 +479,16 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
                   )
               )
           ) AS replies
-
       FROM blog_comment bc
-
       LEFT JOIN users su
           ON bc.updated_by = su.id
-
       LEFT JOIN blog_comment_replies bcr
           ON bc.id = bcr.comment_id
-
       LEFT JOIN users ru
           ON bcr.admin_id = ru.id
-
       WHERE bc.platform_id = ?
         AND bc.blog_id = ?
         AND bc.comment_status = 'approved'
-
       GROUP BY
           bc.id,
           bc.comment,
@@ -506,7 +498,6 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
           bc.created_at,
           su.name,
           su.img_url
-
       ORDER BY bc.created_at DESC`,
       [platformId.id, blogId]
     );
