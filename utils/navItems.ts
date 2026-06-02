@@ -5,7 +5,8 @@ import {
   Image as ImageIcon,
   StretchHorizontal,
   Users,
-  Group
+  Group,
+  MessageSquareMore
 } from "lucide-react";
 
 export const navItems = [
@@ -21,4 +22,5 @@ export const navItems = [
   { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal},
   { id: 6, name: "Authors", href: "/account/authors", icon: Users },
   { id: 7, name: "Groups", href: "/account/groups", icon: Group },
+  { id: 8, name: "Comments", href: "/account/comments", icon: MessageSquareMore },
 ];

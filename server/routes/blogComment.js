@@ -122,6 +122,85 @@ blogCommentRouter.get("/comment/get", verifyApiKey, authMiddleware, async (req, 
   }
 );
 
+blogCommentRouter.get("/comment/get/all", verifyApiKey, authMiddleware, async (req, res) => {
+    try { 
+      const [blogIdsResult] = await mysqlpool.query(`SELECT id FROM blogs`);
+      const blogIds = blogIdsResult.map(item => item.id);
+
+      const [comment] = await mysqlpool.query(`SELECT
+          p.platform_name,
+          JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'id', bc.id,
+                  'comment', bc.comment,
+                  'commentor_name', bc.commentor_name,
+                  'commentor_email', bc.commentor_email,
+                  'comment_status', bc.comment_status,
+                  'blog_title', b.blog_title,
+                  'created_at', bc.created_at,
+                  'admins_reply',
+                    COALESCE(
+                        (
+                            SELECT JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'type', jt.type,
+                                    'replied_at', jt.replied_at,
+                                    'admin_reply', jt.admin_reply,
+                                    'adminData',
+                                    JSON_OBJECT(
+                                        'name', u.name,
+                                        'img_url',
+                                        CONCAT(
+                                            '${BASE_URL}',
+                                            COALESCE(
+                                                u.img_url,
+                                                'media/uploads/1778838787732-71l6q3owugj.jpeg'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                            FROM JSON_TABLE(
+                                bc.admins_reply,
+                                '$[*]'
+                                COLUMNS (
+                                    adminId INT PATH '$.adminId',
+                                    type VARCHAR(50) PATH '$.type',
+                                    replied_at VARCHAR(100) PATH '$.replied_at',
+                                    admin_reply TEXT PATH '$.admin_reply'
+                                )
+                            ) jt
+                            LEFT JOIN users u
+                                ON u.id = jt.adminId
+                            ORDER BY jt.replied_at DESC    
+                        ),
+                        JSON_ARRAY()
+                    )
+              )
+          ) AS comments
+      FROM blog_comment bc
+      JOIN blogs b
+        ON bc.blog_id = b.id
+      LEFT JOIN platforms p
+          ON p.id = bc.platform_id
+      WHERE bc.blog_id IN (?)
+      GROUP BY p.platform_name;`, [blogIds]);
+
+      res.status(200).send({
+        success: true,
+        data: comment
+      });
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+);
+
 blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
   try {
     const { blogId, authorName, authorEmail, content } = req.body;
