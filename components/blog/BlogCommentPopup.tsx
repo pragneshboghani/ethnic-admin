@@ -19,7 +19,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
         setActionLoading(true);
 
         try {
-            const res = await BlogCommentAction.updateCommentStatus(selectedComment.id, status);
+            const res = await BlogCommentAction.updateCommentStatus(selectedComment.comment_id, status);
 
             if (res.success) {
                 toast.success(res.message || "Comment status updated");
@@ -41,7 +41,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
         setActionLoading(true);
 
         try {
-            const res = await BlogCommentAction.replyToComment(selectedComment.id, replyText);
+            const res = await BlogCommentAction.replyToComment(selectedComment.comment_id, replyText);
 
             if (res.success) {
                 toast.success(res.message || "Reply saved successfully");
@@ -85,20 +85,9 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
     {
         label: "Reject",
         onClick: () => void handleUpdateStatus("rejected"),
-        className: "rounded-xl border border-white/10 bg-[#0f1724] px-4 py-2 text-sm text-[#dbe5f3] transition hover:bg-white/[0.06] disabled:opacity-50 cursor-pointer"
-    },
-    {
-        label: "Save Reply",
-        onClick: () => void handleSaveReply(),
-        className: "btn !shadow-none"
-    },
-    {
-        label: "Delete Comment",
-        onClick: () => void handleDeleteComment(selectedComment.id),
-        className: "rounded-xl border border-white/10 bg-[#0f1724] px-4 py-2 text-sm text-[#dbe5f3] transition hover:bg-white/[0.06] disabled:opacity-50 cursor-pointer"
+        className: "rounded-xl border border-white/10 bg-[#0f1724] px-4 py-2 text-sm text-[#dbe5f3] transition hover:bg-white/[0.06]",
     }]
 
-    console.log('selectedComment', selectedComment)
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
             <div className="w-full max-w-3xl rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
@@ -156,34 +145,31 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
 
                         </div>
 
-                        <div className={cardClass}>
-                            <p className="mb-2 text-sm font-semibold text-[#eef4ff]">
-                                Admin Reply
-                            </p>
-
+                        <div>
                             <textarea value={replyText} rows={4} className="w-full rounded-[18px] border border-white/10 bg-[#0f1724] px-4 py-3 text-sm text-[#dbe5f3] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none" placeholder="Write a reply to the comment..." onChange={(e) => setReplyText(e.target.value)} />
+                            <button onClick={() => void handleSaveReply()} disabled={actionLoading || !replyText || replyText.trim() == ''} className={`btn !shadow-none disabled:cursor-not-allowed disabled:opacity-50`}>
+                                Save Reply
+                            </button>
                         </div>
                     </div>
 
                     {/* Right */}
                     <div className="space-y-4">
-                        {selectedComment.admins_reply && selectedComment.admins_reply.length > 0 && (
+                        {selectedComment.replies && selectedComment.replies.length > 0 && (
                             <div className={cardClass}>
                                 <p className="text-sm font-semibold text-[#eef4ff]">
-                                    Comment metadata
+                                    Comment Replies
                                 </p>
 
                                 <div className="mt-4 space-y-3 text-sm text-[#8ea0b8]">
-                                    {selectedComment.admins_reply.map((reply: any, index: number) => {
-                                        if (reply.type !== "reply") {
-                                            return (
-                                                <p key={index}>
-                                                    <span className="font-medium text-[#eef4ff] mb-3">
-                                                        Status change by {reply.adminData?.name || "Admin"}
-                                                    </span>
-                                                </p>
-                                            );
-                                        }
+                                    {selectedComment.updated_by && (
+                                        <p>
+                                            <span className="font-medium text-[#eef4ff] mb-3">
+                                                Status change by {selectedComment.status_updated_by.name || "Admin"}
+                                            </span>
+                                        </p>
+                                    )}
+                                    {selectedComment.replies.map((reply: any, index: number) => {
                                         return (
                                             <p key={index}>
                                                 <span className="font-medium text-[#eef4ff]">
@@ -203,7 +189,8 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
 
                             <div className="mt-4 flex flex-col gap-3">
                                 {actionButtons.map((button, index) => (
-                                    <button key={index} onClick={button.onClick} disabled={actionLoading} className={button.className}>
+                                    <button key={index} onClick={button.onClick} disabled={selectedComment.comment_status === "approved" || selectedComment.comment_status === "rejected" || actionLoading}
+                                        className={`${button.className} disabled:cursor-not-allowed disabled:opacity-50`}>
                                         {button.label}
                                     </button>
                                 ))}
