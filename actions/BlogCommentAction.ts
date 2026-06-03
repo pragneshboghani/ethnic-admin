@@ -21,9 +21,9 @@ const BlogCommentAction = {
     }
   },
 
-  async fetchAllComments() {
+  async fetchAllComments({ comment_status, platform_name }: { comment_status?: string, platform_name?: string } = {}) {
     try {
-      const endpoint = `${BACKEND_DOMAIN || ""}/api/blog-comments/comment/get/all`;
+      const endpoint = `${BACKEND_DOMAIN || ""}/api/blog-comments/comment/get/all${comment_status ? `?comment_status=${comment_status}` : ""}${platform_name ? `&platform_name=${platform_name}` : ""}`;
       const res = await fetch(endpoint, {
         headers: getHeaders(),
       });

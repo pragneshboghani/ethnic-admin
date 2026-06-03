@@ -90,7 +90,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-            <div className="w-full max-w-3xl rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+            <div className="w-full max-w-3xl rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)] max-h-[95vh] overflow-y-auto">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h4 className="text-xl font-semibold text-[#eef4ff]">
