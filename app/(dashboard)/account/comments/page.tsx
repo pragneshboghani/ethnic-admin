@@ -5,7 +5,7 @@ import BlogCommentPopup from '@/components/blog/BlogCommentPopup';
 import renderStatusBadge from '@/components/blog/renderStatusBadge';
 import type { comments as CommentType, groupedComments } from '@/types';
 import { LoaderCircle } from 'lucide-react';
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const pillClass = "rounded-full border border-white/10 bg-[#101826] px-3 py-1";
 const emptyStateClass = "rounded-[22px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 text-center text-sm text-[#8ea0b8]";
@@ -23,25 +23,30 @@ const BlogCommentpage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState("all");
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async (platformName = '') => {
         try {
             setLoading(true);
             const data = await BlogCommentAction.fetchAllComments();
             setComments(data.data);
             setPlatformTabs(data.data);
 
-            if (data.data.length > 0) {
-                setActiveTab(data.data[0].platform_name);
+            const nextActiveTab = data.data.some((platform: groupedComments) => platform.platform_name === platformName)
+                ? platformName
+                : data.data[0]?.platform_name;
+
+            if (nextActiveTab) {
+                setActiveTab(nextActiveTab);
             }
-            setLoading(false);
         } catch (error) {
             console.error("Error fetching comments:", error);
+        } finally {
+            setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchComments();
-    }, []);
+    }, [fetchComments]);
 
     const activePlatform = comments.find(
         item => item.platform_name === activeTab
@@ -78,7 +83,7 @@ const BlogCommentpage = () => {
             setStatusFilter(status);
 
             if (status === "all") {
-                await fetchComments();
+                await fetchComments(activeTab);
                 return;
             }
 
@@ -131,36 +136,29 @@ const BlogCommentpage = () => {
         <>
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5 lg:min-h-[77vh] lg:min-w-[300px]">
-                    {loading ? (
-                        <div className={`${emptyStateClass} flex items-center justify-center gap-2`}>
-                            <LoaderCircle className="h-6 w-6 animate-spin" />
-                            <span>Loading...</span>
-                        </div>
-                    ) : (
-                        <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
-                            {platformTabs.map((platform) => (
-                                <button
-                                    type="button"
-                                    key={platform.platform_name}
-                                    onClick={() => handlePlatformChange(platform.platform_name)}
-                                    className={`group flex w-fit md:w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${activeTab === platform.platform_name
-                                        ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
-                                        : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
+                    <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
+                        {platformTabs.map((platform) => (
+                            <button
+                                type="button"
+                                key={platform.platform_name}
+                                onClick={() => handlePlatformChange(platform.platform_name)}
+                                className={`group flex w-fit md:w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${activeTab === platform.platform_name
+                                    ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
+                                    : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
+                                    }`}
+                            >
+                                {platform.platform_name}
+                                <span
+                                    className={`rounded-full px-2 py-0.5 text-xs uppercase ${activeTab === platform.platform_name
+                                        ? 'bg-[#1d2b42] text-[#c8d7eb]'
+                                        : 'bg-white/[0.05] text-[#8ea0b8]'
                                         }`}
                                 >
-                                    {platform.platform_name}
-                                    <span
-                                        className={`rounded-full px-2 py-0.5 text-xs uppercase ${activeTab === platform.platform_name
-                                            ? 'bg-[#1d2b42] text-[#c8d7eb]'
-                                            : 'bg-white/[0.05] text-[#8ea0b8]'
-                                            }`}
-                                    >
-                                        {platform.comments.length}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                                    {platform.comments.length}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8">
@@ -241,7 +239,7 @@ const BlogCommentpage = () => {
             </div>
 
             {isModalOpen && selectedComment && (
-                <BlogCommentPopup onClose={handleCloseModal} selectedComment={selectedComment} setSelectedComment={setSelectedComment} loadComments={fetchComments} />
+                <BlogCommentPopup onClose={handleCloseModal} selectedComment={selectedComment} setSelectedComment={setSelectedComment} loadComments={() => fetchComments(activeTab)} />
             )}
         </>
     )
