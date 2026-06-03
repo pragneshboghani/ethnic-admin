@@ -105,11 +105,23 @@ blogCommentRouter.get(
   authMiddleware,
   async (req, res) => {
     try {
+      const { comment_status, platform_name } = req.query;
       const [blogIdsResult] = await mysqlpool.query(`SELECT id FROM blogs`);
       const blogIds = blogIdsResult.map((item) => item.id);
 
-      const [comment] = await mysqlpool.query(
-        `SELECT
+      let whereClause = `WHERE bc.blog_id IN (?)`;
+      const params = [blogIds];
+
+      if (comment_status) {
+        whereClause += ` AND bc.comment_status = ?`;
+        params.push(comment_status);
+      }
+
+      if (platform_name) {
+        whereClause += ` AND p.platform_name = ?`;
+        params.push(platform_name);
+      }
+      let query = `SELECT
               platform_name,
               JSON_ARRAYAGG(comment_data) AS comments
           FROM (
@@ -175,12 +187,12 @@ blogCommentRouter.get(
                   ON bc.updated_by = su.id
               LEFT JOIN platforms p
                   ON bc.platform_id = p.id
-              WHERE bc.blog_id IN (?)
+              ${whereClause}
           ) grouped_comments
           GROUP BY platform_name
-          ORDER BY platform_name;`,
-        [blogIds],
-      );
+          ORDER BY platform_name;`
+
+      const [comment] = await mysqlpool.query(query, params);
 
       // const platformCommentsMap = {};
 
