@@ -105,15 +105,6 @@ const BlogCommentpage = () => {
         setIsModalOpen(false);
     };
 
-    if (loading) {
-        return (
-            <div className={`${emptyStateClass} flex items-center justify-center gap-2`}>
-                <LoaderCircle className="h-6 w-6 animate-spin" />
-                <span>Loading...</span>
-            </div>
-        );
-    }
-
     const filterButtons = [{
         label: 'All',
         value: 'all',
@@ -140,29 +131,36 @@ const BlogCommentpage = () => {
         <>
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5 lg:min-h-[77vh] lg:min-w-[300px]">
-                    <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
-                        {platformTabs.map((platform) => (
-                            <button
-                                type="button"
-                                key={platform.platform_name}
-                                onClick={() => handlePlatformChange(platform.platform_name)}
-                                className={`group flex w-fit md:w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${activeTab === platform.platform_name
-                                    ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
-                                    : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
-                                    }`}
-                            >
-                                {platform.platform_name}
-                                <span
-                                    className={`rounded-full px-2 py-0.5 text-xs uppercase ${activeTab === platform.platform_name
-                                        ? 'bg-[#1d2b42] text-[#c8d7eb]'
-                                        : 'bg-white/[0.05] text-[#8ea0b8]'
+                    {loading ? (
+                        <div className={`${emptyStateClass} flex items-center justify-center gap-2`}>
+                            <LoaderCircle className="h-6 w-6 animate-spin" />
+                            <span>Loading...</span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
+                            {platformTabs.map((platform) => (
+                                <button
+                                    type="button"
+                                    key={platform.platform_name}
+                                    onClick={() => handlePlatformChange(platform.platform_name)}
+                                    className={`group flex w-fit md:w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${activeTab === platform.platform_name
+                                        ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
+                                        : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
                                         }`}
                                 >
-                                    {platform.comments.length}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
+                                    {platform.platform_name}
+                                    <span
+                                        className={`rounded-full px-2 py-0.5 text-xs uppercase ${activeTab === platform.platform_name
+                                            ? 'bg-[#1d2b42] text-[#c8d7eb]'
+                                            : 'bg-white/[0.05] text-[#8ea0b8]'
+                                            }`}
+                                    >
+                                        {platform.comments.length}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8">
@@ -196,7 +194,12 @@ const BlogCommentpage = () => {
                     </div>
 
                     <div className="mt-6">
-                        {comments.length === 0 ? (
+                        {loading ? (
+                            <div className={`${emptyStateClass} flex items-center justify-center gap-2`}>
+                                <LoaderCircle className="h-6 w-6 animate-spin" />
+                                <span>Loading...</span>
+                            </div>
+                        ) : comments.length === 0 ? (
                             <div className={emptyStateClass}>
                                 No comments yet for this blog.
                             </div>
