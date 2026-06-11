@@ -946,6 +946,18 @@ blogRouter.get("/author", verifyApiKey, async (req, res) => {
       });
     }
 
+    const [authorDetail] = await mysqlpool.query(
+      `SELECT id FROM users WHERE LOWER(REPLACE(name, ' ', '')) = ?`,
+      [authorQuery.toLowerCase()]
+    );
+
+    if (!authorDetail || authorDetail.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Author not found",
+      });
+    }
+
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const offset = (pageNumber - 1) * limitNumber;
