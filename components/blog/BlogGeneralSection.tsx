@@ -74,9 +74,11 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                             <p className="text-xs text-[#6f8096]">Rich text editor with HTML mode support</p>
                         </div>
 
-                        <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                        <div className="blog-editor rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
                             <EditorProvider>
-                                <RichTextToolbar platformData={platformData} content={content || ""} />
+                                <div className="sticky top-0 z-20 bg-[#101826]">
+                                    <RichTextToolbar platformData={platformData} content={content || ""} />
+                                </div>
                                 <Editor
                                     value={content || ""}
                                     onChange={(e) =>
