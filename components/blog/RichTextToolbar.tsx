@@ -44,12 +44,12 @@ const ToolbarButton = ({ title, icon, onAction }: ToolbarButtonProps) => (
 );
 
 const focusEditor = (editorElement?: HTMLElement) => {
-    if (!editorElement) {
-        return;
-    }
+    if (!editorElement) return;
 
     if (!editorElement.contains(document.activeElement)) {
-        editorElement.focus();
+        editorElement.focus({
+            preventScroll: true,
+        });
     }
 };
 
@@ -252,7 +252,7 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
     if (editorState.htmlMode) {
         return (
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3">
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3 rounded-t-[24px]">
                 <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]" />
                 <div className="ml-auto flex items-center gap-3 text-xs text-[#8ea0b8]">
                     <span>Words: {wordCount}</span>
@@ -532,7 +532,7 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
     return (
         <>
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3">
+            <div className="flex flex-wrap items-center gap-2 px-3 py-3">
                 <ToolbarButton
                     title="Normal"
                     icon={<Type size={15} />}
