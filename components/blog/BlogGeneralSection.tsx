@@ -6,12 +6,32 @@ import { useFieldArray } from "react-hook-form";
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import RichTextToolbar from "./RichTextToolbar";
 import BlogComments from "./BlogComments";
+import { useEffect, useRef, useState } from "react";
 
 const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, blogId, }: BlogGeneralSectionProps) => {
     const { fields: faqFields, append: appendFaq, remove: removeFaq } = useFieldArray({
         control,
         name: "faq",
     });
+
+    const [isSticky, setIsSticky] = useState(false);
+    const stickyRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsSticky(!entry.isIntersecting);
+            },
+            { threshold: 1 }
+        );
+
+        if (sentinelRef.current) {
+            observer.observe(sentinelRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
 
     const cardClassName =
         "rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8";
@@ -76,7 +96,8 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
 
                         <div className="blog-editor rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
                             <EditorProvider>
-                                <div className="sticky top-0 z-20 bg-[#101826]">
+                                <div ref={sentinelRef} className="h-px" />
+                                <div  ref={stickyRef} className={`sticky top-0 z-20 border-b border-white/8 bg-[#111a28] ${isSticky ? "rounded-t-none" : "rounded-t-[24px]"}`}>
                                     <RichTextToolbar platformData={platformData} content={content || ""} />
                                 </div>
                                 <Editor
@@ -88,9 +109,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                         })
                                     }
                                     containerProps={{
-                                        className: "min-h-[420px] border-0 bg-[#0f1724] shadow-none",
+                                        className: "min-h-[420px] border-0  shadow-none",
                                     }}
-                                    className="min-h-[420px] bg-[#0f1724] px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
+                                    className="min-h-[420px]  px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
                                     placeholder="Write your blog content here or switch to HTML mode..."
                                 />
                             </EditorProvider>
