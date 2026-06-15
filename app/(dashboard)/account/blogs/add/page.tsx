@@ -341,9 +341,15 @@ const BlogForm = () => {
                 const baseUrl = platform.website_url.replace(/\/$/, '');
                 const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
 
-                const canonicalUrl = isWordpress
-                    ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${baseUrl}${blogPath}/${slug}`;
+                let canonicalUrl = '';
+                if (baseUrl === 'https://www.ethnicinfotech.com' && isWordpress) {
+                    canonicalUrl = `${platform.api_endpoint}/${slug}`
+                } else if (isWordpress && baseUrl !== 'https://www.ethnicinfotech.com') {
+                    canonicalUrl = `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                } else {
+                    canonicalUrl = `${baseUrl}${blogPath}/${slug}`
+                }
+    
 
                 const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;
@@ -473,9 +479,15 @@ const BlogForm = () => {
 
                 const baseUrl = platform.website_url.replace(/\/$/, '');
                 const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
-                const newCanonicalUrl = isWordpress
-                    ? `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
-                    : `${baseUrl}${blogPath}/${slug}`;
+
+                let newCanonicalUrl = '';
+                if (baseUrl === 'https://www.ethnicinfotech.com' && isWordpress) {
+                    newCanonicalUrl = `${platform.api_endpoint}/${slug}`
+                } else if (isWordpress && baseUrl !== 'https://www.ethnicinfotech.com') {
+                    newCanonicalUrl = `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                } else {
+                    newCanonicalUrl = `${baseUrl}${blogPath}/${slug}`
+                }
 
                 if (settings.canonicalUrl !== newCanonicalUrl) {
                     updated[platformId] = {
