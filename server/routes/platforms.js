@@ -187,7 +187,9 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
       auth_token,
       username,
       password,
-      status
+      status,
+      blog_path_type,
+      custom_blog_path
     } = req.body;
 
     if (data_source === "admin") {
@@ -276,6 +278,8 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
         username: finalUsername,
         password: finalPassword,
         status: status ?? raw.status,
+        blog_path_type: blog_path_type ?? raw.blog_path_type,
+        custom_blog_path: custom_blog_path ?? raw.custom_blog_path
       };
     }
 
@@ -283,7 +287,7 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
       `UPDATE platforms 
        SET platform_name = ?, website_url = ?, blog_path = ?, CTA_link = ?, CTA_button_text = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
            auth_type = ?, auth_token = ?, username = ?, password = ?, 
-           status = ?  WHERE id = ?`,
+           status = ?, blog_path_type = ?, custom_blog_path = ?  WHERE id = ?`,
       [
         UpdatedData.platform_name,
         UpdatedData.website_url,
@@ -298,6 +302,8 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
         UpdatedData.username,
         UpdatedData.password,
         UpdatedData.status,
+        UpdatedData.blog_path_type,
+        UpdatedData.custom_blog_path,
         id,
       ],
     );
