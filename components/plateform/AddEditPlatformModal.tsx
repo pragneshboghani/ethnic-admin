@@ -58,6 +58,8 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
             blog_path: "",
             CTA_link: "",
             CTA_button_text: "",
+            blog_path_type: "default",
+            custom_blog_path: "",
         },
     });
 
@@ -65,6 +67,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
     const dataSource = watch("data_source");
     const websiteUrl = watch("website_url");
     const blogPath = watch("blog_path");
+    const blogPathType = watch("blog_path_type");
 
     useEffect(() => {
         if (editingPlatform) {
@@ -86,6 +89,8 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                 blog_path: "",
                 CTA_link: "",
                 CTA_button_text: "",
+                blog_path_type: "default",
+                custom_blog_path: "",
             });
         }
     }, [editingPlatform, reset]);
@@ -266,6 +271,39 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                         placeholder="API Endpoint"
                                                         className={inputClassName}
                                                     />
+                                                </div>
+
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <label htmlFor="platform-api-endpoint" className={labelClassName}>Blog Path Type</label>
+                                                    <div className="flex items-center gap-6">
+                                                        <label className="flex items-center gap-2 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                value="default"
+                                                                {...register("blog_path_type")}
+                                                            />
+                                                            <span>Default</span>
+                                                        </label>
+
+                                                        <label className="flex items-center gap-2 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                value="custom"
+                                                                {...register("blog_path_type")}
+                                                            />
+                                                            <span>Custom</span>
+                                                        </label>
+                                                    </div>
+                                                    {blogPathType === "custom" && (
+                                                        <div className="mt-4">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter custom blog path"
+                                                                {...register("custom_blog_path")}
+                                                                className={inputClassName}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="space-y-2">

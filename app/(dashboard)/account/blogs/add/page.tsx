@@ -342,14 +342,17 @@ const BlogForm = () => {
                 const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
 
                 let canonicalUrl = '';
-                if (baseUrl === 'https://www.ethnicinfotech.com' && isWordpress) {
-                    canonicalUrl = `${platform.api_endpoint}/${slug}`
-                } else if (isWordpress && baseUrl !== 'https://www.ethnicinfotech.com') {
+                if (isWordpress && platform.blog_path_type === 'default') {
                     canonicalUrl = `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                } else if (isWordpress && platform.blog_path_type === 'custom') {
+                    if (platform.custom_blog_path == '/') {
+                        canonicalUrl = `${platform.api_endpoint}/${slug}`
+                    } else {
+                        canonicalUrl = `${platform.api_endpoint}/${platform.custom_blog_path}/${slug}`
+                    }
                 } else {
                     canonicalUrl = `${baseUrl}${blogPath}/${slug}`
                 }
-    
 
                 const CTA_Button_text = platform.CTA_button_text || "Read more";
                 const oldSlug = prev[platformId]?.slug;
@@ -481,10 +484,14 @@ const BlogForm = () => {
                 const blogPath = platform.blog_path ? `/${platform.blog_path.replace(/^\/|\/$/g, '')}` : '';
 
                 let newCanonicalUrl = '';
-                if (baseUrl === 'https://www.ethnicinfotech.com' && isWordpress) {
-                    newCanonicalUrl = `${platform.api_endpoint}/${slug}`
-                } else if (isWordpress && baseUrl !== 'https://www.ethnicinfotech.com') {
+                if (isWordpress && platform.blog_path_type === 'default') {
                     newCanonicalUrl = `${platform.api_endpoint}/${year}/${month}/${day}/${slug}`
+                } else if (isWordpress && platform.blog_path_type === 'custom') {
+                    if (platform.custom_blog_path == '/') {
+                        newCanonicalUrl = `${platform.api_endpoint}/${slug}`
+                    } else {
+                        newCanonicalUrl = `${platform.api_endpoint}/${platform.custom_blog_path}/${slug}`
+                    }
                 } else {
                     newCanonicalUrl = `${baseUrl}${blogPath}/${slug}`
                 }

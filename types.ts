@@ -26,7 +26,9 @@ export interface Platform {
   data_source: string;
   blog_path: string;
   CTA_link: string;
-  CTA_button_text: string;
+  CTA_button_text: string; 
+  blog_path_type: string;
+  custom_blog_path?: string;
 }
 
 export interface Media {
