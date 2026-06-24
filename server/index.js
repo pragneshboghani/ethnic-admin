@@ -15,6 +15,7 @@ const userRouter = require("./routes/user");
 const publishHistoryRouter = require("./routes/publishHistory");
 const groupRouter = require("./routes/group");
 const blogCommentRouter = require("./routes/blogComment");
+const resourceRouter = require("./routes/resources");
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use("/api/tags", tagRouter);
 app.use("/api/publish_history", publishHistoryRouter);
 app.use("/api/groups", groupRouter);
 app.use("/api/blog-comments", blogCommentRouter);
+app.use("/api/resources", resourceRouter);
 
 app.use((req, res) => {
   return res.status(404).json({

@@ -21,6 +21,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const router = useRouter();
     const isBlogEditorPage = pathname.startsWith("/account/blogs/add");
+    const isResourcePage = pathname === "/account/resources";
 
     useEffect(() => {
         UserActions.isLogin(router);
@@ -92,6 +93,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             description:
                 "Manage groups, roles, and team collaboration in one place.",
         },
+        "/account/resources": {
+            eyebrow: "Resources",
+            title: "Resource Library",
+            description:
+                "Upload internal documents, organize them into groups, and keep shared resources easy to access.",
+        },
         "/account/comments": {
             eyebrow: "Engagement",
             title: "Comments",
@@ -132,19 +139,19 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                 </aside>
                             </div>
 
-                            <main className={`min-w-0 flex-1 bg-[#111827] px-5 py-6 sm:px-7 rounded-tr-[44px] rounded-br-[44px] lg:px-10 lg:py-8 ${isBlogEditorPage ? "overflow-visible" : ""}`}>
-                                <div className="text-[#e6edf7]">
+                            <main className={`min-w-0 flex-1 px-5 py-6 sm:px-7 rounded-tr-[44px] rounded-br-[44px] lg:px-10 lg:py-8 ${isResourcePage ? "bg-[#f6f8fc]" : "bg-[#111827]"} ${isBlogEditorPage ? "overflow-visible" : ""}`}>
+                                <div className={isResourcePage ? "text-[#202124]" : "text-[#e6edf7]"}>
                                     <div className="flex w-full justify-between items-center flex-wrap">
                                         {pathname !== "/account/dashboard" && currentHeader && (
                                             <div className="flex flex-col gap-3 md:mb-6 lg:mb-7">
-                                                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8398b5]">
+                                                <p className={`text-[11px] font-medium uppercase tracking-[0.28em] ${isResourcePage ? "text-[#6b7280]" : "text-[#8398b5]"}`}>
                                                     {currentHeader.eyebrow}
                                                 </p>
                                                 <div>
-                                                    <h1 className="text-3xl font-semibold tracking-tight text-[#eef4ff]">
+                                                    <h1 className={`text-3xl font-semibold tracking-tight ${isResourcePage ? "text-[#202124]" : "text-[#eef4ff]"}`}>
                                                         {currentHeader.title}
                                                     </h1>
-                                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd] hidden md:block">
+                                                    <p className={`mt-2 max-w-2xl text-sm leading-6 hidden md:block ${isResourcePage ? "text-[#5f6368]" : "text-[#94a5bd]"}`}>
                                                         {currentHeader.description}
                                                     </p>
                                                 </div>
@@ -155,7 +162,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                             <div className="md:mb-6">
                                                 <Link
                                                     href={currentHeader.action.href}
-                                                    className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
+                                                    className={`inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition ${isResourcePage ? "border border-[#d7dde7] bg-white text-[#202124] hover:bg-[#f7f9fc]" : "border border-white/10 bg-[#182235] text-white hover:bg-[#22314a]"}`}
                                                 >
                                                     {currentHeader.action.label}
                                                 </Link>
@@ -163,7 +170,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                                         )}
 
                                         {pathname !== "/account/dashboard" &&
-                                            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#94a5bd] mb-6 md:mb-0 inline-flex w-full md:hidden">
+                                            <p className={`mt-2 max-w-2xl text-sm leading-6 mb-6 md:mb-0 inline-flex w-full md:hidden ${isResourcePage ? "text-[#5f6368]" : "text-[#94a5bd]"}`}>
                                                 {currentHeader?.description}
                                             </p>
                                         }
