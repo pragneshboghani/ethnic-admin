@@ -1,5 +1,6 @@
 "use client";
 
+import AuthorActions from "@/actions/AuthorActions";
 import UserActions from "@/actions/UserAction";
 import { useUser } from "@/context/UserContext";
 import { navItems } from "@/utils/navItems";
@@ -7,13 +8,19 @@ import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { Role } from "@/types";
+import { useState, useSyncExternalStore } from "react";
 
 const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const currentUserRole = useSyncExternalStore(
+        () => () => {},
+        () => (AuthorActions.getCurrentUserRole()?.role as Role) || null,
+        () => null,
+    );
 
     const SideMenuLinks = ({ link }: {
         link: {
@@ -21,6 +28,7 @@ const Sidebar = () => {
             name: string;
             href: string;
             icon: React.ElementType;
+            roles?: Role[];
         }
     }) => {
         const isActive = pathname.startsWith(link?.href);
@@ -60,6 +68,14 @@ const Sidebar = () => {
         router.push("/");
     };
 
+    const visibleNavItems = navItems.filter((link) => {
+        if (!link.roles) {
+            return true;
+        }
+
+        return currentUserRole ? link.roles.includes(currentUserRole) : false;
+    });
+
     const sidebarContent = (
         <>
             <Link href="/account/dashboard" className="hidden md:inline-flex items-center self-start">
@@ -83,7 +99,7 @@ const Sidebar = () => {
             </div>
 
             <div className="mt-5 md:mt-9 flex-1 space-y-1 md:space-y-2">
-                {navItems?.map((link) => (
+                {visibleNavItems.map((link) => (
                     <SideMenuLinks key={link.id} link={link} />
                 ))}
             </div>

@@ -6,10 +6,21 @@ import {
   StretchHorizontal,
   Users,
   Group,
-  MessageSquareMore
+  MessageSquareMore,
+  FolderOpen,
 } from "lucide-react";
+import { Role } from "@/types";
+import type { ElementType } from "react";
 
-export const navItems = [
+type NavItem = {
+  id: number;
+  name: string;
+  href: string;
+  icon: ElementType;
+  roles?: Role[];
+};
+
+export const navItems: NavItem[] = [
   {
     id: 1,
     name: "Dashboard",
@@ -22,5 +33,6 @@ export const navItems = [
   { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal},
   { id: 6, name: "Authors", href: "/account/authors", icon: Users },
   { id: 7, name: "Groups", href: "/account/groups", icon: Group },
-  { id: 8, name: "Comments", href: "/account/comments", icon: MessageSquareMore },
+  { id: 8, name: "Resources", href: "/account/resources", icon: FolderOpen },
+  { id: 9, name: "Comments", href: "/account/comments", icon: MessageSquareMore },
 ];

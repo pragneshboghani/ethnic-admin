@@ -434,6 +434,61 @@ export type Group = {
   image: string;
 };
 
+export type ResourceFile = {
+  id: number;
+  group_id: number;
+  group_name: string;
+  title: string;
+  description?: string | null;
+  original_name: string;
+  stored_name: string;
+  file_path: string;
+  mime_type: string;
+  extension: string;
+  file_size: number;
+  uploaded_by: number | null;
+  uploaded_by_name?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ResourceGroup = {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  sort_order: number;
+  created_by: number | null;
+  created_by_name?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  file_count: number;
+  files: ResourceFile[];
+};
+
+export type ResourceLibraryResponse = {
+  success: boolean;
+  groups: ResourceGroup[];
+  files: ResourceFile[];
+  totalGroups: number;
+  totalFiles: number;
+  message?: string;
+};
+
+export type ResourceGroupPayload = {
+  name: string;
+  description?: string;
+  sortOrder?: number;
+};
+
+export type ResourceUploadPayload = {
+  groupId: number;
+  title?: string;
+  description?: string;
+  originalName: string;
+  file: string;
+};
+
 export type LinkModalProps = {
   isOpen: boolean;
   onClose: () => void;
