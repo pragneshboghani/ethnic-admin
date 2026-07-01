@@ -7,6 +7,7 @@ import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import RichTextToolbar from "./RichTextToolbar";
 import BlogComments from "./BlogComments";
 import { useEffect, useRef, useState } from "react";
+import { beautifyStyleTags, minifyStyleTags } from "@/utils/minifyAndBeautifyCss";
 
 const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, blogId, }: BlogGeneralSectionProps) => {
     const { fields: faqFields, append: appendFaq, remove: removeFaq } = useFieldArray({
@@ -97,17 +98,19 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                         <div className="blog-editor rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
                             <EditorProvider>
                                 <div ref={sentinelRef} className="h-px" />
-                                <div  ref={stickyRef} className={`sticky top-0 z-20 border-b border-white/8 bg-[#111a28] ${isSticky ? "rounded-t-none" : "rounded-t-[24px]"}`}>
+                                <div ref={stickyRef} className={`sticky top-0 z-20 border-b border-white/8 bg-[#111a28] ${isSticky ? "rounded-t-none" : "rounded-t-[24px]"}`}>
                                     <RichTextToolbar platformData={platformData} content={content || ""} />
                                 </div>
                                 <Editor
-                                    value={content || ""}
-                                    onChange={(e) =>
-                                        setValue("content", e.target.value, {
+                                    value={beautifyStyleTags(content || "")}
+                                    onChange={(e) => {
+                                        const html = minifyStyleTags(e.target.value);
+
+                                        setValue("content", html, {
                                             shouldDirty: true,
                                             shouldTouch: true,
-                                        })
-                                    }
+                                        });
+                                    }}
                                     containerProps={{
                                         className: "min-h-[420px] border-0  shadow-none",
                                     }}
