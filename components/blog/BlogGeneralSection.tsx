@@ -7,7 +7,7 @@ import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import RichTextToolbar from "./RichTextToolbar";
 import BlogComments from "./BlogComments";
 import { useEffect, useRef, useState } from "react";
-import { beautifyStyleTags, minifyStyleTags } from "@/utils/minifyAndBeautifyCss";
+import { beautifyHtml, minifyHtml } from "@/utils/minifyAndBeautifyCss";
 
 const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content, allBlogs, platformData, selectedTags, setIsPopupOpen, tagsList, setIsTagModalOpen, blogId, }: BlogGeneralSectionProps) => {
     const { fields: faqFields, append: appendFaq, remove: removeFaq } = useFieldArray({
@@ -102,9 +102,9 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                                     <RichTextToolbar platformData={platformData} content={content || ""} />
                                 </div>
                                 <Editor
-                                    value={beautifyStyleTags(content || "")}
+                                    value={beautifyHtml(content || "")}
                                     onChange={(e) => {
-                                        const html = minifyStyleTags(e.target.value);
+                                        const html = minifyHtml(e.target.value);
 
                                         setValue("content", html, {
                                             shouldDirty: true,

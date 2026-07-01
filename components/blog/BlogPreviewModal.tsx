@@ -84,7 +84,7 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                         )}
                     </div>
 
-                    <div className="flex gap-2 border-b border-white/8 px-6 py-5 sticky bg-[#101826] top-0 sm:px-8 justify-between items-center">
+                    <div className="flex gap-2 border-b border-white/8 px-6 py-5 sticky bg-[#101826] top-0 sm:px-8 justify-between items-center z-50">
                         <div className="flex gap-2">
                             <button
                                 type="button"
@@ -172,7 +172,7 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                     )}
 
                     {mode === "publish" && (
-                        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-white/8 bg-[#101826]/95 px-6 py-4 backdrop-blur sm:px-8">
+                        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-white/8 bg-[#101826]/95 px-6 py-4 backdrop-blur sm:px-8 z-50">
                             <button
                                 type="button"
                                 onClick={() => setShowPreview(false)}
