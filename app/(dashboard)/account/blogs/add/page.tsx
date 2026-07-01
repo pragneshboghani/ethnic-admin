@@ -23,6 +23,7 @@ import blogSchema from "@/hooks/blogSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
 import { fileToBase64, optimizeUploadFile } from "@/utils/imageUpload";
+import { beautifyHtml, minifyHtml } from "@/utils/minifyAndBeautifyCss";
 
 type AllDataType = {
     allBlogs: any[];
@@ -172,7 +173,7 @@ const BlogForm = () => {
         const formData: BlogFormType = {
             BlogTitle: title,
             BlogExcerpt: excerpt,
-            BlogContent: content,
+            BlogContent: minifyHtml(content),
             BlogFaq: faq,
             BlogTags: tagsValue,
             BlogRalated: related,
@@ -389,7 +390,7 @@ const BlogForm = () => {
                 reset({
                     title: isDuplicateMode ? `${blog.blog_title || ""} (Copy)` : blog.blog_title || "",
                     excerpt: blog.short_excerpt || "",
-                    content: blog.full_content || "",
+                    content: beautifyHtml(blog.full_content || ""),
                     faq: blog.faq || [],
                     publishDate: isDuplicateMode ? getDefaultPublishDate("draft") || "" : normalizeDateForInput(blog.publish_date),
                     author: blog.author,
@@ -403,7 +404,7 @@ const BlogForm = () => {
                         settings: {}
                     })) || []
                 });
-                setValue("content", blog.full_content);
+                setValue("content", beautifyHtml(blog.full_content));
                 setRelatedBlogs(blog.related || []);
 
                 if (blog.featured_image) {
