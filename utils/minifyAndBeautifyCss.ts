@@ -1,21 +1,3 @@
-export const minifyCss = (css: string) => {
-  return (
-    css
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      .replace(/\s+/g, " ")
-      .replace(/\s*([{}:;,>+~])\s*/g, "$1")
-      .replace(/;}/g, "}")
-      .trim()
-  );
-};
-
-export const minifyStyleTags = (html: string) => {
-  return html.replace(
-    /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
-    (_, css) => `<style>${minifyCss(css)}</style>`,
-  );
-};
-
 export const beautifyCss = (css: string) => {
   css = css
     .replace(/\/\*[\s\S]*?\*\//g, "")
@@ -91,8 +73,58 @@ export const beautifyCss = (css: string) => {
     .trim();
 };
 
-export const beautifyStyleTags = (html: string) =>
-  html.replace(
-    /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
-    (_, css) => `<style>\n${beautifyCss(css)}\n</style>`,
+export const minifyHtml = (html: string) => {
+  return (
+    html
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/>\s+</g, "><")
+      .replace(/\s{2,}/g, " ")
+      .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
+        const minifiedCss = css
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/\s+/g, " ")
+          .replace(/\s*([{}:;,>+~])\s*/g, "$1")
+          .replace(/;}/g, "}")
+          .trim();
+
+        return `<style>${minifiedCss}</style>`;
+      })
+
+      .trim()
   );
+};
+
+export const beautifyHtml = (html: string) => {
+  let formatted = "";
+  let indent = 0;
+
+  html = html.replace(/></g, ">\n<");
+
+  const lines = html.split("\n");
+
+  for (let line of lines) {
+    line = line.trim();
+
+    if (!line) continue;
+
+    if (/^<\//.test(line)) {
+      indent--;
+    }
+
+    formatted += "    ".repeat(Math.max(indent, 0)) + line + "\n";
+
+    if (
+      /^<[^!/][^>]*[^/]?>$/.test(line) &&
+      !/^<(br|img|hr|meta|input|link)/i.test(line) &&
+      !line.includes("</")
+    ) {
+      indent++;
+    }
+  }
+
+  formatted = formatted.replace(/<style>([\s\S]*?)<\/style>/gi, (_, css) => {
+    return `<style>\n${beautifyCss(css)}\n</style>`;
+  });
+
+  return formatted.trim();
+};
