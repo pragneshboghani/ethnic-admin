@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import getDefaultPublishDate from "@/utils/getDefaultPublishDate";
 import { fileToBase64, optimizeUploadFile } from "@/utils/imageUpload";
 import { beautifyHtml, minifyHtml } from "@/utils/minifyAndBeautifyCss";
+import { addJsonBeautifierToHtml, removeJsonBeautifierFromHtml } from "@/utils/jsonCodeBeautifier";
 
 type AllDataType = {
     allBlogs: any[];
@@ -173,7 +174,7 @@ const BlogForm = () => {
         const formData: BlogFormType = {
             BlogTitle: title,
             BlogExcerpt: excerpt,
-            BlogContent: minifyHtml(content),
+            BlogContent: addJsonBeautifierToHtml(minifyHtml(content)),
             BlogFaq: faq,
             BlogTags: tagsValue,
             BlogRalated: related,
@@ -404,7 +405,7 @@ const BlogForm = () => {
                         settings: {}
                     })) || []
                 });
-                setValue("content", beautifyHtml(blog.full_content));
+                setValue("content", beautifyHtml(removeJsonBeautifierFromHtml(blog.full_content)));
                 setRelatedBlogs(blog.related || []);
 
                 if (blog.featured_image) {
