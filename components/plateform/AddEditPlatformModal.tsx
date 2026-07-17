@@ -409,14 +409,25 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                             className={inputClassName}
                                                         />
                                                         {!!watch("platform_token") && (
-                                                            <button className="absolute right-5 bottom-4" onClick={copyPlatformToken}>
+                                                            <button className="absolute right-5 bottom-4" 
+                                                            onClick={(e)=>{
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                copyPlatformToken();
+                                                            }}
+                                                            type="button"
+                                                            >
                                                                 <Copy size={18} />
                                                             </button>
                                                         )}
                                                     </div>
                                                 </div>
                                                 <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                                                    onClick={generatePlatformToken}
+                                                    onClick={(e)=> {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        generatePlatformToken();
+                                                    }}
                                                     disabled={dataSource !== "admin"}
                                                     // !!watch("platform_token") ||
                                                     type="button"
