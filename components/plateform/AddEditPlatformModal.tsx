@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Platform } from "@/types";
 import PlateformActions from "@/actions/PlateFormActions";
 import { toast } from "react-toastify";
-import { X } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import ClickOutside from "../common/ClickOutside";
 import PasswordInput from "../common/PasswordInput";
 
@@ -60,6 +60,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
             CTA_button_text: "",
             blog_path_type: "default",
             custom_blog_path: "",
+            platform_token: "",
         },
     });
 
@@ -91,6 +92,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                 CTA_button_text: "",
                 blog_path_type: "default",
                 custom_blog_path: "",
+                platform_token: "",
             });
         }
     }, [editingPlatform, reset]);
@@ -98,6 +100,28 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
     useEffect(() => {
         setValue("CTA_link", buildCtaLink(websiteUrl || "", blogPath || ""));
     }, [blogPath, setValue, websiteUrl]);
+
+    const generatePlatformToken = () => {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+
+        const token = Array.from(array)
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+
+        setValue("platform_token", token);
+    };
+
+    const copyPlatformToken = () => {
+        const token = watch("platform_token");
+
+        if (!token) {
+            toast.error("Please generate a token first");
+            return;
+        }
+        navigator.clipboard.writeText(token);
+        toast.success("Token copied to clipboard");
+    };
 
     const onSubmit = async (data: Platform) => {
         try {
@@ -112,7 +136,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
             refreshPlatforms();
             onClose();
         } catch (error) {
-            toast.error("Failed to save platform 😢");
+            toast.error(`Failed to save platform 😢: ${error}`);
         }
     };
 
@@ -366,6 +390,35 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                         />
                                                     </>
                                                 )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {dataSource === "admin" && (
+                                        <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
+                                            <div className="flex gap-4 w-full items-end">
+                                                <div className="space-y-2 w-full">
+                                                    <label htmlFor="token-for-platform" className={labelClassName}>Token</label>
+                                                    <input
+                                                        id="token-for-platform"
+                                                        type="text"
+                                                        disabled
+                                                        {...register("platform_token")}
+                                                        placeholder="Token"
+                                                        className={inputClassName}
+                                                    />
+                                                </div>
+                                                <button className="flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04] h-fit gap-2 cursor-pointer disabled:cursor-not-allowed" onClick={copyPlatformToken}
+                                                    disabled={!watch("platform_token") || dataSource !== "admin"}
+                                                >
+                                                    <Copy size={18} />
+                                                    <span>Copy</span>
+                                                </button>
+                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50" onClick={generatePlatformToken}
+                                                    disabled={!!watch("platform_token") || dataSource !== "admin"}
+                                                >
+                                                    generate
+                                                </button>
                                             </div>
                                         </div>
                                     )}

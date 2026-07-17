@@ -29,6 +29,7 @@ export interface Platform {
   CTA_button_text: string; 
   blog_path_type: string;
   custom_blog_path?: string;
+  platform_token?: string;
 }
 
 export interface Media {
