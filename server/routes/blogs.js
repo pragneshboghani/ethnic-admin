@@ -8,7 +8,6 @@ const verifyApiKey = require("../middleware/verifyApiKey");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const generateUniqueBlogSlug = require("../utils/generateUniqueBlogSlug");
 const { logBlogHistory } = require("../utils/blogHistory");
-const verifyPlatformToken = require("../middleware/verifyPlatformToken");
 require("dotenv").config();
 
 const blogRouter = express.Router();
@@ -627,9 +626,16 @@ blogRouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
   }
 });
 
-blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) => {
+blogRouter.get("/platform", verifyApiKey, async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, category } = req.query;
+    const { platformName, page = 1, limit = 12, search, category } = req.query;
+
+    if (!platformName) {
+      return res.status(400).json({
+        success: false,
+        message: "Platform name required",
+      });
+    }
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -668,7 +674,7 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
 
       WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"
       `
-    const params = [ BASE_URL,req.platform.platform_name.trim().toLowerCase()];
+    const params = [ BASE_URL,platformName.trim().toLowerCase()];
 
     let countQuery = 
       `SELECT COUNT(*) as total FROM blogs b
@@ -676,7 +682,7 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
         JOIN seo_blog sb ON b.id = sb.blog_id AND p2.id = sb.platform_id
         WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"`;
 
-    const countParams = [req.platform.platform_name.trim().toLowerCase()];
+    const countParams = [platformName.trim().toLowerCase()];
 
     if (search) {
       query += ` AND ( b.blog_title LIKE ? OR b.short_excerpt LIKE ? OR b.full_content LIKE ? OR sb.slug LIKE ?)`;
@@ -775,9 +781,9 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
   }
 });
 
-blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
+blogRouter.get("/slug", verifyApiKey, async (req, res) => {
   try {
-    const { slug } = req.query;
+    const { slug, platform } = req.query;
 
     if (!slug) {
       return res.status(400).json({
@@ -920,17 +926,18 @@ blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
   }
 });
 
-blogRouter.get("/author", verifyApiKey, verifyPlatformToken, async (req, res) => {
+blogRouter.get("/author", verifyApiKey, async (req, res) => {
   try {
     const {
       author,
       authorName,
+      platform,
+      platformName,
       page = 1,
       limit = 12,
     } = req.query;
-    const platform = req.platform;
     const authorQuery = (authorName || author || "").replaceAll(" ", "");
-    const platformQuery = platform.platform_name.replaceAll(" ", "").toLowerCase();
+    const platformQuery = (platformName || platform || "").replaceAll(" ", "").toLowerCase();
 
     if (!authorQuery) {
       return res.status(400).json({
