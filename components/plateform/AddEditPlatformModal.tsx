@@ -408,14 +408,19 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                         className={inputClassName}
                                                     />
                                                 </div>
-                                                <button className="flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04] h-fit gap-2 cursor-pointer disabled:cursor-not-allowed" onClick={copyPlatformToken}
-                                                    disabled={!watch("platform_token") || dataSource !== "admin"}
+                                                <button className="flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04] h-fit gap-2 cursor-pointer disabled:cursor-not-allowed" 
+                                                onClick={copyPlatformToken}
+                                                type="button"
+                                                disabled={!watch("platform_token") || dataSource !== "admin"}
                                                 >
                                                     <Copy size={18} />
                                                     <span>Copy</span>
                                                 </button>
-                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50" onClick={generatePlatformToken}
-                                                    disabled={!!watch("platform_token") || dataSource !== "admin"}
+                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50" 
+                                                onClick={generatePlatformToken}
+                                                disabled={ dataSource !== "admin"}
+                                                    // !!watch("platform_token") ||
+                                                    type="button"
                                                 >
                                                     generate
                                                 </button>
