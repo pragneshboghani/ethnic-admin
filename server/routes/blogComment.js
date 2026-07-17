@@ -6,6 +6,7 @@ const { getPlatformsByIds } = require("../utils/platformHelper");
 const getTaxonomyUrl = require("../utils/getTaxonomyUrl");
 const axios = require("axios");
 const getAuthHeaders = require("../utils/getAuthHeaders");
+const verifyPlatformToken = require("../middleware/verifyPlatformToken");
 
 const blogCommentRouter = Router();
 
@@ -254,10 +255,11 @@ blogCommentRouter.get(
   },
 );
 
-blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
+blogCommentRouter.post("/comment/add", verifyApiKey, verifyPlatformToken, async (req, res) => {
   try {
     const { blogId, authorName, authorEmail, content } = req.body;
-    const { platform } = req.query;
+
+    const platformId = req.platform.id;
 
     if (!blogId || !authorName || !authorEmail) {
       return res.status(400).json({
@@ -266,23 +268,11 @@ blogCommentRouter.post("/comment/add", verifyApiKey, async (req, res) => {
       });
     }
 
-    const [[platformId]] = await mysqlpool.query(
-      `SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`,
-      [platform.trim().toLowerCase()],
-    );
-
-    if (!platformId) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid platform",
-      });
-    }
-
     const [result] = await mysqlpool.query(
       `
       INSERT INTO blog_comment (blog_id, platform_id, commentor_name, commentor_email, comment_status, comment) VALUES (?, ?, ?, ?, ?, ?);
     `,
-      [blogId, platformId.id, authorName, authorEmail, "hold", content],
+      [blogId, platformId, authorName, authorEmail, "hold", content],
     );
 
     if (result.affectedRows === 0) {
@@ -456,28 +446,10 @@ blogCommentRouter.put(
   },
 );
 
-blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
+blogCommentRouter.get("/comment/platform", verifyApiKey, verifyPlatformToken, async (req, res) => {
   try {
-    const { platform, blogId } = req.query;
-
-    if (!platform) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing platform",
-      });
-    }
-
-    const [[platformId]] = await mysqlpool.query(
-      `SELECT id FROM platforms WHERE REPLACE(REPLACE(LOWER(platform_name), '\\n', ''), '\\r', '') = ?`,
-      [platform.trim().toLowerCase()],
-    );
-
-    if (!platformId) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid platform",
-      });
-    }
+    const { blogId } = req.query;
+    const platformId = req.platform.id;
 
     const [comments] = await mysqlpool.query(
       `SELECT 
@@ -538,7 +510,7 @@ blogCommentRouter.get("/comment/platform", verifyApiKey, async (req, res) => {
           su.name,
           su.img_url
       ORDER BY bc.created_at DESC`,
-      [platformId.id, blogId],
+      [platformId, blogId],
     );
 
     res.status(200).json({
