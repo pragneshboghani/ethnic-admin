@@ -397,28 +397,27 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                     {dataSource === "admin" && (
                                         <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
                                             <div className="flex gap-4 w-full items-end">
-                                                <div className="space-y-2 w-full">
+                                                <div className="w-full">
                                                     <label htmlFor="token-for-platform" className={labelClassName}>Token</label>
-                                                    <input
-                                                        id="token-for-platform"
-                                                        type="text"
-                                                        disabled
-                                                        {...register("platform_token")}
-                                                        placeholder="Token"
-                                                        className={inputClassName}
-                                                    />
+                                                    <div className="relative">
+                                                        <input
+                                                            id="token-for-platform"
+                                                            type="text"
+                                                            disabled
+                                                            {...register("platform_token")}
+                                                            placeholder="Token"
+                                                            className={inputClassName}
+                                                        />
+                                                        {!!watch("platform_token") && (
+                                                            <button className="absolute right-5 bottom-4" onClick={copyPlatformToken}>
+                                                                <Copy size={18} />
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <button className="flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04] h-fit gap-2 cursor-pointer disabled:cursor-not-allowed" 
-                                                onClick={copyPlatformToken}
-                                                type="button"
-                                                disabled={!watch("platform_token") || dataSource !== "admin"}
-                                                >
-                                                    <Copy size={18} />
-                                                    <span>Copy</span>
-                                                </button>
-                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50" 
-                                                onClick={generatePlatformToken}
-                                                disabled={ dataSource !== "admin"}
+                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                                    onClick={generatePlatformToken}
+                                                    disabled={dataSource !== "admin"}
                                                     // !!watch("platform_token") ||
                                                     type="button"
                                                 >
