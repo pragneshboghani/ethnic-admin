@@ -2,7 +2,6 @@ const Router = require("express");
 const mysqlpool = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const verifyApiKey = require("../middleware/verifyApiKey");
-const { validatePlatformData } = require("../helper/platform/validatePlatformData");
 
 const platformRouter = Router();
 
@@ -88,7 +87,6 @@ platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       blog_path,
       CTA_link,
       CTA_button_text,
-      platform_token
     } = req.body;
 
     if (data_source === "admin") {
@@ -100,10 +98,6 @@ platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       password = null;
     }
 
-    if (data_source !== "admin") {
-      platform_token = null;
-    }
-
     if (!platform_name || !website_url || !auth_type || !data_source) {
       return res.status(400).json({
         success: false,
@@ -112,17 +106,20 @@ platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
       });
     }
 
-    const validation = validatePlatformData({
-      auth_type,
-      data_source,
-      auth_token,
-      username,
-      password,
-      platform_token,
-    });
+    if (data_source !== "admin") {
+      if (auth_type === "token" && !auth_token) {
+        return res.status(400).json({
+          success: false,
+          message: "Auth token is required for token type",
+        });
+      }
 
-    if (!validation.success) {
-      return res.status(validation.status).json(validation);
+      if (auth_type === "basic" && (!username || !password)) {
+        return res.status(400).json({
+          success: false,
+          message: "Username and Password are required for basic auth",
+        });
+      }
     }
 
     let finalAuthToken = null;
@@ -140,8 +137,8 @@ platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
 
     const [result] = await mysqlpool.query(
       `INSERT INTO platforms 
-      (platform_name, website_url, blog_path, CTA_link, CTA_button_text, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, platform_token, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (platform_name, website_url, blog_path, CTA_link, CTA_button_text, data_source, plateform_type, api_endpoint, auth_type, auth_token, username, password, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         platform_name,
         website_url,
@@ -155,7 +152,6 @@ platformRouter.post("/add", verifyApiKey, authMiddleware, async (req, res) => {
         finalAuthToken,
         finalUsername,
         finalPassword,
-        platform_token,
         status || "Active",
       ],
     );
@@ -193,8 +189,7 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
       password,
       status,
       blog_path_type,
-      custom_blog_path,
-      platform_token,
+      custom_blog_path
     } = req.body;
 
     if (data_source === "admin") {
@@ -204,10 +199,6 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
       auth_token = null;
       username = null;
       password = null;
-    }
-
-    if (data_source !== "admin") {
-      platform_token = null;
     }
 
     const [[raw]] = await mysqlpool.query(
@@ -222,17 +213,20 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
       });
     }
 
-    const validation = validatePlatformData({
-      auth_type,
-      data_source,
-      auth_token,
-      username,
-      password,
-      platform_token,
-    });
+    if (data_source !== "admin") {
+      if (auth_type === "token" && !auth_token) {
+        return res.status(400).json({
+          success: false,
+          message: "Auth token is required for token type",
+        });
+      }
 
-    if (!validation.success) {
-      return res.status(validation.status).json(validation);
+      if (auth_type === "basic" && (!username || !password)) {
+        return res.status(400).json({
+          success: false,
+          message: "Username and Password are required for basic auth",
+        });
+      }
     }
 
     let finalAuthType =
@@ -268,7 +262,6 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
         username: null,
         password: null,
         status: status ?? raw.status,
-        platform_token: platform_token ?? raw.platform_token,        
       };
     } else {
       UpdatedData = {
@@ -293,7 +286,7 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
     await mysqlpool.query(
       `UPDATE platforms 
        SET platform_name = ?, website_url = ?, blog_path = ?, CTA_link = ?, CTA_button_text = ?, data_source = ?, plateform_type= ?, api_endpoint = ?, 
-           auth_type = ?, auth_token = ?, username = ?, password = ?, platform_token = ?,
+           auth_type = ?, auth_token = ?, username = ?, password = ?, 
            status = ?, blog_path_type = ?, custom_blog_path = ?  WHERE id = ?`,
       [
         UpdatedData.platform_name,
@@ -308,7 +301,6 @@ platformRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
         UpdatedData.auth_token,
         UpdatedData.username,
         UpdatedData.password,
-        UpdatedData.platform_token,
         UpdatedData.status,
         UpdatedData.blog_path_type,
         UpdatedData.custom_blog_path,
