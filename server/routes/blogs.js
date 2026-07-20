@@ -778,6 +778,7 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
 blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
   try {
     const { slug } = req.query;
+    const platform = req.platform;
 
     if (!slug) {
       return res.status(400).json({
@@ -796,6 +797,7 @@ blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
       'author', b.author,
       'publish_date', b.publish_date,
       'reading_time', b.reading_time,
+      'platforms', b.platforms,
       'status', b.status,
       'created_at', b.created_at,
       'full_content', b.full_content,
@@ -902,6 +904,15 @@ blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
     if (typeof data === "string") {
       data = JSON.parse(data);
     }
+
+    if (!data.platforms.includes(platform.id)) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found or not published on this platform",
+      });
+    }
+
+    delete data.platforms;
 
     if (data.featured_image) {
       data.featured_image = `${BASE_URL}${data.featured_image}`;
