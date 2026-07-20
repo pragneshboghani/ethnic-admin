@@ -10,26 +10,29 @@ const validatePlatformData = (data) => {
 
   if (data_source !== "admin") {
     if (auth_type === "token" && !auth_token) {
-      return res.status(400).json({
+      return {
         success: false,
+        status: 400,
         message: "Auth token is required for token type",
-      });
+      };
     }
 
     if (auth_type === "basic" && (!username || !password)) {
-      return res.status(400).json({
+      return {
         success: false,
+        status: 400,
         message: "Username and Password are required for basic auth",
-      });
+      };
     }
   }
 
   if (data_source === "admin") {
     if (!platform_token || platform_token.trim() === "") {
-      return res.status(400).json({
+      return {
         success: false,
+        status: 400,
         message: "Platform token is required for Admin data source",
-      });
+      };
     }
   }
 
