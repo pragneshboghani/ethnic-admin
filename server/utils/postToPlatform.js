@@ -21,6 +21,8 @@ const fileToBase64 = (filePath, mimeType) => {
 };
 
 const postToPlatform = async (platform, blogData, slug = null, seoData = null, platform_blog_id = null) => {
+  console.log(platform_blog_id);
+
   try {
     let url = getTaxonomyUrl(platform, "post");
 
@@ -133,7 +135,7 @@ const postToPlatform = async (platform, blogData, slug = null, seoData = null, p
       },
     });
 
-    const userId = userRes.data[0].id;
+    const userId = userRes?.data[0]?.id;
 
     payload.author = userId;
     const response = await axios({
