@@ -355,6 +355,7 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
         console.error(`Error fetching SEO data for platform ${platformId}:`, err);
       }
     }
+    // console.log(platformData);
 
     const results = await Promise.all(
       platformData.map((platform) => {
@@ -362,7 +363,7 @@ blogRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => {
         const updatedseodata = req.body?.seo?.find(seo => seo.platform_id === platform.id);
         const platfrom_post = raw.seo?.find((seo) => seo.platform_id === platform.id);
 
-        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, platfrom_post.platform_blog_id);
+        return postToPlatform(platform, platformPayload, updatedseodata?.slug, platformSeoData, platfrom_post?.platform_blog_id);
       }),
     );
 
@@ -668,9 +669,9 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
 
       WHERE REPLACE(REPLACE(LOWER(p2.platform_name), '\\n', ''), '\\r', '') = ? AND sb.publish_status = "publish"
       `
-    const params = [ BASE_URL,req.platform.platform_name.trim().toLowerCase()];
+    const params = [BASE_URL, req.platform.platform_name.trim().toLowerCase()];
 
-    let countQuery = 
+    let countQuery =
       `SELECT COUNT(*) as total FROM blogs b
         JOIN platforms p2 ON JSON_CONTAINS(b.platforms, CAST(p2.id AS JSON))
         JOIN seo_blog sb ON b.id = sb.blog_id AND p2.id = sb.platform_id
@@ -735,8 +736,8 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
 
     const updatedBlogs = blogs.map((blog) => {
       const parsedAuthor = typeof blog.author_data === "string"
-      ? JSON.parse(blog.author_data)
-      : blog.author_data || {};
+        ? JSON.parse(blog.author_data)
+        : blog.author_data || {};
 
       const updated = {
         ...blog,
@@ -753,7 +754,7 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
         related: safeParse(blog.related_data),
       };
 
-      delete updated.category_data; 
+      delete updated.category_data;
       delete updated.tag_data;
       delete updated.related_data;
 
