@@ -106,6 +106,12 @@ export const addJsonBeautifierToHtml = (html: string) => {
     }
     .json-beautifier-button:hover { background: #1e293b; }
     .json-beautifier pre { overflow: auto; white-space: pre; }
+    body:not(.page-id-1157) #main-content .code-block p { color: inherit !important; }
+    .code-block .code-line {
+      display: block;
+      white-space: pre;
+      min-height: 1em;
+    }
   `;
 
   const script = document.createElement("script");
