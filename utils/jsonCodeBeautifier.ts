@@ -81,6 +81,18 @@ export const addJsonBeautifierToHtml = (html: string) => {
   });
 
   if (jsonBlockCount === 0) {
+    const style = document.createElement("style");
+    style.setAttribute(BEAUTIFIER_ATTRIBUTE, "");
+    style.textContent = `
+      body:not(.page-id-1157) #main-content .code-block p { color: inherit !important; }
+      .code-block .code-line {
+        display: block;
+        white-space: pre;
+        min-height: 1em;
+      }
+  `;
+
+    document.body.append(style);
     return document.body.innerHTML;
   }
 
