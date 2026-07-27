@@ -73,13 +73,77 @@ export const beautifyCss = (css: string) => {
     .trim();
 };
 
+const protectCodeBlocks = (html: string) => {
+  const codeBlocks: string[] = [];
+
+  const protectedHtml = html.replace(
+    /<code\b([^>]*)>([\s\S]*?)<\/code>/gi,
+    (_, attributes, content) => {
+      const index = codeBlocks.length;
+
+      let code = content;
+
+      // If code is already converted to code-line spans,
+      // don't convert it again on second/third save.
+      const alreadyConverted =
+        /<span\b[^>]*class=["'][^"']*\bcode-line\b[^"']*["'][^>]*>/i.test(
+          code
+        );
+
+      if (!alreadyConverted) {
+        // Normalize editor generated HTML
+        code = code
+          // <br> => newline
+          .replace(/<br\s*\/?>/gi, "\n")
+
+          // <p>line</p> => line + newline
+          .replace(/<p\b[^>]*>/gi, "")
+          .replace(/<\/p>/gi, "\n")
+
+          // Remove only first/last newline
+          .replace(/^\r?\n/, "")
+          .replace(/\r?\n$/, "");
+
+        // Convert every line into span
+        const lines = code.split(/\r?\n/);
+
+        code = lines
+          .map((line: any) => {
+            return `<span class="code-line">${line}</span>`;
+          })
+          .join("");
+      }
+
+      codeBlocks.push(
+        `<code${attributes}>${code}</code>`
+      );
+
+      return `___CODE_BLOCK_${index}___`;
+    }
+  );
+
+  return {
+    html: protectedHtml,
+
+    restore: (value: string) => {
+      return value.replace(
+        /___CODE_BLOCK_(\d+)___/g,
+        (_, index) => codeBlocks[Number(index)]
+      );
+    },
+  };
+};
+
 export const minifyHtml = (html: string) => {
-  return (
-    html
-      .replace(/<!--[\s\S]*?-->/g, "")
-      .replace(/>\s+</g, "><")
-      .replace(/\s{2,}/g, " ")
-      .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
+  const protectedCode = protectCodeBlocks(html);
+
+  let result = protectedCode.html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/>\s+</g, "><")
+    .replace(/\s{2,}/g, " ")
+    .replace(
+      /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
+      (_, css) => {
         const minifiedCss = css
           .replace(/\/\*[\s\S]*?\*\//g, "")
           .replace(/\s+/g, " ")
@@ -88,13 +152,18 @@ export const minifyHtml = (html: string) => {
           .trim();
 
         return `<style>${minifiedCss}</style>`;
-      })
+      }
+    )
+    .trim();
 
-      .trim()
-  );
+  return protectedCode.restore(result);
 };
 
 export const beautifyHtml = (html: string) => {
+  const protectedCode = protectCodeBlocks(html);
+
+  html = protectedCode.html;
+
   let formatted = "";
   let indent = 0;
 
@@ -111,7 +180,10 @@ export const beautifyHtml = (html: string) => {
       indent--;
     }
 
-    formatted += "    ".repeat(Math.max(indent, 0)) + line + "\n";
+    formatted +=
+      "    ".repeat(Math.max(indent, 0)) +
+      line +
+      "\n";
 
     if (
       /^<[^!/][^>]*[^/]?>$/.test(line) &&
@@ -122,9 +194,12 @@ export const beautifyHtml = (html: string) => {
     }
   }
 
-  formatted = formatted.replace(/<style>([\s\S]*?)<\/style>/gi, (_, css) => {
-    return `<style>\n${beautifyCss(css)}\n</style>`;
-  });
+  formatted = formatted.replace(
+    /<style>([\s\S]*?)<\/style>/gi,
+    (_, css) => {
+      return `<style>\n${beautifyCss(css)}\n</style>`;
+    }
+  );
 
-  return formatted.trim();
+  return protectedCode.restore(formatted).trim();
 };
