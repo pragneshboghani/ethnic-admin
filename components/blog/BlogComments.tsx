@@ -16,9 +16,9 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
     const [selectedComment, setSelectedComment] = useState<any | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const pillClass = "rounded-full border border-white/10 bg-[#101826] px-3 py-1";
+    const pillClass = "rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1";
     const platformBadgeClass = "inline-block rounded-full bg-blue-500/20 px-3 py-1 text-[11px] uppercase font-medium text-blue-300 border border-blue-500/10";
-    const emptyStateClass = "rounded-[22px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 text-center text-sm text-[#8ea0b8]";
+    const emptyStateClass = "rounded-[22px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-6 py-10 text-center text-sm text-[var(--text-muted)]";
 
     const loadComments = async () => {
         if (!blogId) {
@@ -56,18 +56,18 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
     };
 
     return (
-        <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8">
-            <div className="flex flex-col gap-4 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] md:p-8">
+            <div className="flex flex-col gap-4 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h3 className="text-lg font-semibold text-[#eef4ff]">
+                    <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                         Comments
                     </h3>
-                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Review visitor feedback and moderate comments for this blog.
                     </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2 text-sm text-[#dbe5f3]">
+                <div className="flex flex-wrap gap-2 text-sm text-[var(--text)]">
                     <span className={pillClass}>
                         Total: {comments.length}
                     </span>
@@ -94,14 +94,14 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                 ) : (
                     <div className="space-y-3">
                         {comments.map((comment) => (
-                            <button key={comment.comment_id} type="button" onClick={() => handleOpenComment(comment)} className="w-full rounded-[22px] border border-white/8 bg-[#101826] p-4 text-left transition hover:border-[#31425e] hover:bg-[#182438]" >
+                            <button key={comment.comment_id} type="button" onClick={() => handleOpenComment(comment)} className="w-full rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] p-4 text-left transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]" >
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
-                                        <p className="text-sm font-semibold text-[#eef4ff]">
+                                        <p className="text-sm font-semibold text-[var(--text-strong)]">
                                             {comment.commentor_name || "Anonymous"}
                                         </p>
 
-                                        <p className="mt-1 text-sm text-[#8ea0b8]">
+                                        <p className="mt-1 text-sm text-[var(--text-muted)]">
                                             {comment.commentor_email || "No email provided"}
                                         </p>
                                     </div>
@@ -116,7 +116,7 @@ const BlogComments = ({ blogId }: BlogCommentsProps) => {
                                     </div>
                                 </div>
 
-                                <div className="mt-3 line-clamp-3 text-sm leading-6 text-[#dbe5f3]"
+                                <div className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--text)]"
                                     dangerouslySetInnerHTML={{
                                         __html: comment.comment || "No comment text available."
                                     }} />

@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <LayoutContainer>
-      <div className="w-full h-full m-auto">
+      <div className="w-full h-full m-auto" data-theme="light">
         <div className="max-w-full w-full h-full p-0 flex items-start justify-start">
           <main className="max-w-full w-full h-full min-h-screen sticky top-0">
             <div className="page-wrapper max-w-full w-full h-full relative">

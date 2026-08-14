@@ -7,12 +7,12 @@ import type { comments as CommentType, groupedComments } from '@/types';
 import { LoaderCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react'
 
-const pillClass = "rounded-full border border-white/10 bg-[#101826] px-3 py-1";
-const emptyStateClass = "rounded-[22px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 text-center text-sm text-[#8ea0b8]";
+const pillClass = "rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1";
+const emptyStateClass = "rounded-[22px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-6 py-10 text-center text-sm text-[var(--text-muted)]";
 const activeClass =
-    "rounded-full border border-[#2b3950] bg-[#1d2b42] px-3 py-1.5 text-sm text-white transition-all";
+    "rounded-full border border-[var(--border-strong)] bg-[var(--bg-selected)] px-3 py-1.5 text-sm text-[var(--text-strong)] transition-all";
 const normalClass =
-    "rounded-full border border-white/10 bg-[#101826] px-3 py-1.5 text-sm text-[#8ea0b8] transition-all hover:border-white/20 hover:text-white";
+    "rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1.5 text-sm text-[var(--text-muted)] transition-all hover:border-[var(--border-strong)] hover:text-[var(--text-strong)]";
 
 const BlogCommentpage = () => {
     const [comments, setComments] = useState<groupedComments[]>([]);
@@ -135,7 +135,7 @@ const BlogCommentpage = () => {
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-6">
-                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5 lg:min-h-[77vh] lg:min-w-[300px]">
+                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 lg:min-h-[77vh] lg:min-w-[300px]">
                     <div className="flex flex-row md:flex-col flex-wrap gap-4 sticky top-5">
                         {platformTabs.map((platform) => (
                             <button
@@ -143,15 +143,15 @@ const BlogCommentpage = () => {
                                 key={platform.platform_name}
                                 onClick={() => handlePlatformChange(platform.platform_name)}
                                 className={`group flex w-fit md:w-full items-center gap-3 rounded-2xl border p-2 sm:p-3 md:px-4 md:py-3 transition-all duration-200 ${activeTab === platform.platform_name
-                                    ? "border-[#2b3950] bg-[#182233] text-[#eef4ff] shadow-[0_16px_34px_rgba(0,0,0,0.24)]"
-                                    : "border-transparent text-[#8fa0b6] hover:border-white/10 hover:bg-white/[0.03] hover:text-[#eef4ff]"
+                                    ? "border-[var(--border-strong)] bg-[var(--bg-selected)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                                    : "border-transparent text-[var(--text-muted)] hover:border-[var(--border)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]"
                                     }`}
                             >
                                 {platform.platform_name}
                                 <span
                                     className={`rounded-full px-2 py-0.5 text-xs uppercase ${activeTab === platform.platform_name
-                                        ? 'bg-[#1d2b42] text-[#c8d7eb]'
-                                        : 'bg-white/[0.05] text-[#8ea0b8]'
+                                        ? 'bg-[var(--bg-selected)] text-[#294770]'
+                                        : 'bg-black/[0.04] text-[var(--text-muted)]'
                                         }`}
                                 >
                                     {platform.comments.length}
@@ -161,18 +161,18 @@ const BlogCommentpage = () => {
                     </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] md:p-8">
-                    <div className="flex flex-col gap-4 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between sm:flex-wrap">
+                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] md:p-8">
+                    <div className="flex flex-col gap-4 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-center sm:justify-between sm:flex-wrap">
                         <div>
-                            <h3 className="text-lg font-semibold text-[#eef4ff]">
+                            <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                                 Comments
                             </h3>
-                            <p className="mt-1 text-sm text-[#8ea0b8]">
+                            <p className="mt-1 text-sm text-[var(--text-muted)]">
                                 Review visitor feedback and moderate comments for this blog.
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap gap-2 text-sm text-[#dbe5f3]">
+                        <div className="flex flex-wrap gap-2 text-sm text-[var(--text)]">
                             <span className={pillClass}>
                                 Total: {activePlatformStats ? activePlatformStats.comments.length : 0}
                             </span>
@@ -204,14 +204,14 @@ const BlogCommentpage = () => {
                         ) : (
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                 {activePlatform?.comments?.map((comment) => (
-                                    <button key={comment.comment_id} type="button" onClick={() => handleOpenComment(comment)} className="w-full rounded-[22px] border border-white/8 bg-[#101826] p-4 text-left transition hover:border-[#31425e] hover:bg-[#182438]">
+                                    <button key={comment.comment_id} type="button" onClick={() => handleOpenComment(comment)} className="w-full rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] p-4 text-left transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:flex-wrap">
                                             <div>
-                                                <p className="text-sm font-semibold text-[#eef4ff]">
+                                                <p className="text-sm font-semibold text-[var(--text-strong)]">
                                                     {comment.commentor_name || "Anonymous"}
                                                 </p>
 
-                                                <p className="mt-1 text-sm text-[#8ea0b8]">
+                                                <p className="mt-1 text-sm text-[var(--text-muted)]">
                                                     {comment.commentor_email || "No email provided"}
                                                 </p>
                                             </div>
@@ -221,11 +221,11 @@ const BlogCommentpage = () => {
                                             </div>
                                         </div>
 
-                                        <p className="text-sm font-semibold text-[#eef4ff] mt-3">
+                                        <p className="text-sm font-semibold text-[var(--text-strong)] mt-3">
                                             Blog : {comment.blog_title || "Blog Title"}
                                         </p>
                                         <div
-                                            className="mt-3 text-sm leading-6 text-[#dbe5f3]"
+                                            className="mt-3 text-sm leading-6 text-[var(--text)]"
                                             dangerouslySetInnerHTML={{
                                                 __html: comment.comment || "No comment text available."
                                             }}

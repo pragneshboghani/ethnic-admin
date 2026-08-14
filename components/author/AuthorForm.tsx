@@ -23,16 +23,16 @@ const allowedRoles: Record<Role, string[]> = {
 };
 
 const cardClassName =
-  "rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]";
+  "rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]";
 
 const inputClassName =
-  "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
+  "w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[var(--accent)] focus:outline-none";
 
 const selectClassName =
-  "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] transition focus:border-[#31425e] focus:outline-none";
+  "w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] transition focus:border-[var(--accent)] focus:outline-none";
 
 const labelClassName =
-  "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
+  "text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]";
 
 const getDefaultRole = (userRole: Role | null) => {
   const roles = allowedRoles[userRole || "sub_admin"];
@@ -70,12 +70,14 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       social_links: {
         linkedin: initialData?.social_links?.linkedin || "",
       },
+      can_access_calendar: initialData?.can_access_calendar ?? true,
     },
   });
 
   const previewImage = useWatch({ control, name: "profile_image" });
   const description = useWatch({ control, name: "description" });
   const selectedRole = useWatch({ control, name: "role" }) || (initialData?.role || "sub_admin");
+  const calendarAccess = useWatch({ control, name: "can_access_calendar" }) ?? true;
   const selectedUsers = userList.filter((member) => selectedUserIds.includes(member.id));
 
   const toggleUserSelection = (memberId: number) => {
@@ -128,7 +130,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
         shouldTouch: false,
       });
     }
-    setSelectedPlatforms(initialData.selected_platforms as any);
+    setSelectedPlatforms(initialData.selected_platforms || []);
   }, [authorList, initialData, setValue]);
 
   useEffect(() => {
@@ -184,6 +186,10 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
       members: initialData?.user_groups?.flatMap((group) =>
         group.members?.map((member) => Number(member.id)) || [],
       ) || [],
+      social_links: {
+        linkedin: initialData?.social_links?.linkedin || "",
+      },
+      can_access_calendar: initialData?.can_access_calendar ?? true,
     });
   }, [initialData, reset, userRole]);
 
@@ -223,8 +229,8 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
   if (mode === "create" && roleLoaded && allowedRoleOptions.length === 0) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-white/8 bg-[#151d2c] p-6">
-        <p className="text-sm text-[#8ea0b8]">
+      <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6">
+        <p className="text-sm text-[var(--text-muted)]">
           You are not allowed to create users.
         </p>
       </div>
@@ -271,18 +277,18 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
   return (
     <>
       <div className="space-y-6">
-        <div className="rounded-[24px] border border-white/8 bg-[#151d2c]/95 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-all duration-300">
+        <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)]/95 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-300">
           <div className="flex flex-col gap-4 transition-all duration-300 xl:flex-row xl:items-center xl:justify-between xl:gap-8">
             <div className="min-w-0">
-              <span className="inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#8ea0b8] transition-all duration-300 opacity-100">
+              <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--text-muted)] transition-all duration-300 opacity-100">
                 Author Management
               </span>
 
-              <h1 className="mt-4 text-[36px] font-semibold capitalize leading-none tracking-[-0.04em] text-[#eef4ff] transition-all duration-300">
+              <h1 className="mt-4 text-[36px] font-semibold capitalize leading-none tracking-[-0.04em] text-[var(--text-strong)] transition-all duration-300">
                 {isUpdate ? "Update Author" : "Create New Author"}
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#8ea0b8] transition-all duration-300 opacity-100">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--text-muted)] transition-all duration-300 opacity-100">
                 {isReadOnly
                   ? "You have view-only access. Only admins and super admins can make changes."
                   : isUpdate
@@ -295,7 +301,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
               <button
                 type="submit"
                 form={formId}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
               >
                 <Save size={18} /> {isUpdate ? "Update" : "Submit"}
               </button>
@@ -309,13 +315,13 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
           className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {/* Left Section */}
-          <div className="col-span-2 rounded-[24px] border border-white/8 bg-[#151d2c] p-6">
-            <div className="border-b border-white/8 pb-4">
-              <h3 className="text-lg font-semibold text-[#eef4ff]">
+          <div className="col-span-2 rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6">
+            <div className="border-b border-[var(--border)] pb-4">
+              <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                 Author Details
               </h3>
 
-              <p className="mt-1 text-sm text-[#8ea0b8]">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 {isReadOnly
                   ? "View author information (read-only mode)."
                   : isUpdate
@@ -379,10 +385,10 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                         disabled={isReadOnly}
                         checked={changePassword}
                         onChange={(e) => setChangePassword(e.target.checked)}
-                        className="h-4 w-4 rounded border-white/10 bg-[#0f1724] text-white accent-white"
+                        className="h-4 w-4 rounded border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-strong)] accent-white"
                       />
 
-                      <span className="text-sm text-[#dbe5f3]">
+                      <span className="text-sm text-[var(--text)]">
                         Want to change password?
                       </span>
                     </label>
@@ -444,6 +450,38 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                     </select>
                   </div>
 
+                  {/* Content Calendar access */}
+                  {canManageAuthors && selectedRole !== "super_admin" && (
+                    <div className="space-y-2">
+                      <label className={labelClassName}>Content Calendar</label>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={calendarAccess}
+                        onClick={() => setValue("can_access_calendar", !calendarAccess, { shouldDirty: true })}
+                        className="flex w-full items-center justify-between rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-left transition hover:border-[var(--border-strong)]"
+                      >
+                        <span className="text-sm text-[var(--text-strong)]">
+                          {calendarAccess ? "Access granted" : "Access revoked"}
+                        </span>
+                        <span
+                          className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+                            calendarAccess ? "bg-[var(--accent)]" : "bg-[var(--border-strong)]"
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_2px_rgba(15,23,42,0.2)] transition-transform ${
+                              calendarAccess ? "translate-x-[22px]" : "translate-x-0.5"
+                            }`}
+                          />
+                        </span>
+                      </button>
+                      <p className="text-xs leading-5 text-[var(--text-muted)]">
+                        Controls whether this author can open the Content Calendar and Projects pages.
+                      </p>
+                    </div>
+                  )}
+
                   {/* Admin */}
                   {selectedRole === "sub_admin" && (
                     <div className="space-y-2">
@@ -482,7 +520,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                       )}
 
                       {userRole !== "admin" && authorList.length === 0 && (
-                        <p className="text-xs text-[#8ea0b8]">No admins available to assign.</p>
+                        <p className="text-xs text-[var(--text-muted)]">No admins available to assign.</p>
                       )}
                     </div>
                   )}
@@ -494,20 +532,20 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                         <div>
                           <label className={labelClassName}>Groups</label>
 
-                          <p className="mt-1 text-sm text-[#8ea0b8]">
+                          <p className="mt-1 text-sm text-[var(--text-muted)]">
                             Select or deselect available users.
                           </p>
                         </div>
 
-                        <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                        <span className="rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-xs text-[var(--text-muted)]">
                           {selectedUserIds.length} selected
                         </span>
                       </div>
 
-                      <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                      <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                         {selectedUsers.length > 0 ? (
                           <div>
-                            <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                            <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                               Selected Members
                             </p>
 
@@ -518,9 +556,9 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                                   type="button"
                                   disabled={isReadOnly}
                                   onClick={() => toggleUserSelection(member.id)}
-                                  className={`rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0] transition ${isReadOnly
+                                  className={`rounded-full border border-[#c1dde1] bg-[var(--bg-selected)] px-3 py-1.5 text-sm font-medium text-[var(--status-green-text)] transition ${isReadOnly
                                     ? "cursor-not-allowed opacity-50"
-                                    : "hover:border-[#62aab3] hover:bg-[#1b4048] cursor-pointer"
+                                    : "hover:border-[#c1dee1] hover:bg-[var(--bg-selected)] cursor-pointer"
                                     }`}
                                 >
                                   {member.name || member.email} {!isReadOnly && "×"}
@@ -529,13 +567,13 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-sm text-[#8ea0b8]">
+                          <p className="text-sm text-[var(--text-muted)]">
                             No users selected yet.
                           </p>
                         )}
 
                         <div className="mt-4">
-                          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                             All Members
                           </p>
 
@@ -555,8 +593,8 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                                       ? "cursor-not-allowed"
                                       : "cursor-pointer"
                                       } ${isSelected
-                                        ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
-                                        : "border-white/10 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                        ? "border-[#c1dde1] bg-[var(--bg-selected)] text-[var(--status-green-text)]"
+                                        : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                                       }`}
                                   >
                                     {member.name || member.email}
@@ -564,7 +602,7 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                                 );
                               })
                             ) : (
-                              <p className="text-sm text-[#8ea0b8]">
+                              <p className="text-sm text-[var(--text-muted)]">
                                 No sub admins available for selection.
                               </p>
                             )}
@@ -580,10 +618,10 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <p className={labelClassName}>Description</p>
-                  <p className="text-xs text-[#6f8096]">Rich text editor with HTML mode support</p>
+                  <p className="text-xs text-[var(--text-faint)]">Rich text editor with HTML mode support</p>
                 </div>
 
-                <div className="blog-editor overflow-hidden rounded-[22px] border border-white/8 bg-[#101826] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                <div className="blog-editor overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
                   <EditorProvider>
                     {!isReadOnly && <RichTextToolbar platformData={null} content={description || ""} />}
                     <Editor
@@ -596,9 +634,9 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                         })
                       }
                       containerProps={{
-                        className: "min-h-[260px] border-0 bg-[#0f1724] shadow-none",
+                        className: "min-h-[260px] border-0 bg-[var(--bg-surface)] shadow-none",
                       }}
-                      className="min-h-[260px] bg-[#0f1724] px-4 py-4 text-sm leading-7 text-[#dbe5f3] focus:outline-none"
+                      className="min-h-[260px] bg-[var(--bg-surface)] px-4 py-4 text-sm leading-7 text-[var(--text)] focus:outline-none"
                       placeholder="Write author description here or switch to HTML mode..."
                     />
                   </EditorProvider>
@@ -610,13 +648,13 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
           {/* Right Section */}
           <div className="col-span-2 h-fit w-full space-y-6 lg:col-span-1">
             {/* Profile Image */}
-            <div className="border border-white/8 bg-[#151d2c] rounded-[24px] p-6">
-              <div className="border-b border-white/8 pb-4">
-                <h3 className="text-lg font-semibold text-[#eef4ff]">
+            <div className="border border-[var(--border)] bg-[var(--bg-surface)] rounded-[24px] p-6">
+              <div className="border-b border-[var(--border)] pb-4">
+                <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                   Profile Image
                 </h3>
 
-                <p className="mt-1 text-sm text-[#8ea0b8]">
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
                   Upload profile image for the author account.
                 </p>
               </div>
@@ -626,14 +664,14 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                   type="button"
                   disabled={isReadOnly}
                   onClick={() => setOpenMediaModal(true)}
-                  className={`group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 transition ${isReadOnly
+                  className={`group flex w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-6 py-10 transition ${isReadOnly
                     ? "cursor-not-allowed opacity-50"
-                    : "hover:border-[#31425e]"
+                    : "hover:border-[var(--accent)]"
                     }`}
                 >
                   {previewImage ? (
                     <div className="flex flex-col items-center">
-                      <div className="relative h-28 w-28 overflow-hidden rounded-full border border-white/10">
+                      <div className="relative h-28 w-28 overflow-hidden rounded-full border border-[var(--border)]">
                         <Image
                           fill
                           alt="Preview"
@@ -642,21 +680,21 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                         />
                       </div>
 
-                      <p className="mt-4 text-sm text-[#8ea0b8]">
+                      <p className="mt-4 text-sm text-[var(--text-muted)]">
                         {isReadOnly ? "Image" : "Click to change image"}
                       </p>
                     </div>
                   ) : (
                     <>
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-[#151d2c]">
-                        <Save size={28} className="text-[#8ea0b8]" />
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-surface)]">
+                        <Save size={28} className="text-[var(--text-muted)]" />
                       </div>
 
-                      <p className="mt-4 text-sm font-medium text-[#eef4ff]">
+                      <p className="mt-4 text-sm font-medium text-[var(--text-strong)]">
                         Select Profile Image
                       </p>
 
-                      <p className="mt-1 text-xs text-[#8ea0b8]">
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">
                         Choose image from media library
                       </p>
                     </>
@@ -667,11 +705,11 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
             {/* Social Medias */}
             <div className={cardClassName}>
-              <div className="border-b border-white/8 pb-5">
-                <h3 className="text-xl font-semibold text-[#eef4ff]">
+              <div className="border-b border-[var(--border)] pb-5">
+                <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                   Social Medias
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-[#8ea0b8]">
+                <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
                   Add social media links to your profile.
                 </p>
               </div>
@@ -701,11 +739,11 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
 
             {/* Target Platforms */}
             <div className={cardClassName}>
-              <div className="border-b border-white/8 pb-5">
-                <h3 className="text-xl font-semibold text-[#eef4ff]">
+              <div className="border-b border-[var(--border)] pb-5">
+                <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                   Target Platforms
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-[#8ea0b8]">
+                <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
                   Select the websites where you want to publish this user and then fine-tune each destination.
                 </p>
               </div>
@@ -736,21 +774,21 @@ const AuthorForm = ({ mode, initialData }: AuthorFormProps) => {
                         );
                       }}
                       className={`flex items-center gap-3 rounded-[20px] border p-4 text-left transition-all ${isSelected
-                        ? "border-[#31425e] bg-[#101826] shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
-                        : "border-white/8 bg-[#101826] hover:border-white/14 hover:bg-[#131d2c]"
+                        ? "border-[var(--accent)] bg-[var(--bg-inset)] shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
+                        : "border-[var(--border)] bg-[var(--bg-inset)] hover:border-[var(--border)] hover:bg-[var(--bg-surface)]"
                         }`}
                     >
                       <div
                         className={`flex h-6 w-6 items-center justify-center rounded-md border transition-colors ${isSelected
-                          ? "border-[#31425e] bg-[#1f2f49] text-[#eef4ff]"
-                          : "border-white/10 bg-[#151d2c] text-transparent"
+                          ? "border-[var(--accent)] bg-[var(--bg-selected)] text-[var(--text-strong)]"
+                          : "border-[var(--border)] bg-[var(--bg-surface)] text-transparent"
                           }`}
                       >
                         {1 == 1 && <CheckCircle2 size={14} />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate font-medium text-[#eef4ff]">{platform.platform_name}</div>
-                        <div className="truncate text-xs text-[#8ea0b8]">{platform.website_url}</div>
+                        <div className="truncate font-medium text-[var(--text-strong)]">{platform.platform_name}</div>
+                        <div className="truncate text-xs text-[var(--text-muted)]">{platform.website_url}</div>
                       </div>
                     </button>
                   );

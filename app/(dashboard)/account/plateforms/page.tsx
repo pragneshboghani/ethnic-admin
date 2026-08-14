@@ -18,30 +18,30 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 const statTones = [
-  "bg-[linear-gradient(180deg,#5d366f_0%,#69407f_100%)] text-white",
-  "bg-[linear-gradient(180deg,#2f6670_0%,#38757e_100%)] text-white",
-  "bg-[linear-gradient(180deg,#b8664b_0%,#c27459_100%)] text-white",
+  "bg-[var(--status-purple-bg)] text-[var(--text-strong)]",
+  "bg-[var(--status-green-bg)] text-[var(--text-strong)]",
+  "bg-[var(--status-red-bg)] text-[var(--text-strong)]",
 ];
 
 const sourceThemes = {
-  platform: "border-[#2f6670]/28 bg-[#2f6670]/16 text-[#b8edf1]",
-  admin: "border-[#7a428f]/28 bg-[#7a428f]/16 text-[#e2c6ff]",
+  platform: "border-[var(--status-green-text)]/28 bg-[#1e8e3e]/16 text-[var(--status-green-text)]",
+  admin: "border-[var(--status-purple-text)]/28 bg-[#a142f4]/16 text-[var(--status-purple-text)]",
 };
 
 const statusThemes = {
-  Active: "border-[#2f6670]/28 bg-[#2f6670]/16 text-[#b8edf1]",
-  Inactive: "border-[#b8664b]/28 bg-[#b8664b]/16 text-[#ffd7c4]",
+  Active: "border-[var(--status-green-text)]/28 bg-[#1e8e3e]/16 text-[var(--status-green-text)]",
+  Inactive: "border-[var(--status-amber-text)]/28 bg-[#f9ab00]/16 text-[var(--status-amber-text)]",
 };
 
 export const StatCard = ({ label, value, note, tone, progress}: { label: string; value: number; note: string; tone: string; progress: number;}) => (
   <div
-    className={`self-start rounded-[22px] border border-white/8 h-full p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${tone}`}
+    className={`self-start rounded-[22px] border border-[var(--border)] h-full p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)] ${tone}`}
   >
-    <p className="text-sm font-medium text-white/78">{label}</p>
-    <p className="mt-3 text-3xl font-semibold leading-none text-white">{value}</p>
-    <p className="mt-3 text-sm leading-6 text-white/72">{note}</p>
-    <div className="mt-3 h-1.5 rounded-full bg-white/15">
-      <div className="h-full rounded-full bg-white" style={{ width: `${progress}%` }} />
+    <p className="text-sm font-medium text-[var(--text-strong)]/78">{label}</p>
+    <p className="mt-3 text-3xl font-semibold leading-none text-[var(--text-strong)]">{value}</p>
+    <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{note}</p>
+    <div className="mt-3 h-1.5 rounded-full bg-black/[0.06]">
+      <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${progress}%` }} />
     </div>
   </div>
 );
@@ -117,21 +117,21 @@ const Plateforms = () => {
         </div>
       </section>
 
-      <section className="mt-6 rounded-[26px] border border-white/8 bg-[#151d2c] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+      <section className="mt-6 rounded-[26px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
               Connection Library
             </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#eef4ff]">
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
               Manage every platform connection
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+            <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
               Review connection type, endpoint readiness, and status before publishing content.
             </p>
           </div>
 
-          <div className="inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-4 py-2 text-sm text-[#8ea0b8]">
+          <div className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-2 text-sm text-[var(--text-muted)]">
             {platforms.length} total platform{platforms.length === 1 ? "" : "s"}
           </div>
         </div>
@@ -142,27 +142,27 @@ const Plateforms = () => {
           const hasApi = !!platform.api_endpoint && platform.api_endpoint.trim() !== "";
           const sourceTone =
             sourceThemes[platform.data_source as keyof typeof sourceThemes] ||
-            "border-[#354b73]/28 bg-[#354b73]/16 text-[#c8daf9]";
+            "border-[var(--accent)]/28 bg-[var(--accent)]/16 text-[var(--accent-text)]";
           const statusTone =
             statusThemes[platform.status as keyof typeof statusThemes] ||
-            "border-[#354b73]/28 bg-[#354b73]/16 text-[#c8daf9]";
+            "border-[var(--accent)]/28 bg-[var(--accent)]/16 text-[var(--accent-text)]";
 
           return (
             <article
               key={platform.id}
-              className="rounded-[26px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] transition hover:border-[#31425e]"
+              className="rounded-[26px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[var(--accent)]"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] border border-[#354b73]/30 bg-[#182438] text-[#c8daf9]">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] border border-[var(--accent)]/30 bg-[var(--bg-selected)] text-[var(--accent-text)]">
                       <Globe2 size={20} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="truncate text-[24px] font-semibold tracking-tight text-[#eef4ff]">
+                      <h3 className="truncate text-[24px] font-semibold tracking-tight text-[var(--text-strong)]">
                         {platform.platform_name}
                       </h3>
-                      <p className="mt-1 text-sm text-[#8ea0b8]">
+                      <p className="mt-1 text-sm text-[var(--text-muted)]">
                         {hasApi ? "Direct publishing connection" : "Managed in admin workspace"}
                       </p>
                     </div>
@@ -171,7 +171,7 @@ const Plateforms = () => {
 
                 <div className="flex items-center gap-2">
                   <button
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-[#101826] text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                     title="Edit Platform"
                     onClick={() => {
                       setEditingPlatform(platform);
@@ -182,7 +182,7 @@ const Plateforms = () => {
                   </button>
 
                   <button
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-[#101826] text-[#dbe5f3] transition hover:border-[#b8664b]/40 hover:bg-[#372423] hover:text-[#ffd7c4]"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text)] transition hover:border-[var(--status-amber-text)]/40 hover:bg-[var(--status-red-bg)] hover:text-[var(--status-amber-text)]"
                     title="Delete Platform"
                     onClick={() => setDeletePlatformId(platform.id!)}
                   >
@@ -198,22 +198,22 @@ const Plateforms = () => {
                 <span className={`rounded-full border px-3 py-1 text-xs font-medium ${sourceTone}`}>
                   {platform.data_source === "platform" ? "Platform source" : "Admin source"}
                 </span>
-                <span className="rounded-full border border-[#354b73]/28 bg-[#354b73]/16 px-3 py-1 text-xs font-medium text-[#c8daf9]">
+                <span className="rounded-full border border-[var(--accent)]/28 bg-[var(--accent)]/16 px-3 py-1 text-xs font-medium text-[var(--accent-text)]">
                   {platform.plateform_type || "Custom"}
                 </span>
               </div>
 
               <div className="mt-6 gap-4 flex flex-col">
-                <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#2f6670]/30 bg-[#17303a] text-[#9ad8de]">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--status-green-text)]/30 bg-[#e9f3f6] text-[var(--accent)]">
                       <ExternalLink size={16} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                         Website URL
                       </p>
-                      <p className="mt-1 truncate text-sm text-[#eef4ff]">
+                      <p className="mt-1 truncate text-sm text-[var(--text-strong)]">
                         {platform.website_url || "Not provided"}
                       </p>
                     </div>
@@ -221,32 +221,32 @@ const Plateforms = () => {
                 </div>
 
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                  <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                  <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                     <div className="flex items-center gap-3">
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#7a428f]/30 bg-[#24152f] text-[#d9b8ff]">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--status-purple-text)]/30 bg-[var(--status-purple-bg)] text-[#480b8e]">
                         <Server size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                           Endpoint
                         </p>
-                        <p className="mt-1 truncate text-sm text-[#eef4ff]">
+                        <p className="mt-1 truncate text-sm text-[var(--text-strong)]">
                           {hasApi ? platform.api_endpoint : "Not required"}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                  <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                     <div className="flex items-center gap-3">
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#b8664b]/30 bg-[#372423] text-[#ffd7c4]">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--status-amber-text)]/30 bg-[var(--status-red-bg)] text-[var(--status-amber-text)]">
                         <ShieldCheck size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium truncate uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                           Authentication
                         </p>
-                        <p className="mt-1 truncate text-sm text-[#eef4ff]">
+                        <p className="mt-1 truncate text-sm text-[var(--text-strong)]">
                           {platform.auth_type || "No auth"}
                         </p>
                       </div>
@@ -254,20 +254,20 @@ const Plateforms = () => {
                   </div>
                 </div>
 
-                <div className="rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[#354b73]/30 bg-[#182438] text-[#c8daf9]">
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--accent)]/30 bg-[var(--bg-selected)] text-[var(--accent-text)]">
                       <Activity size={16} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                         Publishing defaults
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-[#8ea0b8]">
-                        Blog path: <span className="text-[#eef4ff]">{platform.blog_path || "Not set"}</span>
+                      <p className="mt-1 text-sm leading-6 text-[var(--text-muted)]">
+                        Blog path: <span className="text-[var(--text-strong)]">{platform.blog_path || "Not set"}</span>
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-[#8ea0b8]">
-                        CTA: <span className="text-[#eef4ff]">{platform.CTA_button_text || "Not set"}</span>
+                      <p className="mt-1 text-sm leading-6 text-[var(--text-muted)]">
+                        CTA: <span className="text-[var(--text-strong)]">{platform.CTA_button_text || "Not set"}</span>
                       </p>
                     </div>
                   </div>
@@ -283,15 +283,15 @@ const Plateforms = () => {
             setEditingPlatform(null);
             setOpenModal(true);
           }}
-          className="group flex min-h-[420px] flex-col items-center justify-center rounded-[26px] border border-dashed border-white/12 bg-[#151d2c] p-6 text-center shadow-[0_18px_40px_rgba(0,0,0,0.24)] transition hover:border-[#31425e] hover:bg-[#182438]"
+          className="group flex min-h-[420px] flex-col items-center justify-center rounded-[26px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] p-6 text-center shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
         >
-          <span className="inline-flex h-16 w-16 items-center justify-center rounded-[22px] border border-white/10 bg-[#101826] text-[#eef4ff] transition group-hover:border-[#31425e] group-hover:bg-[#141f31]">
+          <span className="inline-flex h-16 w-16 items-center justify-center rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] transition group-hover:border-[var(--accent)] group-hover:bg-[var(--bg-selected)]">
             <Plus size={24} />
           </span>
-          <h3 className="mt-5 text-2xl font-semibold tracking-tight text-[#eef4ff]">
+          <h3 className="mt-5 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
             Add New Platform
           </h3>
-          <p className="mt-2 max-w-xs text-sm leading-6 text-[#8ea0b8]">
+          <p className="mt-2 max-w-xs text-sm leading-6 text-[var(--text-muted)]">
             Create another destination and keep your publishing network ready for the next blog.
           </p>
         </button>
@@ -307,23 +307,23 @@ const Plateforms = () => {
       )}
 
       {deletePlatformId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
           <ClickOutside onClickOutside={() => setDeletePlatformId(null)}>
-            <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
-              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+            <div className="w-full max-w-md rounded-[26px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
                 Remove Platform
               </p>
-              <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+              <h3 className="mt-3 text-2xl font-semibold text-[var(--text-strong)]">
                 Delete this connection?
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                 This will remove the selected publishing destination from the dashboard. You can add it again later if needed.
               </p>
 
               <div className="mt-6 flex justify-end gap-3">
                 <button
                   onClick={() => setDeletePlatformId(null)}
-                  className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                  className="rounded-[16px] border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition hover:bg-black/[0.04]"
                 >
                   Cancel
                 </button>
@@ -334,7 +334,7 @@ const Plateforms = () => {
                       setDeletePlatformId(null);
                     }
                   }}
-                  className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                  className="rounded-[16px] border border-[var(--status-amber-text)]/40 bg-[var(--status-red-bg)] px-4 py-2.5 text-sm font-medium text-[var(--status-amber-text)] transition hover:bg-[var(--status-red-bg)]"
                 >
                   Delete Platform
                 </button>

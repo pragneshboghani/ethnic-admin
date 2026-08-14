@@ -45,10 +45,10 @@ const AuthorDetailPage = () => {
   }, [id]);
 
   const detailCardClass =
-    "rounded-[24px] border border-white/8 bg-[#151d2c] p-5";
+    "rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5";
 
   const labelClassName =
-    "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
+    "text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]";
 
   const canManageAllUsers = currentUser?.role === "super_admin" || currentUser?.role === "admin";
   const canEditAuthor = Boolean(
@@ -60,7 +60,7 @@ const AuthorDetailPage = () => {
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <p className="text-sm text-[#8ea0b8]">
+        <p className="text-sm text-[var(--text-muted)]">
           Loading author details...
         </p>
       </div>
@@ -70,10 +70,10 @@ const AuthorDetailPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-[24px] border border-white/8 bg-[#151d2c]/95 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+      <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)]/95 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] backdrop-blur-xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-5">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full border border-white/10 bg-[#101826]">
+            <div className="relative h-24 w-24 overflow-hidden rounded-full border border-[var(--border)] bg-[var(--bg-inset)]">
               {author?.profile_image ? (
                 <Image
                   src={`${BACKEND_DOMAIN}/${author.profile_image}`}
@@ -85,34 +85,34 @@ const AuthorDetailPage = () => {
                 <div className="flex h-full w-full items-center justify-center">
                   <User2
                     size={36}
-                    className="text-[#8ea0b8]"
+                    className="text-[var(--text-muted)]"
                   />
                 </div>
               )}
             </div>
 
             <div>
-              <span className="inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#8ea0b8]">
+              <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--text-muted)]">
                 Author Details
               </span>
 
-              <h1 className="mt-4 text-[36px] font-semibold leading-none tracking-[-0.04em] text-[#eef4ff] flex gap-5 items-center">
+              <h1 className="mt-4 text-[36px] font-semibold leading-none tracking-[-0.04em] text-[var(--text-strong)] flex gap-5 items-center">
                 {author?.name || "N/A"}
                 <div className="flex flex-wrap gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3">
                     <ShieldCheck
                       size={18}
-                      className="text-[#8ea0b8]"
+                      className="text-[var(--text-muted)]"
                     />
 
-                    <span className="text-sm font-medium text-[#eef4ff] capitalize">
+                    <span className="text-sm font-medium text-[var(--text-strong)] capitalize">
                       {roleLabels[author?.role || "admin"]}
                     </span>
                   </div>
                 </div>
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#8ea0b8]">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--text-muted)]">
                 View complete author profile information and
                 account details.
               </p>
@@ -121,9 +121,9 @@ const AuthorDetailPage = () => {
 
           {canEditAuthor && (
             <div className="flex flex-wrap gap-3">
-              <Link href={`/account/authors/add/${author?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3">
-                <UserPen size={18} className="text-[#8ea0b8]" />
-                <span className="text-sm font-medium text-[#eef4ff]">
+              <Link href={`/account/authors/add/${author?.id}`} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3">
+                <UserPen size={18} className="text-[var(--text-muted)]" />
+                <span className="text-sm font-medium text-[var(--text-strong)]">
                   Edit Profile
                 </span>
               </Link>
@@ -133,12 +133,12 @@ const AuthorDetailPage = () => {
       </div>
       <div className="space-y-6">
         <div className={detailCardClass}>
-          <div className="border-b border-white/8 pb-4">
-            <h2 className="text-lg font-semibold text-[#eef4ff]">
+          <div className="border-b border-[var(--border)] pb-4">
+            <h2 className="text-lg font-semibold text-[var(--text-strong)]">
               Basic Information
             </h2>
 
-            <p className="mt-1 text-sm text-[#8ea0b8]">
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
               General details related to this author account.
             </p>
           </div>
@@ -149,7 +149,7 @@ const AuthorDetailPage = () => {
                 Full Name
               </p>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff]">
+              <div className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)]">
                 {author?.name || "N/A"}
               </div>
             </div>
@@ -159,7 +159,7 @@ const AuthorDetailPage = () => {
                 Email
               </p>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff]">
+              <div className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)]">
                 {author?.email || "N/A"}
               </div>
             </div>
@@ -171,7 +171,7 @@ const AuthorDetailPage = () => {
             </p>
 
             <div
-              className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] prose prose-invert max-w-none"
+              className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] prose prose-invert max-w-none"
               dangerouslySetInnerHTML={{
                 __html: author?.description || "N/A",
               }}
@@ -184,11 +184,11 @@ const AuthorDetailPage = () => {
                 Users
               </p>
 
-              <div className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] flex flex-wrap gap-2">
+              <div className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] flex flex-wrap gap-2">
                 {author.user_groups[0]?.members?.map((member, index) => (
                   <span
                     key={index}
-                    className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0]"
+                    className="rounded-full border border-[#c1dde1] bg-[var(--bg-selected)] px-3 py-1.5 text-sm font-medium text-[var(--status-green-text)]"
                   >
                     {member.name}
                   </span>

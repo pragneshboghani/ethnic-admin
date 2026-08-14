@@ -37,7 +37,7 @@ const ToolbarButton = ({ title, icon, onAction }: ToolbarButtonProps) => (
             e.preventDefault();
             onAction();
         }}
-        className="min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+        className="min-w-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-xs font-medium text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
     >
         {icon}
     </button>
@@ -203,7 +203,7 @@ const ColorPickerButton = ({ title, icon, defaultColor, onPick, }: {
                     savedRangeRef.current = getCurrentRange();
                     inputRef.current?.click();
                 }}
-                className="min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                className="min-w-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-xs font-medium text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
             >
                 {icon}
             </button>
@@ -252,9 +252,9 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
 
     if (editorState.htmlMode) {
         return (
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/8 bg-[#111a28] px-3 py-3 rounded-t-[24px]">
-                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]" />
-                <div className="ml-auto flex items-center gap-3 text-xs text-[#8ea0b8]">
+            <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] bg-[var(--bg-inset)] px-3 py-3 rounded-t-[24px]">
+                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-xs font-medium text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]" />
+                <div className="ml-auto flex items-center gap-3 text-xs text-[var(--text-muted)]">
                     <span>Words: {wordCount}</span>
                     <span>Characters: {characterCount}</span>
                 </div>
@@ -709,9 +709,9 @@ const RichTextToolbar = ({ platformData, content, }: { platformData: EditorPlatf
                     onAction={() => runEditorCommand(editorElement, "redo")}
                 />
 
-                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-white/8 bg-[#131d2c] px-2 py-1 text-xs font-medium !text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438] hover:!text-[#000000]" />
+                <HtmlButton className="rsw-btn min-w-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-xs font-medium !text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)] hover:!text-[var(--text-muted)]" />
 
-                <div className="ml-auto flex items-center gap-3 text-sm text-[#8ea0b8]">
+                <div className="ml-auto flex items-center gap-3 text-sm text-[var(--text-muted)]">
                     <span>Words: {wordCount}</span>
                     <span>Characters: {characterCount}</span>
                 </div>

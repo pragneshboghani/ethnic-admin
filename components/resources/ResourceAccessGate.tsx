@@ -9,7 +9,7 @@ type ResourceAccessGateProps = {
 };
 
 const inputClassName =
-  "w-full rounded-2xl border border-white/10 bg-[#101726] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#567398] focus:outline-none focus:ring-4 focus:ring-[#567398]/20";
+  "w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-selected)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[#c4d0de] focus:outline-none focus:ring-4 focus:ring-[#c4d0de]/20";
 
 const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
   const router = useRouter();
@@ -52,15 +52,15 @@ const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
 
   if (!isConfigured) {
     return (
-      <div className="mx-auto w-full max-w-xl rounded-[30px] border border-[#7b3a3a]/35 bg-[#1b1218]/90 p-7 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-9">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#7b3a3a]/40 bg-[#2c171f] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#ffc8d0]">
+      <div className="mx-auto w-full max-w-xl rounded-[30px] border border-[#e2c1c1]/35 bg-[var(--status-purple-bg)]/90 p-7 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-9">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#e2c1c1]/40 bg-[var(--status-purple-bg)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#8e0b1e]">
           <AlertCircle size={14} />
           Configuration Required
         </div>
-        <h1 className="mt-5 text-3xl font-semibold tracking-tight text-white">
+        <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
           Resource library is not ready yet
         </h1>
-        <p className="mt-3 text-sm leading-7 text-[#d7b3ba]">
+        <p className="mt-3 text-sm leading-7 text-[#6f2a37]">
           Set `INTERNAL_RESOURCES_PASSWORD` on the Next.js app before using this page.
         </p>
       </div>
@@ -68,22 +68,22 @@ const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-[30px] border border-white/10 bg-[#101826]/92 p-7 shadow-[0_30px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-9">
-      <div className="inline-flex items-center gap-2 rounded-full border border-[#223046] bg-[#121c2c] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#8fa3be]">
+    <div className="mx-auto w-full max-w-xl rounded-[30px] border border-[var(--border)] bg-[var(--bg-inset)]/92 p-7 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_12px_32px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-9">
+      <div className="inline-flex items-center gap-2 rounded-full border border-[#c1cee1] bg-[var(--bg-selected)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#2a476f]">
         <ShieldCheck size={14} />
         Internal Access
       </div>
 
-      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-white">
+      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
         Unlock the resource library
       </h1>
-      <p className="mt-3 text-sm leading-7 text-[#92a2b8]">
+      <p className="mt-3 text-sm leading-7 text-[#2a476f]">
         Enter the shared team password to open company resources, SOPs, guides,
         proposal formats, and strategy documents.
       </p>
 
       {errorMessage && (
-        <div className="mt-6 rounded-2xl border border-[#5f2631] bg-[#25141a] px-4 py-3 text-sm text-[#f0b4bf]">
+        <div className="mt-6 rounded-2xl border border-[#e5bdc5] bg-[var(--status-purple-bg)] px-4 py-3 text-sm text-[#7f1a2c]">
           {errorMessage}
         </div>
       )}
@@ -92,7 +92,7 @@ const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
         <div className="space-y-2">
           <label
             htmlFor="resource-password"
-            className="block text-sm font-medium text-[#d8deea]"
+            className="block text-sm font-medium text-[#2a416f]"
           >
             Shared Password
           </label>
@@ -107,7 +107,7 @@ const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
               required
               className={`${inputClassName} pr-12`}
             />
-            <span className="pointer-events-none absolute inset-y-0 right-4 inline-flex items-center text-[#7e90a9]">
+            <span className="pointer-events-none absolute inset-y-0 right-4 inline-flex items-center text-[#2a476f]">
               <KeyRound size={18} />
             </span>
           </div>
@@ -116,7 +116,7 @@ const ResourceAccessGate = ({ isConfigured }: ResourceAccessGateProps) => {
         <button
           type="submit"
           disabled={isPending || isSubmitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8ea2bf] px-4 py-3 text-sm font-semibold text-[#0d1522] transition hover:bg-[#a5b7d0] disabled:cursor-not-allowed disabled:bg-[#627389] disabled:text-[#ced6df]"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--bg-selected)] px-4 py-3 text-sm font-semibold text-[#2a446f] transition hover:bg-[var(--bg-selected)] disabled:cursor-not-allowed disabled:bg-[var(--bg-selected)] disabled:text-[#2a4a6f]"
         >
           {isPending || isSubmitting ? (
             <>

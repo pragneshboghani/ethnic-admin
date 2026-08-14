@@ -23,13 +23,13 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4">
-      <div className="w-full max-w-md space-y-4 rounded-[24px] border border-white/10 bg-[#101826] p-6 text-white shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#202124]/40 px-4">
+      <div className="w-full max-w-md space-y-4 rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 text-[var(--text-strong)] shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
         <h2 className="text-lg font-semibold">Insert Table</h2>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label htmlFor="table-rows" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Rows</label>
+            <label htmlFor="table-rows" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Rows</label>
             <input
               id="table-rows"
               type="number"
@@ -37,12 +37,12 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
               max={20}
               value={rows}
               onChange={(e) => setRows(Number(e.target.value))}
-              className="w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-sm text-[#eef4ff] outline-none focus:border-[#31425e]"
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-strong)] outline-none focus:border-[var(--accent)]"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="table-columns" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Columns</label>
+            <label htmlFor="table-columns" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Columns</label>
             <input
               id="table-columns"
               type="number"
@@ -50,7 +50,7 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
               max={10}
               value={columns}
               onChange={(e) => setColumns(Number(e.target.value))}
-              className="w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-sm text-[#eef4ff] outline-none focus:border-[#31425e]"
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-strong)] outline-none focus:border-[var(--accent)]"
             />
           </div>
         </div>
@@ -62,7 +62,7 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
               resetForm();
               onClose();
             }}
-            className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+            className="rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--text)] transition hover:bg-black/[0.04]"
           >
             Cancel
           </button>
@@ -75,7 +75,7 @@ const TableModal = ({ isOpen, onClose, onSubmit }: TableModalProps) => {
               });
               resetForm();
             }}
-            className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white"
+            className="rounded-xl bg-[var(--accent)] px-4 py-2 font-medium text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
           >
             Insert
           </button>

@@ -228,23 +228,23 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
     return (
         <>
             <div className="space-y-6">
-                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-                    <div className="border-b border-white/8 pb-5">
-                        <h3 className="text-xl font-semibold text-[#eef4ff]">
+                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                    <div className="border-b border-[var(--border)] pb-5">
+                        <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                             Publishing Settings
                         </h3>
-                        <p className="mt-2 text-sm leading-7 text-[#8ea0b8]">
+                        <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
                             Control the publish status, schedule, author details, and category assignment.
                         </p>
                     </div>
 
                     <div className="mt-6 space-y-5">
                         <div className="space-y-2">
-                            <label htmlFor="global-status" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Global Status</label>
+                            <label htmlFor="global-status" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Global Status</label>
                             <select
                                 id="global-status"
                                 {...register('globalStatus')}
-                                className="w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] focus:border-[#31425e] focus:outline-none"
+                                className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                             >
                                 <option value="draft">Draft</option>
                                 <option value="future">Scheduled</option>
@@ -253,7 +253,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                         </div>
 
                         <div className="space-y-2" ref={pickerRef}>
-                            <label htmlFor="publish-date-trigger" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Publish Date</label>
+                            <label htmlFor="publish-date-trigger" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Publish Date</label>
                             <input type="hidden" {...hiddenPublishDateRegister} />
 
                             <button
@@ -262,31 +262,31 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                 disabled={disabledPicker}
                                 onClick={() => setIsPickerOpen((prev) => !prev)}
                                 className={`flex w-full items-center justify-between gap-3 rounded-[18px] border px-4 py-3 text-sm ${disabledPicker
-                                    ? 'cursor-not-allowed border-white/6 bg-[#0e1520] text-[#51627a]'
-                                    : 'border-white/8 bg-[#101826] text-[#eef4ff]'
+                                    ? 'cursor-not-allowed border-[var(--border)] bg-[var(--bg-selected)] text-[#2a476f]'
+                                    : 'border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)]'
                                     }`}
                             >
                                 <span className="flex items-center gap-2">
-                                    <Calendar size={16} className="text-[#7f90a8]" />
+                                    <Calendar size={16} className="text-[var(--text-subtle)]" />
                                     <span>{formatDisplayValue(publishDate)}</span>
                                 </span>
-                                <Clock3 size={16} className="text-[#7f90a8]" />
+                                <Clock3 size={16} className="text-[var(--text-subtle)]" />
                             </button>
 
                             {isPickerOpen && !disabledPicker && (
-                                <div className="mt-3 space-y-4 rounded-[20px] border border-white/10 bg-[#101826] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.3)]">
+                                <div className="mt-3 space-y-4 rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.3)]">
                                     <div className="flex items-center justify-between">
                                         <button
                                             type="button"
                                             onClick={() => setVisibleMonth(
                                                 new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1),
                                             )}
-                                            className="rounded-lg border border-white/8 bg-[#151d2c] p-2 text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                                            className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-2 text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                                         >
                                             <ChevronLeft size={16} />
                                         </button>
 
-                                        <div className="text-sm font-semibold text-[#eef4ff]">
+                                        <div className="text-sm font-semibold text-[var(--text-strong)]">
                                             {visibleMonth.toLocaleString([], { month: 'long', year: 'numeric' })}
                                         </div>
 
@@ -295,7 +295,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                             onClick={() => setVisibleMonth(
                                                 new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1),
                                             )}
-                                            className="rounded-lg border border-white/8 bg-[#151d2c] p-2 text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                                            className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-2 text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                                         >
                                             <ChevronRight size={16} />
                                         </button>
@@ -303,7 +303,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
 
                                     <div className="grid grid-cols-7 gap-2">
                                         {WEEK_DAYS.map((day) => (
-                                            <div key={day} className="text-center text-[11px] font-bold uppercase tracking-wide text-[#6f8096]">
+                                            <div key={day} className="text-center text-[11px] font-bold uppercase tracking-wide text-[var(--text-faint)]">
                                                 {day}
                                             </div>
                                         ))}
@@ -324,10 +324,10 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                                     disabled={isDisabled}
                                                     onClick={() => updatePublishDate(date, selectedTime)}
                                                     className={`h-9 rounded-md border text-sm transition ${isDisabled
-                                                        ? 'cursor-not-allowed border-[#0f1724] bg-[#0b111a] text-[#44556c]'
+                                                        ? 'cursor-not-allowed border-[var(--border)] bg-[var(--bg-selected)] text-[#2a476f]'
                                                         : isSelected
-                                                            ? 'border-[#31425e] bg-[#eef4ff] text-[#0f1724]'
-                                                            : 'border-white/8 bg-[#151d2c] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]'
+                                                            ? 'border-[var(--accent)] bg-[var(--accent)] text-[#ffffff]'
+                                                            : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]'
                                                         }`}
                                                 >
                                                     {date.getDate()}
@@ -337,7 +337,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                     </div>
 
                                     <div className="space-y-2">
-                                        <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Time</div>
+                                        <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Time</div>
                                         <div className="grid grid-cols-3 gap-2">
                                             <select
                                                 value={selectedHour12}
@@ -351,7 +351,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                                         ),
                                                     )
                                                 }
-                                                className="rounded-lg border border-white/8 bg-[#151d2c] px-3 py-2 text-sm text-[#eef4ff] focus:border-[#31425e] focus:outline-none"
+                                                className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                                             >
                                                 {HOUR_OPTIONS.map((hour) => (
                                                     <option
@@ -376,7 +376,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                                         ),
                                                     )
                                                 }
-                                                className="rounded-lg border border-white/8 bg-[#151d2c] px-3 py-2 text-sm text-[#eef4ff] focus:border-[#31425e] focus:outline-none"
+                                                className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                                             >
                                                 {MINUTE_OPTIONS.map((minute) => (
                                                     <option
@@ -401,7 +401,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                                         ),
                                                     )
                                                 }
-                                                className="rounded-lg border border-white/8 bg-[#151d2c] px-3 py-2 text-sm text-[#eef4ff] focus:border-[#31425e] focus:outline-none"
+                                                className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                                             >
                                                 {PERIOD_OPTIONS.map((period) => (
                                                     <option
@@ -420,11 +420,11 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="blog-author" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Author</label>
+                            <label htmlFor="blog-author" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Author</label>
                             <select
                                 id="blog-author"
                                 {...register('author')}
-                                className="w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
+                                className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none"
                             >
                                 <option value="">Select Author</option>
                                 {authors.map((author) => (
@@ -434,31 +434,31 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                 ))}
                             </select>
                             {authors.length === 0 && (
-                                <p className="text-xs text-[#8ea0b8]">
+                                <p className="text-xs text-[var(--text-muted)]">
                                     No authors available.
                                 </p>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                                 Category
                             </p>
 
-                            <div className="max-h-52 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#101826] p-4">
+                            <div className="max-h-52 space-y-2 overflow-y-auto rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                                 <div className="pb-2">
                                     <button
                                         id="add-category-trigger"
                                         type="button"
                                         onClick={() => setIsCategoryModalOpen(true)}
-                                        className="rounded-full border border-white/10 bg-[#151d2c] px-3 py-1.5 text-sm text-[#9ad8de] transition hover:border-[#2f6670] hover:text-[#c2edf0]"
+                                        className="rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--accent)] transition hover:border-[var(--status-green-text)] hover:text-[var(--status-green-text)]"
                                     >
                                         + Add New Category
                                     </button>
                                 </div>
 
                                 {categories.map((cat) => (
-                                    <label key={cat.id} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]">
+                                    <label key={cat.id} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-black/[0.03]">
                                         <input
                                             id={`sidebar-category-${cat.id}`}
                                             type="checkbox"
@@ -474,9 +474,9 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
 
                                                 setValue('category', updated);
                                             }}
-                                            className="h-4 w-4 accent-[#9ad8de]"
+                                            className="h-4 w-4 accent-[#bce2e6]"
                                         />
-                                        <span className="text-sm text-[#dbe5f3]">{cat.name}</span>
+                                        <span className="text-sm text-[var(--text)]">{cat.name}</span>
                                     </label>
                                 ))}
                             </div>
@@ -484,17 +484,17 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                     </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-                    <div className="border-b border-white/8 pb-5">
-                        <h3 className="text-xl font-semibold text-[#eef4ff]">
+                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                    <div className="border-b border-[var(--border)] pb-5">
+                        <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                             Featured Image
                         </h3>
-                        <p className="mt-2 text-sm leading-7 text-[#8ea0b8]">
+                        <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
                             Choose the main image that represents this blog in listings and previews.
                         </p>
                     </div>
 
-                    <div className="mt-6 aspect-video rounded-[22px] border border-dashed border-white/10 bg-[#101826] p-4">
+                    <div className="mt-6 aspect-video rounded-[22px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] p-4">
                         {image ? (
                             <div className="group relative h-full w-full overflow-hidden rounded-[18px]">
                                 <img
@@ -507,11 +507,11 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                     className="h-full w-full rounded-[18px] object-cover"
                                 />
 
-                                <div className="absolute inset-0 flex items-center justify-center rounded-[18px] bg-black/70 opacity-0 transition group-hover:opacity-100">
+                                <div className="absolute inset-0 flex items-center justify-center rounded-[18px] bg-[#202124]/35 opacity-0 transition group-hover:opacity-100">
                                     <button
                                         type="button"
                                         onClick={handleRemoveImage}
-                                        className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition"
+                                        className="bg-red-500 hover:bg-red-600 text-[var(--text-strong)] p-3 rounded-full shadow-lg transition"
                                     >
                                         <Trash2 size={18} />
                                     </button>
@@ -519,8 +519,8 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                             </div>
                         ) : (
                             <div className="flex h-full flex-col items-center justify-center text-center">
-                                <p className="text-base font-medium text-[#eef4ff]">Select Featured Image</p>
-                                <p className="mt-2 max-w-[240px] text-sm leading-6 text-[#8ea0b8]">
+                                <p className="text-base font-medium text-[var(--text-strong)]">Select Featured Image</p>
+                                <p className="mt-2 max-w-[240px] text-sm leading-6 text-[var(--text-muted)]">
                                     Upload or choose an existing media asset for the article cover.
                                 </p>
                             </div>
@@ -534,7 +534,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                 setMediaFor('feature');
                                 setIsUploadModalOpen(true);
                             }}
-                            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#101826] px-4 py-2.5 text-sm font-medium text-[#eef4ff] transition hover:border-[#31425e] hover:bg-[#182438]"
+                            className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-2.5 text-sm font-medium text-[var(--text-strong)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                         >
                             Select Image
                         </button>

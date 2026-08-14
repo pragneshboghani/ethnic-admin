@@ -54,16 +54,16 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
 
     return (
         <div className="space-y-8 px-6 py-6 sm:px-8 sm:py-8">
-            <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">
-                <div className="flex flex-col gap-3 border-b border-white/8 pb-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">
                             Platform Preview
                         </p>
-                        <h3 className="mt-2 text-xl font-semibold text-[#eef4ff]">
+                        <h3 className="mt-2 text-xl font-semibold text-[var(--text-strong)]">
                             Preview by platform
                         </h3>
-                        <p className="mt-2 text-sm text-[#8ea0b8]">
+                        <p className="mt-2 text-sm text-[var(--text-muted)]">
                             Switch platforms to inspect SEO title, snippet, URL, and CTA for each destination.
                         </p>
                     </div>
@@ -75,8 +75,8 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                                 type="button"
                                 onClick={() => setSelectedPreviewPlatformId(platform.id)}
                                 className={`rounded-full border px-4 py-2 text-sm font-medium transition ${selectedPreviewPlatformId === platform.id
-                                    ? "border-[#3f7b83] bg-[#16333a] text-[#c2edf0]"
-                                    : "border-white/10 bg-[#101826] text-[#dbe5f3] hover:border-[#31425e] hover:bg-[#182438]"
+                                    ? "border-[#c1dde1] bg-[var(--bg-selected)] text-[var(--status-green-text)]"
+                                    : "border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                                     }`}
                             >
                                 {platform.platformName}
@@ -86,12 +86,12 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                 </div>
 
                 {pathname !== '/account/blogs/add' && (
-                    <div className="flex flex-col gap-2 pb-4 my-4 sm:flex-row border-b border-white/8">
+                    <div className="flex flex-col gap-2 pb-4 my-4 sm:flex-row border-b border-[var(--border)]">
                         <button
                             onClick={() => setViewMode("preview")}
                             className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'preview'
-                                ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
-                                : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
+                                ? 'border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
+                                : 'text-[var(--text-muted)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]'
                                 }`}
                         >
                             Snippet View
@@ -100,8 +100,8 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                         <button
                             onClick={() => setViewMode("iframe")}
                             className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${viewMode === 'iframe'
-                                ? 'border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]'
-                                : 'text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white'
+                                ? 'border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
+                                : 'text-[var(--text-muted)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]'
                                 }`}
                         >
                             Live Page
@@ -111,59 +111,59 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                 {activePlatformPreview ? (
                     viewMode === "preview" ? (
                         <div className="mt-5 grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                            <div className="rounded-[22px] border border-white/8 bg-[#101826] p-5">
-                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                            <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] p-5">
+                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                                     Search Snippet Preview
                                 </p>
-                                <div className="mt-4 rounded-[18px] border border-white/8 bg-[#0f1724] p-5">
-                                    <h4 className="text-lg font-semibold text-[#9ad8de]">
+                                <div className="mt-4 rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                                    <h4 className="text-lg font-semibold text-[var(--accent)]">
                                         {seoTitle}
                                     </h4>
-                                    <p className="mt-2 text-sm leading-6 text-[#dbe5f3]">
+                                    <p className="mt-2 text-sm leading-6 text-[var(--text)]">
                                         {metaDescription}
                                     </p>
-                                    <p className="mt-3 text-sm text-[#dbe5f3]">
+                                    <p className="mt-3 text-sm text-[var(--text)]">
                                         <b>Canonical URL: </b> &nbsp; {activePlatformPreview.settings?.canonicalUrl || "canonicalUrl unavailable"}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="rounded-[22px] border border-white/8 bg-[#101826] p-5">
-                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                            <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] p-5">
+                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                                     Platform Delivery Preview
                                 </p>
-                                <div className="mt-4 space-y-4 rounded-[18px] border border-white/8 bg-[#0f1724] p-5">
+                                <div className="mt-4 space-y-4 rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
                                     <div className="flex justify-between">
                                         <div>
-                                            <p className="text-sm font-semibold text-[#eef4ff]">
+                                            <p className="text-sm font-semibold text-[var(--text-strong)]">
                                                 {activePlatformPreview.platformName}
                                             </p>
-                                            <p className="mt-1 text-xs text-[#8ea0b8]">
+                                            <p className="mt-1 text-xs text-[var(--text-muted)]">
                                                 {activePlatformPreview.websiteUrl || "Website URL unavailable"}
                                             </p>
                                         </div>
                                         <p className={`inline-flex rounded-full border h-fit px-2.5 py-1 text-xs font-medium ${getStatusMeta(activePlatformPreview.settings?.publishStatus || "draft").className}`}> {activePlatformPreview.settings?.publishStatus || "draft"}</p>
                                     </div>
 
-                                    <div className="rounded-[16px] border border-white/8 bg-[#151d2c] p-4">
-                                        <p className="text-xs uppercase tracking-[0.18em] text-[#7f90a8]">
+                                    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+                                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-subtle)]">
                                             Slug
                                         </p>
-                                        <p className="mt-2 text-sm text-[#dbe5f3] truncate-2">
+                                        <p className="mt-2 text-sm text-[var(--text)] truncate-2">
                                             {activePlatformPreview.settings?.slug || "-"}
                                         </p>
                                     </div>
 
-                                    <div className="rounded-[16px] border border-white/8 bg-[#151d2c] p-4">
+                                    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
                                         <div className="flex flex-wrap justify-between items-center gap-3">
-                                            <p className="text-xs uppercase tracking-[0.18em] text-[#7f90a8]">
+                                            <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-subtle)]">
                                                 CTA Preview
                                             </p>
-                                            <a href={ctaButtonLink} target="blank" className="inline-flex rounded-xl bg-[#eef4ff] px-4 py-2 text-sm font-semibold text-[#0f1724]">
+                                            <a href={ctaButtonLink} target="blank" className="inline-flex rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[#ffffff]">
                                                 {ctaButtonText}
                                             </a>
                                         </div>
-                                        <span className="mt-3 truncate-2 text-xs text-[#8ea0b8]">
+                                        <span className="mt-3 truncate-2 text-xs text-[var(--text-muted)]">
                                             {ctaButtonLink}
                                         </span>
                                     </div>
@@ -172,19 +172,19 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                         </div>
                     ) : (
                         <div
-                            className={`mt-5 rounded-[22px] border border-white/8 bg-[#101826] p-5 transition-all ${isIframeFullScreen
+                            className={`mt-5 rounded-[22px] border border-[var(--border)] bg-[var(--bg-inset)] p-5 transition-all ${isIframeFullScreen
                                 ? "fixed inset-0 z-[999] m-0 rounded-none p-0 bg-black"
                                 : ""
                                 }`}
                         >
                             <div className="flex justify-between items-center">
-                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                                     Live Website Preview
                                 </p>
 
                                 <button
                                     onClick={() => setIsIframeFullScreen((prev) => !prev)}
-                                    className="px-3 py-1 text-xs rounded-md bg-[#eef4ff] text-[#0f1724] font-semibold flex items-center gap-1"
+                                    className="px-3 py-1 text-xs rounded-md bg-[var(--accent)] text-[#ffffff] font-semibold flex items-center gap-1"
                                 >
                                     {isIframeFullScreen ? (
                                         <>
@@ -204,21 +204,21 @@ const PlatformSpecificPreview = ({ title, excerpt, selectedPlatforms, platformDa
                                 <iframe
                                     src={canonicalUrl}
                                     className={`mt-4 w-full ${isIframeFullScreen ? "h-screen" : "h-[500px]"
-                                        } rounded-[16px] border border-white/10`}
+                                        } rounded-[16px] border border-[var(--border)]`}
                                 />
                             ) : (
-                                <p className="mt-4 text-sm text-[#8ea0b8]">
+                                <p className="mt-4 text-sm text-[var(--text-muted)]">
                                     No URL available for iframe preview
                                 </p>
                             )}
                         </div>
                     ))
                     : (
-                        <div className="mt-5 rounded-[20px] border border-dashed border-white/10 bg-[#101826] px-6 py-10 text-center">
-                            <p className="text-base font-medium text-[#dbe5f3]">
+                        <div className="mt-5 rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-6 py-10 text-center">
+                            <p className="text-base font-medium text-[var(--text)]">
                                 No platform selected for preview
                             </p>
-                            <p className="mt-2 text-sm text-[#8ea0b8]">
+                            <p className="mt-2 text-sm text-[var(--text-muted)]">
                                 Select at least one platform in platform settings to see a destination-specific preview.
                             </p>
                         </div>

@@ -28,7 +28,7 @@ type TaxonomyModalProps = {
 };
 
 const inputClassName =
-    "w-full rounded-xl border border-white/8 bg-[#151d2c] px-4 py-3 text-white placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none";
+    "w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none";
 
 const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyModalProps) => {
     const [name, setName] = useState("");
@@ -110,25 +110,25 @@ const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyMo
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/35 p-4">
             <ClickOutside onClickOutside={onClose}>
-                <div className="w-full max-w-md space-y-4 rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-                    <h2 className="text-xl font-semibold text-white">
+                <div className="w-full max-w-md space-y-4 rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
+                    <h2 className="text-xl font-semibold text-[var(--text-strong)]">
                         {entity ? `Update ${entityLabel}` : `Create ${entityLabel}`}
                     </h2>
 
-                    <label htmlFor={`${type}-name`} className="text-sm text-white">{entityLabel} Name </label>
+                    <label htmlFor={`${type}-name`} className="text-sm text-[var(--text-strong)]">{entityLabel} Name </label>
 
                     <input id={`${type}-name`} type="text" placeholder={`${entityLabel} Name`} value={name} onChange={(e) => setName(e.target.value)} className={inputClassName} />
 
-                    <label htmlFor={`${type}-description`} className="text-sm text-white">Description</label>
+                    <label htmlFor={`${type}-description`} className="text-sm text-[var(--text-strong)]">Description</label>
 
                     <textarea id={`${type}-description`} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className={inputClassName} />
 
                     <div className="space-y-2">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]">Select Platforms</p>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">Select Platforms</p>
 
-                        <div className="max-h-40 space-y-2 overflow-y-auto rounded-[18px] border border-white/8 bg-[#151d2c] p-4">
+                        <div className="max-h-40 space-y-2 overflow-y-auto rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
                             {platformData?.data?.map((platform) => {
                                 const showPlatform =
                                     platform.status === "Active" &&
@@ -155,7 +155,7 @@ const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyMo
                                         />
                                         <label
                                             htmlFor={`${type}-platform-${id}`}
-                                            className="text-sm text-white"
+                                            className="text-sm text-[var(--text-strong)]"
                                         >
                                             {platform.platform_name}
                                         </label>
@@ -165,7 +165,7 @@ const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyMo
                         </div>
                     </div>
 
-                    <label htmlFor={`${type}-status`} className="text-sm text-white">Status</label>
+                    <label htmlFor={`${type}-status`} className="text-sm text-[var(--text-strong)]">Status</label>
 
                     <select
                         id={`${type}-status`}
@@ -181,7 +181,7 @@ const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyMo
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                            className="rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--text)] transition hover:bg-black/[0.04]"
                         >
                             Cancel
                         </button>
@@ -190,7 +190,7 @@ const TaxonomyModal = ({ isOpen, onClose, onSuccess, type, entity, }: TaxonomyMo
                             type="button"
                             onClick={handleSave}
                             disabled={loading}
-                            className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-xl bg-[var(--accent)] px-4 py-2 font-medium text-[#ffffff] transition hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {loading ? entity?.id ? "Updating..." : "Creating..." : entity?.id ? "Update" : "Create"}
                         </button>

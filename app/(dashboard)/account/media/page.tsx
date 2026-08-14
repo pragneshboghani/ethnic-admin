@@ -132,8 +132,8 @@ const Media = () => {
                                 onClick={() => handleTabClick(i)}
                                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
                                     ${activeTab === i.id
-                                        ? 'bg-white/20 text-white shadow-lg border border-white/20 rounded-xl'
-                                        : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                                        ? 'bg-white/20 text-[var(--text-strong)] shadow-lg border border-[var(--border-strong)] rounded-xl'
+                                        : 'text-gray-300 hover:bg-black/[0.05] hover:text-[var(--text-strong)]'
                                     }`}
                             >
                                 {i.label}{` (${i.count})`}
@@ -150,7 +150,7 @@ const Media = () => {
                 <div className="gap-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 
                     {media.length === 0 ? (
-                        <div className="col-span-full py-20 text-center text-zinc-600 border-2 border-dashed border-white/5 rounded-2xl">
+                        <div className="col-span-full py-20 text-center text-zinc-600 border-2 border-dashed border-[var(--border)] rounded-2xl">
                             No media found. Upload your first image.
                         </div>
                     ) : (
@@ -173,12 +173,12 @@ const Media = () => {
                                     />
                                 )}
 
-                                <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 bg-black/70 transition-opacity rounded-lg group-hover:opacity-100">
+                                <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 bg-[#202124]/35 transition-opacity rounded-lg group-hover:opacity-100">
                                     <button
                                         className="p-2 bg-blue-500 rounded-full hover:bg-blue-600"
                                         onClick={() => openViewModal(m)}
                                     >
-                                        <Eye size={18} className="text-white" />
+                                        <Eye size={18} className="text-[var(--text-strong)]" />
                                     </button>
 
                                     <button
@@ -192,7 +192,7 @@ const Media = () => {
                                         className="p-2 bg-red-500 rounded-full hover:bg-red-600"
                                         onClick={() => openDeleteModal(m)}
                                     >
-                                        <Trash2 size={18} className="text-white" />
+                                        <Trash2 size={18} className="text-[var(--text-strong)]" />
                                     </button>
                                 </div>
                             </div>
@@ -202,9 +202,9 @@ const Media = () => {
                 </div>
             </div>
             {altModalOpen && selectedMedia && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-[#202124]/35 flex items-center justify-center z-50">
                     <ClickOutside onClickOutside={() => setAltModalOpen(false)}>
-                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)] sm:p-7">
                             <h3 className="text-lg font-semibold mb-4">Update ALT Text</h3>
 
                             <input
@@ -237,11 +237,11 @@ const Media = () => {
             {deleteModalOpen && mediaToDelete && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <ClickOutside onClickOutside={handleCancelDelete}>
-                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 sm:p-7">
-                            <h3 className="text-lg font-semibold mb-4 text-white">
+                        <div className="relative max-h-[88vh] w-full max-w-[500px] overflow-y-auto rounded-[28px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 sm:p-7">
+                            <h3 className="text-lg font-semibold mb-4 text-[var(--text-strong)]">
                                 Delete Media
                             </h3>
-                            <p className="mb-6 text-white">
+                            <p className="mb-6 text-[var(--text-strong)]">
                                 Are you sure you want to delete <strong>{mediaToDelete.file_name}</strong>?
                             </p>
                             <div className="flex justify-center gap-4">
@@ -252,7 +252,7 @@ const Media = () => {
                                     Cancel
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                    className="px-4 py-2 bg-red-600 text-[var(--text-strong)] rounded hover:bg-red-700"
                                     onClick={handleConfirmDelete}
                                 >
                                     Delete
@@ -263,14 +263,14 @@ const Media = () => {
                 </div>
             )}
             {viewModalOpen && viewMedia && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-[#202124]/40 flex items-center justify-center z-50 p-4">
                     <ClickOutside onClickOutside={() => setViewModalOpen(false)}>
-                        <div className="relative max-h-[88vh] w-full max-w-[700px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                        <div className="relative max-h-[88vh] w-full max-w-[700px] overflow-y-auto rounded-[28px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)] sm:p-7">
                             <button
-                                className="absolute top-4 right-4 text-white hover:text-red-500"
+                                className="absolute top-4 right-4 text-[var(--text-strong)] hover:text-red-500"
                                 onClick={() => setViewModalOpen(false)}
                             >
-                                <X size={18} className="text-white" />
+                                <X size={18} className="text-[var(--text-strong)]" />
                             </button>
                             {viewMedia.file_type === "image" ? (
                                 <img
@@ -285,7 +285,7 @@ const Media = () => {
                                     className="w-full max-h-[70vh] rounded-lg"
                                 />
                             )}
-                            <div className="mt-4 text-white w-full">
+                            <div className="mt-4 text-[var(--text-strong)] w-full">
                                 <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>Name:</strong> {viewMedia.file_name}</p>
                                 <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>ALT:</strong> {viewMedia.alt_text || "-"}</p>
                                 <p className='whitespace-nowrap max-w-[calc(100%-290px)] truncate mb-2'><strong>File Type:</strong> {viewMedia.file_type}</p>

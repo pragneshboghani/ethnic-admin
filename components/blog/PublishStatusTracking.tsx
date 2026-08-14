@@ -56,62 +56,62 @@ const PublishStatusTracking = ({ globalStatus = "draft", updateDate, currentBlog
         <div className="space-y-8 px-6 py-6 sm:px-8 sm:py-8 max-w-[1000px] w-full">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h3 className="text-xl font-semibold text-[#eef4ff]">Publishing Status Tracking</h3>
-                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                    <h3 className="text-xl font-semibold text-[var(--text-strong)]">Publishing Status Tracking</h3>
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Current publish state and recent activity for this blog.
                     </p>
                 </div>
                 {(latestHistory?.created_at || updateDate) && (
-                    <span className="rounded-full border border-white/8 bg-[#151d2c] px-3 py-1.5 text-xs text-[#8ea0b8]">
+                    <span className="rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs text-[var(--text-muted)]">
                         Last activity {formatDateTime(latestHistory?.created_at || updateDate || "")}
                     </span>
                 )}
             </div>
 
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                <div className="rounded-[22px] border border-white/8 bg-[#151d2c] p-5">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                         Blog Status
                     </p>
-                    <p className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+                    <p className="mt-3 text-2xl font-semibold text-[var(--text-strong)]">
                         {statusLabelMap[globalStatus] || "Draft"}
                     </p>
-                    <p className="mt-2 text-sm text-[#8ea0b8]">
+                    <p className="mt-2 text-sm text-[var(--text-muted)]">
                         {currentBlogStatus.length} platform{currentBlogStatus.length === 1 ? "" : "s"} connected
                     </p>
                 </div>
 
-                <div className="rounded-[22px] border border-white/8 bg-[#151d2c] p-5">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                         Recent Change
                     </p>
-                    <p className="mt-3 text-base font-semibold text-[#eef4ff]">
+                    <p className="mt-3 text-base font-semibold text-[var(--text-strong)]">
                         {latestHistory
                             ? `${formatFieldLabel(latestHistory.action_type)} ${formatFieldLabel(latestHistory.entity_type)}`
                             : "No tracked activity yet"}
                     </p>
-                    <p className="mt-2 text-sm text-[#8ea0b8]">
+                    <p className="mt-2 text-sm text-[var(--text-muted)]">
                         {latestHistory?.changed_by_name || "System"} • {latestHistory?.trigger_source || "manual"}
                     </p>
                 </div>
             </div>
 
             {currentBlogStatus.length > 0 && (
-                <div className="rounded-[22px] border border-white/8 bg-[#151d2c] p-5">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                         Platform Status Snapshot
                     </p>
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                         {currentBlogStatus.map((item) => (
                             <div
                                 key={item.platformId}
-                                className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-4"
+                                className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-4"
                             >
-                                <p className="text-sm font-semibold text-[#eef4ff]">{item.platformName}</p>
-                                <p className="mt-2 text-sm text-[#dbe5f3]">
+                                <p className="text-sm font-semibold text-[var(--text-strong)]">{item.platformName}</p>
+                                <p className="mt-2 text-sm text-[var(--text)]">
                                     Status: {statusLabelMap[item.publishStatus] || "Draft"}
                                 </p>
-                                <p className="mt-1 truncate text-sm text-[#8ea0b8]">
+                                <p className="mt-1 truncate text-sm text-[var(--text-muted)]">
                                     Slug: {item.slug}
                                 </p>
                             </div>
@@ -120,18 +120,18 @@ const PublishStatusTracking = ({ globalStatus = "draft", updateDate, currentBlog
                 </div>
             )}
 
-            <div className="rounded-[22px] border border-white/8 bg-[#151d2c] p-5">
+            <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
                 <div className="flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                         Activity Timeline
                     </p>
-                    <span className="text-xs text-[#8ea0b8]">
+                    <span className="text-xs text-[var(--text-muted)]">
                         {publishHistoryLoading ? "Loading..." : `${publishHistory.length} events`}
                     </span>
                 </div>
 
                 {publishHistoryLoading ? (
-                    <div className="mt-4 rounded-[18px] border border-dashed border-white/10 bg-[#101826] px-4 py-8 text-sm text-[#8ea0b8]">
+                    <div className="mt-4 rounded-[18px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-4 py-8 text-sm text-[var(--text-muted)]">
                         Loading publish history...
                     </div>
                 ) : publishHistory.length > 0 ? (
@@ -145,22 +145,22 @@ const PublishStatusTracking = ({ globalStatus = "draft", updateDate, currentBlog
                             return (
                                 <div
                                     key={historyItem.id}
-                                    className="rounded-[18px] border border-white/8 bg-[#101826] px-4 py-4"
+                                    className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-4"
                                 >
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                         <div className="flex flex-col w-full">
                                             <div className="flex items-center gap-2 justify-between w-full flex-wrap">
-                                                <p className="text-sm font-semibold text-[#eef4ff]">
+                                                <p className="text-sm font-semibold text-[var(--text-strong)]">
                                                     {formatFieldLabel(historyItem.action_type)} {formatFieldLabel(historyItem.entity_type)}
                                                 </p>
-                                                <span className="text-xs text-[#8ea0b8]">
+                                                <span className="text-xs text-[var(--text-muted)]">
                                                     {historyItem.created_at ? formatDateTime(historyItem.created_at) : "—"}
                                                 </span>
                                             </div>
-                                            <p className="mt-1 text-sm text-[#dbe5f3]">
+                                            <p className="mt-1 text-sm text-[var(--text)]">
                                                 {changedFields.length > 0 ? changedFields.join(", ") : "Details unavailable"}
                                             </p>
-                                            <p className="mt-2 text-xs text-[#8ea0b8]">
+                                            <p className="mt-2 text-xs text-[var(--text-muted)]">
                                                 {historyItem.changed_by_name || "System"} • {historyItem.trigger_source || "manual"}
                                             </p>
                                         </div>
@@ -170,7 +170,7 @@ const PublishStatusTracking = ({ globalStatus = "draft", updateDate, currentBlog
                         })}
                     </div>
                 ) : (
-                    <div className="mt-4 rounded-[18px] border border-dashed border-white/10 bg-[#101826] px-4 py-8 text-sm text-[#8ea0b8]">
+                    <div className="mt-4 rounded-[18px] border border-dashed border-[var(--border)] bg-[var(--bg-inset)] px-4 py-8 text-sm text-[var(--text-muted)]">
                         No publish tracking events available for this blog yet.
                     </div>
                 )}

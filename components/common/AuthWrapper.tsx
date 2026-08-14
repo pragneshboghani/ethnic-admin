@@ -3,6 +3,7 @@
 import UserActions from "@/actions/UserAction";
 import Sidebar from "@/components/Sidebar";
 import LayoutContainer from "@/components/common/LayoutContainer";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import { UserProvider } from "@/context/UserContext";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
@@ -21,7 +22,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const router = useRouter();
     const isBlogEditorPage = pathname.startsWith("/account/blogs/add");
-    const isResourcePage = pathname === "/account/resources";
 
     useEffect(() => {
         UserActions.isLogin(router);
@@ -58,6 +58,18 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                 href: "/account/blogs/add",
                 label: "New Blog",
             },
+        },
+        "/account/calendar": {
+            eyebrow: "Planning",
+            title: "Content Calendar",
+            description:
+                "Plan social posts per project, see scheduled blogs alongside them, and drag anything to reschedule.",
+        },
+        "/account/projects": {
+            eyebrow: "Planning",
+            title: "Projects",
+            description:
+                "Manage the brands you publish for and the social accounts attached to each one.",
         },
         "/account/plateforms": {
             eyebrow: "Distribution",
@@ -112,7 +124,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     return (
         <UserProvider>
             <LayoutContainer>
-                <div className={`${dashboardFont.className} min-h-screen bg-[radial-gradient(circle_at_top_center,_rgba(53,75,115,0.22),_transparent_26%),radial-gradient(circle_at_top_left,_rgba(73,112,164,0.22),_transparent_22%),radial-gradient(circle_at_bottom_left,_rgba(92,59,141,0.18),_transparent_20%),linear-gradient(180deg,#0b1018_0%,#0e1622_52%,#091019_100%)] px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4`}>
+                <div className={`${dashboardFont.className} min-h-screen bg-[radial-gradient(circle_at_top_center,_rgba(26,115,232,0.08),_transparent_28%),radial-gradient(circle_at_bottom_left,_rgba(161,66,244,0.06),_transparent_24%),linear-gradient(180deg,var(--bg-page)_0%,var(--bg-surface-alt)_52%,var(--bg-page)_100%)] px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3 lg:px-6 lg:pb-6 lg:pt-4`}>
                     <ToastContainer
                         position="top-right"
                         autoClose={3200}
@@ -121,7 +133,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                         draggable
                         hideProgressBar={false}
                         newestOnTop
-                        theme="dark"
+                        theme="light"
                         className="dashboard-toast-container"
                         toastClassName={(context) =>
                             `${context?.defaultClassName || ""} dashboard-toast dashboard-toast--${context?.type || "default"}`
@@ -131,46 +143,47 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                         }
                     />
 
-                    <div className={`${isBlogEditorPage ? "overflow-visible" : ""} rounded-[28px] border border-white/8 bg-[#0f1724] shadow-[0_30px_90px_rgba(0,0,0,0.42)]`}>
+                    <div className={`${isBlogEditorPage ? "overflow-visible" : ""} rounded-[28px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_1px_2px_rgba(15,23,42,0.06),0_12px_32px_rgba(15,23,42,0.06)]`}>
                         <div className="flex flex-col md:flex-row">
-                            <div className="flex border-white/8 md:border-r rounded-tl-[44px]">
+                            <div className="flex border-[var(--border)] md:border-r rounded-tl-[44px]">
                                 <aside className="sticky top-0 h-screen self-start overflow-y-auto">
                                     <Sidebar />
                                 </aside>
                             </div>
 
-                            <main className={`min-w-0 flex-1 px-5 py-6 sm:px-7 rounded-tr-[44px] rounded-br-[44px] lg:px-10 lg:py-8 ${isResourcePage ? "bg-[#f6f8fc]" : "bg-[#111827]"} ${isBlogEditorPage ? "overflow-visible" : ""}`}>
-                                <div className={isResourcePage ? "text-[#202124]" : "text-[#e6edf7]"}>
+                            <main className={`min-w-0 flex-1 px-5 py-6 sm:px-7 rounded-tr-[44px] rounded-br-[44px] lg:px-10 lg:py-8 bg-[var(--bg-surface-alt)] ${isBlogEditorPage ? "overflow-visible" : ""}`}>
+                                <div className="text-[var(--text)]">
                                     <div className="flex w-full justify-between items-center flex-wrap">
                                         {pathname !== "/account/dashboard" && currentHeader && (
                                             <div className="flex flex-col gap-3 md:mb-6 lg:mb-7">
-                                                <p className={`text-[11px] font-medium uppercase tracking-[0.28em] ${isResourcePage ? "text-[#6b7280]" : "text-[#8398b5]"}`}>
+                                                <p className={`text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-subtle)]`}>
                                                     {currentHeader.eyebrow}
                                                 </p>
                                                 <div>
-                                                    <h1 className={`text-3xl font-semibold tracking-tight ${isResourcePage ? "text-[#202124]" : "text-[#eef4ff]"}`}>
+                                                    <h1 className={`text-3xl font-semibold tracking-tight text-[var(--text-strong)]`}>
                                                         {currentHeader.title}
                                                     </h1>
-                                                    <p className={`mt-2 max-w-2xl text-sm leading-6 hidden md:block ${isResourcePage ? "text-[#5f6368]" : "text-[#94a5bd]"}`}>
+                                                    <p className={`mt-2 max-w-2xl text-sm leading-6 hidden md:block text-[var(--text-muted)]`}>
                                                         {currentHeader.description}
                                                     </p>
                                                 </div>
                                             </div>
                                         )}
 
-                                        {pathname !== "/account/dashboard" && currentHeader?.action && (
-                                            <div className="md:mb-6">
+                                        <div className="ml-auto flex items-center gap-3 md:mb-6">
+                                            {pathname !== "/account/dashboard" && currentHeader?.action && (
                                                 <Link
                                                     href={currentHeader.action.href}
-                                                    className={`inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition ${isResourcePage ? "border border-[#d7dde7] bg-white text-[#202124] hover:bg-[#f7f9fc]" : "border border-white/10 bg-[#182235] text-white hover:bg-[#22314a]"}`}
+                                                    className={`inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition bg-[var(--accent)] text-white shadow-[0_1px_2px_rgba(15,23,42,0.08)] hover:bg-[var(--accent-hover)]`}
                                                 >
                                                     {currentHeader.action.label}
                                                 </Link>
-                                            </div>
-                                        )}
+                                            )}
+                                            <ThemeToggle />
+                                        </div>
 
                                         {pathname !== "/account/dashboard" &&
-                                            <p className={`mt-2 max-w-2xl text-sm leading-6 mb-6 md:mb-0 inline-flex w-full md:hidden ${isResourcePage ? "text-[#5f6368]" : "text-[#94a5bd]"}`}>
+                                            <p className={`mt-2 max-w-2xl text-sm leading-6 mb-6 md:mb-0 inline-flex w-full md:hidden text-[var(--text-muted)]`}>
                                                 {currentHeader?.description}
                                             </p>
                                         }

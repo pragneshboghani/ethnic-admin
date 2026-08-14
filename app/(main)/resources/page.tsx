@@ -47,9 +47,9 @@ export default async function ResourcesPage() {
 
   return (
     <section
-      className={`${resourcesFont.className} relative min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(86,120,168,0.26),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(46,97,106,0.18),_transparent_22%),radial-gradient(circle_at_bottom_left,_rgba(115,72,61,0.18),_transparent_18%),linear-gradient(180deg,#07101a_0%,#0a1521_42%,#0c1320_100%)] px-4 py-10 sm:px-6 lg:px-8`}
+      className={`${resourcesFont.className} relative min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(26,115,232,0.08),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(0,131,143,0.06),_transparent_22%),radial-gradient(circle_at_bottom_left,_rgba(227,116,0,0.06),_transparent_18%),linear-gradient(180deg,#eef1f6_0%,#f4f6fa_42%,#eaeef5_100%)] px-4 py-10 sm:px-6 lg:px-8`}
     >
-      <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.85)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.85)_1px,transparent_1px)] [background-size:86px_86px]" />
+      <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(15,23,42,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.5)_1px,transparent_1px)] [background-size:86px_86px]" />
       <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full items-center justify-center">
         {hasResourceAccess ? (
           <ResourceLibraryView groups={groups} errorMessage={errorMessage} />

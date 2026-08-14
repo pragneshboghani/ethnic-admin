@@ -158,33 +158,33 @@ const Page = () => {
                     label="Categories"
                     value={categories.length}
                     note="Primary content groupings across platforms"
-                    tone="bg-[linear-gradient(180deg,#6f458a_0%,#6a4185_100%)]"
+                    tone="bg-[var(--status-purple-bg)]"
                     progress={(categories.length / totalTerms) * 100}
                 />
                 <StatCard
                     label="Tags"
                     value={tags.length}
                     note="Keyword-level labels for discovery and filtering"
-                    tone="bg-[linear-gradient(180deg,#3f7d87_0%,#3a7580_100%)]"
+                    tone="bg-[#e0f2f1]"
                     progress={(tags.length / totalTerms) * 100}
                 />
                 <StatCard
                     label="Taxonomy terms"
                     value={totalTerms}
                     note="Total reusable structure items in this workspace"
-                    tone="bg-[linear-gradient(180deg,#bd6d4f_0%,#b8664b_100%)]"
+                    tone="bg-[var(--status-red-bg)]"
                     progress={100}
                 />
             </section>
-            <aside className="mt-5 rounded-[24px] border border-white/8 bg-[#151d2c] p-5 flex gap-5 flex-wrap justify-between shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+            <aside className="mt-5 rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 flex gap-5 flex-wrap justify-between shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
                         Quick Actions
                     </p>
-                    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#eef4ff]">
+                    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                         Shape your content structure
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                    <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                         Create reusable categories and tags so blog organization stays clean across all publishing destinations.
                     </p>
                 </div>
@@ -193,7 +193,7 @@ const Page = () => {
                     <button
                         type="button"
                         onClick={() => setIsOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#eef4ff] px-4 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                        className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
                     >
                         <Plus size={16} />
                         Create Category
@@ -201,7 +201,7 @@ const Page = () => {
                     <button
                         type="button"
                         onClick={() => setIsOpenTags(true)}
-                        className="inline-flex items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-[#101826] px-4 py-3 text-sm font-medium text-[#eef4ff] transition hover:border-[#31425e] hover:bg-[#182438]"
+                        className="inline-flex items-center justify-center gap-2 rounded-[16px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm font-medium text-[var(--text-strong)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                     >
                         <Plus size={16} />
                         Create Tag
@@ -209,16 +209,16 @@ const Page = () => {
                 </div>
             </aside>
 
-            <section className="mt-6 rounded-[26px] border border-white/8 bg-[#151d2c] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+            <section className="mt-6 rounded-[26px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
                             Taxonomy Library
                         </p>
-                        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#eef4ff]">
+                        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                             Browse and refine your labels
                         </h2>
-                        <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                             Search through categories and tags to find the exact term you want to manage.
                         </p>
                     </div>
@@ -227,14 +227,14 @@ const Page = () => {
                         <label className="relative block">
                             <Search
                                 size={18}
-                                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#6f8096]"
+                                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"
                             />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(event) => setSearchQuery(event.target.value)}
                                 placeholder="Search categories or tags..."
-                                className="w-full rounded-[16px] border border-white/8 bg-[#101826] py-3 pl-11 pr-4 text-sm text-[#eef4ff] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
+                                className="w-full rounded-[16px] border border-[var(--border)] bg-[var(--bg-inset)] py-3 pl-11 pr-4 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none"
                             />
                         </label>
                     </div>

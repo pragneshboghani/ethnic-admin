@@ -39,15 +39,15 @@ const AuthorUpdatePage = () => {
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <p className="text-sm text-[#8ea0b8]">Loading author details...</p>
+        <p className="text-sm text-[var(--text-muted)]">Loading author details...</p>
       </div>
     );
   }
 
   if (errorMessage || !author) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-white/8 bg-[#151d2c] p-6">
-        <p className="text-sm text-[#8ea0b8]">
+      <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6">
+        <p className="text-sm text-[var(--text-muted)]">
           {errorMessage || "User not found"}
         </p>
       </div>

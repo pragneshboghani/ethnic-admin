@@ -8,6 +8,8 @@ import {
   Group,
   MessageSquareMore,
   FolderOpen,
+  CalendarDays,
+  FolderKanban,
 } from "lucide-react";
 import { Role } from "@/types";
 import type { ElementType } from "react";
@@ -18,6 +20,7 @@ type NavItem = {
   href: string;
   icon: ElementType;
   roles?: Role[];
+  requiresCalendarAccess?: boolean;
 };
 
 export const navItems: NavItem[] = [
@@ -28,6 +31,8 @@ export const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   { id: 2, name: "Blogs", href: "/account/blogs", icon: FileText },
+  { id: 10, name: "Content Calendar", href: "/account/calendar", icon: CalendarDays, requiresCalendarAccess: true },
+  { id: 11, name: "Projects", href: "/account/projects", icon: FolderKanban, requiresCalendarAccess: true },
   { id: 3, name: "Platforms", href: "/account/plateforms", icon: Globe },
   { id: 4, name: "Media Library", href: "/account/media", icon: ImageIcon },
   { id: 5, name: "Categories & Tags", href: "/account/category", icon: StretchHorizontal},

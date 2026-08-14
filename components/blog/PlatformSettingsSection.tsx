@@ -3,23 +3,23 @@ import { CheckCircle2 } from "lucide-react";
 
 const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedPlatforms, platformSettings, setPlatformSettings, handlePlatformChange, title, excerpt, fields, remove, append, }: PlatformSettingsProps) => {
     const cardClassName =
-        "rounded-[24px] border border-white/8 bg-[#151d2c] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.24)]";
+        "rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]";
     const labelClassName =
-        "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
+        "text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]";
     const inputClassName =
-        "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none disabled:cursor-not-allowed disabled:opacity-70";
+        "w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[var(--accent)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-70";
 
     return (
         <div className="space-y-6">
             <div className={cardClassName}>
-                <div className="border-b border-white/8 pb-5">
-                    <span className="inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#8ea0b8]">
+                <div className="border-b border-[var(--border)] pb-5">
+                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--text-muted)]">
                         Distribution
                     </span>
-                    <h3 className="mt-4 text-xl font-semibold text-[#eef4ff]">
+                    <h3 className="mt-4 text-xl font-semibold text-[var(--text-strong)]">
                         Target Platforms
                     </h3>
-                    <p className="mt-2 text-sm leading-7 text-[#8ea0b8]">
+                    <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
                         Select the websites where you want to publish this blog and then fine-tune each destination.
                     </p>
                 </div>
@@ -79,22 +79,22 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
                                 }}
                                 className={`flex items-center gap-3 rounded-[20px] border p-4 text-left transition-all ${
                                     isSelected
-                                        ? "border-[#31425e] bg-[#101826] shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
-                                        : "border-white/8 bg-[#101826] hover:border-white/14 hover:bg-[#131d2c]"
+                                        ? "border-[var(--accent)] bg-[var(--bg-inset)] shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
+                                        : "border-[var(--border)] bg-[var(--bg-inset)] hover:border-[var(--border)] hover:bg-[var(--bg-surface)]"
                                 }`}
                             >
                                 <div
                                     className={`flex h-6 w-6 items-center justify-center rounded-md border transition-colors ${
                                         isSelected
-                                            ? "border-[#31425e] bg-[#1f2f49] text-[#eef4ff]"
-                                            : "border-white/10 bg-[#151d2c] text-transparent"
+                                            ? "border-[var(--accent)] bg-[var(--bg-selected)] text-[var(--text-strong)]"
+                                            : "border-[var(--border)] bg-[var(--bg-surface)] text-transparent"
                                     }`}
                                 >
                                     {isSelected && <CheckCircle2 size={14} />}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="truncate font-medium text-[#eef4ff]">{platform.platform_name}</div>
-                                    <div className="truncate text-xs text-[#8ea0b8]">{platform.website_url}</div>
+                                    <div className="truncate font-medium text-[var(--text-strong)]">{platform.platform_name}</div>
+                                    <div className="truncate text-xs text-[var(--text-muted)]">{platform.website_url}</div>
                                 </div>
                             </button>
                         );
@@ -104,9 +104,9 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
 
             <div className="space-y-6">
                 {selectedPlatforms.length === 0 ? (
-                    <div className="rounded-[24px] border border-dashed border-white/10 bg-[#151d2c] px-6 py-12 text-center">
-                        <p className="text-lg font-medium text-[#eef4ff]">No platforms selected</p>
-                        <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                    <div className="rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-6 py-12 text-center">
+                        <p className="text-lg font-medium text-[var(--text-strong)]">No platforms selected</p>
+                        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                             Select at least one platform to configure SEO, slug, and publishing settings.
                         </p>
                     </div>
@@ -117,12 +117,12 @@ const PlatformSettingsSection = ({ platformData, selectedPlatforms, setSelectedP
 
                         return (
                             <div key={platformId} className={cardClassName}>
-                                <div className="flex flex-col gap-2 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h4 className="text-lg font-semibold text-[#eef4ff]">{platform.platform_name}</h4>
-                                        <p className="mt-1 text-sm text-[#8ea0b8]">{platform.website_url}</p>
+                                        <h4 className="text-lg font-semibold text-[var(--text-strong)]">{platform.platform_name}</h4>
+                                        <p className="mt-1 text-sm text-[var(--text-muted)]">{platform.website_url}</p>
                                     </div>
-                                    <span className="inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-xs text-[var(--text-muted)]">
                                         Platform Settings
                                     </span>
                                 </div>

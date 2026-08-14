@@ -65,13 +65,13 @@ const Authers = () => {
 
     return (
         <>
-            <aside className="flex flex-wrap items-center justify-between gap-5 rounded-[24px] border border-white/8 bg-[#151d2c] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+            <aside className="flex flex-wrap items-center justify-between gap-5 rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">Users</p>
-                    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#eef4ff]">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">Users</p>
+                    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                         Manage user profiles
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                    <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                         {canManageAllUsers
                             ? "View and update all users across the workspace."
                             : "View and update your own profile information."}
@@ -81,7 +81,7 @@ const Authers = () => {
                 {canManageAllUsers && (
                     <Link
                         href="/account/authors/add"
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-4 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                        className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
                     >
                         <Plus size={18} />
                         Add User
@@ -95,11 +95,11 @@ const Authers = () => {
                     const showDeleteAuthor = canDeleteAuthor(author);
 
                     return (
-                        <div key={author.id} className="rounded-[26px] border border-white/8 bg-[#151d2c] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] transition hover:border-[#31425e]">
+                        <div key={author.id} className="rounded-[26px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[var(--accent)]">
                             <div className="flex items-start justify-between gap-4">
                                 <Link href={`/account/authors/detail/${author.id}`} className="flex min-w-0 flex-1 items-center gap-3">
-                                    <div className="inline-flex items-center justify-center rounded-[18px] border border-[#354b73]/30 bg-[#182438] text-[#c8daf9]">
-                                        <div className="relative h-15 w-15 overflow-hidden rounded-[14px] bg-[#1d2a3f]">
+                                    <div className="inline-flex items-center justify-center rounded-[18px] border border-[var(--accent)]/30 bg-[var(--bg-selected)] text-[var(--accent-text)]">
+                                        <div className="relative h-15 w-15 overflow-hidden rounded-[14px] bg-[var(--bg-selected)]">
                                             <Image src={authorImage} alt={author.name} fill
                                                 className="object-cover object-top"
                                             />
@@ -107,11 +107,11 @@ const Authers = () => {
                                     </div>
 
                                     <div className="min-w-0">
-                                        <h3 className="truncate text-[24px] font-semibold tracking-tight text-[#eef4ff]">
+                                        <h3 className="truncate text-[24px] font-semibold tracking-tight text-[var(--text-strong)]">
                                             {author.name}
                                         </h3>
 
-                                        <p className="mt-1 text-sm capitalize text-[#8ea0b8]">
+                                        <p className="mt-1 text-sm capitalize text-[var(--text-muted)]">
                                             {roleLabels[author.role]}
                                         </p>
                                     </div>
@@ -122,9 +122,9 @@ const Authers = () => {
                                         {canEditAuthor && (
                                             <Link
                                                 href={`/account/authors/add/${author.id}`}
-                                                className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-[#101826] px-4 py-3 text-sm font-medium text-[#eef4ff] transition hover:border-[#31425e]"
+                                                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm font-medium text-[var(--text-strong)] transition hover:border-[var(--accent)]"
                                             >
-                                                <UserPen size={18} className="text-[#8ea0b8]" />
+                                                <UserPen size={18} className="text-[var(--text-muted)]" />
                                                 Edit
                                             </Link>
                                         )}
@@ -133,7 +133,7 @@ const Authers = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => setDeleteAuthor(author)}
-                                                className="inline-flex items-center gap-2 rounded-xl border border-[#b8664b]/40 bg-[#372423] px-4 py-3 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                                                className="inline-flex items-center gap-2 rounded-xl border border-[var(--status-amber-text)]/40 bg-[var(--status-red-bg)] px-4 py-3 text-sm font-medium text-[var(--status-amber-text)] transition hover:bg-[var(--status-red-bg)]"
                                             >
                                                 <Trash2 size={18} />
                                                 Delete
@@ -148,16 +148,16 @@ const Authers = () => {
             </div>
 
             {deleteAuthor && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
                     <ClickOutside onClickOutside={() => setDeleteAuthor(null)}>
-                        <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
-                            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+                        <div className="w-full max-w-md rounded-[26px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
                                 Remove User
                             </p>
-                            <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+                            <h3 className="mt-3 text-2xl font-semibold text-[var(--text-strong)]">
                                 Delete {deleteAuthor.name}?
                             </h3>
-                            <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                            <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                                 This will permanently remove this {deleteAuthor.role.replace("_", " ")} account from the workspace.
                             </p>
 
@@ -165,14 +165,14 @@ const Authers = () => {
                                 <button
                                     type="button"
                                     onClick={() => setDeleteAuthor(null)}
-                                    className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                                    className="rounded-[16px] border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition hover:bg-black/[0.04]"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleDelete}
-                                    className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                                    className="rounded-[16px] border border-[var(--status-amber-text)]/40 bg-[var(--status-red-bg)] px-4 py-2.5 text-sm font-medium text-[var(--status-amber-text)] transition hover:bg-[var(--status-red-bg)]"
                                 >
                                     Delete User
                                 </button>

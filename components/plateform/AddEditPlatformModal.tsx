@@ -37,11 +37,11 @@ const buildCtaLink = (websiteUrl: string, blogPath: string) => {
 
 const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms, }: Props) => {
     const inputClassName =
-        "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] placeholder:text-[#6f8096] transition focus:border-[#31425e] focus:outline-none";
+        "w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[var(--accent)] focus:outline-none";
     const selectClassName =
-        "w-full rounded-[18px] border border-white/8 bg-[#101826] px-4 py-3 text-sm text-[#eef4ff] transition focus:border-[#31425e] focus:outline-none";
+        "w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] transition focus:border-[var(--accent)] focus:outline-none";
     const labelClassName =
-        "text-[11px] font-medium uppercase tracking-[0.22em] text-[#7f90a8]";
+        "text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]";
 
     const { register, handleSubmit, watch, reset, setValue } = useForm<Platform>({
         defaultValues: {
@@ -144,32 +144,32 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
 
     return (
         <>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 sm:p-6">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4 sm:p-6">
                 <ClickOutside onClickOutside={onClose}>
-                    <div className="relative max-h-[88vh] w-full max-w-[980px] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-7">
+                    <div className="relative max-h-[88vh] w-full max-w-[980px] overflow-y-auto rounded-[28px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)] sm:p-7">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#151d2c] text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                         >
                             <X size={18} />
                         </button>
 
                         <div className="pr-12">
                             <p className={labelClassName}>Platform Manager</p>
-                            <h2 className="mt-2 text-2xl font-semibold text-[#eef4ff]">
+                            <h2 className="mt-2 text-2xl font-semibold text-[var(--text-strong)]">
                                 {editingPlatform ? "Update Platform" : "Add New Platform"}
                             </h2>
-                            <p className="mt-2 max-w-2xl text-sm leading-7 text-[#8ea0b8]">
+                            <p className="mt-2 max-w-2xl text-sm leading-7 text-[var(--text-muted)]">
                                 Configure destination details, publishing defaults, and connection settings in one place.
                             </p>
                         </div>
 
                         <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
-                            <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">
-                                <div className="border-b border-white/8 pb-4">
-                                    <h3 className="text-lg font-semibold text-[#eef4ff]">Basic Details</h3>
-                                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                            <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                                <div className="border-b border-[var(--border)] pb-4">
+                                    <h3 className="text-lg font-semibold text-[var(--text-strong)]">Basic Details</h3>
+                                    <p className="mt-1 text-sm text-[var(--text-muted)]">
                                         Set the main platform information used across the dashboard.
                                     </p>
                                 </div>
@@ -233,10 +233,10 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                 </div>
                             </div>
 
-                            <div className="rounded-[24px] border border-white/8 bg-[#151d2c] p-5">
-                                <div className="border-b border-white/8 pb-4">
-                                    <h3 className="text-lg font-semibold text-[#eef4ff]">Connection Settings</h3>
-                                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                            <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+                                <div className="border-b border-[var(--border)] pb-4">
+                                    <h3 className="text-lg font-semibold text-[var(--text-strong)]">Connection Settings</h3>
+                                    <p className="mt-1 text-sm text-[var(--text-muted)]">
                                         Choose where the content comes from and how this platform should authenticate.
                                     </p>
                                 </div>
@@ -247,8 +247,8 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             <label
                                                 className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${dataSource === "platform"
-                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
-                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
+                                                    ? "border-[var(--accent)] bg-[var(--bg-inset)] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                    : "border-[var(--border)] bg-[var(--bg-inset)] hover:border-[var(--border)]"
                                                     }`}
                                             >
                                                 <input
@@ -257,16 +257,16 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                     {...register("data_source")}
                                                     className="sr-only"
                                                 />
-                                                <span className="block text-sm font-semibold text-[#eef4ff]">Platform</span>
-                                                <span className="mt-1 block text-xs leading-6 text-[#8ea0b8]">
+                                                <span className="block text-sm font-semibold text-[var(--text-strong)]">Platform</span>
+                                                <span className="mt-1 block text-xs leading-6 text-[var(--text-muted)]">
                                                     Publish through a connected API endpoint.
                                                 </span>
                                             </label>
 
                                             <label
                                                 className={`cursor-pointer rounded-[18px] border px-4 py-3 transition ${dataSource === "admin"
-                                                    ? "border-[#31425e] bg-[#101826] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
-                                                    : "border-white/8 bg-[#101826] hover:border-white/15"
+                                                    ? "border-[var(--accent)] bg-[var(--bg-inset)] shadow-[inset_0_0_0_1px_rgba(142,160,184,0.12)]"
+                                                    : "border-[var(--border)] bg-[var(--bg-inset)] hover:border-[var(--border)]"
                                                     }`}
                                             >
                                                 <input
@@ -275,8 +275,8 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                     {...register("data_source")}
                                                     className="sr-only"
                                                 />
-                                                <span className="block text-sm font-semibold text-[#eef4ff]">Admin</span>
-                                                <span className="mt-1 block text-xs leading-6 text-[#8ea0b8]">
+                                                <span className="block text-sm font-semibold text-[var(--text-strong)]">Admin</span>
+                                                <span className="mt-1 block text-xs leading-6 text-[var(--text-muted)]">
                                                     Manage content internally without a remote endpoint.
                                                 </span>
                                             </label>
@@ -284,7 +284,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                     </div>
 
                                     {dataSource === "platform" && (
-                                        <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
+                                        <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-5">
                                             <div className="grid gap-4 md:grid-cols-2">
                                                 <div className="space-y-2 md:col-span-2">
                                                     <label htmlFor="platform-api-endpoint" className={labelClassName}>API Endpoint</label>
@@ -395,7 +395,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                     )}
 
                                     {dataSource === "admin" && (
-                                        <div className="rounded-[20px] border border-white/8 bg-[#101826] p-5">
+                                        <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-5">
                                             <div className="flex gap-4 w-full items-end">
                                                 <div className="w-full">
                                                     <label htmlFor="token-for-platform" className={labelClassName}>Token</label>
@@ -422,7 +422,7 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                                         )}
                                                     </div>
                                                 </div>
-                                                <button className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                                <button className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                                                     onClick={(e)=> {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -456,13 +456,13 @@ const AddEditPlatformModal = ({ open, onClose, editingPlatform, refreshPlatforms
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                                    className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-transparent px-5 py-3 text-sm font-medium text-[var(--text)] transition hover:bg-black/[0.04]"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="inline-flex items-center justify-center rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                                    className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
                                 >
                                     {editingPlatform ? "Update Platform" : "Save Platform"}
                                 </button>

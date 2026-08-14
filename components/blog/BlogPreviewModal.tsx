@@ -61,15 +61,15 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
     if (!showPreview) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4 sm:p-6">
             <ClickOutside onClickOutside={() => setShowPreview(false)}>
-                <div className="modal-scroll max-h-[90vh] w-[1000px] max-w-[90vw] overflow-y-auto rounded-[28px] border border-white/10 bg-[#101826] text-white shadow-[0_30px_80px_rgba(0,0,0,0.4)] relative">
-                    <div className="flex items-center justify-between border-b border-white/8 px-6 py-5 sm:px-8">
+                <div className="modal-scroll max-h-[90vh] w-[1000px] max-w-[90vw] overflow-y-auto rounded-[28px] border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_12px_30px_rgba(15,23,42,0.12)] relative">
+                    <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-5 sm:px-8">
                         <div>
-                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#8ea0b8]">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                 {mode === "publish" ? "Publish Review" : "Preview"}
                             </p>
-                            <h2 className="mt-2 text-xl font-semibold text-[#eef4ff]">
+                            <h2 className="mt-2 text-xl font-semibold text-[var(--text-strong)]">
                                 {mode === "publish" ? "Preview Before Publish" : "Blog Preview"}
                             </h2>
                         </div>
@@ -77,21 +77,21 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                             <button
                             type="button"
                             onClick={() => setShowPreview(false)}
-                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#151d2c] text-[#dbe5f3] transition hover:border-[#31425e] hover:bg-[#182438]"
+                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                         >
                             <X size={18} />
                         </button>
                         )}
                     </div>
 
-                    <div className="flex gap-2 border-b border-white/8 px-6 py-5 sticky bg-[#101826] top-0 sm:px-8 justify-between items-center z-50">
+                    <div className="flex gap-2 border-b border-[var(--border)] px-6 py-5 sticky bg-[var(--bg-inset)] top-0 sm:px-8 justify-between items-center z-50">
                         <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("general")}
                                 className={`flex items-center justify-center rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "general"
-                                    ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-                                    : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+                                    ? "border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                                    : "text-[var(--text-muted)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]"
                                     }`}
                             >
                                 General Content
@@ -101,8 +101,8 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                                 type="button"
                                 onClick={() => setActiveTab("platforms")}
                                 className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "platforms"
-                                    ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-                                    : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+                                    ? "border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                                    : "text-[var(--text-muted)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]"
                                     }`}
                             >
                                 Linked Platforms
@@ -113,8 +113,8 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                                     type="button"
                                     onClick={() => setActiveTab("status_tracking")}
                                     className={`flex items-center justify-center gap-2 rounded-[18px] px-5 py-3 text-sm font-medium transition-all ${activeTab === "status_tracking"
-                                        ? "border border-white/10 bg-[#101826] text-[#eef4ff] shadow-[0_12px_24px_rgba(0,0,0,0.2)]"
-                                        : "text-[#8ea0b8] hover:bg-white/[0.03] hover:text-white"
+                                        ? "border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                                        : "text-[var(--text-muted)] hover:bg-black/[0.03] hover:text-[var(--text-strong)]"
                                         }`}
                                 >
                                     Status Tracking
@@ -126,7 +126,7 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                             <button
                                 type="button"
                                 onClick={() => setShowPreview(false)}
-                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#151d2c] text-[#dbe5f3]"
+                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)]"
                             >
                                 <X size={18} />
                             </button>
@@ -172,18 +172,18 @@ const BlogPreviewModal = ({ showPreview, setShowPreview, mode = "preview", onCon
                     )}
 
                     {mode === "publish" && (
-                        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-white/8 bg-[#101826]/95 px-6 py-4 backdrop-blur sm:px-8 z-50">
+                        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-[var(--border)] bg-[var(--bg-inset)]/95 px-6 py-4 backdrop-blur sm:px-8 z-50">
                             <button
                                 type="button"
                                 onClick={() => setShowPreview(false)}
-                                className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                                className="rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--text)] transition hover:bg-black/[0.04]"
                             >
                                 Back
                             </button>
                             <button
                                 type="button"
                                 onClick={onConfirmPublish}
-                                className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white"
+                                className="rounded-xl bg-[var(--accent)] px-4 py-2 font-medium text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
                             >
                                 Confirm And Publish
                             </button>

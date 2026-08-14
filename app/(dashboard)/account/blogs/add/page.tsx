@@ -592,23 +592,23 @@ const BlogForm = () => {
                 />
             </div>
             {isPopupOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-                    <div className="w-full max-w-md rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-                        <h3 className="text-xl font-semibold text-white">Select Related Blogs</h3>
-                        <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
+                    <div className="w-full max-w-md rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
+                        <h3 className="text-xl font-semibold text-[var(--text-strong)]">Select Related Blogs</h3>
+                        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                             Choose supporting posts that should appear alongside this blog.
                         </p>
-                        <div className="mt-5 max-h-80 space-y-2 overflow-y-auto rounded-[20px] border border-white/8 bg-[#151d2c] p-4">
+                        <div className="mt-5 max-h-80 space-y-2 overflow-y-auto rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
                             {allData.allBlogs.filter(blog => blog.id !== Number(blogId)).map(blog => (
-                                <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.03]">
+                                <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-black/[0.03]">
                                     <input
                                         type="checkbox"
                                         id={`blog-${blog.id}`}
                                         checked={relatedBlogs.includes(blog.id)}
                                         onChange={() => handleBlogSelect(blog.id)}
-                                        className="mt-1 h-4 w-4 accent-[#9ad8de]"
+                                        className="mt-1 h-4 w-4 accent-[#bce2e6]"
                                     />
-                                    <span className="text-sm leading-6 text-[#dbe5f3]">{blog.blog_title}</span>
+                                    <span className="text-sm leading-6 text-[var(--text)]">{blog.blog_title}</span>
                                 </label>
                             ))}
                         </div>
@@ -616,14 +616,14 @@ const BlogForm = () => {
                             <button
                                 type="button"
                                 onClick={() => setIsPopupOpen(false)}
-                                className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                                className="rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--text)] transition hover:bg-black/[0.04]"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setIsPopupOpen(false)}
-                                className="rounded-xl bg-[#eef4ff] px-4 py-2 font-medium text-[#0f1724] transition hover:bg-white"
+                                className="rounded-xl bg-[var(--accent)] px-4 py-2 font-medium text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
                             >
                                 OK
                             </button>

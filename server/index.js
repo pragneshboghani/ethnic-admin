@@ -16,6 +16,9 @@ const publishHistoryRouter = require("./routes/publishHistory");
 const groupRouter = require("./routes/group");
 const blogCommentRouter = require("./routes/blogComment");
 const resourceRouter = require("./routes/resources");
+const projectRouter = require("./routes/projects");
+const socialChannelRouter = require("./routes/socialChannels");
+const socialPostRouter = require("./routes/socialPosts");
 
 const app = express();
 
@@ -47,6 +50,9 @@ app.use("/api/publish_history", publishHistoryRouter);
 app.use("/api/groups", groupRouter);
 app.use("/api/blog-comments", blogCommentRouter);
 app.use("/api/resources", resourceRouter);
+app.use("/api/projects", projectRouter);
+app.use("/api/social-channels", socialChannelRouter);
+app.use("/api/social-posts", socialPostRouter);
 
 app.use((req, res) => {
   return res.status(404).json({

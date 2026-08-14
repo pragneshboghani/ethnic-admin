@@ -185,12 +185,12 @@ const Blogs = () => {
           return (
             <div
               key={card.label}
-              className={`rounded-[24px] border border-white/8 p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)] ${card.cardClassName}`}
+              className={`rounded-[24px] border border-[var(--border)] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.06)] ${card.cardClassName}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className={`text-sm font-medium ${card.labelClassName}`}>{card.label}</p>
-                  <p className="mt-3 text-[34px] font-semibold leading-none tracking-[-0.04em] text-white">
+                  <p className="mt-3 text-[34px] font-semibold leading-none tracking-[-0.04em] text-[var(--text-strong)]">
                     {card.value}
                   </p>
                 </div>
@@ -214,16 +214,16 @@ const Blogs = () => {
 
       <BlogFilters loading={loading} blogs={blogs} draftBlogs={draftBlogs} search={search} setSearch={setSearch} author={author} setAuthor={setAuthor} category={category} setCategory={setCategory} categoryData={categoryData} tags={tags} setTags={setTags} tagData={tagData} platform={platform} setPlatform={setPlatform} platformData={platformData} status={status} setStatus={setStatus} sort={sort} setSort={setSort} />
 
-      <section className="mt-6 overflow-hidden rounded-[24px] border border-white/8 bg-[#151d2c] shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-        <div className="flex flex-col gap-3 border-b border-white/8 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="mt-6 overflow-hidden rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+        <div className="flex flex-col gap-3 border-b border-[var(--border)] px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-[#eef4ff]">All blogs</h2>
-            <p className="mt-1 text-sm text-[#8ea0b8]">
+            <h2 className="text-xl font-semibold text-[var(--text-strong)]">All blogs</h2>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
               Review titles, publishing status, taxonomy, and quick actions in one place.
             </p>
           </div>
 
-          <div className="inline-flex items-center rounded-full border border-[#2f6670]/24 bg-[#2f6670]/14 px-4 py-2 text-sm text-[#b8edf1]">
+          <div className="inline-flex items-center rounded-full border border-[var(--status-green-text)]/24 bg-[#1e8e3e]/14 px-4 py-2 text-sm text-[var(--status-green-text)]">
             Updated from connected data
           </div>
         </div>
@@ -234,19 +234,19 @@ const Blogs = () => {
       </section>
 
       {deleteBlogId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
           <ClickOutside onClickOutside={() => setDeleteBlogId(null)}>
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#101826] p-6 text-center shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-              <h3 className="mb-3 text-lg font-semibold text-white">
+            <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--bg-inset)] p-6 text-center shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
+              <h3 className="mb-3 text-lg font-semibold text-[var(--text-strong)]">
                 Are you sure you want to delete this blog?
               </h3>
-              <p className="text-sm leading-6 text-[#8ea0b8]">
+              <p className="text-sm leading-6 text-[var(--text-muted)]">
                 This will permanently remove the selected blog and its SEO settings.
               </p>
               <div className="mt-6 flex justify-center gap-3">
                 <button
                   onClick={() => setDeleteBlogId(null)}
-                  className="rounded-xl border border-white/10 px-4 py-2 text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                  className="rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--text)] transition hover:bg-black/[0.04]"
                 >
                   Cancel
                 </button>

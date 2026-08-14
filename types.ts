@@ -366,6 +366,7 @@ export type AuthorFormData = {
   description: string;
   members?: number[];
   social_links?: { [key: string]: string };
+  can_access_calendar?: boolean;
 };
 
 export type GroupMember = {
@@ -391,6 +392,7 @@ export type AuthorInitialData = {
   user_groups?: GroupMember[];
   social_links?: { [key: string]: string };
   selected_platforms?: number[] | undefined
+  can_access_calendar?: boolean;
 };
 
 export type AuthorFormProps = {
@@ -558,4 +560,156 @@ export type BlogCommentPopupProps = {
     selectedComment: any | null;
     setSelectedComment: React.Dispatch<React.SetStateAction<any | null>>;
     loadComments: () => Promise<void>;
+}
+
+export type SocialChannel = {
+    id: number;
+    name: string;
+    slug: string;
+    color: string;
+    icon_key: string;
+    char_limit: number | null;
+    sort_order: number;
+    status: "active" | "inactive";
 };
+
+export type ProjectSocialAccount = {
+    id: number;
+    project_id: number;
+    channel_id: number;
+    account_name: string;
+    handle: string | null;
+    profile_url: string | null;
+    status: "active" | "inactive";
+    notes: string | null;
+    channel_name: string | null;
+    channel_slug: string | null;
+    channel_color: string | null;
+    icon_key: string | null;
+    char_limit: number | null;
+};
+
+export type Project = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    color: string;
+    logo_url: string | null;
+    website_url: string | null;
+    status: "active" | "archived";
+    platform_ids: number[];
+    members: number[];
+    created_by: number | null;
+    created_by_name?: string | null;
+    account_count?: number;
+    post_count?: number;
+    accounts?: ProjectSocialAccount[];
+};
+
+export type SocialPostStatus = "idea" | "draft" | "scheduled" | "published" | "archived";
+
+export type SocialPostMedia = {
+    url: string;
+    file_type: "image" | "video";
+    mime_type: string | null;
+};
+
+export type SocialPost = {
+    id: number;
+    project_id: number;
+    title: string;
+    caption: string | null;
+    hashtags: string | null;
+    link_url: string | null;
+    media: SocialPostMedia[];
+    post_type: string | null;
+    account_ids: number[];
+    scheduled_at: string;
+    status: SocialPostStatus;
+    assigned_to: number | null;
+    blog_id: number | null;
+    campaign: string | null;
+    published_at: string | null;
+    live_url: string | null;
+    notes: string | null;
+    project_name?: string | null;
+    project_color?: string | null;
+    assigned_to_name?: string | null;
+    blog_title?: string | null;
+    accounts: ProjectSocialAccount[];
+};
+
+export type SocialCalendarEvent = {
+    source: "social";
+    id: number;
+    title: string;
+    start: string;
+    status: SocialPostStatus;
+    projectId: number;
+    projectName: string | null;
+    projectColor: string | null;
+    accounts: ProjectSocialAccount[];
+    mediaCount: number;
+    assignedToName: string | null;
+    campaign: string | null;
+    editable: true;
+};
+
+export type BlogCalendarEvent = {
+    source: "blog";
+    id: number;
+    title: string;
+    start: string;
+    status: "publish" | "future";
+    platformNames: string[];
+    editable: false;
+};
+
+export type CalendarEvent = SocialCalendarEvent | BlogCalendarEvent;
+
+export type CalendarFilterState = {
+    projectId: number | null;
+    status: SocialPostStatus | "all";
+    accountId: number | null;
+    includeBlogs: boolean;
+};
+
+export type SocialPostPayload = {
+    project_id: number;
+    title: string;
+    caption?: string | null;
+    hashtags?: string | null;
+    link_url?: string | null;
+    media?: SocialPostMedia[];
+    post_type?: string | null;
+    account_ids?: number[];
+    scheduled_at: string;
+    status?: SocialPostStatus;
+    assigned_to?: number | null;
+    blog_id?: number | null;
+    campaign?: string | null;
+    notes?: string | null;
+    live_url?: string | null;
+};
+
+export type ProjectPayload = {
+    name: string;
+    description?: string | null;
+    color?: string;
+    logo_url?: string | null;
+    website_url?: string | null;
+    status?: "active" | "archived";
+    platform_ids?: number[];
+    members?: number[];
+};
+
+export type SocialAccountPayload = {
+    project_id?: number;
+    channel_id: number;
+    account_name: string;
+    handle?: string | null;
+    profile_url?: string | null;
+    status?: "active" | "inactive";
+    notes?: string | null;
+};;

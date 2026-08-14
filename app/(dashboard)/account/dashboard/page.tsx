@@ -26,31 +26,31 @@ const taskNotes = [
   "Review channel setup",
 ];
 
-const taskColors = ["bg-[#ff824d]", "bg-[#7a3f94]", "bg-[#9ad8de]"];
+const taskColors = ["bg-[var(--status-amber-bg)]", "bg-[var(--status-purple-bg)]", "bg-[var(--accent)]"];
 const cardColors = [
   {
-    card: "bg-[#5d366f]",
-    text: "text-white",
-    subtext: "text-white/72",
-    chip: "bg-[#1b1326] text-white",
-    progress: "bg-white/15",
-    fill: "bg-white",
+    card: "bg-[var(--status-purple-bg)]",
+    text: "text-[var(--text-strong)]",
+    subtext: "text-[var(--text-muted)]",
+    chip: "bg-[var(--bg-surface)] text-[var(--status-purple-text)]",
+    progress: "bg-black/[0.06]",
+    fill: "bg-[#a142f4]",
   },
   {
-    card: "bg-[#2f6670]",
-    text: "text-white",
-    subtext: "text-white/72",
-    chip: "bg-[#10242c] text-white",
-    progress: "bg-white/15",
-    fill: "bg-white",
+    card: "bg-[var(--status-green-bg)]",
+    text: "text-[var(--text-strong)]",
+    subtext: "text-[var(--text-muted)]",
+    chip: "bg-[var(--bg-surface)] text-[var(--status-green-text)]",
+    progress: "bg-black/[0.06]",
+    fill: "bg-[#1e8e3e]",
   },
   {
-    card: "bg-[#b8664b]",
-    text: "text-white",
-    subtext: "text-white/72",
-    chip: "bg-[#261821] text-white",
-    progress: "bg-white/15",
-    fill: "bg-white",
+    card: "bg-[var(--status-amber-bg)]",
+    text: "text-[var(--text-strong)]",
+    subtext: "text-[var(--text-muted)]",
+    chip: "bg-[var(--bg-surface)] text-[var(--status-amber-text)]",
+    progress: "bg-black/[0.06]",
+    fill: "bg-[#f9ab00]",
   },
 ];
 
@@ -428,10 +428,10 @@ const Dashboard = () => {
         <div className="space-y-10">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between flex-wrap">
             <div>
-              <h1 className="text-[38px] font-semibold leading-none tracking-[-0.04em] text-[#eef4ff]">
+              <h1 className="text-[38px] font-semibold leading-none tracking-[-0.04em] text-[var(--text-strong)]">
                 Hello, Team
               </h1>
-              <p className="mt-3 text-sm font-normal text-[#8ea0b8]">
+              <p className="mt-3 text-sm font-normal text-[var(--text-muted)]">
                 Today is {todayText}
               </p>
             </div>
@@ -442,15 +442,15 @@ const Dashboard = () => {
                   }`}
               >
                 {isSearchOpen ? (
-                  <div className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-[#151d2c] px-4 text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)] xs:max-w-[58vw]">
-                    <Search size={18} className="shrink-0 text-[#8ea0b8]" />
+                  <div className="flex h-12 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[#254674] shadow-[0_1px_2px_rgba(15,23,42,0.08)] xs:max-w-[58vw]">
+                    <Search size={18} className="shrink-0 text-[var(--text-muted)]" />
                     <input
                       ref={searchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       placeholder="Search blogs, status, or platforms..."
-                      className="h-full min-w-0 flex-1 bg-transparent text-sm text-[#eef4ff] placeholder:text-[#6f8096] focus:outline-none"
+                      className="h-full min-w-0 flex-1 bg-transparent text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:outline-none"
                     />
                     <button
                       type="button"
@@ -458,7 +458,7 @@ const Dashboard = () => {
                         setSearchQuery("");
                         setIsSearchOpen(false);
                       }}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#8ea0b8] transition hover:bg-white/[0.04] hover:text-[#eef4ff]"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition hover:bg-black/[0.04] hover:text-[var(--text-strong)]"
                       aria-label="Close dashboard search"
                     >
                       <X size={16} />
@@ -468,7 +468,7 @@ const Dashboard = () => {
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(true)}
-                    className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-[#151d2c] text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)] transition hover:border-[#31425e] hover:bg-[#182438]"
+                    className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] text-[#254674] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)]"
                     aria-label="Open dashboard search"
                   >
                     <Search size={18} />
@@ -478,7 +478,7 @@ const Dashboard = () => {
 
               <Link
                 href="/account/blogs/add"
-                className="inline-flex items-center justify-center rounded-xl border border-white/8 bg-[#1c2636] px-7 py-3.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(0,0,0,0.28)] transition hover:bg-[#243247] text-nowrap w-full sm:w-fit xs:max-w-[160px]"
+                className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-selected)] px-7 py-3.5 text-sm font-medium text-[var(--text-strong)] shadow-[0_14px_28px_rgba(0,0,0,0.28)] transition hover:bg-[var(--bg-selected)] text-nowrap w-full sm:w-fit xs:max-w-[160px]"
               >
                 Add New Blog
               </Link>
@@ -486,12 +486,12 @@ const Dashboard = () => {
           </div>
 
           {normalizedSearchQuery && (
-            <div className="mt-2 flex flex-wrap items-center gap-3 rounded-[18px] border border-white/8 bg-[#151d2c] px-4 py-3 text-sm text-[#8ea0b8] shadow-[0_12px_26px_rgba(0,0,0,0.18)]">
-              <span className="inline-flex items-center rounded-full border border-[#2f6670]/35 bg-[#17303a] px-3 py-1 text-xs font-medium text-[#9ad8de]">
+            <div className="mt-2 flex flex-wrap items-center gap-3 rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-muted)] shadow-[0_12px_26px_rgba(0,0,0,0.18)]">
+              <span className="inline-flex items-center rounded-full border border-[var(--status-green-text)]/35 bg-[#e9f3f6] px-3 py-1 text-xs font-medium text-[var(--accent)]">
                 Dashboard search
               </span>
               <span>
-                Showing results for <span className="font-medium text-[#eef4ff]">"{searchQuery}"</span>
+                Showing results for <span className="font-medium text-[var(--text-strong)]">"{searchQuery}"</span>
               </span>
             </div>
           )}
@@ -506,11 +506,11 @@ const Dashboard = () => {
               return (
                 <div
                   key={item.title}
-                  className={`rounded-3xl border border-white/8 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.28)] ${theme.card} ${theme.text}`}
+                  className={`rounded-3xl border border-[var(--border)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] ${theme.card} ${theme.text}`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex -space-x-2">
-                      <span className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 text-sm font-semibold ${theme.chip}`}>
+                      <span className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--border-strong)] text-sm font-semibold ${theme.chip}`}>
                         +{remainingBlogCount}
                       </span>
 
@@ -523,7 +523,7 @@ const Dashboard = () => {
                               key={blog.id}
                               src={imageSrc}
                               alt={blog.blog_title}
-                              className="h-10 w-10 rounded-full border-2 border-white/80 object-cover"
+                              className="h-10 w-10 rounded-full border-2 border-[var(--border-strong)] object-cover"
                             />
                           );
                         }
@@ -531,7 +531,7 @@ const Dashboard = () => {
                         return (
                           <span
                             key={blog.id}
-                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#dce5f3] text-xs font-semibold text-[#22324b]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--border-strong)] bg-[var(--bg-selected)] text-xs font-semibold text-[#2a456f]"
                             title={blog.blog_title}
                           >
                             {getInitials(blog.author || blog.blog_title)}
@@ -541,10 +541,10 @@ const Dashboard = () => {
 
                       {visibleBlogs.length === 0 && (
                         <>
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#f8d2bb] text-xs font-semibold text-[#4f2a17]">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--border-strong)] bg-[var(--status-amber-bg)] text-xs font-semibold text-[#763f23]">
                             NA
                           </span>
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 bg-[#dce5f3] text-xs font-semibold text-[#22324b]">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--border-strong)] bg-[var(--bg-selected)] text-xs font-semibold text-[#2a456f]">
                             BL
                           </span>
                         </>
@@ -581,8 +581,8 @@ const Dashboard = () => {
             <div className="rounded-[24px] px-5 pb-5 xl:px-6">
               <div className="mb-4 flex sm:items-center flex-col sm:flex-row justify-between gap-3">
                 <div>
-                  <p className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">Platforms</p>
-                  <p className="mt-1 text-sm text-[#8ea0b8]">Connected destinations</p>
+                  <p className="text-[30px] font-semibold tracking-[-0.04em] text-[var(--text-strong)]">Platforms</p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)]">Connected destinations</p>
                 </div>
 
                 <button
@@ -590,15 +590,15 @@ const Dashboard = () => {
                     setEditingPlatform(null);
                     setOpenModal(true);
                   }}
-                  className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#182235] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#22314a]"
+                  className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-selected)] px-5 py-3 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--bg-selected)]"
                 >
                   <Plus size={16} /> Add Platform
                 </button>
               </div>
 
-              <div className="space-y-4 border border-white/8 bg-[#151d2c] p-5 rounded-[12px] md:rounded-[15px] lg:rounded-[18px]">
+              <div className="space-y-4 border border-[var(--border)] bg-[var(--bg-surface)] p-5 rounded-[12px] md:rounded-[15px] lg:rounded-[18px]">
                 {filteredPlatforms.length === 0 ? (
-                  <p className="text-sm text-[#8ea0b8]">
+                  <p className="text-sm text-[var(--text-muted)]">
                     {normalizedSearchQuery
                       ? "No platforms match your current dashboard search."
                       : "No active platforms yet."}
@@ -609,8 +609,8 @@ const Dashboard = () => {
                       <div className="flex items-center gap-3">
                         <span className={`h-10 w-1 rounded-full ${taskColors[index % taskColors.length]}`} />
                         <div className="min-w-0">
-                          <p className="truncate text-sm text-[#8ea0b8]">{platform.platform_name}</p>
-                          <p className="mt-1 text-[15px] font-medium text-[#eef4ff]">
+                          <p className="truncate text-sm text-[var(--text-muted)]">{platform.platform_name}</p>
+                          <p className="mt-1 text-[15px] font-medium text-[var(--text-strong)]">
                             Live connection
                           </p>
                         </div>
@@ -620,7 +620,7 @@ const Dashboard = () => {
                         href={platform.website_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-[#9ad8de] transition hover:text-[#c2edf0]"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] transition hover:text-[var(--status-green-text)]"
                       >
                         Visit
                         <ExternalLink size={14} />
@@ -632,7 +632,7 @@ const Dashboard = () => {
             </div>
 
             <div>
-              <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">
+              <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[var(--text-strong)]">
                 Statistics
               </h3>
 
@@ -641,43 +641,43 @@ const Dashboard = () => {
                   <div
                     key={box.label}
                     className={`rounded-[20px] px-5 py-6 ${box.dashed
-                      ? "border border-dashed border-white/14 bg-transparent"
-                      : "border border-white/8 bg-[#151d2c]"
+                      ? "border border-dashed border-[var(--border)] bg-transparent"
+                      : "border border-[var(--border)] bg-[var(--bg-surface)]"
                       }`}
                   >
-                    <p className="text-[20px] font-semibold text-[#eef4ff]">
+                    <p className="text-[20px] font-semibold text-[var(--text-strong)]">
                       {box.value}
                     </p>
-                    <p className="mt-4 text-sm leading-6 text-[#8ea0b8]">{box.label}</p>
+                    <p className="mt-4 text-sm leading-6 text-[var(--text-muted)]">{box.label}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 overflow-hidden rounded-[28px] border border-white/8 bg-[#151d2c] shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-                <div className="relative min-h-[220px] overflow-hidden bg-[radial-gradient(circle_at_20%_28%,rgba(255,190,130,0.12),transparent_24%),linear-gradient(180deg,#141e2d_0%,#101827_100%)]">
-                  <div className="absolute bottom-[-18px] left-8 h-24 w-24 rounded-full bg-[#9ad8de]/45" />
-                  <div className="absolute bottom-12 left-20 h-32 w-28 rounded-[30px] bg-[#ff8c63]/75" />
-                  <div className="absolute bottom-0 right-10 h-40 w-24 rounded-t-[28px] bg-[#7a428f]/85" />
-                  <div className="absolute bottom-6 right-24 h-24 w-20 rounded-[22px] bg-[#f9c36b]/75" />
-                  <div className="absolute right-4 top-8 h-16 w-16 rounded-full bg-[#fce2c4]/35" />
-                  <div className="absolute left-10 top-10 h-14 w-14 rounded-full bg-[#c3ebee]/35" />
+              <div className="mt-5 overflow-hidden rounded-[28px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                <div className="relative min-h-[220px] overflow-hidden bg-[radial-gradient(circle_at_20%_28%,rgba(26,115,232,0.08),transparent_24%),linear-gradient(180deg,var(--bg-surface-alt)_0%,var(--bg-page)_100%)]">
+                  <div className="absolute bottom-[-18px] left-8 h-24 w-24 rounded-full bg-[var(--accent)]/35" />
+                  <div className="absolute bottom-12 left-20 h-32 w-28 rounded-[30px] bg-[#f9ab00]/45" />
+                  <div className="absolute bottom-0 right-10 h-40 w-24 rounded-t-[28px] bg-[#a142f4]/55" />
+                  <div className="absolute bottom-6 right-24 h-24 w-20 rounded-[22px] bg-[#e37400]/45" />
+                  <div className="absolute right-4 top-8 h-16 w-16 rounded-full bg-[#00838f]/30" />
+                  <div className="absolute left-10 top-10 h-14 w-14 rounded-full bg-[#1e8e3e]/25" />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <aside className="rounded-[32px] border border-white/8 bg-[#111927] px-7 py-7 shadow-[0_18px_40px_rgba(0,0,0,0.28)] xl:px-8 xl:py-8">
+        <aside className="rounded-[32px] border border-[var(--border)] bg-[var(--bg-selected)] px-7 py-7 shadow-[0_1px_2px_rgba(15,23,42,0.06)] xl:px-8 xl:py-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[#eef4ff]">
+              <h3 className="text-[30px] font-semibold tracking-[-0.04em] text-[var(--text-strong)]">
                 Calendar
               </h3>
             </div>
 
             <button
               type="button"
-              className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#151d2c] text-[#dce6f4] shadow-[0_12px_26px_rgba(0,0,0,0.24)]"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] text-[#254674] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
             >
               <Bell size={16} />
             </button>
@@ -687,7 +687,7 @@ const Dashboard = () => {
             {scheduleGroups.map((group, groupIndex) => (
               <div key={group.dateLabel} className="relative">
                 <div className="mb-6 flex items-center justify-between gap-3">
-                  <p className="text-sm text-[#8ea0b8]">{group.dateLabel}</p>
+                  <p className="text-sm text-[var(--text-muted)]">{group.dateLabel}</p>
                   <div className="relative" data-schedule-menu>
                     <button
                       type="button"
@@ -696,18 +696,18 @@ const Dashboard = () => {
                           prev === group.dateLabel ? null : group.dateLabel,
                         )
                       }
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/8 bg-[#151d2c] text-[#7f90a8] transition hover:border-[#31425e] hover:bg-[#182438] hover:text-[#dbe5f3]"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-subtle)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)] hover:text-[var(--text)]"
                       aria-label={`Open actions for ${group.dateLabel}`}
                     >
                       <MoreVertical size={16} />
                     </button>
 
                     {openScheduleMenu === group.dateLabel && (
-                      <div className="absolute right-0 top-11 z-30 w-44 rounded-[18px] border border-white/10 bg-[#151d2c] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.34)]">
+                      <div className="absolute right-0 top-11 z-30 w-44 rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.34)]">
                         <button
                           type="button"
                           onClick={() => toggleGroupCollapse(group.dateLabel)}
-                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[#dbe5f3] transition hover:bg-white/[0.04]"
+                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[var(--text)] transition hover:bg-black/[0.04]"
                         >
                           {collapsedScheduleGroups.includes(group.dateLabel)
                             ? "Expand day"
@@ -719,7 +719,7 @@ const Dashboard = () => {
                             setOpenScheduleMenu(null);
                             router.push("/account/blogs");
                           }}
-                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[#dbe5f3] transition hover:bg-white/[0.04]"
+                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[var(--text)] transition hover:bg-black/[0.04]"
                         >
                           Open blog list
                         </button>
@@ -729,7 +729,7 @@ const Dashboard = () => {
                             setOpenScheduleMenu(null);
                             router.push("/account/blogs/add");
                           }}
-                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[#9ad8de] transition hover:bg-white/[0.04]"
+                          className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-[var(--accent)] transition hover:bg-black/[0.04]"
                         >
                           Create blog
                         </button>
@@ -739,7 +739,7 @@ const Dashboard = () => {
                 </div>
 
                 {collapsedScheduleGroups.includes(group.dateLabel) ? (
-                  <div className="rounded-[18px] border border-white/8 bg-[#151d2c] px-4 py-3 text-sm text-[#8ea0b8]">
+                  <div className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-muted)]">
                     {group.items.length} item{group.items.length === 1 ? "" : "s"} hidden for this day.
                   </div>
                 ) : (
@@ -753,10 +753,10 @@ const Dashboard = () => {
                           className={`mt-1 h-11 w-1.5 shrink-0 rounded-full ${taskColors[(groupIndex + itemIndex) % taskColors.length]}`}
                         />
                         <div className="min-w-0 flex-1 overflow-hidden">
-                          <p className="block truncate pr-2 text-[15px] leading-6 text-[#8ea0b8]">
+                          <p className="block truncate pr-2 text-[15px] leading-6 text-[var(--text-muted)]">
                             {item.blog_title}
                           </p>
-                          <p className="mt-1 text-[15px] font-medium leading-6 text-[#eef4ff]">
+                          <p className="mt-1 text-[15px] font-medium leading-6 text-[var(--text-strong)]">
                             {item.statusLabel}
                           </p>
                         </div>
@@ -768,7 +768,7 @@ const Dashboard = () => {
             ))}
 
             {scheduleGroups.length === 0 && (
-              <div className="rounded-[22px] border border-white/8 bg-[#151d2c] px-5 py-5 text-sm text-[#8ea0b8]">
+              <div className="rounded-[22px] border border-[var(--border)] bg-[var(--bg-surface)] px-5 py-5 text-sm text-[var(--text-muted)]">
                 {normalizedSearchQuery
                   ? "No calendar entries match your current dashboard search."
                   : "No blogs with a publish date are available yet."}

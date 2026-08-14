@@ -38,13 +38,13 @@ const allowedRolesByUserRole = {
 userRouter.get("/all-author", authMiddleware, async (req, res) => {
   try {
     const [rows] = await mysqlpool.query(
-      "SELECT id, name, email, role, img_url, description FROM users",
+      "SELECT id, name, email, role, img_url, description, can_access_calendar FROM users",
     );
 
     res.status(200).send({
       success: true,
       totalUsers: rows.length,
-      data: rows,
+      data: rows.map((row) => ({ ...row, can_access_calendar: Boolean(row.can_access_calendar) })),
     });
   } catch (error) {
     res.status(500).send({
@@ -65,7 +65,8 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
       description,
       admin_id,
       social_links,
-      selectedPlatforms
+      selectedPlatforms,
+      can_access_calendar,
     } = req.body;
 
     if (!canManageAllUsers(req.user)) {
@@ -131,8 +132,8 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
     }
 
     const [result] = await mysqlpool.query(
-      "INSERT INTO users (name,email,password,role,img_url,description,platform_userId, selected_platforms, social_links) VALUES (?,?,?,?,?,?,?,?,?)",
-      [name, email, hashedPassword, role, profile_image, description || "", JSON.stringify(platFormUserIds), JSON.stringify(selectedPlatforms), JSON.stringify(social_links)],
+      "INSERT INTO users (name,email,password,role,img_url,description,platform_userId, selected_platforms, social_links, can_access_calendar) VALUES (?,?,?,?,?,?,?,?,?,?)",
+      [name, email, hashedPassword, role, profile_image, description || "", JSON.stringify(platFormUserIds), JSON.stringify(selectedPlatforms), JSON.stringify(social_links), can_access_calendar === undefined ? 1 : (can_access_calendar ? 1 : 0)],
     );
 
     const userId = result.insertId;
@@ -150,7 +151,14 @@ userRouter.post("/create", authMiddleware, async (req, res) => {
         [admin_id],
       );
 
-      const members = row.members;
+      if (!row) {
+        return res.status(400).send({
+          success: false,
+          message: "The selected admin does not have a group to assign this user to",
+        });
+      }
+
+      const members = row.members || [];
       members.push(userId);
 
       const update = await mysqlpool.query(
@@ -228,7 +236,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
     }
 
     const [[user]] = await mysqlpool.query(
-      `SELECT u.id, u.name, u.email, u.role, u.img_url AS profile_image,u.social_links, u.selected_platforms, MAX(ag.created_by) AS admin_id, u.description,
+      `SELECT u.id, u.name, u.email, u.role, u.can_access_calendar, u.img_url AS profile_image,u.social_links, u.selected_platforms, MAX(ag.created_by) AS admin_id, u.description,
 
       JSON_ARRAYAGG(
         JSON_OBJECT(
@@ -280,7 +288,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 
     res.status(200).send({
       success: true,
-      data: user,
+      data: { ...user, can_access_calendar: Boolean(user.can_access_calendar) },
     });
   } catch (error) {
     res.status(500).send({
@@ -293,7 +301,7 @@ userRouter.get("/author/:authorId", authMiddleware, async (req, res) => {
 userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, email, password, role, profile_image, description, members, selectedPlatforms, social_links } = req.body;
+    const { name, email, password, role, profile_image, description, members, selectedPlatforms, social_links, can_access_calendar } = req.body;
 
     if (!name || !email || !role) {
       return res.status(400).send({
@@ -360,6 +368,11 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
       JSON.stringify(social_links || {}),
     ];
 
+    if (canManageAllUsers(req.user) && can_access_calendar !== undefined) {
+      fields.push("can_access_calendar=?");
+      values.push(can_access_calendar ? 1 : 0);
+    }
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       fields.push("password=?");
@@ -376,18 +389,15 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
       }),
     );
 
+    // A platform sync failure (e.g. a remote WordPress username collision)
+    // must not block saving local-only fields like role or calendar access —
+    // those have nothing to do with the remote site. Failed platforms are
+    // reported back as a warning instead of aborting the whole update.
     const failedPlatforms = results.filter((item) => !item.success);
-
-    if (failedPlatforms.length > 0) {
-      return res.status(400).send({
-        success: false,
-        message: failedPlatforms.map((item) => item.message).join(", "),
-        errors: failedPlatforms,
-      });
-    }
+    const succeededPlatforms = results.filter((item) => item.success);
 
     const platFormUserIds = []
-    for (const result of results) {
+    for (const result of succeededPlatforms) {
       const res = {
         platform_id: result.platform_id,
         user_id: result.data.id
@@ -430,7 +440,11 @@ userRouter.put("/update/:userId", authMiddleware, async (req, res) => {
 
     res.status(200).send({
       success: true,
-      message: "Author updated successfully",
+      message:
+        failedPlatforms.length > 0
+          ? `Author updated, but platform sync failed — ${failedPlatforms.map((item) => item.message).join("; ")}`
+          : "Author updated successfully",
+      platformWarnings: failedPlatforms.length > 0 ? failedPlatforms : undefined,
     });
   } catch (error) {
     res.status(500).send({
@@ -559,6 +573,7 @@ userRouter.post("/login", async (req, res) => {
       role: user.role,
       id: user.id,
       name: user.name,
+      can_access_calendar: Boolean(user.can_access_calendar),
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN },

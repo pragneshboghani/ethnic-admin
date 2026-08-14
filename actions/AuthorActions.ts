@@ -8,6 +8,7 @@ export interface CustomJwtPayload extends JwtPayload {
   id?: number;
   email?: string;
   name?: string;
+  can_access_calendar?: boolean;
 }
 
 type AuthorPayload = {
@@ -17,6 +18,7 @@ type AuthorPayload = {
   role: string;
   profile_image: string;
   description: string;
+  can_access_calendar?: boolean;
 };
 
 const AuthorActions = {
@@ -32,9 +34,24 @@ const AuthorActions = {
     const token = UserActions.getToken();
     if (token) {
       const user = jwtDecode<CustomJwtPayload>(token);
-      return { role: user?.role, id: user?.id, email: user?.email, name: user?.name };
+      return {
+        role: user?.role,
+        id: user?.id,
+        email: user?.email,
+        name: user?.name,
+        can_access_calendar: user?.can_access_calendar,
+      };
     }
     return null
+  },
+  // Admins/super_admins always have calendar access — they're the ones
+  // granting or revoking it for everyone else via the author form toggle.
+  canAccessCalendar: () => {
+    const token = UserActions.getToken();
+    if (!token) return false;
+
+    const user = jwtDecode<CustomJwtPayload>(token);
+    return user?.role === "super_admin" || user?.role === "admin" || user?.can_access_calendar === true;
   },
   getAllAuthors: async () => {
     const token = UserActions.getToken();

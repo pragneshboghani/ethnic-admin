@@ -6,7 +6,7 @@ import BlogCommentAction from '@/actions/BlogCommentAction';
 import { toast } from 'react-toastify';
 import { BlogCommentPopupProps } from '@/types';
 
-const cardClass = "rounded-[20px] border border-white/10 bg-[#101826] p-4";
+const cardClass = "rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4";
 const platformBadgeClass = "inline-block rounded-full bg-blue-500/20 px-3 py-1 text-[11px] uppercase font-medium text-blue-300 border border-blue-500/10";
 
 const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadComments }: BlogCommentPopupProps) => {
@@ -85,19 +85,19 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
     {
         label: "Reject",
         onClick: () => void handleUpdateStatus("rejected"),
-        className: "rounded-xl border border-white/10 bg-[#0f1724] px-4 py-2 text-sm text-[#dbe5f3] transition hover:bg-white/[0.06]",
+        className: "rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-2 text-sm text-[var(--text)] transition hover:bg-black/[0.04]",
     }]
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-            <div className="w-full max-w-3xl rounded-[24px] border border-white/10 bg-[#101826] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.38)] max-h-[95vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
+            <div className="w-full max-w-3xl rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_10px_28px_rgba(15,23,42,0.10)] max-h-[95vh] overflow-y-auto">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h4 className="text-xl font-semibold text-[#eef4ff]">
+                        <h4 className="text-xl font-semibold text-[var(--text-strong)]">
                             Comment Details
                         </h4>
 
-                        <p className="mt-1 text-sm text-[#8ea0b8]">
+                        <p className="mt-1 text-sm text-[var(--text-muted)]">
                             Approve, reject, or reply to this comment directly from the blog editor.
                         </p>
                     </div>
@@ -108,7 +108,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
                 </div>
 
                 {selectedComment.blog_title &&
-                    <p className="mt-2 text-xl font-semibold text-[#eef4ff]">
+                    <p className="mt-2 text-xl font-semibold text-[var(--text-strong)]">
                         Blog : {selectedComment.blog_title}
                     </p>
                 }
@@ -127,26 +127,26 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
 
                         <div className={cardClass}>
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-sm font-semibold text-[#eef4ff]">
+                                <p className="text-sm font-semibold text-[var(--text-strong)]">
                                     {selectedComment.commentor_name || "Anonymous"}
                                 </p>
 
-                                <p className="text-sm text-[#8ea0b8]">
+                                <p className="text-sm text-[var(--text-muted)]">
                                     {selectedComment.commentor_email || "No email provided"}
                                 </p>
                             </div>
 
-                            <p className="mt-3 text-sm leading-7 text-[#dbe5f3]">
+                            <p className="mt-3 text-sm leading-7 text-[var(--text)]">
                                 {selectedComment.comment || "No comment text available."}
                             </p>
-                            <p className="mt-3 text-sm text-[#8ea0b8]">
+                            <p className="mt-3 text-sm text-[var(--text-muted)]">
                                 {formatDateTime(selectedComment.created_at || selectedComment.updated_at || "Unknown")}
                             </p>
 
                         </div>
 
                         <div>
-                            <textarea value={replyText} rows={4} className="w-full rounded-[18px] border border-white/10 bg-[#0f1724] px-4 py-3 text-sm text-[#dbe5f3] placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none" placeholder="Write a reply to the comment..." onChange={(e) => setReplyText(e.target.value)} />
+                            <textarea value={replyText} rows={4} className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none" placeholder="Write a reply to the comment..." onChange={(e) => setReplyText(e.target.value)} />
                             <button onClick={() => void handleSaveReply()} disabled={actionLoading || !replyText || replyText.trim() == ''} className={`btn !shadow-none disabled:cursor-not-allowed disabled:opacity-50`}>
                                 Save Reply
                             </button>
@@ -157,14 +157,14 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
                     <div className="space-y-4">
                         {selectedComment.replies && selectedComment.replies.length > 0 && (
                             <div className={cardClass}>
-                                <p className="text-sm font-semibold text-[#eef4ff]">
+                                <p className="text-sm font-semibold text-[var(--text-strong)]">
                                     Comment Replies
                                 </p>
 
-                                <div className="mt-4 space-y-3 text-sm text-[#8ea0b8]">
+                                <div className="mt-4 space-y-3 text-sm text-[var(--text-muted)]">
                                     {selectedComment.updated_by && (
                                         <p>
-                                            <span className="font-medium text-[#eef4ff] mb-3">
+                                            <span className="font-medium text-[var(--text-strong)] mb-3">
                                                 Status change by {selectedComment.status_updated_by.name || "Admin"}
                                             </span>
                                         </p>
@@ -172,7 +172,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
                                     {selectedComment.replies.map((reply: any, index: number) => {
                                         return (
                                             <p key={index}>
-                                                <span className="font-medium text-[#eef4ff]">
+                                                <span className="font-medium text-[var(--text-strong)]">
                                                     {reply.adminData?.name || "Admin"}:
                                                 </span>{" "}
                                                 {reply.admin_reply}
@@ -183,7 +183,7 @@ const BlogCommentPopup = ({ onClose, selectedComment, setSelectedComment, loadCo
                             </div>
                         )}
                         <div className={cardClass}>
-                            <p className="text-sm font-semibold text-[#eef4ff]">
+                            <p className="text-sm font-semibold text-[var(--text-strong)]">
                                 Actions
                             </p>
 

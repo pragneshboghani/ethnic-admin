@@ -5,20 +5,20 @@ import { Search, SlidersHorizontal } from "lucide-react";
 
 const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, setAuthor, category, setCategory, categoryData, tags, setTags, tagData, platform, setPlatform, platformData, status, setStatus, sort, setSort, }: BlogFiltersProps) => {
     return (
-        <section className="mt-6 rounded-[24px] border border-white/8 bg-[#151d2c] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+        <section className="mt-6 rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-[#7a428f]/24 bg-[#7a428f]/14 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#e2c6ff]">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[var(--status-purple-text)]/24 bg-[#a142f4]/14 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--status-purple-text)]">
                         <SlidersHorizontal size={14} />
                         Filters
                     </div>
-                    <h2 className="mt-4 text-xl font-semibold text-[#eef4ff]">Refine blog results</h2>
-                    <p className="mt-1 text-sm text-[#8ea0b8]">
+                    <h2 className="mt-4 text-xl font-semibold text-[var(--text-strong)]">Refine blog results</h2>
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Search by title, author, taxonomy, platform, or publish state.
                     </p>
                 </div>
 
-                <div className="inline-flex items-center rounded-full border border-[#354b73]/24 bg-[#354b73]/14 px-4 py-2 text-sm text-[#c8daf9]">
+                <div className="inline-flex items-center rounded-full border border-[var(--accent)]/24 bg-[var(--accent)]/14 px-4 py-2 text-sm text-[var(--accent-text)]">
                     {loading
                         ? "Refreshing results..."
                         : `${blogs.length} result${blogs.length === 1 ? "" : "s"} • ${draftBlogs} draft${draftBlogs === 1 ? "" : "s"}`}
@@ -29,12 +29,12 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                 <div className="relative">
                     <Search
                         size={18}
-                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#60738e]"
+                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"
                     />
                     <input
                         type="text"
                         placeholder="Search blogs..."
-                        className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] pl-11 pr-4 text-sm text-white placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
+                        className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] pl-11 pr-4 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -43,13 +43,13 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                 <input
                     type="text"
                     placeholder="Author"
-                    className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white placeholder:text-[#6f8096] focus:border-[#31425e] focus:outline-none"
+                    className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus:outline-none"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                 />
 
                 <select
-                    className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+                    className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                 >
@@ -62,7 +62,7 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                 </select>
 
                 <select
-                    className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+                    className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
                 >
@@ -76,7 +76,7 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
 
                 {platformData?.totalPlatforms > 0 && (
                     <select
-                        className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+                        className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                         value={platform}
                         onChange={(e) => setPlatform(e.target.value)}
                     >
@@ -90,7 +90,7 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                 )}
 
                 <select
-                    className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+                    className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                 >
@@ -101,7 +101,7 @@ const BlogFilters = ({ loading, blogs, draftBlogs, search, setSearch, author, se
                 </select>
 
                 <select
-                    className="h-12 w-full rounded-xl border border-white/8 bg-[#101826] px-4 text-sm text-white focus:border-[#31425e] focus:outline-none"
+                    className="h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] px-4 text-sm text-[var(--text-strong)] focus:border-[var(--accent)] focus:outline-none"
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
                 >

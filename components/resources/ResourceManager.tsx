@@ -35,21 +35,21 @@ import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const inputClassName =
-  "w-full rounded-2xl border border-[#d7dde7] bg-white px-4 py-3 text-sm text-[#202124] placeholder:text-[#6b7280] transition focus:border-[#1a73e8] focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10";
+  "w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-subtle)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/10";
 
 const textareaClassName = `${inputClassName} min-h-[120px] resize-y`;
 
 const labelClassName =
-  "text-[11px] font-medium uppercase tracking-[0.22em] text-[#6b7280]";
+  "text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]";
 
 const sectionTitleClassName =
-  "text-[11px] font-medium uppercase tracking-[0.26em] text-[#6b7280]";
+  "text-[11px] font-medium uppercase tracking-[0.26em] text-[var(--text-subtle)]";
 
 const panelClassName =
-  "rounded-[26px] bg-white px-6 py-6 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.04)]";
+  "rounded-[26px] bg-[var(--bg-surface)] px-6 py-6 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.04)]";
 
 const toolbarInputClassName =
-  "w-full rounded-full border border-[#d7dde7] bg-white px-4 py-3 text-sm text-[#202124] placeholder:text-[#6b7280] transition focus:border-[#1a73e8] focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10";
+  "w-full rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-subtle)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/10";
 
 const imageExtensions = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 const EMPTY_GROUPS: ResourceGroup[] = [];
@@ -115,7 +115,7 @@ const getInlinePreviewUrl = (fileId: number) =>
   `${getFileViewUrl(fileId)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
 
 const tilePdfPreviewClassName =
-  "pointer-events-none absolute left-0 top-0 h-[170%] w-[170%] origin-top-left scale-[0.59] border-0 bg-white";
+  "pointer-events-none absolute left-0 top-0 h-[170%] w-[170%] origin-top-left scale-[0.59] border-0 bg-[var(--bg-surface)]";
 
 const getNextUntitledFolderName = (groups: ResourceGroup[]) => {
   const existingNames = new Set(groups.map((group) => group.name.toLowerCase()));
@@ -708,7 +708,7 @@ const ResourceManager = () => {
   };
 
   return (
-    <div className="-mx-5 -mb-6 min-h-[calc(100vh-210px)] bg-[#f7f9fc] px-5 pb-10 pt-3 text-[#202124] sm:-mx-7 sm:px-7 lg:-mx-10 lg:-mb-8 lg:px-10">
+    <div className="-mx-5 -mb-6 min-h-[calc(100vh-210px)] bg-[var(--bg-surface-alt)] px-5 pb-10 pt-3 text-[var(--text-strong)] sm:-mx-7 sm:px-7 lg:-mx-10 lg:-mb-8 lg:px-10">
       <div className="space-y-8">
         <section className="space-y-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -720,26 +720,26 @@ const ResourceManager = () => {
                   <button
                     type="button"
                     onClick={handleBackToFolders}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#202124] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-[#eef4ff]"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--bg-surface)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-[var(--accent)]"
                   >
                     <ArrowLeft size={18} />
                   </button>
 
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[#1a73e8]">
+                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--bg-selected)] text-[var(--accent)]">
                         <FolderOpen size={24} />
                       </span>
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6b7280]">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                           Open Folder
                         </p>
-                        <h2 className="text-2xl font-semibold text-[#202124]">
+                        <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
                           {openFolder.name}
                         </h2>
                       </div>
                     </div>
-                    <p className="mt-3 max-w-3xl text-sm leading-6 text-[#5f6368]">
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
                       {visibleFiles.length} of {openFolder.files.length} files
                       {deferredSearch ? ` match your search inside this folder.` : "."}
                     </p>
@@ -747,10 +747,10 @@ const ResourceManager = () => {
                 </div>
               ) : (
                 <>
-                  <h2 className="mt-3 text-2xl font-semibold text-[#202124]">
+                  <h2 className="mt-3 text-2xl font-semibold text-[var(--text-strong)]">
                     Folders
                   </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5f6368]">
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
                     Browse resource folders in a grid view. Click a folder to open
                     its file list and preview supported files like PDFs and images.
                   </p>
@@ -758,23 +758,23 @@ const ResourceManager = () => {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-sm text-[#5f6368]">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-muted)]">
               {canManageResources && (
                 <button
                   type="button"
                   onClick={() =>
                     openManageModal(groups.length > 0 ? "upload" : "folder")
                   }
-                  className="inline-flex items-center gap-2 rounded-full bg-[#1a73e8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1558b0]"
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)]"
                 >
                   <Plus size={16} />
                   Add Resource
                 </button>
               )}
-              <span className="rounded-full bg-white px-3 py-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+              <span className="rounded-full bg-[var(--bg-surface)] px-3 py-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 {groups.length} folders
               </span>
-              <span className="rounded-full bg-white px-3 py-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+              <span className="rounded-full bg-[var(--bg-surface)] px-3 py-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 {totalFiles} files
               </span>
             </div>
@@ -782,7 +782,7 @@ const ResourceManager = () => {
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
             <label className="relative block">
-              <span className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#6b7280]">
+              <span className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[var(--text-subtle)]">
                 <Search size={18} />
               </span>
               <input
@@ -798,20 +798,20 @@ const ResourceManager = () => {
               />
             </label>
 
-            <div className="rounded-[22px] bg-white px-5 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#6b7280]">
+            <div className="rounded-[22px] bg-[var(--bg-surface)] px-5 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-subtle)]">
                 {openFolder ? "Current Location" : "Browse Tip"}
               </p>
               {openFolder ? (
-                <div className="mt-2 flex items-center gap-2 text-sm text-[#5f6368]">
+                <div className="mt-2 flex items-center gap-2 text-sm text-[var(--text-muted)]">
                   <span>All folders</span>
                   <ChevronRight size={16} />
-                  <span className="font-semibold text-[#202124]">
+                  <span className="font-semibold text-[var(--text-strong)]">
                     {openFolder.name}
                   </span>
                 </div>
               ) : (
-                <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+                <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                   Open any folder card to see its files in a list view with a live
                   preview panel.
                 </p>
@@ -824,7 +824,7 @@ const ResourceManager = () => {
               {Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="aspect-square animate-pulse rounded-[22px] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]"
+                  className="aspect-square animate-pulse rounded-[22px] bg-[var(--bg-surface)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]"
                 >
                   <div className="h-12 w-12 rounded-2xl bg-slate-100" />
                   <div className="mt-5 h-5 w-24 rounded bg-slate-200" />
@@ -838,15 +838,15 @@ const ResourceManager = () => {
                 onDragOver={handleFolderDragOver}
                 onDragLeave={handleFolderDragLeave}
                 onDrop={handleFolderDrop}
-                className={`relative overflow-hidden rounded-[28px] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.06),0_12px_32px_rgba(15,23,42,0.04)] transition ${
+                className={`relative overflow-hidden rounded-[28px] bg-[var(--bg-surface)] shadow-[0_1px_2px_rgba(15,23,42,0.06),0_12px_32px_rgba(15,23,42,0.04)] transition ${
                   canManageResources && (isDragActive || isDropUploading)
-                    ? "ring-2 ring-[#1a73e8] ring-offset-2 ring-offset-[#f7f9fc]"
+                    ? "ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[#f7f9fc]"
                     : ""
                 }`}
               >
                 {canManageResources && (isDragActive || isDropUploading) && (
-                  <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#1a73e8]/10 backdrop-blur-[1px]">
-                    <div className="rounded-full bg-white px-5 py-3 text-sm font-medium text-[#174ea6] shadow-[0_10px_30px_rgba(26,115,232,0.14)]">
+                  <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[var(--accent)]/10 backdrop-blur-[1px]">
+                    <div className="rounded-full bg-[var(--bg-surface)] px-5 py-3 text-sm font-medium text-[#174ea6] shadow-[0_10px_30px_rgba(26,115,232,0.14)]">
                       {isDropUploading
                         ? "Uploading file to this folder..."
                         : `Drop file${openFolder ? "s" : ""} into ${openFolder.name}`}
@@ -854,13 +854,13 @@ const ResourceManager = () => {
                   </div>
                 )}
 
-                <div className="flex flex-col gap-4 border-b border-[#edf1f7] px-5 py-5 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-4 border-b border-[var(--border)] px-5 py-5 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-[#202124]">
+                    <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                       {openFolder.name} Files
                     </h3>
                     {openFolder.description && (
-                      <p className="mt-1 text-sm text-[#5f6368]">
+                      <p className="mt-1 text-sm text-[var(--text-muted)]">
                         {openFolder.description}
                       </p>
                     )}
@@ -871,7 +871,7 @@ const ResourceManager = () => {
                       <button
                         type="button"
                         onClick={() => handleEditGroup(openFolder)}
-                        className="inline-flex items-center gap-2 rounded-full border border-[#d7dde7] bg-white px-4 py-2.5 text-sm font-medium text-[#202124] transition hover:bg-[#f7f9fc]"
+                        className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--bg-surface-alt)]"
                       >
                         <Pencil size={16} />
                         Edit Folder
@@ -879,7 +879,7 @@ const ResourceManager = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteGroup(openFolder)}
-                        className="inline-flex items-center gap-2 rounded-full border border-[#f1c7c7] bg-white px-4 py-2.5 text-sm font-medium text-[#c5221f] transition hover:bg-[#fef2f2]"
+                        className="inline-flex items-center gap-2 rounded-full border border-[#f1c7c7] bg-[var(--bg-surface)] px-4 py-2.5 text-sm font-medium text-[var(--status-red-text)] transition hover:bg-[var(--status-red-bg)]"
                       >
                         <Trash2 size={16} />
                         Delete Folder
@@ -907,7 +907,7 @@ const ResourceManager = () => {
                                   current === file.id ? null : file.id,
                                 );
                               }}
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#5f6368] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-white"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[var(--text-muted)] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-[var(--accent-hover)]"
                             >
                               <MoreVertical size={16} />
                             </button>
@@ -915,7 +915,7 @@ const ResourceManager = () => {
                             {fileActionMenuId === file.id && (
                               <div
                                 onClick={(event) => event.stopPropagation()}
-                                className="absolute right-0 top-10 min-w-[150px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-white py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
+                                className="absolute right-0 top-10 min-w-[150px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-[var(--bg-surface)] py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
                               >
                                 <button
                                   type="button"
@@ -927,7 +927,7 @@ const ResourceManager = () => {
                                       "noopener,noreferrer",
                                     );
                                   }}
-                                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#202124] transition hover:bg-[#f7f9fc]"
+                                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--bg-surface-alt)]"
                                 >
                                   <ExternalLink size={15} />
                                   Open
@@ -938,7 +938,7 @@ const ResourceManager = () => {
                                     setFileActionMenuId(null);
                                     window.location.assign(getFileDownloadUrl(file.id));
                                   }}
-                                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#174ea6] transition hover:bg-[#eef4ff]"
+                                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#174ea6] transition hover:bg-[var(--accent)]"
                                 >
                                   <Download size={15} />
                                   Download
@@ -950,7 +950,7 @@ const ResourceManager = () => {
                                       setFileActionMenuId(null);
                                       void handleDeleteFile(file.id, file.title);
                                     }}
-                                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#c5221f] transition hover:bg-[#fef2f2]"
+                                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[var(--status-red-text)] transition hover:bg-[var(--status-red-bg)]"
                                   >
                                     <Trash2 size={15} />
                                     Delete
@@ -970,9 +970,9 @@ const ResourceManager = () => {
                                 "noopener,noreferrer",
                               )
                             }
-                            className="flex aspect-square w-full flex-col rounded-[24px] border border-[#edf1f7] bg-white p-3 text-left transition hover:bg-[#f8faff] hover:shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+                            className="flex aspect-square w-full flex-col rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-3 text-left transition hover:bg-[var(--bg-surface-alt)] hover:shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
                         >
-                          <div className="relative flex-1 overflow-hidden rounded-[20px] bg-[#f7f9fc]">
+                          <div className="relative flex-1 overflow-hidden rounded-[20px] bg-[var(--bg-surface-alt)]">
                             {isImageFile(file) ? (
                               <Image
                                 src={getFileViewUrl(file.id)}
@@ -982,18 +982,18 @@ const ResourceManager = () => {
                                 className="object-cover"
                               />
                             ) : isPdfFile(file) ? (
-                              <div className="relative h-full w-full overflow-hidden bg-white">
+                              <div className="relative h-full w-full overflow-hidden bg-[var(--bg-surface)]">
                                 <iframe
                                   title={file.title}
                                   src={getInlinePreviewUrl(file.id)}
                                   scrolling="no"
                                   className={tilePdfPreviewClassName}
                                 />
-                                <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-white" />
+                                <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-[var(--bg-surface)]" />
                               </div>
                             ) : (
                               <div className="flex h-full items-center justify-center">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e6ebf3] bg-white text-[#5f6368]">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e6ebf3] bg-[var(--bg-surface)] text-[var(--text-muted)]">
                                   <FileIcon size={24} />
                                 </div>
                               </div>
@@ -1001,7 +1001,7 @@ const ResourceManager = () => {
                           </div>
 
                           <div className="mt-3 min-w-0">
-                            <h4 className="line-clamp-2 text-sm font-semibold leading-5 text-[#202124]">
+                            <h4 className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--text-strong)]">
                               {file.title}
                             </h4>
                           </div>
@@ -1012,12 +1012,12 @@ const ResourceManager = () => {
                   </div>
                 ) : (
                   <div className="px-6 py-10 text-center">
-                    <h3 className="text-lg font-semibold text-[#202124]">
+                    <h3 className="text-lg font-semibold text-[var(--text-strong)]">
                       {openFolder.files.length === 0
                         ? "This folder is empty"
                         : "No files match your search"}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+                    <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                       {openFolder.files.length === 0
                         ? "Upload files into this folder to make them available."
                         : "Try a different search term or clear the current filter."}
@@ -1046,7 +1046,7 @@ const ResourceManager = () => {
                             current === group.id ? null : group.id,
                           );
                         }}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#5f6368] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-[#f7f9fc]"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-surface)] text-[var(--text-muted)] shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-[var(--bg-surface-alt)]"
                       >
                         <MoreVertical size={18} />
                       </button>
@@ -1054,7 +1054,7 @@ const ResourceManager = () => {
                       {folderActionMenuId === group.id && (
                         <div
                           onClick={(event) => event.stopPropagation()}
-                          className="absolute right-0 top-11 min-w-[150px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-white py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
+                          className="absolute right-0 top-11 min-w-[150px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-[var(--bg-surface)] py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
                         >
                           <button
                             type="button"
@@ -1062,7 +1062,7 @@ const ResourceManager = () => {
                               setFolderActionMenuId(null);
                               handleEditGroup(group);
                             }}
-                            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#202124] transition hover:bg-[#f7f9fc]"
+                            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--bg-surface-alt)]"
                           >
                             <Pencil size={15} />
                             Edit
@@ -1073,7 +1073,7 @@ const ResourceManager = () => {
                               setFolderActionMenuId(null);
                               void handleDeleteGroup(group);
                             }}
-                            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#c5221f] transition hover:bg-[#fef2f2]"
+                            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[var(--status-red-text)] transition hover:bg-[var(--status-red-bg)]"
                           >
                             <Trash2 size={15} />
                             Delete
@@ -1084,9 +1084,9 @@ const ResourceManager = () => {
                   )}
 
                   {inlineEditingFolderId === group.id ? (
-                    <div className="flex aspect-square w-full flex-col rounded-[22px] bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_28px_rgba(15,23,42,0.04)]">
+                    <div className="flex aspect-square w-full flex-col rounded-[22px] bg-[var(--bg-surface)] p-3.5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_28px_rgba(15,23,42,0.04)]">
                       <div className="flex flex-1 items-center justify-center">
-                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[#1a73e8]">
+                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--bg-selected)] text-[var(--accent)]">
                           <Folder size={24} />
                         </span>
                       </div>
@@ -1113,22 +1113,22 @@ const ResourceManager = () => {
                             void finishInlineFolderNaming("cancel");
                           }
                         }}
-                        className="mt-2.5 w-full rounded-xl border border-[#d7dde7] bg-white px-2.5 py-2 text-sm font-semibold leading-5 text-[#202124] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/15"
+                        className="mt-2.5 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-2.5 py-2 text-sm font-semibold leading-5 text-[var(--text-strong)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/15"
                       />
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={() => handleOpenFolder(group)}
-                      className="flex aspect-square w-full flex-col rounded-[22px] bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_28px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-[#f8faff] hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)]"
+                      className="flex aspect-square w-full flex-col rounded-[22px] bg-[var(--bg-surface)] p-3.5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.06),0_10px_28px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-[var(--bg-surface-alt)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)]"
                     >
                       <div className="flex flex-1 items-center justify-center">
-                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[#1a73e8]">
+                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--bg-selected)] text-[var(--accent)]">
                           <Folder size={24} />
                         </span>
                       </div>
 
-                      <h3 className="mt-2.5 line-clamp-2 text-sm font-semibold leading-5 text-[#202124]">
+                      <h3 className="mt-2.5 line-clamp-2 text-sm font-semibold leading-5 text-[var(--text-strong)]">
                         {group.name}
                       </h3>
                     </button>
@@ -1139,12 +1139,12 @@ const ResourceManager = () => {
           ) : (
             <div
               onContextMenu={handleGridContextMenu}
-              className="rounded-[28px] bg-white px-6 py-12 text-center shadow-[0_1px_2px_rgba(15,23,42,0.06)]"
+              className="rounded-[28px] bg-[var(--bg-surface)] px-6 py-12 text-center shadow-[0_1px_2px_rgba(15,23,42,0.06)]"
             >
-              <h3 className="text-xl font-semibold text-[#202124]">
+              <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                 No folders found
               </h3>
-              <p className="mt-3 text-sm leading-6 text-[#5f6368]">
+              <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
                 Create a folder or clear your search to continue.
               </p>
             </div>
@@ -1154,24 +1154,24 @@ const ResourceManager = () => {
 
       {canManageResources && isManageModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1724]/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-surface)]/40 p-4 backdrop-blur-sm"
           onClick={closeManageModal}
         >
           <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[30px] bg-white shadow-[0_30px_90px_rgba(15,23,42,0.24)]"
+            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[30px] bg-[var(--bg-surface)] shadow-[0_30px_90px_rgba(15,23,42,0.24)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-[#edf1f7] px-6 py-5">
+            <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] px-6 py-5">
               <div>
                 <p className={sectionTitleClassName}>Resource Actions</p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#202124]">
+                <h2 className="mt-2 text-2xl font-semibold text-[var(--text-strong)]">
                   {activeManageView === "folder"
                     ? editingGroupId
                       ? "Edit Folder"
                       : "Create Folder"
                     : "Upload File"}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+                <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                   {activeManageView === "folder"
                     ? "Create or update top-level folders for your internal resource library."
                     : "Upload a document or image into one of your existing folders."}
@@ -1181,14 +1181,14 @@ const ResourceManager = () => {
               <button
                 type="button"
                 onClick={closeManageModal}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d7dde7] text-[#5f6368] transition hover:bg-[#f7f9fc]"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] text-[var(--text-muted)] transition hover:bg-[var(--bg-surface-alt)]"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="border-b border-[#edf1f7] px-6 py-4">
-              <div className="inline-flex rounded-full bg-[#f3f6fb] p-1">
+            <div className="border-b border-[var(--border)] px-6 py-4">
+              <div className="inline-flex rounded-full bg-[var(--bg-inset)] p-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -1197,8 +1197,8 @@ const ResourceManager = () => {
                   }}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                     activeManageView === "folder"
-                      ? "bg-white text-[#202124] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
-                      : "text-[#5f6368] hover:text-[#202124]"
+                      ? "bg-[var(--bg-surface)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-strong)]"
                   }`}
                 >
                   Folder
@@ -1214,8 +1214,8 @@ const ResourceManager = () => {
                   }}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                     activeManageView === "upload"
-                      ? "bg-white text-[#202124] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
-                      : "text-[#5f6368] hover:text-[#202124]"
+                      ? "bg-[var(--bg-surface)] text-[var(--text-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-strong)]"
                   }`}
                 >
                   Upload
@@ -1229,10 +1229,10 @@ const ResourceManager = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className={sectionTitleClassName}>Folder Setup</p>
-                      <h3 className="mt-3 text-xl font-semibold text-[#202124]">
+                      <h3 className="mt-3 text-xl font-semibold text-[var(--text-strong)]">
                         {editingGroupId ? "Edit Folder" : "Create Folder"}
                       </h3>
-                      <p className="mt-2 max-w-xl text-sm leading-6 text-[#5f6368]">
+                      <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--text-muted)]">
                         Create top-level folders like Company, SOP, Guide, Proposal
                         Format, or Strategy.
                       </p>
@@ -1242,7 +1242,7 @@ const ResourceManager = () => {
                       <button
                         type="button"
                         onClick={resetGroupForm}
-                        className="rounded-[14px] border border-[#d7dde7] px-4 py-2 text-sm text-[#5f6368] transition hover:bg-[#f7f9fc]"
+                        className="rounded-[14px] border border-[var(--border)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--bg-surface-alt)]"
                       >
                         Clear
                       </button>
@@ -1293,7 +1293,7 @@ const ResourceManager = () => {
                     <button
                       type="submit"
                       disabled={isSavingGroup}
-                      className="inline-flex items-center gap-2 rounded-[18px] bg-[#1a73e8] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1558b0] disabled:cursor-not-allowed disabled:bg-[#9dbceb] md:col-span-2 md:w-fit"
+                      className="inline-flex items-center gap-2 rounded-[18px] bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:bg-[#9dbceb] md:col-span-2 md:w-fit"
                     >
                       {isSavingGroup ? (
                         <>
@@ -1313,10 +1313,10 @@ const ResourceManager = () => {
                 <section className={`${panelClassName} space-y-6`}>
                   <div>
                     <p className={sectionTitleClassName}>File Upload</p>
-                    <h3 className="mt-3 text-xl font-semibold text-[#202124]">
+                    <h3 className="mt-3 text-xl font-semibold text-[var(--text-strong)]">
                       Upload Into a Folder
                     </h3>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-[#5f6368]">
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--text-muted)]">
                       Upload PDFs, Office documents, text files, and images into the
                       selected folder. Files stay outside the public media library.
                     </p>
@@ -1379,13 +1379,13 @@ const ResourceManager = () => {
                       </label>
                       <label
                         htmlFor="resource-upload-file"
-                        className="flex min-h-[110px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#c8d0dd] bg-[#f8fafc] px-5 py-6 text-center transition hover:border-[#1a73e8] hover:bg-[#eef4ff]"
+                        className="flex min-h-[110px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--bg-surface-alt)] px-5 py-6 text-center transition hover:border-[var(--accent)] hover:bg-[var(--accent)]"
                       >
-                        <UploadCloud size={24} className="text-[#1a73e8]" />
-                        <p className="mt-3 text-sm font-medium text-[#202124]">
+                        <UploadCloud size={24} className="text-[var(--accent)]" />
+                        <p className="mt-3 text-sm font-medium text-[var(--text-strong)]">
                           {selectedFile ? selectedFile.name : "Choose a file to upload"}
                         </p>
-                        <p className="mt-2 text-xs leading-6 text-[#5f6368]">
+                        <p className="mt-2 text-xs leading-6 text-[var(--text-muted)]">
                           PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, JPG, PNG,
                           WEBP, GIF up to 25 MB
                         </p>
@@ -1401,7 +1401,7 @@ const ResourceManager = () => {
                         className="hidden"
                       />
                       {selectedFile && (
-                        <p className="text-xs text-[#5f6368]">
+                        <p className="text-xs text-[var(--text-muted)]">
                           {selectedFile.name} • {formatFileSize(selectedFile.size)}
                         </p>
                       )}
@@ -1410,7 +1410,7 @@ const ResourceManager = () => {
                     <button
                       type="submit"
                       disabled={isUploadingFile || groups.length === 0}
-                      className="inline-flex items-center gap-2 rounded-[18px] bg-[#1a73e8] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1558b0] disabled:cursor-not-allowed disabled:bg-[#9dbceb] md:col-span-2 md:w-fit"
+                      className="inline-flex items-center gap-2 rounded-[18px] bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:bg-[#9dbceb] md:col-span-2 md:w-fit"
                     >
                       {isUploadingFile ? (
                         <>
@@ -1434,7 +1434,7 @@ const ResourceManager = () => {
 
       {canManageResources && gridContextMenu && !openFolder && (
         <div
-          className="fixed z-50 min-w-[180px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-white py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
+          className="fixed z-50 min-w-[180px] overflow-hidden rounded-2xl border border-[#e7ebf2] bg-[var(--bg-surface)] py-2 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
           style={{ left: gridContextMenu.x, top: gridContextMenu.y }}
           onClick={(event) => event.stopPropagation()}
         >
@@ -1443,7 +1443,7 @@ const ResourceManager = () => {
             onClick={() => {
               void handleCreateFolderFromContextMenu();
             }}
-            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[#202124] transition hover:bg-[#f7f9fc]"
+            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--bg-surface-alt)]"
           >
             <Plus size={15} />
             Create Folder

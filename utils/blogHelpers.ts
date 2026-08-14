@@ -51,19 +51,19 @@ export const getStatusMeta = (blogStatus: string) => {
     case "publish":
       return {
         label: "Published",
-        className: "border-[#2f6670]/28 bg-[#2f6670]/16 text-[#b8edf1]",
+        className: "border-[var(--status-green-text)]/28 bg-[#1e8e3e]/16 text-[var(--status-green-text)]",
       };
 
     case "future":
       return {
         label: "Scheduled",
-        className: "border-[#b8664b]/28 bg-[#b8664b]/16 text-[#ffd7c4]",
+        className: "border-[var(--status-amber-text)]/28 bg-[#f9ab00]/16 text-[var(--status-amber-text)]",
       };
 
     default:
       return {
         label: "Draft",
-        className: "border-[#7a428f]/28 bg-[#7a428f]/16 text-[#e2c6ff]",
+        className: "border-[var(--status-purple-text)]/28 bg-[#a142f4]/16 text-[var(--status-purple-text)]",
       };
   }
 };

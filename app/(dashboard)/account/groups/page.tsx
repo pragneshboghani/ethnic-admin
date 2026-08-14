@@ -73,15 +73,15 @@ const GroupPage = () => {
           Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse rounded-[24px] border border-white/8 bg-[#151d2c] p-6"
+              className="animate-pulse rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6"
             >
-              <div className="h-5 w-40 rounded bg-white/10" />
-              <div className="mt-4 h-4 w-full rounded bg-white/5" />
-              <div className="mt-2 h-4 w-3/4 rounded bg-white/5" />
+              <div className="h-5 w-40 rounded bg-black/[0.05]" />
+              <div className="mt-4 h-4 w-full rounded bg-black/[0.03]" />
+              <div className="mt-2 h-4 w-3/4 rounded bg-black/[0.03]" />
 
               <div className="mt-6 flex gap-2">
-                <div className="h-8 w-20 rounded-full bg-white/10" />
-                <div className="h-8 w-20 rounded-full bg-white/10" />
+                <div className="h-8 w-20 rounded-full bg-black/[0.05]" />
+                <div className="h-8 w-20 rounded-full bg-black/[0.05]" />
               </div>
             </div>
           ))
@@ -89,14 +89,14 @@ const GroupPage = () => {
           groups.map((group) => (
             <div
               key={group.id}
-              className="group rounded-[24px] border border-white/8 bg-[#151d2c] p-6 transition-all hover:border-[#31425e]"
+              className="group rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 transition-all hover:border-[var(--accent)]"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center rounded-2xl bg-[#101826] text-[#c2edf0]">
+                    <div className="flex items-center justify-center rounded-2xl bg-[var(--bg-inset)] text-[var(--status-green-text)]">
                       {group.image && group.image != "" ? (
-                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-white/10">
+                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-[var(--border)]">
                           <Image
                             fill
                             alt="Preview"
@@ -105,12 +105,12 @@ const GroupPage = () => {
                           />
                         </div>
                       ) : (
-                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center">
+                        <div className="relative h-15 w-15 rounded-2xl overflow-hidden border border-[var(--border)] flex items-center justify-center">
                           <Users size={22} />
                         </div>
                       )}
                     </div>
-                    <h3 className="truncate text-lg font-semibold text-[#eef4ff]">
+                    <h3 className="truncate text-lg font-semibold text-[var(--text-strong)]">
                       {group.name}
                     </h3>
                   </div>
@@ -119,7 +119,7 @@ const GroupPage = () => {
                 <div className="flex gap-2">
                   <Link
                     href={`/account/authors/add/${group.created_by}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#101826] text-[#8ea0b8] transition hover:border-[#31425e] hover:text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--text-strong)]"
                     title={canManageGroups ? "Edit Group" : "View Group"}
                   >
                     {canManageGroups ? <Pencil size={16} /> : <Eye size={16} />}
@@ -129,7 +129,7 @@ const GroupPage = () => {
                     <button
                       type="button"
                       onClick={() => setDeleteGroup(group)}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#b8664b]/40 bg-[#372423] text-[#ffd7c4] transition hover:bg-[#462a28]"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--status-amber-text)]/40 bg-[var(--status-red-bg)] text-[var(--status-amber-text)] transition hover:bg-[var(--status-red-bg)]"
                       title="Delete Group"
                     >
                       <Trash2 size={16} />
@@ -137,17 +137,17 @@ const GroupPage = () => {
                   )} */}
                 </div>
               </div>
-              {/* <p className="mt-5 line-clamp-3 text-sm leading-6 text-[#8ea0b8]">
+              {/* <p className="mt-5 line-clamp-3 text-sm leading-6 text-[var(--text-muted)]">
                 {group.group_description ||
                   "No description available for this group."}
               </p> */}
-              <div className="mt-6 border-t border-white/8 pt-5">
+              <div className="mt-6 border-t border-[var(--border)] pt-5">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#7f90a8]">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-subtle)]">
                     Members
                   </p>
 
-                  <span className="rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-xs text-[#8ea0b8]">
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-xs text-[var(--text-muted)]">
                     {group.member_ids?.length || 0} Members
                   </span>
                 </div>
@@ -157,13 +157,13 @@ const GroupPage = () => {
                     group.members?.map((member, index) => (
                       <span
                         key={index}
-                        className="rounded-full border border-[#3f7b83] bg-[#16333a] px-3 py-1.5 text-sm font-medium text-[#c2edf0]"
+                        className="rounded-full border border-[#c1dde1] bg-[var(--bg-selected)] px-3 py-1.5 text-sm font-medium text-[var(--status-green-text)]"
                       >
                         {member}
                       </span>
                     ))
                   ) : (
-                    <p className="text-sm text-[#8ea0b8]">
+                    <p className="text-sm text-[var(--text-muted)]">
                       No members added
                     </p>
                   )}
@@ -172,23 +172,23 @@ const GroupPage = () => {
             </div>
           ))
         ) : (
-          <div className="col-span-full rounded-[24px] border border-dashed border-white/10 bg-[#151d2c] p-12 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#101826] text-[#8ea0b8]">
+          <div className="col-span-full rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] p-12 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--bg-inset)] text-[var(--text-muted)]">
               <Users size={28} />
             </div>
 
-            <h3 className="mt-5 text-xl font-semibold text-[#eef4ff]">
+            <h3 className="mt-5 text-xl font-semibold text-[var(--text-strong)]">
               No Groups Found
             </h3>
 
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#8ea0b8]">
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--text-muted)]">
               There are currently no groups available in this section.
             </p>
 
             {canManageGroups && (
               <Link
                 href="/account/groups/add"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-5 py-3 text-sm font-semibold text-[#0f1724] transition hover:bg-white"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)]"
               >
                 <Plus size={18} />
                 Create New Group
@@ -199,16 +199,16 @@ const GroupPage = () => {
       </div>
 
       {deleteGroup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
           <ClickOutside onClickOutside={() => setDeleteGroup(null)}>
-            <div className="w-full max-w-md rounded-[26px] border border-white/10 bg-[#101826] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.4)]">
-              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#8ea0b8]">
+            <div className="w-full max-w-md rounded-[26px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-muted)]">
                 Remove Group
               </p>
-              <h3 className="mt-3 text-2xl font-semibold text-[#eef4ff]">
+              <h3 className="mt-3 text-2xl font-semibold text-[var(--text-strong)]">
                 Delete {deleteGroup.group_name}?
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[#8ea0b8]">
+              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                 This will permanently remove this group from the workspace.
               </p>
 
@@ -216,14 +216,14 @@ const GroupPage = () => {
                 <button
                   type="button"
                   onClick={() => setDeleteGroup(null)}
-                  className="rounded-[16px] border border-white/10 px-4 py-2.5 text-sm font-medium text-[#b8c4d4] transition hover:bg-white/[0.04]"
+                  className="rounded-[16px] border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition hover:bg-black/[0.04]"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleDeleteGroup}
-                  className="rounded-[16px] border border-[#b8664b]/40 bg-[#372423] px-4 py-2.5 text-sm font-medium text-[#ffd7c4] transition hover:bg-[#462a28]"
+                  className="rounded-[16px] border border-[var(--status-amber-text)]/40 bg-[var(--status-red-bg)] px-4 py-2.5 text-sm font-medium text-[var(--status-amber-text)] transition hover:bg-[var(--status-red-bg)]"
                 >
                   Delete Group
                 </button>

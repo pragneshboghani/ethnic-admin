@@ -122,11 +122,11 @@ const BlogHeader = ({ title, description, onPreview, onSaveDraft, onPublish, }: 
         };
     }, []);
 
-    const secondaryButtonClassName = `inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101826] text-sm font-medium text-[#eef4ff] transition hover:border-[#31425e] hover:bg-[#182438] ${
+    const secondaryButtonClassName = `inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-inset)] text-sm font-medium text-[var(--text-strong)] transition hover:border-[var(--accent)] hover:bg-[var(--bg-selected)] ${
         isCondensed ? 'px-4 py-2.5' : 'px-5 py-3'
     }`;
 
-    const primaryButtonClassName = `inline-flex items-center justify-center gap-2 rounded-xl bg-[#eef4ff] text-sm font-semibold text-[#0f1724] transition hover:bg-white ${
+    const primaryButtonClassName = `inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-semibold text-[#ffffff] transition hover:bg-[var(--accent-hover)] ${
         isCondensed ? 'px-4 py-2.5' : 'px-5 py-3'
     }`;
 
@@ -138,26 +138,26 @@ const BlogHeader = ({ title, description, onPreview, onSaveDraft, onPublish, }: 
             <div
                 ref={cardRef}
                 style={isSticky ? floatingStyle : undefined}
-                className={`rounded-[24px] border border-white/8 bg-[#151d2c]/95 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl transition-all duration-300  ${isCondensed ? 'p-4' : 'p-6'}`}
+                className={`rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-[0_1px_2px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-300  ${isCondensed ? 'p-4' : 'p-6'}`}
             >
                 <div className={`flex flex-col gap-4 transition-all duration-300 xl:flex-row xl:items-center xl:justify-between ${isCondensed ? 'xl:gap-6' : 'xl:gap-8'}`}>
                     <div className="min-w-0">
                         <span
-                            className={`inline-flex items-center rounded-full border border-white/8 bg-[#101826] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#8ea0b8] transition-all duration-300 ${
+                            className={`inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--text-muted)] transition-all duration-300 ${
                                 isCondensed ? 'pointer-events-none absolute opacity-0' : 'opacity-100'
                             }`}
                         >
                             Editorial Workspace
                         </span>
                         <h1
-                            className={`font-semibold tracking-[-0.04em] text-[#eef4ff] transition-all duration-300 ${
+                            className={`font-semibold tracking-[-0.04em] text-[var(--text-strong)] transition-all duration-300 ${
                                 isCondensed ? 'text-[24px] leading-none' : 'mt-4 text-[36px] leading-none'
                             }`}
                         >
                             {title}
                         </h1>
                         <p
-                            className={`max-w-2xl text-sm leading-7 text-[#8ea0b8] transition-all duration-300 ${
+                            className={`max-w-2xl text-sm leading-7 text-[var(--text-muted)] transition-all duration-300 ${
                                 isCondensed ? 'mt-0 max-h-0 overflow-hidden opacity-0' : 'mt-3 opacity-100'
                             }`}
                         >
