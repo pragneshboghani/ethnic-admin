@@ -264,11 +264,10 @@ const PostFormModal = ({
                         key={account.id}
                         type="button"
                         onClick={() => toggleAccount(account.id)}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${
-                          selected
-                            ? "border-[var(--border-strong)] bg-[var(--bg-selected)] text-[var(--text-strong)]"
-                            : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-strong)]"
-                        }`}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${selected
+                          ? "border-[var(--border-strong)] bg-[var(--bg-selected)] text-[var(--text-strong)]"
+                          : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-strong)]"
+                          }`}
                       >
                         <span
                           className="h-2 w-2 rounded-full"
@@ -287,9 +286,8 @@ const PostFormModal = ({
                 <label className={labelClass}>Caption</label>
                 {charLimit !== null && (
                   <span
-                    className={`text-xs ${
-                      caption.length > charLimit ? "text-red-400" : "text-[var(--text-subtle)]"
-                    }`}
+                    className={`text-xs ${caption.length > charLimit ? "text-red-400" : "text-[var(--text-subtle)]"
+                      }`}
                   >
                     {caption.length} / {charLimit}
                   </span>
@@ -315,6 +313,24 @@ const PostFormModal = ({
                   <Plus size={14} /> Add media
                 </button>
               </div>
+
+              {isMediaModalOpen && (
+                <UploadMediaModal
+                  isOpen={isMediaModalOpen}
+                  onClose={() => setIsMediaModalOpen(false)}
+                  allowedMediaType="all"
+                  onSelectMedia={(selected) =>
+                    setMedia((prev) => [
+                      ...prev,
+                      {
+                        url: selected.url,
+                        file_type: selected.fileType,
+                        mime_type: selected.mimeType || null,
+                      },
+                    ])
+                  }
+                />
+              )}
 
               {media.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -461,24 +477,6 @@ const PostFormModal = ({
           </div>
         </ClickOutside>
       </div>
-
-      {isMediaModalOpen && (
-        <UploadMediaModal
-          isOpen={isMediaModalOpen}
-          onClose={() => setIsMediaModalOpen(false)}
-          allowedMediaType="all"
-          onSelectMedia={(selected) =>
-            setMedia((prev) => [
-              ...prev,
-              {
-                url: selected.url,
-                file_type: selected.fileType,
-                mime_type: selected.mimeType || null,
-              },
-            ])
-          }
-        />
-      )}
     </>
   );
 };
