@@ -121,8 +121,8 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
             </div>
 
             <div className={cardClassName}>
-                <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-5">
-                    <div>
+                <div className="sticky top-0 z-20 -mx-5 -mt-5 mb-5 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-5 md:-mx-8 md:-mt-8 md:px-8 rounded-t-[24px]">
+                    <div className="">
                         <h3 className="text-lg font-semibold text-[var(--text-strong)]">FAQ Section</h3>
                         <p className="mt-1 text-sm text-[var(--text-muted)]">
                             Add common questions and answers for this article.
