@@ -825,6 +825,7 @@ blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
             'slug', rsb.slug,
             'publish_date', rb.publish_date,
             'short_excerpt', rb.short_excerpt,
+            'reading_time', rb.reading_time,
             'image',
               CASE
                 WHEN rb.featured_image IS NULL OR rb.featured_image = ''
@@ -833,6 +834,11 @@ blogRouter.get("/slug", verifyApiKey, verifyPlatformToken, async (req, res) => {
                 THEN rb.featured_image
                 ELSE CONCAT('${BASE_URL}', rb.featured_image)
               END,
+            
+            'seo_data', JSON_OBJECT(
+              'cta_button_text', rsb.cta_button_text,
+              'cta_button_link', rsb.cta_button_link
+            ),  
 
             'author', JSON_OBJECT(
               'name', ru.name,
