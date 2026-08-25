@@ -575,21 +575,23 @@ const BlogForm = () => {
                     )}
                 </div>
 
-                <BlogSidebar
-                    register={register}
-                    category={selectedCategories}
-                    setValue={setValue}
-                    publishDate={publishDate}
-                    categories={allData.categories}
-                    authors={allData.authorData}
-                    setIsCategoryModalOpen={setIsCategoryModalOpen}
-                    image={image}
-                    handleRemoveImage={handleRemoveImage}
-                    setIsUploadModalOpen={setIsUploadModalOpen}
-                    setMediaFor={setMediaFor}
-                    globalStatus={globalStatus}
-                    blogId={blogId}
-                />
+                <div className="min-w-0">
+                    <BlogSidebar
+                        register={register}
+                        category={selectedCategories}
+                        setValue={setValue}
+                        publishDate={publishDate}
+                        categories={allData.categories}
+                        authors={allData.authorData}
+                        setIsCategoryModalOpen={setIsCategoryModalOpen}
+                        image={image}
+                        handleRemoveImage={handleRemoveImage}
+                        setIsUploadModalOpen={setIsUploadModalOpen}
+                        setMediaFor={setMediaFor}
+                        globalStatus={globalStatus}
+                        blogId={blogId}
+                    />
+                </div>
             </div>
             {isPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">

@@ -227,7 +227,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
 
     return (
         <>
-            <div className="space-y-6">
+            <div className="space-y-6 sticky top-4">
                 <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                     <div className="border-b border-[var(--border)] pb-5">
                         <h3 className="text-xl font-semibold text-[var(--text-strong)]">
@@ -484,7 +484,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                     </div>
                 </div>
 
-                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] relative">
                     <div className="border-b border-[var(--border)] pb-5">
                         <h3 className="text-xl font-semibold text-[var(--text-strong)]">
                             Featured Image

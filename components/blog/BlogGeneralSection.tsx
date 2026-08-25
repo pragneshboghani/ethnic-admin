@@ -14,6 +14,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
         name: "faq",
     });
 
+    const [tagSearch, setTagSearch] = useState("");
     const [isSticky, setIsSticky] = useState(false);
     const stickyRef = useRef<HTMLDivElement>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
@@ -52,6 +53,10 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
             shouldTouch: true,
         });
     };
+
+    const filteredTags = tagsList.filter((tag) =>
+        tag.name.toLowerCase().includes(tagSearch.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
@@ -191,24 +196,42 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
             </div>
 
             <div className={cardClassName}>
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <h3 className="text-lg font-semibold text-[var(--text-strong)]">Tags</h3>
-                        <p className="mt-1 text-sm text-[var(--text-muted)]">
-                            Choose one or more labels that help organize and surface the post.
-                        </p>
+                <div className="sticky top-0 z-20 -mx-5 -mt-5 mb-5 border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-5 md:-mx-8 md:-mt-8 md:px-8 rounded-t-[24px]">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="text-lg font-semibold text-[var(--text-strong)]">Tags</h3>
+                            <p className="mt-1 text-sm text-[var(--text-muted)]">
+                                Choose one or more labels that help organize and surface the post.
+                            </p>
+                        </div>
+                        <span className="rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-xs text-[var(--text-muted)]">
+                            {selectedTags.length} selected
+                        </span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsTagModalOpen(true)}
+                                className="rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--accent)] transition hover:border-[var(--status-green-text)] hover:text-[var(--status-green-text)]"
+                            >
+                                + Add New Tag
+                            </button>
+                        </div>
                     </div>
-                    <span className="rounded-full border border-[var(--border)] bg-[var(--bg-inset)] px-3 py-1 text-xs text-[var(--text-muted)]">
-                        {selectedTags.length} selected
-                    </span>
-                    <div className="flex flex-wrap items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setIsTagModalOpen(true)}
-                            className="rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--accent)] transition hover:border-[var(--status-green-text)] hover:text-[var(--status-green-text)]"
-                        >
-                            + Add New Tag
-                        </button>
+                    <div className="mt-5 rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
+                        <div className="space-y-2.5">
+                            <label htmlFor="search-tags" className={labelClassName}>
+                                Search Tags
+                            </label>
+
+                            <input
+                                id="search-tags"
+                                type="text"
+                                value={tagSearch}
+                                onChange={(e) => setTagSearch(e.target.value)}
+                                placeholder="Search tags..."
+                                className={inputClassName}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -238,7 +261,7 @@ const BlogGeneralSection = ({ register, control, setValue, relatedBlogs, content
                             All Tags
                         </p>
                         <div className="flex flex-wrap gap-3">
-                            {tagsList.map((tag) => {
+                            {filteredTags.map((tag) => {
                                 const isSelected = selectedTags.includes(tag.id);
 
                                 return (

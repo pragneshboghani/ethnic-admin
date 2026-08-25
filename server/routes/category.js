@@ -239,8 +239,9 @@ categoryRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, r
       ) jt
       JOIN category c
           ON c.id = jt.category_id
-      WHERE JSON_CONTAINS(b.platforms, ?)`,
-      [JSON.stringify(platform.id)]
+      JOIN seo_blog sb ON b.id = sb.blog_id AND sb.platform_id = ?
+      WHERE JSON_CONTAINS(b.platforms, ?) AND sb.publish_status = "publish"`,
+      [JSON.stringify(platform.id), JSON.stringify(platform.id)]
     );
 
     return res.status(200).send({
