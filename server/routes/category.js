@@ -7,6 +7,7 @@ const deleteCategory = require("../utils/deleteCategory");
 const { getPlatformsByIds } = require("../utils/platformHelper");
 const updateCategoryOnPlatform = require("../utils/updateCategoryOnPlatform");
 const verifyApiKey = require("../middleware/verifyApiKey");
+const verifyPlatformToken = require("../middleware/verifyPlatformToken");
 
 const categoryRouter = express.Router();
 
@@ -213,6 +214,40 @@ categoryRouter.put("/update", verifyApiKey, authMiddleware, async (req, res) => 
         added: addResults,
         removed: deleteResults,
       },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+categoryRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) => {
+  try {
+    const platform = req.platform;
+
+    const [rows] = await mysqlpool.query(
+      `SELECT DISTINCT c.name, c.id
+      FROM blogs b
+      JOIN JSON_TABLE(
+          b.category,
+          '$[*]' COLUMNS (
+            category_id INT PATH '$'
+          )
+      ) jt
+      JOIN category c
+          ON c.id = jt.category_id
+      JOIN seo_blog sb ON b.id = sb.blog_id AND sb.platform_id = ?
+      WHERE JSON_CONTAINS(b.platforms, ?) AND sb.publish_status = "publish"`,
+      [JSON.stringify(platform.id), JSON.stringify(platform.id)]
+    );
+
+    return res.status(200).send({
+      success: true,
+      message: "Categories fetched successfully",
+      data: rows,
     });
   } catch (error) {
     console.error(error);
