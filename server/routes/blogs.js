@@ -630,7 +630,7 @@ blogRouter.get("/filter", verifyApiKey, authMiddleware, async (req, res) => {
 
 blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, category } = req.query;
+    const { page = 1, limit = 12, search, category, sortOrder } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -728,7 +728,7 @@ blogRouter.get("/platform", verifyApiKey, verifyPlatformToken, async (req, res) 
       });
     }
 
-    query += ` ORDER BY b.created_at DESC LIMIT ? OFFSET ?`;
+    query += ` ORDER BY b.created_at ${sortOrder &&sortOrder.toLowerCase() == "asc" ? "ASC" : "DESC"} LIMIT ? OFFSET ?`;
     params.push(limitNumber, offset);
     const [blogs] = await mysqlpool.query(query, params);
 
