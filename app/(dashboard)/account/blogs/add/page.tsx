@@ -64,6 +64,13 @@ const BlogForm = () => {
         platformData: null,
         authorData: []
     });
+    const [searchRelatedBlogs, setSearchRelatedBlogs] = useState("");
+
+    const filteredRelatedBlogs = allData.allBlogs.filter(blog => {
+        const matchesSearch = blog.blog_title.toLowerCase().includes(searchRelatedBlogs.toLowerCase());
+        const isNotCurrentBlog = blog.id !== Number(blogId);
+        return matchesSearch && isNotCurrentBlog;
+    });
 
     const form = useForm({
         resolver: zodResolver(blogSchema),
@@ -595,24 +602,42 @@ const BlogForm = () => {
             </div>
             {isPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202124]/40 p-4">
-                    <div className="w-full max-w-md rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
+                    <div className="w-full max-w-2xl rounded-[24px] border border-[var(--border)] bg-[var(--bg-inset)] p-6 shadow-[0_10px_28px_rgba(15,23,42,0.10)]">
                         <h3 className="text-xl font-semibold text-[var(--text-strong)]">Select Related Blogs</h3>
                         <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                             Choose supporting posts that should appear alongside this blog.
                         </p>
+                        <div className="mt-5 rounded-[20px] bg-[var(--bg-inset)]">
+                            <div className="">
+                                <input
+                                    id="search-related-blogs"
+                                    type="text"
+                                    value={searchRelatedBlogs}
+                                    onChange={(e) => setSearchRelatedBlogs(e.target.value)}
+                                    placeholder="Search related Blogs..."
+                                    className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[var(--accent)] focus:outline-none"
+                                />
+                            </div>
+                        </div>
                         <div className="mt-5 max-h-80 space-y-2 overflow-y-auto rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
-                            {allData.allBlogs.filter(blog => blog.id !== Number(blogId)).map(blog => (
-                                <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-black/[0.03]">
-                                    <input
-                                        type="checkbox"
-                                        id={`blog-${blog.id}`}
-                                        checked={relatedBlogs.includes(blog.id)}
-                                        onChange={() => handleBlogSelect(blog.id)}
-                                        className="mt-1 h-4 w-4 accent-[#bce2e6]"
-                                    />
-                                    <span className="text-sm leading-6 text-[var(--text)]">{blog.blog_title}</span>
-                                </label>
-                            ))}
+                            {filteredRelatedBlogs.length > 0 ? (
+                                <>
+                                    {filteredRelatedBlogs.map(blog => (
+                                        <label key={blog.id} className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-black/[0.03]">
+                                            <input
+                                                type="checkbox"
+                                                id={`blog-${blog.id}`}
+                                                checked={relatedBlogs.includes(blog.id)}
+                                                onChange={() => handleBlogSelect(blog.id)}
+                                                className="mt-1 h-4 w-4 accent-[#bce2e6]"
+                                            />
+                                            <span className="text-sm leading-6 text-[var(--text)]">{blog.blog_title}</span>
+                                        </label>
+                                    ))}
+                                </>
+                            ): (
+                                <p className="text-sm leading-6 text-[var(--text-muted)]">No related blogs found</p>
+                            )}
                         </div>
                         <div className="mt-5 flex justify-end gap-3">
                             <button
