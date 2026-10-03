@@ -100,6 +100,7 @@ const formatDisplayValue = (value: string) => {
 const BlogSidebar = ({ register, publishDate, categories, category, setValue, image, handleRemoveImage, setIsCategoryModalOpen, setIsUploadModalOpen, setMediaFor, globalStatus, blogId, authors }: BlogSidebarProps) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [currentLocalDateTime, setCurrentLocalDateTime] = useState(formatInputDateTime(getNow()));
+    const [categorySearch, setCategorySearch] = useState("");
     const pickerRef = useRef<HTMLDivElement>(null);
     const disabledPicker = blogId !== null && globalStatus === 'publish';
 
@@ -224,6 +225,10 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
             shouldValidate: true,
         });
     };
+
+    const filteredCategories = categories.filter((category) =>
+        category.name.toLowerCase().includes(categorySearch.toLowerCase())
+    );
 
     return (
         <>
@@ -445,7 +450,7 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                 Category
                             </p>
 
-                            <div className="max-h-52 space-y-2 overflow-y-auto rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
+                            <div className="max-h-82 space-y-2 overflow-y-auto rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-4">
                                 <div className="pb-2">
                                     <button
                                         id="add-category-trigger"
@@ -457,7 +462,25 @@ const BlogSidebar = ({ register, publishDate, categories, category, setValue, im
                                     </button>
                                 </div>
 
-                                {categories.map((cat) => (
+
+                                <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-inset)] p-3">
+                                    <div className="space-y-2.5">
+                                        <label htmlFor="search-tags" className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-subtle)]">
+                                            Search Category
+                                        </label>
+
+                                        <input
+                                            id="search-tags"
+                                            type="text"
+                                            value={categorySearch}
+                                            onChange={(e) => setCategorySearch(e.target.value)}
+                                            placeholder="Search categories..."
+                                            className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-faint)] transition focus:border-[var(--accent)] focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {filteredCategories.map((cat) => (
                                     <label key={cat.id} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-black/[0.03]">
                                         <input
                                             id={`sidebar-category-${cat.id}`}
